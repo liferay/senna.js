@@ -1,6 +1,7 @@
 {
   "asi": false,
   "bitwise": false,
+  "browser": true,
   "curly": true,
   "eqeqeq": true,
   "esnext": true,
