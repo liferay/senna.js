@@ -1,7 +1,7 @@
 'use strict';
 
 (function(window, undefined) {
-  var senna = window.senna = window.senna || {};
+  window.senna = window.senna || {};
 
   /**
    * Inherits the prototype methods from one constructor into another.
