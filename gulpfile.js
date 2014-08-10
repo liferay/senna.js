@@ -1,5 +1,6 @@
 'use strict';
 var gulp = require('gulp');
+var merge = require('merge-stream');
 var pkg = require('./package.json');
 var plugins = require('gulp-load-plugins')();
 var stylish = require('jshint-stylish');
@@ -10,19 +11,24 @@ gulp.task('clean', function() {
 
 gulp.task('build', ['clean'], function() {
   var files = [
-    'src/senna.js'
+    'src/senna.js',
+    'src/third-party/promise.js'
   ];
 
-  return gulp.src(files)
+  var raw = gulp.src(files)
     .pipe(plugins.concat('senna.js'))
     .pipe(banner())
-    .pipe(gulp.dest('build'))
-    .pipe(plugins.uglify())
-    .pipe(plugins.rename(function(filepath) {
-      filepath.basename += '-min';
+    .pipe(gulp.dest('build'));
+
+  var min = gulp.src(files)
+    .pipe(plugins.uglify({
+      preserveComments: 'some'
     }))
+    .pipe(plugins.concat('senna-min.js'))
     .pipe(banner())
     .pipe(gulp.dest('build'));
+
+  return merge(raw, min);
 });
 
 gulp.task('docs', function() {
