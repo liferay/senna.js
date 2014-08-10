@@ -7,6 +7,9 @@
   "esnext": true,
   "evil": false,
   "forin": false,
+  "globals": {
+    "senna": true
+  },
   "immed": true,
   "indent": 2,
   "lastsemic": false,
