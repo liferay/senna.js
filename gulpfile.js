@@ -4,6 +4,7 @@ var merge = require('merge-stream');
 var pkg = require('./package.json');
 var plugins = require('gulp-load-plugins')();
 var stylish = require('jshint-stylish');
+var args = require('yargs').argv;
 
 gulp.task('clean', function() {
   return gulp.src('build').pipe(plugins.rimraf());
@@ -18,6 +19,7 @@ gulp.task('build', ['clean'], function() {
   var raw = gulp.src(files)
     .pipe(plugins.concat('senna.js'))
     .pipe(banner())
+    .pipe(plugins.if(!args.debug, plugins.stripDebug()))
     .pipe(gulp.dest('build'));
 
   var min = gulp.src(files)
@@ -26,6 +28,7 @@ gulp.task('build', ['clean'], function() {
     }))
     .pipe(plugins.concat('senna-min.js'))
     .pipe(banner())
+    .pipe(plugins.if(!args.debug, plugins.stripDebug()))
     .pipe(gulp.dest('build'));
 
   return merge(raw, min);
