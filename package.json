@@ -1,5 +1,5 @@
 {
-  "name": "senna.js",
+  "name": "senna",
   "version": "1.0.0",
   "description": "A modern approach for Single Page Application that feels like a website.",
   "homepage": "http://sennajs.com",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:eduardolundgren/senna.js.git"
+    "url": "git@github.com:eduardolundgren/senna.git"
   },
   "scripts": {
     "test": "gulp test"
