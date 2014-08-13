@@ -49,7 +49,7 @@ a {
   width: 100%;
   height: 40px;
   position: relative;
-  background: rgb(37, 42, 58);
+  background: #142860;
   text-align: center;
 }
 
@@ -89,7 +89,7 @@ a {
 
 #nav .pure-menu a:hover,
 #nav .pure-menu a:focus {
-  background: rgb(55, 60, 90);
+  background: #011651;
 }
 #nav .pure-menu a {
   color: #fff;
@@ -119,13 +119,13 @@ a {
   border-radius: 3px;
 }
 .email-label-personal {
-  background: #ffc94c;
+  background: #ffe000;
 }
 .email-label-work {
   background: #41ccb4;
 }
 .email-label-travel {
-  background: #40c365;
+  background: #009d34;
 }
 
 /* Email Item Styles */
