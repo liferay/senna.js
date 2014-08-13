@@ -1,0 +1,26 @@
+{
+  "name": "senna",
+  "version": "0.0.0",
+  "homepage": "http://sennajs.com",
+  "authors": [
+    "Eduardo Lundgren <edu@rdo.io>"
+  ],
+  "description": "TODO: Write description",
+  "main": "src/senna.js",
+  "keywords": [
+    "spa",
+    "single",
+    "page",
+    "apps"
+  ],
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "devDependencies": {
+    "pure": "~0.5.0"
+  }
+}
