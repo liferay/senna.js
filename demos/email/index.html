@@ -19,7 +19,7 @@
 
         <div class="pure-menu pure-menu-open">
           <ul>
-            <li><a href="#">Inbox <span class="email-count">(2)</span></a></li>
+            <li><a href="#">Inbox <span class="email-count"></span></a></li>
             <li><a href="#">Important</a></li>
             <li><a href="#">Sent</a></li>
             <li><a href="#">Drafts</a></li>
@@ -179,6 +179,11 @@
       e.preventDefault();
       nav.classList.toggle('active');
     });
+
+    var emailCount = document.querySelector('.email-count'),
+        emailItems = document.querySelectorAll('.email-item');
+
+    emailCount.innerHTML = '(' + emailItems.length + ')';
   </script>
 </body>
 </html>
