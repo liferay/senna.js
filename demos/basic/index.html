@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Basic</title>
+  <script src="../../build/senna.js"></script>
+</head>
+<body>
+  <div id="header">
+    <div id="header-default">
+      Header default
+      <a href="foo.html">Foo</a>
+    </div>
+  </div>
+  <div id="content">
+    <div id="content-default">
+      Content default <a href="index.html">Bar</a>
+    </div>
+  </div>
+  <div id="scripts">
+    <script>
+    if (!app) {
+      console.log('Initializing App');
+      var app = new senna.App();
+      app.setBasePath('/senna/demos/basic');
+      app.addSurfaces(['header', 'content', 'scripts']);
+      app.addRoutes([
+        {
+          path: '/index.html',
+          screen: senna.HtmlScreen
+        },
+        {
+          path: '/foo.html',
+          screen: senna.HtmlScreen
+        }
+      ]);
+    }
+    </script>
+  </div>
+</body>
+</html>
