@@ -10,23 +10,15 @@
 'use strict';
 
 (function(window) {
-  var goog = {};
-
-  goog.bind = senna.bind;
-  goog.inherits = senna.inherits;
-  goog.isDef = senna.isDef;
-  goog.isFunction = senna.isFunction;
-  goog.isObject = senna.isObject;
-
   /**
    * Provides a more strict interface for Thenables in terms of
-   * http://promisesaplus.com for interop with {@see goog.Promise}.
+   * http://promisesaplus.com for interop with {@see senna.Promise}.
    *
    * @interface
    * @extends {IThenable.<TYPE>}
    * @template TYPE
    */
-  goog.Thenable = function() {};
+  senna.Thenable = function() {};
 
 
   /**
@@ -52,22 +44,22 @@
    * @param {THIS=} opt_context An optional context object that will be the
    *     execution context for the callbacks. By default, functions are executed
    *     with the default this.
-   * @return {!goog.Promise.<RESULT>} A new Promise that will receive the result
+   * @return {!senna.Promise.<RESULT>} A new Promise that will receive the result
    *     of the fulfillment or rejection callback.
    * @template RESULT,THIS
    */
-  goog.Thenable.prototype.then = function() {};
+  senna.Thenable.prototype.then = function() {};
 
 
   /**
    * An expando property to indicate that an object implements
-   * {@code goog.Thenable}.
+   * {@code senna.Thenable}.
    *
    * {@see addImplementation}.
    *
    * @const
    */
-  goog.Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
+  senna.Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
 
 
   /**
@@ -75,12 +67,12 @@
    * that we can query that fact at runtime. The class must have already
    * implemented the interface.
    * Exports a 'then' method on the constructor prototype, so that the objects
-   * also implement the extern {@see goog.Thenable} interface for interop with
+   * also implement the extern {@see senna.Thenable} interface for interop with
    * other Promise implementations.
-   * @param {function(new:goog.Thenable,...[?])} ctor The class constructor. The
+   * @param {function(new:senna.Thenable,...[?])} ctor The class constructor. The
    *     corresponding class must have already implemented the interface.
    */
-  goog.Thenable.addImplementation = function(ctor) {
+  senna.Thenable.addImplementation = function(ctor) {
     ctor.prototype.then = ctor.prototype.then;
     ctor.prototype.$goog_Thenable = true;
   };
@@ -88,10 +80,10 @@
 
   /**
    * @param {*} object
-   * @return {boolean} Whether a given instance implements {@code goog.Thenable}.
+   * @return {boolean} Whether a given instance implements {@code senna.Thenable}.
    *     The class/superclass of the instance must call {@code addImplementation}.
    */
-  goog.Thenable.isImplementedBy = function(object) {
+  senna.Thenable.isImplementedBy = function(object) {
     if (!object) {
       return false;
     }
@@ -117,7 +109,7 @@
    * @return {!Function} A partially-applied form of the function bind() was
    *     invoked as a method of.
    */
-  goog.partial = function(fn) {
+  senna.partial = function(fn) {
     var args = Array.prototype.slice.call(arguments, 1);
     return function() {
       // Clone the array (with slice()) and append additional arguments
@@ -129,7 +121,7 @@
   };
 
 
-  goog.async = {};
+  senna.async = {};
 
 
   /**
@@ -139,9 +131,9 @@
    * processed.
    * @param {*} exception
    */
-  goog.async.throwException = function(exception) {
+  senna.async.throwException = function(exception) {
     // Each throw needs to be in its own context.
-    goog.async.nextTick(function() {
+    senna.async.nextTick(function() {
       throw exception;
     });
   };
@@ -155,48 +147,48 @@
    *     the provided function.
    * @template THIS
    */
-  goog.async.run = function(callback, opt_context) {
-    if (!goog.async.run.workQueueScheduled_) {
+  senna.async.run = function(callback, opt_context) {
+    if (!senna.async.run.workQueueScheduled_) {
       // Nothing is currently scheduled, schedule it now.
-      goog.async.nextTick(goog.async.run.processWorkQueue);
-      goog.async.run.workQueueScheduled_ = true;
+      senna.async.nextTick(senna.async.run.processWorkQueue);
+      senna.async.run.workQueueScheduled_ = true;
     }
 
-    goog.async.run.workQueue_.push(
-      new goog.async.run.WorkItem_(callback, opt_context));
+    senna.async.run.workQueue_.push(
+      new senna.async.run.WorkItem_(callback, opt_context));
   };
 
 
   /** @private {boolean} */
-  goog.async.run.workQueueScheduled_ = false;
+  senna.async.run.workQueueScheduled_ = false;
 
 
-  /** @private {!Array.<!goog.async.run.WorkItem_>} */
-  goog.async.run.workQueue_ = [];
+  /** @private {!Array.<!senna.async.run.WorkItem_>} */
+  senna.async.run.workQueue_ = [];
 
   /**
-   * Run any pending goog.async.run work items. This function is not intended
+   * Run any pending senna.async.run work items. This function is not intended
    * for general use, but for use by entry point handlers to run items ahead of
-   * goog.async.nextTick.
+   * senna.async.nextTick.
    */
-  goog.async.run.processWorkQueue = function() {
+  senna.async.run.processWorkQueue = function() {
     // NOTE: additional work queue items may be pushed while processing.
-    while (goog.async.run.workQueue_.length) {
+    while (senna.async.run.workQueue_.length) {
       // Don't let the work queue grow indefinitely.
-      var workItems = goog.async.run.workQueue_;
-      goog.async.run.workQueue_ = [];
+      var workItems = senna.async.run.workQueue_;
+      senna.async.run.workQueue_ = [];
       for (var i = 0; i < workItems.length; i++) {
         var workItem = workItems[i];
         try {
           workItem.fn.call(workItem.scope);
         } catch (e) {
-          goog.async.throwException(e);
+          senna.async.throwException(e);
         }
       }
     }
 
     // There are no more work items, reset the work queue.
-    goog.async.run.workQueueScheduled_ = false;
+    senna.async.run.workQueueScheduled_ = false;
   };
 
 
@@ -209,7 +201,7 @@
    * @param {function()} fn
    * @param {Object|null|undefined} scope
    */
-  goog.async.run.WorkItem_ = function(fn, scope) {
+  senna.async.run.WorkItem_ = function(fn, scope) {
     /** @const */
     this.fn = fn;
     /** @const */
@@ -226,22 +218,22 @@
    * @param {SCOPE=} opt_context Object in whose scope to call the listener.
    * @template SCOPE
    */
-  goog.async.nextTick = function(callback, opt_context) {
+  senna.async.nextTick = function(callback, opt_context) {
     var cb = callback;
     if (opt_context) {
-      cb = goog.bind(callback, opt_context);
+      cb = senna.bind(callback, opt_context);
     }
-    cb = goog.async.nextTick.wrapCallback_(cb);
+    cb = senna.async.nextTick.wrapCallback_(cb);
     // Introduced and currently only supported by IE10.
-    if (goog.isFunction(window.setImmediate)) {
+    if (senna.isFunction(window.setImmediate)) {
       window.setImmediate(cb);
       return;
     }
     // Look for and cache the custom fallback version of setImmediate.
-    if (!goog.async.nextTick.setImmediate_) {
-      goog.async.nextTick.setImmediate_ = goog.async.nextTick.getSetImmediateEmulator_();
+    if (!senna.async.nextTick.setImmediate_) {
+      senna.async.nextTick.setImmediate_ = senna.async.nextTick.getSetImmediateEmulator_();
     }
-    goog.async.nextTick.setImmediate_(cb);
+    senna.async.nextTick.setImmediate_(cb);
   };
 
 
@@ -250,7 +242,7 @@
    * @type {function(function())}
    * @private
    */
-  goog.async.nextTick.setImmediate_ = null;
+  senna.async.nextTick.setImmediate_ = null;
 
 
   /**
@@ -259,7 +251,7 @@
    * @return {function(function())} The "setImmediate" implementation.
    * @private
    */
-  goog.async.nextTick.getSetImmediateEmulator_ = function() {
+  senna.async.nextTick.getSetImmediateEmulator_ = function() {
     // Create a private message channel and use it to postMessage empty messages
     // to ourselves.
     var Channel = window.MessageChannel;
@@ -283,7 +275,7 @@
         doc.close();
         var message = 'callImmediate' + Math.random();
         var origin = win.location.protocol + '//' + win.location.host;
-        var onmessage = goog.bind(function(e) {
+        var onmessage = senna.bind(function(e) {
           // Validate origin and message to make sure that this message was
           // intended for us.
           if (e.origin !== origin && e.data !== message) {
@@ -351,7 +343,7 @@
    * @return {function()} The wrapped callback.
    * @private
    */
-  goog.async.nextTick.wrapCallback_ = function(opt_returnValue) {
+  senna.async.nextTick.wrapCallback_ = function(opt_returnValue) {
     return opt_returnValue;
   };
 
@@ -401,16 +393,16 @@
    * @constructor
    * @struct
    * @final
-   * @implements {goog.Thenable.<TYPE>}
+   * @implements {senna.Thenable.<TYPE>}
    * @template TYPE,RESOLVER_CONTEXT
    */
-  goog.Promise = function(resolver, opt_context) {
+  senna.Promise = function(resolver, opt_context) {
     /**
      * The internal state of this Promise. Either PENDING, FULFILLED, REJECTED, or
      * BLOCKED.
-     * @private {goog.Promise.State_}
+     * @private {senna.Promise.State_}
      */
-    this.state_ = goog.Promise.State_.PENDING;
+    this.state_ = senna.Promise.State_.PENDING;
 
     /**
      * The resolved result of the Promise. Immutable once set with either a
@@ -421,14 +413,14 @@
 
     /**
      * For Promises created by calling {@code then()}, the originating parent.
-     * @private {goog.Promise}
+     * @private {senna.Promise}
      */
     this.parent_ = null;
 
     /**
      * The list of {@code onFulfilled} and {@code onRejected} callbacks added to
      * this Promise by calls to {@code then()}.
-     * @private {Array.<goog.Promise.CallbackEntry_>}
+     * @private {Array.<senna.Promise.CallbackEntry_>}
      */
     this.callbackEntries_ = null;
 
@@ -438,7 +430,7 @@
      */
     this.executing_ = false;
 
-    if (goog.Promise.UNHANDLED_REJECTION_DELAY > 0) {
+    if (senna.Promise.UNHANDLED_REJECTION_DELAY > 0) {
       /**
        * A timeout ID used when the {@code UNHANDLED_REJECTION_DELAY} is greater
        * than 0 milliseconds. The ID is set when the Promise is rejected, and
@@ -450,7 +442,7 @@
        * @private {number}
        */
       this.unhandledRejectionId_ = 0;
-    } else if (goog.Promise.UNHANDLED_REJECTION_DELAY === 0) {
+    } else if (senna.Promise.UNHANDLED_REJECTION_DELAY === 0) {
       /**
        * When the {@code UNHANDLED_REJECTION_DELAY} is set to 0 milliseconds, a
        * boolean that is set if the Promise is rejected, and reset to false if an
@@ -466,12 +458,12 @@
       var self = this;
       resolver.call(
         opt_context, function(value) {
-          self.resolve_(goog.Promise.State_.FULFILLED, value);
+          self.resolve_(senna.Promise.State_.FULFILLED, value);
         }, function(reason) {
-          self.resolve_(goog.Promise.State_.REJECTED, reason);
+          self.resolve_(senna.Promise.State_.REJECTED, reason);
         });
     } catch (e) {
-      this.resolve_(goog.Promise.State_.REJECTED, e);
+      this.resolve_(senna.Promise.State_.REJECTED, e);
     }
   };
 
@@ -484,7 +476,7 @@
    * Rejections are rethrown as quickly as possible by default. A negative value
    * disables rejection handling entirely.
    */
-  goog.Promise.UNHANDLED_REJECTION_DELAY = 0;
+  senna.Promise.UNHANDLED_REJECTION_DELAY = 0;
 
 
   /**
@@ -493,7 +485,7 @@
    * @enum {number}
    * @private
    */
-  goog.Promise.State_ = {
+  senna.Promise.State_ = {
     /** The Promise is waiting for resolution. */
     PENDING: 0,
 
@@ -514,23 +506,23 @@
    * functions that may be invoked once the Promise is resolved.
    *
    * @typedef {{
-   *   child: goog.Promise,
+   *   child: senna.Promise,
    *   onFulfilled: function(*),
    *   onRejected: function(*)
    * }}
    * @private
    */
-  goog.Promise.CallbackEntry_ = null;
+  senna.Promise.CallbackEntry_ = null;
 
 
   /**
-   * @param {(TYPE|goog.Thenable.<TYPE>|Thenable)=} opt_value
-   * @return {!goog.Promise.<TYPE>} A new Promise that is immediately resolved
+   * @param {(TYPE|senna.Thenable.<TYPE>|Thenable)=} opt_value
+   * @return {!senna.Promise.<TYPE>} A new Promise that is immediately resolved
    *     with the given value.
    * @template TYPE
    */
-  goog.Promise.resolve = function(opt_value) {
-    return new goog.Promise(function(resolve) {
+  senna.Promise.resolve = function(opt_value) {
+    return new senna.Promise(function(resolve) {
         resolve(opt_value);
       });
   };
@@ -538,24 +530,24 @@
 
   /**
    * @param {*=} opt_reason
-   * @return {!goog.Promise} A new Promise that is immediately rejected with the
+   * @return {!senna.Promise} A new Promise that is immediately rejected with the
    *     given reason.
    */
-  goog.Promise.reject = function(opt_reason) {
-    return new goog.Promise(function(resolve, reject) {
+  senna.Promise.reject = function(opt_reason) {
+    return new senna.Promise(function(resolve, reject) {
         reject(opt_reason);
       });
   };
 
 
   /**
-   * @param {!Array.<!(goog.Thenable.<TYPE>|Thenable)>} promises
-   * @return {!goog.Promise.<TYPE>} A Promise that receives the result of the
+   * @param {!Array.<!(senna.Thenable.<TYPE>|Thenable)>} promises
+   * @return {!senna.Promise.<TYPE>} A Promise that receives the result of the
    *     first Promise (or Promise-like) input to complete.
    * @template TYPE
    */
-  goog.Promise.race = function(promises) {
-    return new goog.Promise(function(resolve, reject) {
+  senna.Promise.race = function(promises) {
+    return new senna.Promise(function(resolve, reject) {
         if (!promises.length) {
           resolve(undefined);
         }
@@ -567,14 +559,14 @@
 
 
   /**
-   * @param {!Array.<!(goog.Thenable.<TYPE>|Thenable)>} promises
-   * @return {!goog.Promise.<!Array.<TYPE>>} A Promise that receives a list of
+   * @param {!Array.<!(senna.Thenable.<TYPE>|Thenable)>} promises
+   * @return {!senna.Promise.<!Array.<TYPE>>} A Promise that receives a list of
    *     every fulfilled value once every input Promise (or Promise-like) is
    *     successfully fulfilled, or is rejected by the first rejection result.
    * @template TYPE
    */
-  goog.Promise.all = function(promises) {
-    return new goog.Promise(function(resolve, reject) {
+  senna.Promise.all = function(promises) {
+    return new senna.Promise(function(resolve, reject) {
         var toFulfill = promises.length;
         var values = [];
 
@@ -596,21 +588,21 @@
         };
 
         for (var i = 0, promise; (promise = promises[i]); i++) {
-          promise.then(goog.partial(onFulfill, i), onReject);
+          promise.then(senna.partial(onFulfill, i), onReject);
         }
       });
   };
 
 
   /**
-   * @param {!Array.<!(goog.Thenable.<TYPE>|Thenable)>} promises
-   * @return {!goog.Promise.<TYPE>} A Promise that receives the value of the first
+   * @param {!Array.<!(senna.Thenable.<TYPE>|Thenable)>} promises
+   * @return {!senna.Promise.<TYPE>} A Promise that receives the value of the first
    *     input to be fulfilled, or is rejected with a list of every rejection
    *     reason if all inputs are rejected.
    * @template TYPE
    */
-  goog.Promise.firstFulfilled = function(promises) {
-    return new goog.Promise(function(resolve, reject) {
+  senna.Promise.firstFulfilled = function(promises) {
+    return new senna.Promise(function(resolve, reject) {
         var toReject = promises.length;
         var reasons = [];
 
@@ -632,7 +624,7 @@
         };
 
         for (var i = 0, promise; (promise = promises[i]); i++) {
-          promise.then(onFulfill, goog.partial(onReject, i));
+          promise.then(onFulfill, senna.partial(onReject, i));
         }
       });
   };
@@ -653,15 +645,15 @@
    *
    * @override
    */
-  goog.Promise.prototype.then = function(
+  senna.Promise.prototype.then = function(
   opt_onFulfilled, opt_onRejected, opt_context) {
 
     return this.addChildPromise_(
-      goog.isFunction(opt_onFulfilled) ? opt_onFulfilled : null,
-      goog.isFunction(opt_onRejected) ? opt_onRejected : null,
+      senna.isFunction(opt_onFulfilled) ? opt_onFulfilled : null,
+      senna.isFunction(opt_onRejected) ? opt_onRejected : null,
       opt_context);
   };
-  goog.Thenable.addImplementation(goog.Promise);
+  senna.Thenable.addImplementation(senna.Promise);
 
 
   /**
@@ -682,16 +674,16 @@
    * @param {THIS=} opt_context An optional context object that will be the
    *     execution context for the callbacks. By default, functions are executed
    *     in the global scope.
-   * @return {!goog.Promise.<TYPE>} This Promise, for chaining additional calls.
+   * @return {!senna.Promise.<TYPE>} This Promise, for chaining additional calls.
    * @template THIS
    */
-  goog.Promise.prototype.thenAlways = function(onResolved, opt_context) {
+  senna.Promise.prototype.thenAlways = function(onResolved, opt_context) {
     var callback = function() {
       try {
         // Ensure that no arguments are passed to onResolved.
         onResolved.call(opt_context);
       } catch (err) {
-        goog.Promise.handleRejection_.call(null, err);
+        senna.Promise.handleRejection_.call(null, err);
       }
     };
 
@@ -713,11 +705,11 @@
    * @param {THIS=} opt_context An optional context object that will be the
    *     execution context for the callbacks. By default, functions are executed
    *     in the global scope.
-   * @return {!goog.Promise} A new Promise that will receive the result of the
+   * @return {!senna.Promise} A new Promise that will receive the result of the
    *     callback.
    * @template THIS
    */
-  goog.Promise.prototype.thenCatch = function(onRejected, opt_context) {
+  senna.Promise.prototype.thenCatch = function(onRejected, opt_context) {
     return this.addChildPromise_(null, onRejected, opt_context);
   };
 
@@ -734,10 +726,10 @@
    * @param {string=} opt_message An optional debugging message for describing the
    *     cancellation reason.
    */
-  goog.Promise.prototype.cancel = function(opt_message) {
-    if (this.state_ === goog.Promise.State_.PENDING) {
-      goog.async.run(function() {
-        var err = new goog.Promise.CancellationError(opt_message);
+  senna.Promise.prototype.cancel = function(opt_message) {
+    if (this.state_ === senna.Promise.State_.PENDING) {
+      senna.async.run(function() {
+        var err = new senna.Promise.CancellationError(opt_message);
         this.cancelInternal_(err);
       }, this);
     }
@@ -750,13 +742,13 @@
    * @param {!Error} err The cancellation error.
    * @private
    */
-  goog.Promise.prototype.cancelInternal_ = function(err) {
-    if (this.state_ === goog.Promise.State_.PENDING) {
+  senna.Promise.prototype.cancelInternal_ = function(err) {
+    if (this.state_ === senna.Promise.State_.PENDING) {
       if (this.parent_) {
         // Cancel the Promise and remove it from the parent's child list.
         this.parent_.cancelChild_(this, err);
       } else {
-        this.resolve_(goog.Promise.State_.REJECTED, err);
+        this.resolve_(senna.Promise.State_.REJECTED, err);
       }
     }
   };
@@ -768,11 +760,11 @@
    * other children in the list of callback entries, propagate the cancellation
    * by canceling this Promise as well.
    *
-   * @param {!goog.Promise} childPromise The Promise to cancel.
+   * @param {!senna.Promise} childPromise The Promise to cancel.
    * @param {!Error} err The cancel error to use for rejecting the Promise.
    * @private
    */
-  goog.Promise.prototype.cancelChild_ = function(childPromise, err) {
+  senna.Promise.prototype.cancelChild_ = function(childPromise, err) {
     if (!this.callbackEntries_) {
       return;
     }
@@ -797,12 +789,12 @@
     // If the child Promise was the only child, cancel this Promise as well.
     // Otherwise, reject only the child Promise with the cancel error.
     if (childIndex >= 0) {
-      if (this.state_ === goog.Promise.State_.PENDING && childCount === 1) {
+      if (this.state_ === senna.Promise.State_.PENDING && childCount === 1) {
         this.cancelInternal_(err);
       } else {
         var callbackEntry = this.callbackEntries_.splice(childIndex, 1)[0];
         this.executeCallback_(
-          callbackEntry, goog.Promise.State_.REJECTED, err);
+          callbackEntry, senna.Promise.State_.REJECTED, err);
       }
     }
   };
@@ -812,15 +804,15 @@
    * Adds a callback entry to the current Promise, and schedules callback
    * execution if the Promise has already been resolved.
    *
-   * @param {goog.Promise.CallbackEntry_} callbackEntry Record containing
+   * @param {senna.Promise.CallbackEntry_} callbackEntry Record containing
    *     {@code onFulfilled} and {@code onRejected} callbacks to execute after
    *     the Promise is resolved.
    * @private
    */
-  goog.Promise.prototype.addCallbackEntry_ = function(callbackEntry) {
+  senna.Promise.prototype.addCallbackEntry_ = function(callbackEntry) {
     if ((!this.callbackEntries_ || !this.callbackEntries_.length) &&
-      (this.state_ === goog.Promise.State_.FULFILLED ||
-      this.state_ === goog.Promise.State_.REJECTED)) {
+      (this.state_ === senna.Promise.State_.FULFILLED ||
+      this.state_ === senna.Promise.State_.REJECTED)) {
       this.scheduleCallbacks_();
     }
     if (!this.callbackEntries_) {
@@ -839,17 +831,17 @@
    * @see http://promisesaplus.com/#the__method
    *
    * @param {?function(this:THIS, TYPE):
-   *          (RESULT|goog.Promise.<RESULT>|Thenable)} onFulfilled A callback that
+   *          (RESULT|senna.Promise.<RESULT>|Thenable)} onFulfilled A callback that
    *     will be invoked if the Promise is fullfilled, or null.
    * @param {?function(this:THIS, *): *} onRejected A callback that will be
    *     invoked if the Promise is rejected, or null.
    * @param {THIS=} opt_context An optional execution context for the callbacks.
    *     in the default calling context.
-   * @return {!goog.Promise} The child Promise.
+   * @return {!senna.Promise} The child Promise.
    * @template RESULT,THIS
    * @private
    */
-  goog.Promise.prototype.addChildPromise_ = function(
+  senna.Promise.prototype.addChildPromise_ = function(
   onFulfilled, onRejected, opt_context) {
 
     var callbackEntry = {
@@ -858,7 +850,7 @@
       onRejected: null
     };
 
-    callbackEntry.child = new goog.Promise(function(resolve, reject) {
+    callbackEntry.child = new senna.Promise(function(resolve, reject) {
       // Invoke onFulfilled, or resolve with the parent's value if absent.
       callbackEntry.onFulfilled = onFulfilled ? function(value) {
         try {
@@ -873,8 +865,8 @@
       callbackEntry.onRejected = onRejected ? function(reason) {
         try {
           var result = onRejected.call(opt_context, reason);
-          if (!goog.isDef(result) &&
-            reason instanceof goog.Promise.CancellationError) {
+          if (!senna.isDef(result) &&
+            reason instanceof senna.Promise.CancellationError) {
             // Propagate cancellation to children if no other result is returned.
             reject(reason);
           } else {
@@ -888,7 +880,7 @@
 
     callbackEntry.child.parent_ = this;
     this.addCallbackEntry_(
-      /** @type {goog.Promise.CallbackEntry_} */ (callbackEntry));
+      /** @type {senna.Promise.CallbackEntry_} */ (callbackEntry));
     return callbackEntry.child;
   };
 
@@ -899,12 +891,12 @@
    * @param {TYPE} value
    * @private
    */
-  goog.Promise.prototype.unblockAndFulfill_ = function(value) {
-    if (this.state_ !== goog.Promise.State_.BLOCKED) {
+  senna.Promise.prototype.unblockAndFulfill_ = function(value) {
+    if (this.state_ !== senna.Promise.State_.BLOCKED) {
       throw new Error('Promise is not blocked.');
     }
-    this.state_ = goog.Promise.State_.PENDING;
-    this.resolve_(goog.Promise.State_.FULFILLED, value);
+    this.state_ = senna.Promise.State_.PENDING;
+    this.resolve_(senna.Promise.State_.FULFILLED, value);
   };
 
 
@@ -914,12 +906,12 @@
    * @param {*} reason
    * @private
    */
-  goog.Promise.prototype.unblockAndReject_ = function(reason) {
-    if (this.state_ !== goog.Promise.State_.BLOCKED) {
+  senna.Promise.prototype.unblockAndReject_ = function(reason) {
+    if (this.state_ !== senna.Promise.State_.BLOCKED) {
       throw new Error('Promise is not blocked.');
     }
-    this.state_ = goog.Promise.State_.PENDING;
-    this.resolve_(goog.Promise.State_.REJECTED, reason);
+    this.state_ = senna.Promise.State_.PENDING;
+    this.resolve_(senna.Promise.State_.REJECTED, reason);
   };
 
 
@@ -936,34 +928,34 @@
    *
    * @see http://promisesaplus.com/#the_promise_resolution_procedure
    *
-   * @param {goog.Promise.State_} state
+   * @param {senna.Promise.State_} state
    * @param {*} x The result to apply to the Promise.
    * @private
    */
-  goog.Promise.prototype.resolve_ = function(state, x) {
-    if (this.state_ !== goog.Promise.State_.PENDING) {
+  senna.Promise.prototype.resolve_ = function(state, x) {
+    if (this.state_ !== senna.Promise.State_.PENDING) {
       return;
     }
 
     if (this === x) {
-      state = goog.Promise.State_.REJECTED;
+      state = senna.Promise.State_.REJECTED;
       x = new TypeError('Promise cannot resolve to itself');
 
-    } else if (goog.Thenable.isImplementedBy(x)) {
-      x = /** @type {!goog.Thenable} */ (x);
-      this.state_ = goog.Promise.State_.BLOCKED;
+    } else if (senna.Thenable.isImplementedBy(x)) {
+      x = /** @type {!senna.Thenable} */ (x);
+      this.state_ = senna.Promise.State_.BLOCKED;
       x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
       return;
 
-    } else if (goog.isObject(x)) {
+    } else if (senna.isObject(x)) {
       try {
         var then = x.then;
-        if (goog.isFunction(then)) {
+        if (senna.isFunction(then)) {
           this.tryThen_(x, then);
           return;
         }
       } catch (e) {
-        state = goog.Promise.State_.REJECTED;
+        state = senna.Promise.State_.REJECTED;
         x = e;
       }
     }
@@ -972,9 +964,9 @@
     this.state_ = state;
     this.scheduleCallbacks_();
 
-    if (state === goog.Promise.State_.REJECTED &&
-      !(x instanceof goog.Promise.CancellationError)) {
-      goog.Promise.addUnhandledRejection_(this, x);
+    if (state === senna.Promise.State_.REJECTED &&
+      !(x instanceof senna.Promise.CancellationError)) {
+      senna.Promise.addUnhandledRejection_(this, x);
     }
   };
 
@@ -993,8 +985,8 @@
    * @param {!Function} then The {@code then} method of the Thenable object.
    * @private
    */
-  goog.Promise.prototype.tryThen_ = function(thenable, then) {
-    this.state_ = goog.Promise.State_.BLOCKED;
+  senna.Promise.prototype.tryThen_ = function(thenable, then) {
+    this.state_ = senna.Promise.State_.BLOCKED;
     var promise = this;
     var called = false;
 
@@ -1036,10 +1028,10 @@
    *
    * @private
    */
-  goog.Promise.prototype.scheduleCallbacks_ = function() {
+  senna.Promise.prototype.scheduleCallbacks_ = function() {
     if (!this.executing_) {
       this.executing_ = true;
-      goog.async.run(this.executeCallbacks_, this);
+      senna.async.run(this.executeCallbacks_, this);
     }
   };
 
@@ -1049,7 +1041,7 @@
    *
    * @private
    */
-  goog.Promise.prototype.executeCallbacks_ = function() {
+  senna.Promise.prototype.executeCallbacks_ = function() {
     while (this.callbackEntries_ && this.callbackEntries_.length) {
       var entries = this.callbackEntries_;
       this.callbackEntries_ = [];
@@ -1066,16 +1058,16 @@
    * Executes a pending callback for this Promise. Invokes an {@code onFulfilled}
    * or {@code onRejected} callback based on the resolved state of the Promise.
    *
-   * @param {!goog.Promise.CallbackEntry_} callbackEntry An entry containing the
+   * @param {!senna.Promise.CallbackEntry_} callbackEntry An entry containing the
    *     onFulfilled and/or onRejected callbacks for this step.
-   * @param {goog.Promise.State_} state The resolution status of the Promise,
+   * @param {senna.Promise.State_} state The resolution status of the Promise,
    *     either FULFILLED or REJECTED.
    * @param {*} result The resolved result of the Promise.
    * @private
    */
-  goog.Promise.prototype.executeCallback_ = function(
+  senna.Promise.prototype.executeCallback_ = function(
   callbackEntry, state, result) {
-    if (state === goog.Promise.State_.FULFILLED) {
+    if (state === senna.Promise.State_.FULFILLED) {
       callbackEntry.onFulfilled(result);
     } else {
       this.removeUnhandledRejection_();
@@ -1091,14 +1083,14 @@
    *
    * @private
    */
-  goog.Promise.prototype.removeUnhandledRejection_ = function() {
+  senna.Promise.prototype.removeUnhandledRejection_ = function() {
     var p;
-    if (goog.Promise.UNHANDLED_REJECTION_DELAY > 0) {
+    if (senna.Promise.UNHANDLED_REJECTION_DELAY > 0) {
       for (p = this; p && p.unhandledRejectionId_; p = p.parent_) {
         clearTimeout(p.unhandledRejectionId_);
         p.unhandledRejectionId_ = 0;
       }
-    } else if (goog.Promise.UNHANDLED_REJECTION_DELAY === 0) {
+    } else if (senna.Promise.UNHANDLED_REJECTION_DELAY === 0) {
       for (p = this; p && p.hadUnhandledRejection_; p = p.parent_) {
         p.hadUnhandledRejection_ = false;
       }
@@ -1113,21 +1105,21 @@
    * handler typically rethrows the rejection reason so that it becomes visible in
    * the developer console.
    *
-   * @param {!goog.Promise} promise The rejected Promise.
+   * @param {!senna.Promise} promise The rejected Promise.
    * @param {*} reason The Promise rejection reason.
    * @private
    */
-  goog.Promise.addUnhandledRejection_ = function(promise, reason) {
-    if (goog.Promise.UNHANDLED_REJECTION_DELAY > 0) {
+  senna.Promise.addUnhandledRejection_ = function(promise, reason) {
+    if (senna.Promise.UNHANDLED_REJECTION_DELAY > 0) {
       promise.unhandledRejectionId_ = setTimeout(function() {
-        goog.Promise.handleRejection_.call(null, reason);
-      }, goog.Promise.UNHANDLED_REJECTION_DELAY);
+        senna.Promise.handleRejection_.call(null, reason);
+      }, senna.Promise.UNHANDLED_REJECTION_DELAY);
 
-    } else if (goog.Promise.UNHANDLED_REJECTION_DELAY === 0) {
+    } else if (senna.Promise.UNHANDLED_REJECTION_DELAY === 0) {
       promise.hadUnhandledRejection_ = true;
-      goog.async.run(function() {
+      senna.async.run(function() {
         if (promise.hadUnhandledRejection_) {
-          goog.Promise.handleRejection_.call(null, reason);
+          senna.Promise.handleRejection_.call(null, reason);
         }
       });
     }
@@ -1140,7 +1132,7 @@
    * @type {function(*)}
    * @private
    */
-  goog.Promise.handleRejection_ = goog.async.throwException;
+  senna.Promise.handleRejection_ = senna.async.throwException;
 
 
   /**
@@ -1153,10 +1145,10 @@
    * captured by the developer console or a {@code window.onerror} handler.
    *
    * @param {function(*)} handler A function that will be called with reasons from
-   *     rejected Promises. Defaults to {@code goog.async.throwException}.
+   *     rejected Promises. Defaults to {@code senna.async.throwException}.
    */
-  goog.Promise.setUnhandledRejectionHandler = function(handler) {
-    goog.Promise.handleRejection_ = handler;
+  senna.Promise.setUnhandledRejectionHandler = function(handler) {
+    senna.Promise.handleRejection_ = handler;
   };
 
 
@@ -1166,23 +1158,19 @@
    *
    * @param {string=} opt_message
    * @constructor
-   * @extends {goog.debug.Error}
+   * @extends {senna.debug.Error}
    * @final
    */
-  goog.Promise.CancellationError = function(opt_message) {
-    goog.Promise.CancellationError.base(this, 'constructor', opt_message);
+  senna.Promise.CancellationError = function(opt_message) {
+    senna.Promise.CancellationError.base(this, 'constructor', opt_message);
 
     if (opt_message) {
       this.message = opt_message;
     }
   };
-  goog.inherits(goog.Promise.CancellationError, Error);
+  senna.inherits(senna.Promise.CancellationError, Error);
 
 
   /** @override */
-  goog.Promise.CancellationError.prototype.name = 'cancel';
-
-  window.senna.nextTick = goog.async.nextTick;
-
-  window.senna.Promise = goog.Promise;
+  senna.Promise.CancellationError.prototype.name = 'cancel';
 }(window));
