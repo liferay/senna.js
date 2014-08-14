@@ -1,16 +1,468 @@
 'use strict';
 
-module.exports = {
-  setUp: function(done) {
-    done();
-  },
+describe('Senna', function() {
 
-  tearDown: function(done) {
-    done();
-  },
+  // Setup =====================================================================
 
-  testShouldSomething: function(test) {
-    test.ok(true, 'Should something.');
-    test.done();
-  }
-};
+  var app;
+
+  test.originalPath = test.getCurrentPath();
+
+  // Tests =====================================================================
+
+  beforeEach(function() {
+    app = new senna.App();
+    app.setBasePath('/base');
+    app.setDefaultTitle('default');
+
+    app.addSurfaces([
+      'body',
+      'unknown',
+      new senna.Surface('header')
+    ]);
+
+    app.addRoutes([
+      {
+        path: '/lazy',
+        screen: test.LazySurfaceScreen
+      },
+      {
+        path: '/locked',
+        screen: test.LockedScreen
+      },
+      {
+        path: test.queryStringRoute,
+        screen: test.QueryStringScreen
+      },
+      {
+        path: function(value) {
+          return value === '/delayed200ms';
+        },
+        screen: test.DelayedScreen
+      },
+      {
+        path: NaN,
+        screen: senna.Screen
+      },
+      new senna.Route('/page', test.PageScreen)
+    ]);
+  });
+
+  afterEach(function() {
+    app.destroy();
+    window.history.pushState(null, null, test.originalPath);
+  });
+
+  it('should find screen route from path', function(done) {
+    var route = app.matchesPath('/base/unknown');
+    assert.strictEqual(route, null);
+
+    route = app.matchesPath('/base/page');
+    assert.ok(route instanceof senna.Route);
+    assert.equal(route.getPath(), '/page');
+
+    route = app.matchesPath('/base/querystring?p=1');
+    assert.ok(route instanceof senna.Route);
+    assert.equal(route.getPath(), test.queryStringRoute);
+
+    done();
+  });
+
+  it('should throw error when surface is not found', function(done) {
+    assert.throws(function() {
+      new senna.Surface('');
+    }, Error);
+
+    done();
+  });
+
+  it('should match surface elements', function(done) {
+    assert.equal(document.querySelector('#body'), app.surfaces.body.getEl());
+    assert.equal(document.querySelector('#header'), app.surfaces.header.getEl());
+
+    done();
+  });
+
+  it('should lazily match surface element', function(done) {
+    var lazySurface = new senna.Surface('lazy');
+    app.addSurfaces(lazySurface);
+    assert.strictEqual(lazySurface.getEl(), null);
+
+    app.navigate('/base/lazy').then(function() {
+      app.navigate('/base/page').then(function() {
+        var div = document.createElement('div');
+        div.id = 'lazy';
+        document.querySelector('body').appendChild(div);
+        assert.notStrictEqual(lazySurface.getEl(), null);
+        app.navigate('/base/lazy').then(function() {
+          test.assertPath('/base/lazy');
+          test.assertSurfaceContent('lazy', 'lazy');
+          test.assertSurfaceContent('body', 'default');
+          test.assertSurfaceContent('header', 'default');
+
+          done();
+        });
+      });
+    });
+  });
+
+  it('should navigate with screen lifecycle', function(done) {
+    var lifecycle = [];
+    var cycle = {
+      flip: 0,
+      activate: 0,
+      deactivate: 0,
+      destroy: 0,
+      startNavigate: 0,
+      endNavigate: 0
+    };
+
+    var LifecycleScreen = function() {
+      LifecycleScreen.base(this, 'constructor');
+    };
+    senna.inherits(LifecycleScreen, senna.Screen);
+    LifecycleScreen.prototype.cacheable = false;
+    LifecycleScreen.prototype.flip = function(surfaces) {
+      LifecycleScreen.base(this, 'flip', surfaces);
+      lifecycle.push('flip' + (++cycle.flip));
+    };
+    LifecycleScreen.prototype.activate = function() {
+      LifecycleScreen.base(this, 'activate');
+      lifecycle.push('activate' + (++cycle.activate));
+    };
+    LifecycleScreen.prototype.deactivate = function() {
+      LifecycleScreen.base(this, 'deactivate');
+      lifecycle.push('deactivate' + (++cycle.deactivate));
+    };
+    LifecycleScreen.prototype.destroy = function() {
+      LifecycleScreen.base(this, 'destroy');
+      lifecycle.push('destroy' + (++cycle.destroy));
+    };
+
+    app.addRoutes([
+      {
+        path: '/lifecycle1',
+        screen: LifecycleScreen
+      },
+      {
+        path: '/lifecycle2',
+        screen: LifecycleScreen
+      }
+    ]);
+
+    app.on('startNavigate', function() {
+      lifecycle.push('startNavigate' + (++cycle.startNavigate));
+    });
+
+    app.on('endNavigate', function() {
+      lifecycle.push('endNavigate' + (++cycle.endNavigate));
+    });
+
+    app.navigate('/base/lifecycle1').then(function() {
+      app.navigate('/base/lifecycle2').then(function() {
+        assert.deepEqual(['startNavigate1', 'flip1', 'activate1', 'endNavigate1', 'startNavigate2', 'deactivate1', 'flip2', 'activate2', 'destroy1', 'endNavigate2'], lifecycle);
+
+        done();
+      });
+    });
+  });
+
+  it('should navigate with hash', function(done) {
+    app.navigate('/base/page#hash').then(function() {
+      test.assertNavigation('/base/page#hash', 'page');
+
+      done();
+    });
+  });
+
+  it('should navigate asynchronously', function(done) {
+    var pathBeforeAsync;
+    app.navigate('/base/querystring?p=beforeasync').then(function() {
+      app.on('startNavigate', function() {
+        pathBeforeAsync = test.getCurrentPath();
+      });
+      app.navigate('/base/delayed200ms').then(function() {
+        assert.equal(pathBeforeAsync, '/base/querystring?p=beforeasync');
+        test.assertNavigation('/base/delayed200ms', 'delayed');
+
+        done();
+      });
+    });
+  });
+
+  it('should dispatch to the current url', function(done) {
+    window.history.pushState(null, '', '/base/querystring?p=dispatch');
+    app.dispatch().then(function() {
+      test.assertNavigation('/base/querystring?p=dispatch', 'querystring');
+
+      done();
+    });
+  });
+
+  it('should not navigate to unrouted path', function(done) {
+    var err1;
+    var endNavigateCalled = false;
+    var startNavigateCalled = false;
+
+    app.navigate('/base/querystring?p=beforeunrouted').then(function() {
+      app.on('startNavigate', function() {
+        startNavigateCalled = true;
+      });
+      app.on('endNavigate', function(event) {
+        err1 = event.error;
+        endNavigateCalled = true;
+      });
+      app.navigate('/base/unknown').thenCatch(function(err2) {
+        test.assertNavigation('/base/querystring?p=beforeunrouted', 'querystring');
+        assert.ok(startNavigateCalled && endNavigateCalled);
+        assert.ok(err1 instanceof Error);
+        assert.equal(err1.message, 'No screen for /base/unknown');
+        assert.ok(err2 instanceof Error);
+        assert.equal(err2.message, 'No screen for /base/unknown');
+
+        done();
+      });
+    });
+  });
+
+  it('should not navigate when prevented by active screen', function(done) {
+    var err1;
+    var startNavigateCalled = false;
+    var endNavigateCalled = false;
+
+    app.navigate('/base/locked').then(function() {
+      app.on('startNavigate', function() {
+        startNavigateCalled = true;
+      });
+      app.on('endNavigate', function(event) {
+        err1 = event.error;
+        endNavigateCalled = true;
+      });
+      app.navigate('/base/querystring?p=afterlocked').thenCatch(function(err2) {
+        test.LockedScreen.locked = false;
+        test.assertNavigation('/base/locked', 'default');
+        assert.ok(startNavigateCalled && endNavigateCalled);
+        assert.ok(err1 instanceof Error);
+        assert.equal(err1.message, 'Cancelled by active screen');
+        assert.ok(err2 instanceof Error);
+        assert.equal(err2.message, 'Cancelled by active screen');
+
+        done();
+      });
+    });
+  });
+
+  it('should cancel pending navigate', function(done) {
+    var err = [];
+    var startNavigate = [];
+    var endNavigate = [];
+
+    app.on('startNavigate', function(event) {
+      startNavigate.push(event.path);
+    });
+    app.on('endNavigate', function(event) {
+      endNavigate.push(event.path);
+      err.push(event.error);
+    });
+
+    app.navigate('/base/delayed200ms').thenCatch(function(error) {
+      err.push(error);
+    });
+
+    senna.async.nextTick(function() {
+      app.navigate('/base/querystring?p=cancelpending').then(function() {
+        test.assertNavigation('/base/querystring?p=cancelpending', 'querystring');
+        assert.deepEqual(['/base/delayed200ms', '/base/querystring?p=cancelpending'], startNavigate);
+        assert.deepEqual(['/base/delayed200ms', '/base/querystring?p=cancelpending'], endNavigate);
+        assert.strictEqual(err[2], undefined);
+        assert.ok(err[0] instanceof Error);
+        assert.equal(err[0].message, 'Cancel pending navigation');
+        assert.ok(err[1] instanceof Error);
+        assert.equal(err[1].message, 'Cancel pending navigation');
+
+        done();
+      });
+    });
+  });
+
+  it('should remember the scroll position', function(done) {
+    var pageXOffsetAfterFirstNavigate = 0;
+    var pageYOffsetAfterFirstNavigate = 0;
+
+    app.navigate('/base/querystring?p=scroll1').then(function() {
+      document.addEventListener('scroll', function onceScrollInternal() {
+        document.removeEventListener('scroll', onceScrollInternal, false);
+        // History scrolling requires some time to persist the
+        // scroll position set by the back/forward button
+        setTimeout(function() {
+          app.navigate('/base/querystring?p=scroll2').then(function() {
+            app.once('endNavigate', function() {
+              assert.equal(pageXOffsetAfterFirstNavigate, 0);
+              assert.equal(pageYOffsetAfterFirstNavigate, 0);
+              assert.equal(window.pageXOffset, 10);
+              assert.equal(window.pageYOffset, 10);
+
+              done();
+            });
+            // After the new navigation happens the scroll
+            // position goes back to 0,0 and also needs some
+            // time to persist before back/forward button is
+            // invoked
+            setTimeout(function() {
+              window.history.back();
+            }, 200);
+          });
+        }, 1000);
+      }, false);
+      pageXOffsetAfterFirstNavigate = window.pageXOffset;
+      pageYOffsetAfterFirstNavigate = window.pageYOffset;
+      window.scrollTo(10, 10);
+    });
+  });
+
+  it('should navigate when history buttons are clicked', function(done) {
+    var history = [];
+
+    app.navigate('/base/querystring?p=pageback').then(function() {
+      app.navigate('/base/querystring?p=pageforward').then(function() {
+        app.once('endNavigate', function(event) {
+          history.push(event.path);
+          app.once('endNavigate', function(event) {
+            history.push(event.path);
+            test.assertNavigation('/base/querystring?p=pageforward', 'querystring');
+            assert.deepEqual(['/base/querystring?p=pageback', '/base/querystring?p=pageforward'], history);
+
+            done();
+          });
+          window.history.forward();
+        });
+        window.history.back();
+      });
+    });
+  });
+
+  it('should not navigate to history states that are not ours', function(done) {
+    window.history.pushState({}, '', '/unknown/state');
+    app.navigate('/base/page').then(function() {
+      setTimeout(function() {
+        test.assertPath('/unknown/state');
+        test.assertSurfaceContent('body', 'page');
+        test.assertSurfaceContent('header', 'page');
+        assert.equal(document.title, 'page');
+
+        done();
+      }, 200);
+      window.history.back();
+    });
+  });
+
+  it('should navigate to clicked links', function(done) {
+    app.on('endNavigate', function() {
+      test.assertNavigation('/base/page', 'page');
+
+      done();
+    });
+    test.click(document.querySelector('a[href="/base/page"]'));
+  });
+
+  it('should not navigate to unrouted clicked links', function(done) {
+    test.click(document.querySelector('a[href="/base/unrouted"]'));
+    assert.strictEqual(app.pendingNavigate, null);
+
+    done();
+  });
+
+  it('should not navigate to external clicked links', function(done) {
+    test.click(document.querySelector('a[href="http://alloyui.com/external"]'));
+    assert.strictEqual(app.pendingNavigate, null);
+
+    done();
+  });
+
+  it('should not navigate to clicked links outside base path', function(done) {
+    test.click(document.querySelector('a[href="/outside"]'));
+    assert.strictEqual(app.pendingNavigate, null);
+
+    done();
+  });
+
+  it('should not navigate to hash clicked links in the same url', function(done) {
+    app.navigate('/base/page').then(function() {
+      test.click(document.querySelector('a[href="/base/page#hash"]'));
+      assert.strictEqual(app.pendingNavigate, null);
+
+      done();
+    });
+  });
+
+  it('should navigate to previous page asynchronously', function(done) {
+    app.navigate('/base/delayed200ms').then(function() {
+      var start = Date.now();
+      app.navigate('/base/querystring?p=afterasync').then(function() {
+        app.on('endNavigate', function() {
+          assert.ok((Date.now() - start) > 200);
+
+          done();
+        });
+        window.history.back();
+      });
+    });
+  });
+
+  it('should navigate using HtmlScreen', function(done) {
+    var path = test.getOriginalBasePath() + '/fixture/content.txt';
+    app.addRoutes({
+      path: '/fixture/content.txt',
+      screen: senna.HtmlScreen
+    });
+    app.setBasePath(test.getOriginalBasePath());
+    app.navigate(path).then(function() {
+      test.assertNavigation(path, 'html');
+
+      done();
+    });
+  });
+
+  it('should navigate missing <title> using HtmlScreen', function(done) {
+    var path = test.getOriginalBasePath() + '/fixture/notitle.txt';
+    app.addRoutes({
+      path: '/fixture/notitle.txt',
+      screen: senna.HtmlScreen
+    });
+    app.setBasePath(test.getOriginalBasePath());
+    app.navigate(path).then(function() {
+      test.assertPath(path);
+      test.assertSurfaceContent('body', 'html');
+      test.assertSurfaceContent('header', 'html');
+      assert.equal(document.title, 'default');
+
+      done();
+    });
+  });
+
+  it('should navigate fail using HtmlScreen', function(done) {
+    app.navigate('/base/querystring?p=before404').then(function() {
+      app.setBasePath(test.getOriginalBasePath());
+      app.addRoutes({
+        path: '/fixture/404.txt',
+        screen: senna.HtmlScreen
+      });
+      app.navigate(test.getOriginalBasePath() + '/fixture/404.txt').thenCatch(function() {
+        test.assertNavigation('/base/querystring?p=before404', 'querystring');
+
+        done();
+      });
+    });
+  });
+
+  it('should parse scripts', function(done) {
+    senna.parseScripts(senna.buildFragment('Hello<script src="' + test.getOriginalBasePath() + '/fixture/sentinel.js"></script><script>window.sentinel_inline_ = window.sentinel_ + 1;</script>'));
+    senna.async.nextTick(function() {
+      assert.equal(window.sentinel_, 1);
+      assert.equal(window.sentinel_inline_, 2);
+
+      done();
+    });
+  });
+
+});
