@@ -13,7 +13,15 @@ gulp.task('clean', function() {
 gulp.task('build', ['clean'], function() {
   var files = [
     'src/senna.js',
-    'src/third-party/promise.js'
+    'src/utils/EventEmitter.js',
+    'src/utils/Cacheable.js',
+    'src/app/App.js',
+    'src/route/Route.js',
+    'src/surface/Surface.js',
+    'src/screen/Screen.js',
+    'src/screen/RequestScreen.js',
+    'src/screen/HtmlScreen.js',
+    'src/third-party/Promise.js'
   ];
 
   var raw = gulp.src(files)
