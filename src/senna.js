@@ -76,6 +76,44 @@
     return fragment;
   };
 
+  /**
+   * Debounces function execution.
+   * @param {Function} fn
+   * @param {Number} delay
+   * @return {Function}
+   */
+  senna.debounce = function(fn, delay, opt_context) {
+    var id;
+    return function() {
+      if (!opt_context) {
+        opt_context = this;
+      }
+      var args = arguments;
+      clearTimeout(id);
+      id = setTimeout(function() {
+        fn.apply(opt_context, args);
+      }, delay);
+    };
+  };
+
+  /**
+   * Evaluates script globally.
+   * @param {String} data
+   */
+  senna.globalEval = function(data) {
+    /* jshint evil: true */
+    if (data && data.trim()) {
+      var evaluator = window.execScript;
+      if (!evaluator) {
+        evaluator = function(data) {
+          window['eval'].call(window, data);
+        };
+      }
+      evaluator(data);
+    }
+  };
+
+  /**
    * Inherits the prototype methods from one constructor into another.
    *
    * Usage:
@@ -132,6 +170,24 @@
   };
 
   /**
+   * Returns true if value is not undefined or null.
+   * @param {*} val
+   * @return {Boolean}
+   */
+  senna.isValue = function(val) {
+    return senna.isDef(val) && val !== null;
+  };
+
+  /**
+   * Returns true if value is a dom element.
+   * @param {*} val
+   * @return {Boolean}
+   */
+  senna.isElement = function(val) {
+    return typeof val === 'object' && val.nodeType === 1;
+  };
+
+  /**
    * Returns true if the specified value is a function.
    * @param {?} val Variable to test.
    * @return {boolean} Whether variable is a function.
@@ -152,6 +208,40 @@
   };
 
   /**
+   * Returns true if value is a string.
+   * @param {*} val
+   * @return {Boolean}
+   */
+  senna.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  /**
+   * Check if an element matches a given selector.
+   * @param {Event} element
+   * @param {String} selector
+   * @return {Boolean}
+   */
+  senna.match = function(element, selector) {
+    if (!element || element.nodeType !== 1) {
+      return false;
+    }
+
+    var p = Element.prototype;
+    var m = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector;
+    if (m) {
+      return m.call(element, selector);
+    }
+
+    var nodes = document.querySelectorAll(selector, element.parentNode);
+    for (var i = 0; i < nodes.length; ++i) {
+      if (nodes[i] === element) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   /**
    * Parses script nodes inside a fragment and sterilizes them setting their types to text/parsed.
    * @param {!Element} frag
