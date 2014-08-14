@@ -36,6 +36,22 @@ a {
 }
 
 /*
+ * -- HEADER --
+ * Styling the brand's title and tagline
+ */
+.brand-title {
+  color: #fff;
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.brand-tagline {
+  color: rgb(126, 159, 194);
+  font-size: 14px;
+  margin: 2px 0 15px;
+}
+
+/*
  * -- LAYOUT STYLES --
  * This layout consists of three main elements, `#nav` (navigation bar), `#list` (email list), and `#main` (email content). All 3 elements are within `#layout`
  */
@@ -154,8 +170,6 @@ a {
 
 .email-item-selected {
   background: #eee;
-}
-.email-item-unread {
   border-left: 6px solid #1b98f8;
 }
 

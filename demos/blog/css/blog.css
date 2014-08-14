@@ -34,20 +34,18 @@ h3 {
 }
 
 .sidebar {
-    background: rgb(61, 79, 93);
+    background: #CE2344;
     color: #fff;
 }
+
 
 .brand-title,
 .brand-tagline {
     margin: 0;
 }
-.brand-title {
-    text-transform: uppercase;
-}
 .brand-tagline {
     font-weight: 300;
-    color: rgb(176, 202, 219);
+    color: #ff97ab;
 }
 
 .nav-list {
@@ -130,7 +128,7 @@ h3 {
         background: #8156a7;
     }
     .post-category-js {
-        background: #df2d4f;
+        background: #e1c91b;
     }
 
 .post-images {
