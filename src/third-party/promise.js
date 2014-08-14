@@ -1182,5 +1182,7 @@
   /** @override */
   goog.Promise.CancellationError.prototype.name = 'cancel';
 
+  window.senna.nextTick = goog.async.nextTick;
+
   window.senna.Promise = goog.Promise;
 }(window));
