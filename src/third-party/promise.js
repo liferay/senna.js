@@ -1170,6 +1170,10 @@
    */
   goog.Promise.CancellationError = function(opt_message) {
     goog.Promise.CancellationError.base(this, 'constructor', opt_message);
+
+    if (opt_message) {
+      this.message = opt_message;
+    }
   };
   goog.inherits(goog.Promise.CancellationError, Error);
 
