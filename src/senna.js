@@ -120,4 +120,58 @@
     return type === 'object' && val !== null || type === 'function';
   };
 
+  /**
+   * Requests the url using XMLHttpRequest.
+   * @param {!String} url
+   * @param {!String} httpMethod
+   * @param {Object=} opt_httpHeaders
+   * @param {Number=} opt_timeout
+   * @param {Boolean=} opt_sync
+   * @return {Promise} Promisified ajax request.
+   */
+  senna.request = function(url, httpMethod, opt_httpHeaders, opt_timeout, opt_sync) {
+    var xhr = new XMLHttpRequest();
+
+    var promise = new senna.Promise(function(resolve, reject) {
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          resolve(xhr);
+          return;
+        }
+        xhr.onerror();
+      };
+      xhr.onerror = function() {
+        var error = new Error('Request error');
+        error.xhr = xhr;
+        reject(error);
+      };
+    }).thenCatch(function(reason) {
+      xhr.abort();
+      throw reason;
+    }).thenAlways(function() {
+      clearTimeout(timeout);
+    });
+
+    xhr.open(httpMethod, url, !opt_sync);
+    if (opt_httpHeaders) {
+      for (var i in opt_httpHeaders) {
+        xhr.setRequestHeader(i, opt_httpHeaders[i]);
+      }
+    }
+    xhr.send(null);
+
+    if (senna.isDef(opt_timeout)) {
+      var timeout = setTimeout(function() {
+        promise.cancel('Request timeout');
+      }, opt_timeout);
+    }
+
+    return promise;
+  };
+
+  /**
+   * Browsers
+   */
+  senna.safari = navigator.userAgent.indexOf('Safari') > -1;
+  senna.chrome = navigator.userAgent.indexOf('Chrome') > -1;
 }(window));
