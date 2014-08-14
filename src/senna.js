@@ -4,6 +4,18 @@
   window.senna = window.senna || {};
 
   /**
+   * Appends a node with text or other nodes.
+   * @param {!Node} parent The node to append nodes to.
+   * @param {!Node|String} child The thing to append to the parent.
+   */
+  senna.append = function(parent, child) {
+    if (senna.isString(child)) {
+      child = senna.buildFragment(child);
+    }
+    return parent.appendChild(senna.parseScripts(child));
+  };
+
+  /**
    * Creates a new function that, when called, has its this keyword set to the
    * provided value, with a given sequence of arguments preceding any provided
    * when the new function is called.
@@ -25,8 +37,9 @@
     }
 
     if (Function.prototype.bind) {
+      var bind = fn.call.apply(fn.bind, arguments);
       return function() {
-        return fn.call.apply(fn.bind, arguments);
+        return bind.apply(null, arguments);
       };
     }
 
@@ -45,6 +58,24 @@
   };
 
   /**
+   * Helper for <code>buildFragment</code>.
+   * @param {!Document} doc The document.
+   * @param {string} htmlString The HTML string to convert.
+   * @return {!Node} The resulting document fragment.
+   * @private
+   */
+  senna.buildFragment = function(htmlString) {
+    var tempDiv = document.createElement('div');
+    tempDiv.innerHTML = '<br>' + htmlString;
+    tempDiv.removeChild(tempDiv.firstChild);
+
+    var fragment = document.createDocumentFragment();
+    while (tempDiv.firstChild) {
+      fragment.appendChild(tempDiv.firstChild);
+    }
+    return fragment;
+  };
+
    * Inherits the prototype methods from one constructor into another.
    *
    * Usage:
@@ -118,6 +149,46 @@
   senna.isObject = function(val) {
     var type = typeof val;
     return type === 'object' && val !== null || type === 'function';
+  };
+
+  /**
+  /**
+   * Parses script nodes inside a fragment and sterilizes them setting their types to text/parsed.
+   * @param {!Element} frag
+   * @return {Element}
+   */
+  senna.parseScripts = function(frag) {
+    var globalEval = function(o) {
+      senna.globalEval(o.responseText || o.text || o.textContent || o.innerHTML || '');
+    };
+    var scripts = Array.prototype.slice.call(frag.querySelectorAll('script'));
+    while (scripts.length) {
+      var script = scripts.shift();
+
+      // Some browsers evaluates scripts when appended to document. Sterilizes
+      // evaluated scripts setting type to text/parsed.
+      script.setAttribute('type', 'text/parsed');
+
+      if (script.src) {
+        var headers = {
+          'Content-Type': 'text/javascript'
+        };
+        senna.request(script.src, 'GET', headers, null, true).then(globalEval);
+      } else {
+        senna.async.nextTick(senna.bind(globalEval, null, script));
+      }
+    }
+    return frag;
+  };
+
+  /**
+   * Removes element from the dom.
+   * @param {Element} element
+   */
+  senna.remove = function(element) {
+    if (element.parentNode) {
+      element.parentNode.removeChild(element);
+    }
   };
 
   /**
