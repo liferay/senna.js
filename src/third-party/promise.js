@@ -12,6 +12,7 @@
 (function(window) {
   var goog = {};
 
+  goog.bind = senna.bind;
   goog.inherits = senna.inherits;
   goog.isDef = senna.isDef;
   goog.isFunction = senna.isFunction;
