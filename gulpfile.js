@@ -21,7 +21,7 @@ gulp.task('build', ['clean'], function() {
     'src/screen/Screen.js',
     'src/screen/RequestScreen.js',
     'src/screen/HtmlScreen.js',
-    'src/third-party/Promise.js'
+    'src/vendor/Promise.js'
   ];
 
   var raw = gulp.src(files)
