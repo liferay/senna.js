@@ -21,6 +21,8 @@
     "test"
   ],
   "devDependencies": {
+    "assert": "~0.1.0",
+    "mocha": "~1.21.4",
     "pure": "~0.5.0"
   }
 }
