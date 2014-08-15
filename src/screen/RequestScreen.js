@@ -101,13 +101,13 @@
    */
   senna.RequestScreen.prototype.load = function(path) {
     senna.RequestScreen.base(this, 'load', path);
-    var instance = this;
+    var self = this;
     var cache = this.getCache();
     if (senna.isValue(cache)) {
       return senna.Promise.resolve(cache);
     }
     return senna.request(path, this.httpMethod, this.httpHeaders, this.timeout).then(function(xhr) {
-      instance.setRequest(xhr);
+      self.setRequest(xhr);
       return xhr.responseText;
     });
   };

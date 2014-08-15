@@ -17,7 +17,7 @@
     this.popstateEventHandler_ = senna.bind(this.onPopstate_, this);
     this.scrollEventHandler_ = senna.debounce(this.onScroll_, 50, this);
 
-    this.on('startNavigate', this.defStartNavigateFn_);
+    this.on('startNavigate', this.onStartNavigate_);
     document.addEventListener('click', this.docClickEventHandler_, false);
     window.addEventListener('popstate', this.popstateEventHandler_, false);
     document.addEventListener('scroll', this.scrollEventHandler_, false);
@@ -218,37 +218,6 @@
   };
 
   /**
-   * Starts navigation to a path.
-   * @param {!Event} event Event facade containing <code>path</code> and
-   *     <code>replaceHistory</code>.
-   * @protected
-   */
-  senna.App.prototype.defStartNavigateFn_ = function(event) {
-    var instance = this;
-    var htmlElement = document.documentElement;
-
-    htmlElement.classList.add(this.loadingCssClass);
-
-    var payload = {
-      path: event.path
-    };
-
-    this.pendingNavigate = this.doNavigate_(
-      event.path,
-      event.replaceHistory
-    ).thenCatch(function(reason) {
-      payload.error = reason;
-      instance.stopPending_();
-      throw reason;
-    }
-    ).thenAlways(function() {
-      instance.emit('endNavigate', payload);
-      htmlElement.classList.remove(instance.loadingCssClass);
-    }
-    );
-  };
-
-  /**
    * Destroys app instance and removes all event handlers. All surfaces will
    * be restored to its default content.
    * @chainable
@@ -276,10 +245,7 @@
    * @return {Promise} Returns a pending request cancellable promise.
    */
   senna.App.prototype.dispatch = function() {
-    return this.navigate(
-      window.location.pathname + window.location.search + window.location.hash,
-      true
-    );
+    return this.navigate(window.location.pathname + window.location.search + window.location.hash, true);
   };
 
   /**
@@ -289,30 +255,24 @@
    * @return {Promise} Returns a pending request cancellable promise.
    */
   senna.App.prototype.doNavigate_ = function(path, opt_replaceHistory) {
-    var instance = this;
-    var activeScreen = instance.activeScreen;
+    var self = this;
 
-    if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-      this.pendingNavigate = senna.Promise.reject(
-        new senna.Promise.CancellationError('Cancelled by active screen'));
+    if (self.activeScreen && self.activeScreen.beforeDeactivate()) {
+      this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('Cancelled by active screen'));
       return this.pendingNavigate;
     }
-
     var route = this.matchesPath(path);
     if (!route) {
-      this.pendingNavigate = senna.Promise.reject(
-        new senna.Promise.CancellationError('No screen for ' + path));
+      this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('No screen for ' + path));
       return this.pendingNavigate;
     }
 
     console.log('Navigate to [' + path + ']');
-
     // When reloading the same path do replaceState instead of pushState to
     // avoid polluting history with states with the same path.
     if (path === this.activePath) {
       opt_replaceHistory = true;
     }
-
     var nextScreen = this.getScreenInstance_(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
@@ -321,22 +281,24 @@
       })
       .then(function(contents) {
         var screenId = nextScreen.getId();
-        for (var surfaceId in instance.surfaces) {
-          if (instance.surfaces.hasOwnProperty(surfaceId)) {
-            var surface = instance.surfaces[surfaceId];
+        for (var surfaceId in self.surfaces) {
+          if (self.surfaces.hasOwnProperty(surfaceId)) {
+            var surface = self.surfaces[surfaceId];
             surface.addContent(screenId, nextScreen.getSurfaceContent(surfaceId, contents));
           }
         }
-        if (activeScreen) {
-          activeScreen.deactivate();
+        if (self.activeScreen) {
+          self.activeScreen.deactivate();
         }
-        return nextScreen.flip(instance.surfaces);
-      }).then(function() {
-      instance.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
-    }).thenCatch(function(reason) {
-      instance.handleNavigateError_(path, nextScreen, reason);
-      throw reason;
-    });
+        return nextScreen.flip(self.surfaces);
+      })
+      .then(function() {
+        self.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
+      })
+      .thenCatch(function(reason) {
+        self.handleNavigateError_(path, nextScreen, reason);
+        throw reason;
+      });
 
     return this.pendingNavigate;
   };
@@ -477,9 +439,9 @@
    * @protected
    */
   senna.App.prototype.lockScroll_ = function() {
-    var instance = this;
-    var lockPageXOffset = instance.lockPageXOffset;
-    var lockPageYOffset = instance.lockPageYOffset;
+    var self = this;
+    var lockPageXOffset = self.lockPageXOffset;
+    var lockPageYOffset = self.lockPageYOffset;
     // Browsers are inconsistent when re-positioning the scroll history on
     // popstate. At some browsers, history scroll happens before popstate, then
     // lock the scroll on the last known position as soon as possible after the
@@ -491,8 +453,8 @@
     var winner = false;
     var switchScrollPositionRace = function() {
       if (!winner) {
-        instance.pageXOffset = window.pageXOffset;
-        instance.pageYOffset = window.pageYOffset;
+        self.pageXOffset = window.pageXOffset;
+        self.pageYOffset = window.pageYOffset;
         window.scrollTo(lockPageXOffset, lockPageYOffset);
         winner = true;
       }
@@ -514,8 +476,8 @@
    *     path is the same as the current url and the path contains a fragment.
    */
   senna.App.prototype.matchesPath = function(path) {
-    var basePath = this.basePath,
-      hashIndex;
+    var basePath = this.basePath;
+    var hashIndex;
 
     // Remove path hash before match
     hashIndex = path.lastIndexOf('#');
@@ -639,6 +601,31 @@
   senna.App.prototype.onScroll_ = function() {
     this.lockPageXOffset = window.pageXOffset;
     this.lockPageYOffset = window.pageYOffset;
+  };
+
+  /**
+   * Starts navigation to a path.
+   * @param {!Event} event Event facade containing <code>path</code> and
+   *     <code>replaceHistory</code>.
+   * @protected
+   */
+  senna.App.prototype.onStartNavigate_ = function(event) {
+    var self = this;
+    var payload = {};
+
+    document.documentElement.classList.add(this.loadingCssClass);
+
+    this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
+      .thenCatch(function(err) {
+        self.stopPending_();
+        payload.error = err;
+        throw err;
+      })
+      .thenAlways(function() {
+        payload.path = event.path;
+        self.emit('endNavigate', payload);
+        document.documentElement.classList.remove(self.loadingCssClass);
+      });
   };
 
   /**

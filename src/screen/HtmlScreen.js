@@ -44,13 +44,13 @@
    * @inheritDoc
    */
   senna.HtmlScreen.prototype.load = function(path) {
-    var instance = this;
+    var self = this;
     var promise = senna.HtmlScreen.base(this, 'load', path);
 
     return promise.then(function(content) {
-      return instance.resolveContent(content);
+      return self.resolveContent(content);
     }).thenCatch(function(err) {
-      instance.abortRequest();
+      self.abortRequest();
       throw err;
     });
   };
