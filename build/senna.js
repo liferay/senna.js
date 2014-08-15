@@ -658,6 +658,14 @@
   senna.App.prototype.linkSelector = 'a';
 
   /**
+   * Holds the loading css class.
+   * @type {!String}
+   * @default senna-loading
+   * @protected
+   */
+  senna.App.prototype.loadingCssClass = 'senna-loading';
+
+  /**
    * Holds the window hotizontal scroll position before navigation using back
    * or forward happens to lock the scroll position until the surfaces are
    * updated.
@@ -808,6 +816,9 @@
    */
   senna.App.prototype.defStartNavigateFn_ = function(event) {
     var instance = this;
+    var htmlElement = document.body.parentNode;
+
+    htmlElement.classList.add(this.loadingCssClass);
 
     var payload = {
       path: event.path
@@ -823,6 +834,7 @@
     }
     ).thenAlways(function() {
       instance.emit('endNavigate', payload);
+      htmlElement.classList.remove(instance.loadingCssClass);
     }
     );
   };
@@ -972,6 +984,14 @@
    */
   senna.App.prototype.getLinkSelector = function() {
     return this.linkSelector;
+  };
+
+  /**
+   * Gets the loading css class.
+   * @return {!String}
+   */
+  senna.App.prototype.getLoadingCssClass = function() {
+    return this.loadingCssClass;
   };
 
   /**
@@ -1263,6 +1283,14 @@
    */
   senna.App.prototype.setLinkSelector = function(linkSelector) {
     this.linkSelector = linkSelector;
+  };
+
+  /**
+   * Sets the loading css class.
+   * @param {!String} loadingCssClass
+   */
+  senna.App.prototype.setLoadingCssClass = function(loadingCssClass) {
+    this.loadingCssClass = loadingCssClass;
   };
 
   /**
