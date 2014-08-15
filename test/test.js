@@ -86,19 +86,29 @@ describe('Senna', function() {
   it('should lazily match surface element', function(done) {
     var lazySurface = new senna.Surface('lazy');
     app.addSurfaces(lazySurface);
-    assert.strictEqual(lazySurface.getEl(), null);
+    assert.equal(lazySurface.getEl(), null);
+    assert.equal(lazySurface.activeChild, null);
+    assert.equal(lazySurface.defaultChild, null);
+    console.log(lazySurface.activeElement);
 
     app.navigate('/base/lazy').then(function() {
       app.navigate('/base/page').then(function() {
         var div = document.createElement('div');
+        var content = document.createElement('div');
         div.id = 'lazy';
+        content.id = 'lazy-default';
+        div.appendChild(content);
         document.querySelector('body').appendChild(div);
-        assert.notStrictEqual(lazySurface.getEl(), null);
+        assert.notEqual(lazySurface.getEl(), null);
+        assert.equal(lazySurface.activeChild, null);
+        assert.equal(lazySurface.defaultChild, null);
         app.navigate('/base/lazy').then(function() {
           test.assertPath('/base/lazy');
           test.assertSurfaceContent('lazy', 'lazy');
           test.assertSurfaceContent('body', 'default');
           test.assertSurfaceContent('header', 'default');
+          assert.notEqual(lazySurface.activeChild, null);
+          assert.notEqual(lazySurface.defaultChild, null);
 
           done();
         });
