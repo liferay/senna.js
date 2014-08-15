@@ -642,15 +642,6 @@
   };
 
   /**
-   * Fires when navigation is prevented from <code>startNavigate</code> event.
-   * @param {!Event} event
-   */
-  senna.App.prototype.preventNavigateFn_ = function() {
-    this.pendingNavigate = senna.Promise.reject(
-      new senna.Promise.CancellationError('Navigation has been prevented'));
-  };
-
-  /**
    * Removes a screen.
    * @param {!String} path Path containing the querystring part.
    * @param {!Screen} screen
