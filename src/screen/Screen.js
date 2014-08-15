@@ -15,6 +15,15 @@
   senna.inherits(senna.Screen, senna.Cacheable);
 
   /**
+   * @param {*} object
+   * @return {boolean} Whether a given instance implements
+   * <code>senna.Screen</code>.
+   */
+  senna.Screen.isImplementedBy = function(object) {
+    return object instanceof senna.Screen;
+  };
+
+  /**
    * Holds a unique id counter for random screen names.
    * @type {Number}
    * @protected
@@ -37,7 +46,6 @@
    * @protected
    */
   senna.Screen.prototype.title = null;
-
 
   /**
    * Fires when the screen is active. Allows a screen to perform any setup
