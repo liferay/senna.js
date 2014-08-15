@@ -759,17 +759,17 @@
    * Example:
    *
    * <code>
-   *   app.addRoutes({ path: '/foo', screen: FooScreen });
+   *   app.addRoutes({ path: '/foo', handler: FooScreen });
    *   or
-   *   app.addRoutes([{ path: '/foo', screen: FooScreen }]);
+   *   app.addRoutes([{ path: '/foo', handler: function(route) { return new FooScreen(); } }]);
    * </code>
    *
    * @param {Object} or {Array} routes Single object or an array of object.
    *     Each object should contain <code>path</code> and <code>screen</code>.
    *     The <code>path</code> should be a string or a regex that maps the
    *     navigation route to a screen class definition (not an instance), e.g:
-   *         <code>{ path: "/home:param1", screen: MyScreen }</code>
-   *         <code>{ path: /foo.+/, screen: MyScreen }</code>
+   *         <code>{ path: "/home:param1", handler: MyScreen }</code>
+   *         <code>{ path: /foo.+/, handler: MyScreen }</code>
    * @chainable
    */
   senna.App.prototype.addRoutes = function(routes) {
@@ -779,7 +779,7 @@
     for (var i = 0; i < routes.length; i++) {
       var route = routes[i];
       if (!(route instanceof senna.Route)) {
-        route = new senna.Route(route.path, route.screen);
+        route = new senna.Route(route.path, route.handler);
       }
       this.routes.push(route);
     }
@@ -806,6 +806,34 @@
       this.surfaces[surface.getId()] = surface;
     }
     return this;
+  };
+
+  /**
+   * Retrieves or create a screen instance to a path.
+   * @param {!String} path Path containing the querystring part.
+   * @return {senna.Screen}
+   * @protected
+   */
+  senna.App.prototype.createScreenInstance_ = function(path, route) {
+    var cachedScreen;
+    if (path === this.activePath) {
+      // When simulating page refresh the request lifecycle must be respected,
+      // hence create a new screen instance for the same path.
+      void 0;
+      cachedScreen = this.screens[path];
+      delete this.screens[path];
+    }
+    /* jshint newcap: false */
+    var screen = this.screens[path];
+    if (!screen) {
+      void 0;
+      var handler = route.getHandler();
+      screen = senna.Screen.isImplementedBy(handler.prototype) ? new handler() : (handler(route) || new senna.Screen());
+      if (cachedScreen) {
+        screen.addCache(cachedScreen.getCache());
+      }
+    }
+    return screen;
   };
 
   /**
@@ -863,7 +891,7 @@
 
     void 0;
 
-    var nextScreen = this.getScreenInstance_(path, route);
+    var nextScreen = this.createScreenInstance_(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
       .then(function() {
@@ -981,39 +1009,6 @@
    */
   senna.App.prototype.getLoadingCssClass = function() {
     return this.loadingCssClass;
-  };
-
-  /**
-   * Retrieves or create a screen instance to a path.
-   * @param {!String} path Path containing the querystring part.
-   * @return {senna.Screen}
-   * @protected
-   */
-  senna.App.prototype.getScreenInstance_ = function(path, route) {
-    var screen;
-    var refreshScreen;
-
-    // When simulating page refresh the request lifecycle for activeScreen
-    // and nextScreen should be respected, therefore creating a new screen
-    // instance for the same path is needed
-    if (path === this.activePath) {
-      void 0;
-      refreshScreen = this.screens[path];
-      delete this.screens[path];
-    }
-
-    screen = this.screens[path];
-    if (!screen) {
-      void 0;
-      screen = new(route.getScreen())();
-      // When simulating a page refresh the cache should copy the cache
-      // from refreshScreen to avoid roundtrip to the server
-      if (refreshScreen) {
-        screen.addCache(refreshScreen.getCache());
-      }
-    }
-
-    return screen;
   };
 
   /**
@@ -1313,20 +1308,23 @@
 (function() {
   /**
    * Route class.
-   * @param {String=} opt_path
-   * @param {senna.Screen=} opt_screen
+   * @param {!String|RegExp|Function} path
+   * @param {!Function} handler
    * @constructor
    */
-  senna.Route = function(opt_path, opt_screen) {
-    this.setPath(opt_path);
-    this.setScreen(opt_screen);
+  senna.Route = function(path, handler) {
+    if (!senna.isDef(path)) {
+      throw new Error('Route path not specified.');
+    }
+    if (!senna.isFunction(handler)) {
+      throw new Error('Route handler is not a function.');
+    }
+    this.setPath(path);
+    this.setHandler(handler);
   };
 
   /**
-   * Defines the path which will trigger the rendering of the screen,
-   * specified in screen attribute. In case of <code>Function</code>, it will
-   * receive the URL as parameter and it should return true if this URL could
-   * be handled by the screen.
+   * Defines the path which will trigger the route handler.
    * @type {!String|RegExp|Function}
    * @default null
    * @protected
@@ -1334,21 +1332,20 @@
   senna.Route.prototype.path = null;
 
   /**
-   * Defines the screen which will be rendered once a URL in the application
-   * matches the path, specified in `path` attribute. Could be `senna.Screen`
-   * or its extension, like `senna.HtmlScreen`.
-   * @type {senna.Screen}
+   * Defines the handler which will execute once a URL in the application
+   * matches the path.
+   * @type {!Function}
    * @default null
    * @protected
    */
-  senna.Route.prototype.screen = null;
+  senna.Route.prototype.handler = null;
 
   /**
-   * Gets the route screen.
-   * @return {!senna.Screen}
+   * Gets the route handler.
+   * @return {!Function}
    */
-  senna.Route.prototype.getScreen = function() {
-    return this.screen;
+  senna.Route.prototype.getHandler = function() {
+    return this.handler;
   };
 
   /**
@@ -1381,19 +1378,19 @@
   };
 
   /**
+   * Sets the route handler.
+   * @param {!Function} handler
+   */
+  senna.Route.prototype.setHandler = function(handler) {
+    this.handler = handler;
+  };
+
+  /**
    * Sets the route path.
    * @param {!String|RegExp|Function} path
    */
   senna.Route.prototype.setPath = function(path) {
     this.path = path;
-  };
-
-  /**
-   * Sets the route screen.
-   * @param {!senna.Screen} screen
-   */
-  senna.Route.prototype.setScreen = function(screen) {
-    this.screen = screen;
   };
 }());
 
@@ -1705,6 +1702,15 @@
   senna.inherits(senna.Screen, senna.Cacheable);
 
   /**
+   * @param {*} object
+   * @return {boolean} Whether a given instance implements
+   * <code>senna.Screen</code>.
+   */
+  senna.Screen.isImplementedBy = function(object) {
+    return object instanceof senna.Screen;
+  };
+
+  /**
    * Holds a unique id counter for random screen names.
    * @type {Number}
    * @protected
@@ -1727,7 +1733,6 @@
    * @protected
    */
   senna.Screen.prototype.title = null;
-
 
   /**
    * Fires when the screen is active. Allows a screen to perform any setup
