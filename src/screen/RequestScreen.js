@@ -15,7 +15,7 @@
   /**
    * @inheritDoc
    */
-  senna.RequestScreen.prototype.cacheable = false;
+  senna.RequestScreen.prototype.cacheable = true;
 
   /**
    * Holds default http headers to set on request.
