@@ -89,7 +89,6 @@ describe('Senna', function() {
     assert.equal(lazySurface.getEl(), null);
     assert.equal(lazySurface.activeChild, null);
     assert.equal(lazySurface.defaultChild, null);
-    console.log(lazySurface.activeElement);
 
     app.navigate('/base/lazy').then(function() {
       app.navigate('/base/page').then(function() {
