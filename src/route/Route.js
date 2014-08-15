@@ -3,20 +3,23 @@
 (function() {
   /**
    * Route class.
-   * @param {String=} opt_path
-   * @param {senna.Screen=} opt_screen
+   * @param {!String|RegExp|Function} path
+   * @param {!Function} handler
    * @constructor
    */
-  senna.Route = function(opt_path, opt_screen) {
-    this.setPath(opt_path);
-    this.setScreen(opt_screen);
+  senna.Route = function(path, handler) {
+    if (!senna.isDef(path)) {
+      throw new Error('Route path not specified.');
+    }
+    if (!senna.isFunction(handler)) {
+      throw new Error('Route handler is not a function.');
+    }
+    this.setPath(path);
+    this.setHandler(handler);
   };
 
   /**
-   * Defines the path which will trigger the rendering of the screen,
-   * specified in screen attribute. In case of <code>Function</code>, it will
-   * receive the URL as parameter and it should return true if this URL could
-   * be handled by the screen.
+   * Defines the path which will trigger the route handler.
    * @type {!String|RegExp|Function}
    * @default null
    * @protected
@@ -24,21 +27,20 @@
   senna.Route.prototype.path = null;
 
   /**
-   * Defines the screen which will be rendered once a URL in the application
-   * matches the path, specified in `path` attribute. Could be `senna.Screen`
-   * or its extension, like `senna.HtmlScreen`.
-   * @type {senna.Screen}
+   * Defines the handler which will execute once a URL in the application
+   * matches the path.
+   * @type {!Function}
    * @default null
    * @protected
    */
-  senna.Route.prototype.screen = null;
+  senna.Route.prototype.handler = null;
 
   /**
-   * Gets the route screen.
-   * @return {!senna.Screen}
+   * Gets the route handler.
+   * @return {!Function}
    */
-  senna.Route.prototype.getScreen = function() {
-    return this.screen;
+  senna.Route.prototype.getHandler = function() {
+    return this.handler;
   };
 
   /**
@@ -71,18 +73,18 @@
   };
 
   /**
+   * Sets the route handler.
+   * @param {!Function} handler
+   */
+  senna.Route.prototype.setHandler = function(handler) {
+    this.handler = handler;
+  };
+
+  /**
    * Sets the route path.
    * @param {!String|RegExp|Function} path
    */
   senna.Route.prototype.setPath = function(path) {
     this.path = path;
-  };
-
-  /**
-   * Sets the route screen.
-   * @param {!senna.Screen} screen
-   */
-  senna.Route.prototype.setScreen = function(screen) {
-    this.screen = screen;
   };
 }());
