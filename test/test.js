@@ -53,15 +53,15 @@ describe('Senna', function() {
     window.history.pushState(null, null, test.originalPath);
   });
 
-  it('should find screen route from path', function(done) {
-    var route = app.matchesPath('/base/unknown');
+  it('should find route from path', function(done) {
+    var route = app.findRoute('/base/unknown');
     assert.strictEqual(route, null);
 
-    route = app.matchesPath('/base/page');
+    route = app.findRoute('/base/page');
     assert.ok(route instanceof senna.Route);
     assert.equal(route.getPath(), '/page');
 
-    route = app.matchesPath('/base/querystring?p=1');
+    route = app.findRoute('/base/querystring?p=1');
     assert.ok(route instanceof senna.Route);
     assert.equal(route.getPath(), test.queryStringRoute);
 
@@ -225,9 +225,9 @@ describe('Senna', function() {
         test.assertNavigation('/base/querystring?p=beforeunrouted', 'querystring');
         assert.ok(startNavigateCalled && endNavigateCalled);
         assert.ok(err1 instanceof Error);
-        assert.equal(err1.message, 'No screen for /base/unknown');
+        assert.equal(err1.message, 'No route for /base/unknown');
         assert.ok(err2 instanceof Error);
-        assert.equal(err2.message, 'No screen for /base/unknown');
+        assert.equal(err2.message, 'No route for /base/unknown');
 
         done();
       });

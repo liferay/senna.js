@@ -261,9 +261,9 @@
       this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('Cancelled by active screen'));
       return this.pendingNavigate;
     }
-    var route = this.matchesPath(path);
+    var route = this.findRoute(path);
     if (!route) {
-      this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('No screen for ' + path));
+      this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('No route for ' + path));
       return this.pendingNavigate;
     }
 
@@ -331,6 +331,36 @@
     this.screens[path] = nextScreen;
     this.pendingNavigate = null;
     console.log('Navigation done');
+  };
+
+  /**
+   * Finds a route for the test path. Returns true if matches has a route,
+   * otherwise returns null.
+   * @param {!String} path Path containing the querystring part.
+   * @return {?Object} Route handler if match any or <code>null</code> if the
+   *     path is the same as the current url and the path contains a fragment.
+   */
+  senna.App.prototype.findRoute = function(path) {
+    var basePath = this.basePath;
+
+    // Prevents navigation if it's a hash change on the same url.
+    var hashIndex = path.lastIndexOf('#');
+    if (hashIndex > -1) {
+      path = path.substr(0, hashIndex);
+      if (path === window.location.pathname + window.location.search) {
+        return null;
+      }
+    }
+
+    path = path.substr(basePath.length);
+
+    for (var i = 0; i < this.routes.length; i++) {
+      var route = this.routes[i];
+      if (route.matchesPath(path)) {
+        return route;
+      }
+    }
+    return null;
   };
 
   /**
@@ -467,39 +497,6 @@
   };
 
   /**
-   * Matches if path is a known route, if not found any returns null. The path
-   * could contain a fragment-id (#). If the path is the same as the current
-   * url, and the path contains a fragment, we do not prevent the default
-   * browser behavior.
-   * @param {!String} path Path containing the querystring part.
-   * @return {?Object} Route handler if match any or <code>null</code> if the
-   *     path is the same as the current url and the path contains a fragment.
-   */
-  senna.App.prototype.matchesPath = function(path) {
-    var basePath = this.basePath;
-    var hashIndex;
-
-    // Remove path hash before match
-    hashIndex = path.lastIndexOf('#');
-    if (hashIndex > -1) {
-      path = path.substr(0, hashIndex);
-      if (path === window.location.pathname + window.location.search) {
-        return null;
-      }
-    }
-
-    path = path.substr(basePath.length);
-
-    for (var i = 0; i < this.routes.length; i++) {
-      var route = this.routes[i];
-      if (route.matchesPath(path)) {
-        return route;
-      }
-    }
-    return null;
-  };
-
-  /**
    * Navigates to the specified path if there is a route handler that matches.
    * @param {!String} path Path to navigate containing the base path.
    * @param {Boolean=} opt_replaceHistory Replaces browser history.
@@ -546,8 +543,8 @@
       console.log('Link clicked outside app\'s base path');
       return;
     }
-    if (!this.matchesPath(path)) {
-      console.log('No screen for ' + path);
+    if (!this.findRoute(path)) {
+      console.log('No route for ' + path);
       return;
     }
 
