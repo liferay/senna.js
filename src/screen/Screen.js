@@ -70,9 +70,6 @@
 
     var transitions = [];
     for (var surfaceId in surfaces) {
-      if (!surfaces.hasOwnProperty(surfaceId)) {
-        continue;
-      }
       transitions.push(surfaces[surfaceId].show(this.id));
     }
 
