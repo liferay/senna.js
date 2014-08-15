@@ -48,13 +48,13 @@ gulp.task('docs', function() {
 });
 
 gulp.task('format', function() {
-  return gulp.src('src/**/*.js')
+  return gulp.src(['src/**/*.js', '!src/vendor/Promise.js'])
     .pipe(plugins.esformatter())
     .pipe(gulp.dest('src'));
 });
 
 gulp.task('lint', function() {
-  return gulp.src('src/**/**.js')
+  return gulp.src(['src/**/*.js', '!src/vendor/Promise.js'])
     .pipe(plugins.jshint())
     .pipe(plugins.jshint.reporter(stylish));
 });
