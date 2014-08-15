@@ -22,11 +22,13 @@ a {
   box-shadow: none;
   border-radius: 20px;
 }
+
 .primary-button {
   color: #fff;
   background: #1b98f8;
   margin: 1em 0;
 }
+
 .secondary-button {
   background: #fff;
   border: 1px solid #ddd;
@@ -81,6 +83,7 @@ a {
 #nav.active {
   height: 80%;
 }
+
 /* Don't show the navigation items... */
 .nav-inner {
   display: none;
@@ -107,10 +110,12 @@ a {
 #nav .pure-menu a:focus {
   background: #011651;
 }
+
 #nav .pure-menu a {
   color: #fff;
   margin-left: 0.5em;
 }
+
 #nav .pure-menu-heading {
   border-bottom: none;
   font-size:110%;
@@ -134,12 +139,15 @@ a {
   margin-right: 0.5em;
   border-radius: 3px;
 }
+
 .email-label-personal {
   background: #ffe000;
 }
+
 .email-label-work {
   background: #41ccb4;
 }
+
 .email-label-travel {
   background: #009d34;
 }
@@ -182,6 +190,7 @@ a {
 .email-content-header, .email-content-body, .email-content-footer {
     padding: 1em 2em;
 }
+
 .email-content-header {
   border-bottom: 1px solid #ddd;
 }
@@ -196,6 +205,7 @@ a {
   margin: 0;
   font-weight: normal;
 }
+
 .email-content-subtitle span {
   color: #999;
 }
@@ -234,6 +244,7 @@ a {
     bottom: 0;
     overflow: auto;
   }
+
   #nav {
     margin-left:-500px; /* "left col (nav + list)" width */
     width:150px;
