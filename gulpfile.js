@@ -1,45 +1,56 @@
 'use strict';
+
 var gulp = require('gulp');
-var merge = require('merge-stream');
 var pkg = require('./package.json');
 var plugins = require('gulp-load-plugins')();
+var runSequence = require('run-sequence');
 var stylish = require('jshint-stylish');
-var args = require('yargs').argv;
 
-gulp.task('clean', function() {
-  return gulp.src('build').pipe(plugins.rimraf());
-});
+var mainFiles = [
+  'src/senna.js',
+  'src/utils/EventEmitter.js',
+  'src/utils/Cacheable.js',
+  'src/app/App.js',
+  'src/route/Route.js',
+  'src/surface/Surface.js',
+  'src/screen/Screen.js',
+  'src/screen/RequestScreen.js',
+  'src/screen/HtmlScreen.js',
+  'src/vendor/Promise.js'
+];
 
 gulp.task('build', ['clean'], function() {
-  var files = [
-    'src/senna.js',
-    'src/utils/EventEmitter.js',
-    'src/utils/Cacheable.js',
-    'src/app/App.js',
-    'src/route/Route.js',
-    'src/surface/Surface.js',
-    'src/screen/Screen.js',
-    'src/screen/RequestScreen.js',
-    'src/screen/HtmlScreen.js',
-    'src/vendor/Promise.js'
-  ];
+  return runSequence(['build-raw', 'build-min', 'build-debug']);
+});
 
-  var raw = gulp.src(files)
+gulp.task('build-raw', function() {
+  return gulp.src(mainFiles)
     .pipe(plugins.concat('senna.js'))
     .pipe(banner())
-    .pipe(plugins.if(!args.debug, plugins.stripDebug()))
+    .pipe(plugins.stripDebug())
     .pipe(gulp.dest('build'));
+});
 
-  var min = gulp.src(files)
+gulp.task('build-min', function() {
+  return gulp.src(mainFiles)
     .pipe(plugins.uglify({
       preserveComments: 'some'
     }))
     .pipe(plugins.concat('senna-min.js'))
     .pipe(banner())
-    .pipe(plugins.if(!args.debug, plugins.stripDebug()))
+    .pipe(plugins.stripDebug())
     .pipe(gulp.dest('build'));
+});
 
-  return merge(raw, min);
+gulp.task('build-debug', function() {
+  return gulp.src(mainFiles)
+    .pipe(plugins.concat('senna-debug.js'))
+    .pipe(banner())
+    .pipe(gulp.dest('build'));
+});
+
+gulp.task('clean', function() {
+  return gulp.src('build').pipe(plugins.rimraf());
 });
 
 gulp.task('docs', function() {
