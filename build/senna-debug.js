@@ -608,7 +608,7 @@
     this.popstateEventHandler_ = senna.bind(this.onPopstate_, this);
     this.scrollEventHandler_ = senna.debounce(this.onScroll_, 50, this);
 
-    this.on('startNavigate', this.defStartNavigateFn_);
+    this.on('startNavigate', this.onStartNavigate_);
     document.addEventListener('click', this.docClickEventHandler_, false);
     window.addEventListener('popstate', this.popstateEventHandler_, false);
     document.addEventListener('scroll', this.scrollEventHandler_, false);
@@ -809,37 +809,6 @@
   };
 
   /**
-   * Starts navigation to a path.
-   * @param {!Event} event Event facade containing <code>path</code> and
-   *     <code>replaceHistory</code>.
-   * @protected
-   */
-  senna.App.prototype.defStartNavigateFn_ = function(event) {
-    var instance = this;
-    var htmlElement = document.documentElement;
-
-    htmlElement.classList.add(this.loadingCssClass);
-
-    var payload = {
-      path: event.path
-    };
-
-    this.pendingNavigate = this.doNavigate_(
-      event.path,
-      event.replaceHistory
-    ).thenCatch(function(reason) {
-      payload.error = reason;
-      instance.stopPending_();
-      throw reason;
-    }
-    ).thenAlways(function() {
-      instance.emit('endNavigate', payload);
-      htmlElement.classList.remove(instance.loadingCssClass);
-    }
-    );
-  };
-
-  /**
    * Destroys app instance and removes all event handlers. All surfaces will
    * be restored to its default content.
    * @chainable
@@ -867,10 +836,7 @@
    * @return {Promise} Returns a pending request cancellable promise.
    */
   senna.App.prototype.dispatch = function() {
-    return this.navigate(
-      window.location.pathname + window.location.search + window.location.hash,
-      true
-    );
+    return this.navigate(window.location.pathname + window.location.search + window.location.hash, true);
   };
 
   /**
@@ -880,30 +846,24 @@
    * @return {Promise} Returns a pending request cancellable promise.
    */
   senna.App.prototype.doNavigate_ = function(path, opt_replaceHistory) {
-    var instance = this;
-    var activeScreen = instance.activeScreen;
+    var self = this;
 
-    if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-      this.pendingNavigate = senna.Promise.reject(
-        new senna.Promise.CancellationError('Cancelled by active screen'));
+    if (self.activeScreen && self.activeScreen.beforeDeactivate()) {
+      this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('Cancelled by active screen'));
       return this.pendingNavigate;
     }
-
-    var route = this.matchesPath(path);
+    var route = this.findRoute(path);
     if (!route) {
-      this.pendingNavigate = senna.Promise.reject(
-        new senna.Promise.CancellationError('No screen for ' + path));
+      this.pendingNavigate = senna.Promise.reject(new senna.Promise.CancellationError('No route for ' + path));
       return this.pendingNavigate;
     }
 
     console.log('Navigate to [' + path + ']');
-
     // When reloading the same path do replaceState instead of pushState to
     // avoid polluting history with states with the same path.
     if (path === this.activePath) {
       opt_replaceHistory = true;
     }
-
     var nextScreen = this.getScreenInstance_(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
@@ -912,22 +872,24 @@
       })
       .then(function(contents) {
         var screenId = nextScreen.getId();
-        for (var surfaceId in instance.surfaces) {
-          if (instance.surfaces.hasOwnProperty(surfaceId)) {
-            var surface = instance.surfaces[surfaceId];
+        for (var surfaceId in self.surfaces) {
+          if (self.surfaces.hasOwnProperty(surfaceId)) {
+            var surface = self.surfaces[surfaceId];
             surface.addContent(screenId, nextScreen.getSurfaceContent(surfaceId, contents));
           }
         }
-        if (activeScreen) {
-          activeScreen.deactivate();
+        if (self.activeScreen) {
+          self.activeScreen.deactivate();
         }
-        return nextScreen.flip(instance.surfaces);
-      }).then(function() {
-      instance.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
-    }).thenCatch(function(reason) {
-      instance.handleNavigateError_(path, nextScreen, reason);
-      throw reason;
-    });
+        return nextScreen.flip(self.surfaces);
+      })
+      .then(function() {
+        self.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
+      })
+      .thenCatch(function(reason) {
+        self.handleNavigateError_(path, nextScreen, reason);
+        throw reason;
+      });
 
     return this.pendingNavigate;
   };
@@ -960,6 +922,36 @@
     this.screens[path] = nextScreen;
     this.pendingNavigate = null;
     console.log('Navigation done');
+  };
+
+  /**
+   * Finds a route for the test path. Returns true if matches has a route,
+   * otherwise returns null.
+   * @param {!String} path Path containing the querystring part.
+   * @return {?Object} Route handler if match any or <code>null</code> if the
+   *     path is the same as the current url and the path contains a fragment.
+   */
+  senna.App.prototype.findRoute = function(path) {
+    var basePath = this.basePath;
+
+    // Prevents navigation if it's a hash change on the same url.
+    var hashIndex = path.lastIndexOf('#');
+    if (hashIndex > -1) {
+      path = path.substr(0, hashIndex);
+      if (path === window.location.pathname + window.location.search) {
+        return null;
+      }
+    }
+
+    path = path.substr(basePath.length);
+
+    for (var i = 0; i < this.routes.length; i++) {
+      var route = this.routes[i];
+      if (route.matchesPath(path)) {
+        return route;
+      }
+    }
+    return null;
   };
 
   /**
@@ -1068,9 +1060,9 @@
    * @protected
    */
   senna.App.prototype.lockScroll_ = function() {
-    var instance = this;
-    var lockPageXOffset = instance.lockPageXOffset;
-    var lockPageYOffset = instance.lockPageYOffset;
+    var self = this;
+    var lockPageXOffset = self.lockPageXOffset;
+    var lockPageYOffset = self.lockPageYOffset;
     // Browsers are inconsistent when re-positioning the scroll history on
     // popstate. At some browsers, history scroll happens before popstate, then
     // lock the scroll on the last known position as soon as possible after the
@@ -1082,8 +1074,8 @@
     var winner = false;
     var switchScrollPositionRace = function() {
       if (!winner) {
-        instance.pageXOffset = window.pageXOffset;
-        instance.pageYOffset = window.pageYOffset;
+        self.pageXOffset = window.pageXOffset;
+        self.pageYOffset = window.pageYOffset;
         window.scrollTo(lockPageXOffset, lockPageYOffset);
         winner = true;
       }
@@ -1093,39 +1085,6 @@
       document.removeEventListener('scroll', onceScrollInternal, false);
       switchScrollPositionRace();
     }, false);
-  };
-
-  /**
-   * Matches if path is a known route, if not found any returns null. The path
-   * could contain a fragment-id (#). If the path is the same as the current
-   * url, and the path contains a fragment, we do not prevent the default
-   * browser behavior.
-   * @param {!String} path Path containing the querystring part.
-   * @return {?Object} Route handler if match any or <code>null</code> if the
-   *     path is the same as the current url and the path contains a fragment.
-   */
-  senna.App.prototype.matchesPath = function(path) {
-    var basePath = this.basePath,
-      hashIndex;
-
-    // Remove path hash before match
-    hashIndex = path.lastIndexOf('#');
-    if (hashIndex > -1) {
-      path = path.substr(0, hashIndex);
-      if (path === window.location.pathname + window.location.search) {
-        return null;
-      }
-    }
-
-    path = path.substr(basePath.length);
-
-    for (var i = 0; i < this.routes.length; i++) {
-      var route = this.routes[i];
-      if (route.matchesPath(path)) {
-        return route;
-      }
-    }
-    return null;
   };
 
   /**
@@ -1175,8 +1134,8 @@
       console.log('Link clicked outside app\'s base path');
       return;
     }
-    if (!this.matchesPath(path)) {
-      console.log('No screen for ' + path);
+    if (!this.findRoute(path)) {
+      console.log('No route for ' + path);
       return;
     }
 
@@ -1230,6 +1189,31 @@
   senna.App.prototype.onScroll_ = function() {
     this.lockPageXOffset = window.pageXOffset;
     this.lockPageYOffset = window.pageYOffset;
+  };
+
+  /**
+   * Starts navigation to a path.
+   * @param {!Event} event Event facade containing <code>path</code> and
+   *     <code>replaceHistory</code>.
+   * @protected
+   */
+  senna.App.prototype.onStartNavigate_ = function(event) {
+    var self = this;
+    var payload = {};
+
+    document.documentElement.classList.add(this.loadingCssClass);
+
+    this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
+      .thenCatch(function(err) {
+        self.stopPending_();
+        payload.error = err;
+        throw err;
+      })
+      .thenAlways(function() {
+        payload.path = event.path;
+        self.emit('endNavigate', payload);
+        document.documentElement.classList.remove(self.loadingCssClass);
+      });
   };
 
   /**
@@ -1981,13 +1965,13 @@
    */
   senna.RequestScreen.prototype.load = function(path) {
     senna.RequestScreen.base(this, 'load', path);
-    var instance = this;
+    var self = this;
     var cache = this.getCache();
     if (senna.isValue(cache)) {
       return senna.Promise.resolve(cache);
     }
     return senna.request(path, this.httpMethod, this.httpHeaders, this.timeout).then(function(xhr) {
-      instance.setRequest(xhr);
+      self.setRequest(xhr);
       return xhr.responseText;
     });
   };
@@ -2072,13 +2056,13 @@
    * @inheritDoc
    */
   senna.HtmlScreen.prototype.load = function(path) {
-    var instance = this;
+    var self = this;
     var promise = senna.HtmlScreen.base(this, 'load', path);
 
     return promise.then(function(content) {
-      return instance.resolveContent(content);
+      return self.resolveContent(content);
     }).thenCatch(function(err) {
-      instance.abortRequest();
+      self.abortRequest();
       throw err;
     });
   };
