@@ -817,9 +817,6 @@
     senna.App.base(this, 'destroy');
 
     for (var surfaceId in this.surfaces) {
-      if (!this.surfaces.hasOwnProperty(surfaceId)) {
-        continue;
-      }
       this.surfaces[surfaceId].remove(this.activeScreen);
       this.surfaces[surfaceId].show();
     }
@@ -873,10 +870,8 @@
       .then(function(contents) {
         var screenId = nextScreen.getId();
         for (var surfaceId in self.surfaces) {
-          if (self.surfaces.hasOwnProperty(surfaceId)) {
-            var surface = self.surfaces[surfaceId];
-            surface.addContent(screenId, nextScreen.getSurfaceContent(surfaceId, contents));
-          }
+          var surface = self.surfaces[surfaceId];
+          surface.addContent(screenId, nextScreen.getSurfaceContent(surfaceId, contents));
         }
         if (self.activeScreen) {
           self.activeScreen.deactivate();
@@ -1226,9 +1221,6 @@
     var screenId = screen.getId();
 
     for (var i in this.surfaces) {
-      if (!this.surfaces.hasOwnProperty(i)) {
-        continue;
-      }
       this.surfaces[i].remove(screenId);
     }
 
@@ -1766,9 +1758,6 @@
 
     var transitions = [];
     for (var surfaceId in surfaces) {
-      if (!surfaces.hasOwnProperty(surfaceId)) {
-        continue;
-      }
       transitions.push(surfaces[surfaceId].show(this.id));
     }
 
