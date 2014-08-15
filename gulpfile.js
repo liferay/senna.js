@@ -70,7 +70,15 @@ gulp.task('lint', function() {
     .pipe(plugins.jshint.reporter(stylish));
 });
 
-gulp.task('watch', function() {
+gulp.task('serve', function() {
+  return gulp.src('./')
+    .pipe(plugins.webserver({
+      directoryListing: true,
+      open: true
+    }));
+});
+
+gulp.task('watch', ['serve'], function() {
   gulp.watch('src/**/*.js', ['build']);
 });
 
