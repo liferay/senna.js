@@ -187,7 +187,8 @@ a {
 }
 
 .email-content-title {
-  margin: 0.5em 0 0;
+  margin: 0.5em 0 .3em;
+  line-height: 1em;
 }
 
 .email-content-subtitle {
