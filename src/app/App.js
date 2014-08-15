@@ -168,17 +168,17 @@
    * Example:
    *
    * <code>
-   *   app.addRoutes({ path: '/foo', screen: FooScreen });
+   *   app.addRoutes({ path: '/foo', handler: FooScreen });
    *   or
-   *   app.addRoutes([{ path: '/foo', screen: FooScreen }]);
+   *   app.addRoutes([{ path: '/foo', handler: function(route) { return new FooScreen(); } }]);
    * </code>
    *
    * @param {Object} or {Array} routes Single object or an array of object.
    *     Each object should contain <code>path</code> and <code>screen</code>.
    *     The <code>path</code> should be a string or a regex that maps the
    *     navigation route to a screen class definition (not an instance), e.g:
-   *         <code>{ path: "/home:param1", screen: MyScreen }</code>
-   *         <code>{ path: /foo.+/, screen: MyScreen }</code>
+   *         <code>{ path: "/home:param1", handler: MyScreen }</code>
+   *         <code>{ path: /foo.+/, handler: MyScreen }</code>
    * @chainable
    */
   senna.App.prototype.addRoutes = function(routes) {
@@ -188,7 +188,7 @@
     for (var i = 0; i < routes.length; i++) {
       var route = routes[i];
       if (!(route instanceof senna.Route)) {
-        route = new senna.Route(route.path, route.screen);
+        route = new senna.Route(route.path, route.handler);
       }
       this.routes.push(route);
     }
@@ -215,6 +215,34 @@
       this.surfaces[surface.getId()] = surface;
     }
     return this;
+  };
+
+  /**
+   * Retrieves or create a screen instance to a path.
+   * @param {!String} path Path containing the querystring part.
+   * @return {senna.Screen}
+   * @protected
+   */
+  senna.App.prototype.createScreenInstance_ = function(path, route) {
+    var cachedScreen;
+    if (path === this.activePath) {
+      // When simulating page refresh the request lifecycle must be respected,
+      // hence create a new screen instance for the same path.
+      console.log('Already at destination, refresh navigation');
+      cachedScreen = this.screens[path];
+      delete this.screens[path];
+    }
+    /* jshint newcap: false */
+    var screen = this.screens[path];
+    if (!screen) {
+      console.log('Create screen for [' + path + ']');
+      var handler = route.getHandler();
+      screen = senna.Screen.isImplementedBy(handler.prototype) ? new handler() : (handler(route) || new senna.Screen());
+      if (cachedScreen) {
+        screen.addCache(cachedScreen.getCache());
+      }
+    }
+    return screen;
   };
 
   /**
@@ -272,7 +300,7 @@
 
     console.log('Navigate to [' + path + ']');
 
-    var nextScreen = this.getScreenInstance_(path, route);
+    var nextScreen = this.createScreenInstance_(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
       .then(function() {
@@ -390,39 +418,6 @@
    */
   senna.App.prototype.getLoadingCssClass = function() {
     return this.loadingCssClass;
-  };
-
-  /**
-   * Retrieves or create a screen instance to a path.
-   * @param {!String} path Path containing the querystring part.
-   * @return {senna.Screen}
-   * @protected
-   */
-  senna.App.prototype.getScreenInstance_ = function(path, route) {
-    var screen;
-    var refreshScreen;
-
-    // When simulating page refresh the request lifecycle for activeScreen
-    // and nextScreen should be respected, therefore creating a new screen
-    // instance for the same path is needed
-    if (path === this.activePath) {
-      console.log('Already at destination, refresh navigation');
-      refreshScreen = this.screens[path];
-      delete this.screens[path];
-    }
-
-    screen = this.screens[path];
-    if (!screen) {
-      console.log('Create screen for [' + path + ']');
-      screen = new(route.getScreen())();
-      // When simulating a page refresh the cache should copy the cache
-      // from refreshScreen to avoid roundtrip to the server
-      if (refreshScreen) {
-        screen.addCache(refreshScreen.getCache());
-      }
-    }
-
-    return screen;
   };
 
   /**
