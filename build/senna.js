@@ -855,12 +855,14 @@
       return this.pendingNavigate;
     }
 
-    void 0;
     // When reloading the same path do replaceState instead of pushState to
     // avoid polluting history with states with the same path.
     if (path === this.activePath) {
       opt_replaceHistory = true;
     }
+
+    void 0;
+
     var nextScreen = this.getScreenInstance_(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
