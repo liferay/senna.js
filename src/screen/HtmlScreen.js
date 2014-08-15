@@ -47,8 +47,8 @@
     var instance = this;
     var promise = senna.HtmlScreen.base(this, 'load', path);
 
-    return promise.then(function(xhr) {
-      return instance.resolveContent(xhr);
+    return promise.then(function(content) {
+      return instance.resolveContent(content);
     }).thenCatch(function(err) {
       instance.abortRequest();
       throw err;
@@ -60,17 +60,19 @@
    * @param {XMLHttpRequest} xhr
    * @return {?Element}
    */
-  senna.HtmlScreen.prototype.resolveContent = function(xhr) {
-    var div = document.createElement('div');
-    div.innerHTML = xhr.responseText;
+  senna.HtmlScreen.prototype.resolveContent = function(content) {
+    if (senna.isString(content)) {
+      var div = document.createElement('div');
+      div.innerHTML = content;
+      content = div;
+    }
 
-    var title = div.querySelector(this.titleSelector);
+    var title = content.querySelector(this.titleSelector);
     if (title) {
       this.setTitle(title.innerHTML.trim());
     }
-
-    this.addCache(div);
-    return div;
+    this.addCache(content);
+    return content;
   };
 
   /**

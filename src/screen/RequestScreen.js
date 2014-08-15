@@ -108,7 +108,7 @@
     }
     return senna.request(path, this.httpMethod, this.httpHeaders, this.timeout).then(function(xhr) {
       instance.setRequest(xhr);
-      return xhr;
+      return xhr.responseText;
     });
   };
 
