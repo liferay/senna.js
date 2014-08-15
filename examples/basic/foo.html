@@ -18,17 +18,23 @@
     </div>
   </div>
   <script>
+    'use strict';
     var app = new senna.App();
     app.setBasePath('/examples/basic');
     app.addSurfaces(['header', 'content']);
     app.addRoutes([
       {
         path: '/index.html',
-        screen: senna.HtmlScreen
+        handler: senna.HtmlScreen
       },
       {
         path: '/foo.html',
-        screen: senna.HtmlScreen
+        handler: function(route) {
+          console.log('Middleware route handler for ' + route.getPath());
+          var screen = new senna.HtmlScreen();
+          screen.setCacheable(false);
+          return screen;
+        }
       }
     ]);
   </script>
