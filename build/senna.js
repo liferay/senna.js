@@ -1414,8 +1414,6 @@
       throw new Error('Surface element id not specified.');
     }
     this.setId(id);
-    this.el = this.getEl(id);
-    this.activeChild = this.defaultChild = this.addContent(senna.Surface.DEFAULT);
   };
 
   /**
@@ -1629,8 +1627,14 @@
    *     resolved.
    */
   senna.Surface.prototype.show = function(screenId) {
-    var deferred;
-    var el;
+    if (!this.defaultChild) {
+      this.defaultChild = this.addContent(senna.Surface.DEFAULT);
+    }
+
+    if (!this.activeChild) {
+      this.activeChild = this.defaultChild;
+    }
+
     var from = this.activeChild;
     var to = this.getChild(screenId);
 
@@ -1646,12 +1650,12 @@
 
     // Avoid repainting if the child is already in place or the element does
     // not exist
-    el = this.getEl();
+    var el = this.getEl();
     if (el && to && !to.parentNode) {
       senna.append(el, to);
     }
 
-    deferred = this.transition(from, to);
+    var deferred = this.transition(from, to);
     this.activeChild = to;
 
     return deferred;
