@@ -20,7 +20,13 @@ var mainFiles = [
 ];
 
 gulp.task('build', ['clean'], function() {
-  return runSequence(['build-raw', 'build-min', 'build-debug']);
+  return runSequence('build-raw', 'build-min', 'build-debug', 'build-css');
+});
+
+gulp.task('build-css', function() {
+  return gulp.src('src/senna.css')
+    .pipe(plugins.csso())
+    .pipe(gulp.dest('build'));
 });
 
 gulp.task('build-raw', function() {
