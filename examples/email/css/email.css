@@ -149,6 +149,11 @@ a {
   padding: 0.9em 1em;
   border-bottom: 1px solid #ddd;
   border-left: 6px solid transparent;
+  color: #333;
+}
+
+.email-item:hover {
+  background: #eee;
 }
 
 .email-avatar {
@@ -169,7 +174,6 @@ a {
 }
 
 .email-item-selected {
-  background: #eee;
   border-left: 6px solid #1b98f8;
 }
 
