@@ -84,8 +84,8 @@ gulp.task('serve', function() {
     }));
 });
 
-gulp.task('watch', ['serve'], function() {
-  gulp.watch('src/**/*.js', ['build']);
+gulp.task('watch', ['build', 'serve'], function() {
+  gulp.watch('src/**/*', ['build']);
 });
 
 // Private helpers
