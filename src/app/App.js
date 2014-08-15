@@ -225,7 +225,7 @@
    */
   senna.App.prototype.defStartNavigateFn_ = function(event) {
     var instance = this;
-    var htmlElement = document.body.parentNode;
+    var htmlElement = document.documentElement;
 
     htmlElement.classList.add(this.loadingCssClass);
 
