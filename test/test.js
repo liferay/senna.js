@@ -24,25 +24,25 @@ describe('Senna', function() {
     app.addRoutes([
       {
         path: '/lazy',
-        screen: test.LazySurfaceScreen
+        handler: test.LazySurfaceScreen
       },
       {
         path: '/locked',
-        screen: test.LockedScreen
+        handler: test.LockedScreen
       },
       {
         path: test.queryStringRoute,
-        screen: test.QueryStringScreen
+        handler: test.QueryStringScreen
       },
       {
         path: function(value) {
           return value === '/delayed200ms';
         },
-        screen: test.DelayedScreen
+        handler: test.DelayedScreen
       },
       {
         path: NaN,
-        screen: senna.Screen
+        handler: senna.Screen
       },
       new senna.Route('/page', test.PageScreen)
     ]);
@@ -151,11 +151,11 @@ describe('Senna', function() {
     app.addRoutes([
       {
         path: '/lifecycle1',
-        screen: LifecycleScreen
+        handler: LifecycleScreen
       },
       {
         path: '/lifecycle2',
-        screen: LifecycleScreen
+        handler: LifecycleScreen
       }
     ]);
 
@@ -422,7 +422,7 @@ describe('Senna', function() {
     var path = test.getOriginalBasePath() + '/fixture/content.txt';
     app.addRoutes({
       path: '/fixture/content.txt',
-      screen: senna.HtmlScreen
+      handler: senna.HtmlScreen
     });
     app.setBasePath(test.getOriginalBasePath());
     app.navigate(path).then(function() {
@@ -436,7 +436,7 @@ describe('Senna', function() {
     var path = test.getOriginalBasePath() + '/fixture/notitle.txt';
     app.addRoutes({
       path: '/fixture/notitle.txt',
-      screen: senna.HtmlScreen
+      handler: senna.HtmlScreen
     });
     app.setBasePath(test.getOriginalBasePath());
     app.navigate(path).then(function() {
@@ -454,7 +454,7 @@ describe('Senna', function() {
       app.setBasePath(test.getOriginalBasePath());
       app.addRoutes({
         path: '/fixture/404.txt',
-        screen: senna.HtmlScreen
+        handler: senna.HtmlScreen
       });
       app.navigate(test.getOriginalBasePath() + '/fixture/404.txt').thenCatch(function() {
         test.assertNavigation('/base/querystring?p=before404', 'querystring');
