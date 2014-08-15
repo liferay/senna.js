@@ -17,25 +17,20 @@
       Content default <a href="index.html">Bar</a>
     </div>
   </div>
-  <div id="scripts">
-    <script>
-    if (!app) {
-      console.log('Initializing App');
-      var app = new senna.App();
-      app.setBasePath('/senna/examples/basic');
-      app.addSurfaces(['header', 'content', 'scripts']);
-      app.addRoutes([
-        {
-          path: '/index.html',
-          screen: senna.HtmlScreen
-        },
-        {
-          path: '/foo.html',
-          screen: senna.HtmlScreen
-        }
-      ]);
-    }
-    </script>
-  </div>
+  <script>
+    var app = new senna.App();
+    app.setBasePath('/examples/basic');
+    app.addSurfaces(['header', 'content']);
+    app.addRoutes([
+      {
+        path: '/index.html',
+        screen: senna.HtmlScreen
+      },
+      {
+        path: '/foo.html',
+        screen: senna.HtmlScreen
+      }
+    ]);
+  </script>
 </body>
 </html>
