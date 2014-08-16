@@ -1,9 +1,6 @@
 .senna-loading-bar {
-  background: #2AAAE6;
-}
-
-.senna-loading-bar {
-  background: rgba(255, 255, 255, 0.5);
+  background: #2aaae6;
+  background: rgba(255, 255, 255, .5)
 }
 
 .senna-loading .senna-loading-bar {
@@ -12,15 +9,12 @@
   -ms-animation: shift-rightwards 1s ease-in-out infinite;
   -o-animation: shift-rightwards 1s ease-in-out infinite;
   animation: shift-rightwards 1s ease-in-out infinite;
-  -webkit-animation-delay: 0.4s;
-  -moz-animation-delay: 0.4s;
-  -ms-animation-delay: 0.4s;
-  -o-animation-delay: 0.4s;
-  animation-delay: 0.4s;
-}
-
-.senna-loading .senna-loading-bar {
-  display: block;
+  -webkit-animation-delay: .4s;
+  -moz-animation-delay: .4s;
+  -ms-animation-delay: .4s;
+  -o-animation-delay: .4s;
+  animation-delay: .4s;
+  display: block
 }
 
 .senna-loading-bar {
@@ -29,20 +23,14 @@
   -ms-transform: translateX(100%);
   -o-transform: translateX(100%);
   transform: translateX(100%);
-}
-
-.senna-loading-bar {
-  background: #2FA4F5;
-}
-
-.senna-loading-bar {
+  background: #2fa4f5;
   display: none;
   height: 2px;
   left: 0;
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 1000;
+  z-index: 1000
 }
 
 @-webkit-keyframes shift-rightwards {
@@ -53,21 +41,15 @@
     -o-transform: translateX(-100%);
     transform: translateX(-100%)
   }
-  40% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
-  }
+  40%,
   60% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0)
   }
-  100% {
+  to {
     -webkit-transform: translateX(100%);
     -moz-transform: translateX(100%);
     -ms-transform: translateX(100%);
@@ -83,21 +65,15 @@
     -o-transform: translateX(-100%);
     transform: translateX(-100%)
   }
-  40% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
-  }
+  40%,
   60% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0)
   }
-  100% {
+  to {
     -webkit-transform: translateX(100%);
     -moz-transform: translateX(100%);
     -ms-transform: translateX(100%);
@@ -113,21 +89,15 @@
     -o-transform: translateX(-100%);
     transform: translateX(-100%)
   }
-  40% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
-  }
+  40%,
   60% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0)
   }
-  100% {
+  to {
     -webkit-transform: translateX(100%);
     -moz-transform: translateX(100%);
     -ms-transform: translateX(100%);
@@ -143,21 +113,15 @@
     -o-transform: translateX(-100%);
     transform: translateX(-100%)
   }
-  40% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
-  }
+  40%,
   60% {
-    -webkit-transform: translateX(0%);
-    -moz-transform: translateX(0%);
-    -ms-transform: translateX(0%);
-    -o-transform: translateX(0%);
-    transform: translateX(0%)
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    transform: translateX(0)
   }
-  100% {
+  to {
     -webkit-transform: translateX(100%);
     -moz-transform: translateX(100%);
     -ms-transform: translateX(100%);
