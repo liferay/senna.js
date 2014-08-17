@@ -24,7 +24,7 @@
 
     // Don't fire popstate event on initial document load, for more
     // information see https://codereview.chromium.org/136463002.
-    this.skipLoadPopstate = (senna.safari && !senna.chrome) && (document.readyState === 'interactive' || document.readyState === 'loading');
+    this.skipLoadPopstate = senna.BrowserFeatures.safari && (document.readyState === 'interactive' || document.readyState === 'loading');
   };
   senna.inherits(senna.App, senna.EventEmitter);
 
