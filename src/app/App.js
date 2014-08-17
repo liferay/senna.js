@@ -51,6 +51,14 @@
   senna.App.prototype.basePath = '';
 
   /**
+   * Captures scroll position and saves on history state.
+   * @type {!Boolean}
+   * @default true
+   * @protected
+   */
+  senna.App.prototype.captureHistoryScrollPosition = true;
+
+  /**
    * Holds the default page title.
    * @type {String}
    * @default null
@@ -75,33 +83,13 @@
   senna.App.prototype.loadingCssClass = 'senna-loading';
 
   /**
-   * Holds the window hotizontal scroll position before navigation using back
-   * or forward happens to lock the scroll position until the surfaces are
-   * updated.
-   * @type {!Number}
-   * @default 0
-   * @protected
-   */
-  senna.App.prototype.lockPageXOffset = 0;
-
-  /**
-   * Holds the window vertical scroll position before navigation using back or
-   * forward happens to lock the scroll position until the surfaces are
-   * updated.
-   * @type {!Number}
-   * @default 0
-   * @protected
-   */
-  senna.App.prototype.lockPageYOffset = 0;
-
-  /**
    * Holds the window hotizontal scroll position when the navigation using
    * back or forward happens to be restored after the surfaces are updated.
    * @type {!Number}
    * @default 0
    * @protected
    */
-  senna.App.prototype.pageXOffset = 0;
+  senna.App.prototype.syncScrollLeft = 0;
 
   /**
    * Holds the window vertical scroll position when the navigation using
@@ -110,7 +98,7 @@
    * @default 0
    * @protected
    */
-  senna.App.prototype.pageYOffset = 0;
+  senna.App.prototype.syncScrollTop = 0;
 
   /**
    * Holds a deferred withe the current navigation.
@@ -319,6 +307,7 @@
         if (self.activeScreen) {
           self.activeScreen.deactivate();
         }
+
         return nextScreen.flip(self.surfaces);
       })
       .then(function() {
@@ -359,6 +348,7 @@
     this.activeScreen = nextScreen;
     this.screens[path] = nextScreen;
     this.pendingNavigate = null;
+    this.captureHistoryScrollPosition = true;
     console.log('Navigation done');
   };
 
@@ -464,10 +454,11 @@
    * of updating it when surfaces are ready.
    * @protected
    */
-  senna.App.prototype.lockScroll_ = function() {
-    var self = this;
-    var lockPageXOffset = self.lockPageXOffset;
-    var lockPageYOffset = self.lockPageYOffset;
+  senna.App.prototype.lockHistoryScrollPosition_ = function() {
+    var state = window.history.state;
+    if (!state) {
+      return;
+    }
     // Browsers are inconsistent when re-positioning the scroll history on
     // popstate. At some browsers, history scroll happens before popstate, then
     // lock the scroll on the last known position as soon as possible after the
@@ -478,18 +469,14 @@
     // the winner.
     var winner = false;
     var switchScrollPositionRace = function() {
+      document.removeEventListener('scroll', switchScrollPositionRace, false);
       if (!winner) {
-        self.pageXOffset = window.pageXOffset;
-        self.pageYOffset = window.pageYOffset;
-        window.scrollTo(lockPageXOffset, lockPageYOffset);
+        window.scrollTo(state.scrollLeft, state.scrollTop);
         winner = true;
       }
     };
     senna.async.nextTick(switchScrollPositionRace);
-    document.addEventListener('scroll', function onceScrollInternal() {
-      document.removeEventListener('scroll', onceScrollInternal, false);
-      switchScrollPositionRace();
-    }, false);
+    document.addEventListener('scroll', switchScrollPositionRace, false);
   };
 
   /**
@@ -579,7 +566,9 @@
 
     if (state && state.surface) {
       console.log('History navigation to [' + state.path + ']');
-      this.lockScroll_();
+      this.syncScrollTop = state.scrollTop;
+      this.syncScrollLeft = state.scrollLeft;
+      this.lockHistoryScrollPosition_();
       this.navigate(state.path, true);
     }
 
@@ -592,8 +581,9 @@
    * @protected
    */
   senna.App.prototype.onScroll_ = function() {
-    this.lockPageXOffset = window.pageXOffset;
-    this.lockPageYOffset = window.pageYOffset;
+    if (this.captureHistoryScrollPosition) {
+      this.storeScrollPosition_(window.pageXOffset, window.pageYOffset);
+    }
   };
 
   /**
@@ -605,6 +595,9 @@
   senna.App.prototype.onStartNavigate_ = function(event) {
     var self = this;
     var payload = {};
+
+    this.captureHistoryScrollPosition = false;
+    this.storeScrollPosition_(window.pageXOffset, window.pageYOffset);
 
     document.documentElement.classList.add(this.loadingCssClass);
 
@@ -702,6 +695,18 @@
   };
 
   /**
+   * Stores scroll position and saves on history state.
+   * @param {!Number} scrollLeft
+   * @param {!Number} scrollTop
+   */
+  senna.App.prototype.storeScrollPosition_ = function(scrollLeft, scrollTop) {
+    var state = window.history.state || {};
+    state.scrollLeft = scrollLeft;
+    state.scrollTop = scrollTop;
+    window.history.replaceState(state, null, null);
+  };
+
+  /**
    * Sync document scroll position to the values captured when the default
    * back and forward navigation happened. The scroll position updates after
    * <code>beforeFlip</code> is called and before the surface transitions.
@@ -709,9 +714,9 @@
    * @protected
    */
   senna.App.prototype.syncScrollPosition_ = function(opt_replaceHistory) {
-    window.scrollTo(
-      opt_replaceHistory ? this.pageXOffset : 0,
-      opt_replaceHistory ? this.pageYOffset : 0
-    );
+    var scrollLeft = opt_replaceHistory ? this.syncScrollLeft : 0;
+    var scrollTop = opt_replaceHistory ? this.syncScrollTop : 0;
+    window.scrollTo(scrollLeft, scrollTop);
+    this.storeScrollPosition_(scrollLeft, scrollTop);
   };
 }(window));
