@@ -237,7 +237,11 @@
     if (!screen) {
       console.log('Create screen for [' + path + ']');
       var handler = route.getHandler();
-      screen = senna.Screen.isImplementedBy(handler.prototype) ? new handler() : (handler(route) || new senna.Screen());
+      if (handler === senna.Screen || senna.Screen.isImplementedBy(handler.prototype)) {
+        screen = new handler();
+      } else {
+        screen = handler(route) || new senna.Screen();
+      }
       if (cachedScreen) {
         screen.addCache(cachedScreen.getCache());
       }
