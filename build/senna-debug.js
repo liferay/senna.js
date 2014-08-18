@@ -104,6 +104,27 @@
   };
 
   /**
+   * Returns an object based on its fully qualified external name.
+   * @param {String} name The fully qualified name.
+   * @param {Object=} opt_obj The object within which to look; default is
+   *     <code>window</code>.
+   * @return {?} The value (object or primitive) or, if not found, null.
+   */
+  senna.getObjectByName = function(name, opt_obj) {
+    var parts = name.split('.');
+    var cur = opt_obj || window;
+    var part;
+    while ((part = parts.shift())) {
+      if (senna.isDefAndNotNull(cur[part])) {
+        cur = cur[part];
+      } else {
+        return null;
+      }
+    }
+    return cur;
+  };
+
+  /**
    * Evaluates script globally.
    * @param {String} data
    */
@@ -181,8 +202,8 @@
    * @param {*} val
    * @return {Boolean}
    */
-  senna.isValue = function(val) {
-    return senna.isDef(val) && val !== null;
+  senna.isDefAndNotNull = function(val) {
+    return senna.isDef(val) && !senna.isNull(val);
   };
 
   /**
@@ -201,6 +222,15 @@
    */
   senna.isFunction = function(val) {
     return typeof (val) === 'function';
+  };
+
+  /**
+   * Returns true if value is null.
+   * @param {*} val
+   * @return {Boolean}
+   */
+  senna.isNull = function(val) {
+    return val === null;
   };
 
   /**
@@ -343,6 +373,15 @@
   senna.BrowserFeatures = {};
   senna.BrowserFeatures.chrome = navigator.userAgent.indexOf('Chrome') > -1;
   senna.BrowserFeatures.safari = navigator.userAgent.indexOf('Safari') > -1 && !senna.BrowserFeatures.chrome;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    /**
+     * Data attribute handler.
+     * @type {senna.DataAttributeHandler}
+     * @default new senna.DataAttributeHandler(document.body)
+     */
+    senna.dataAttributeHandler = new senna.DataAttributeHandler(document.body);
+  });
 }(window));
 
 'use strict';
@@ -587,6 +626,153 @@
       this.clearCache();
     }
     this.cacheable = cacheable;
+  };
+}());
+
+'use strict';
+
+(function() {
+  /**
+   * Initilizes senna.App, register surfaces and routes from data attributes.
+   * @constructor
+   */
+  senna.DataAttributeHandler = function(baseElement) {
+    if (!senna.isElement(baseElement)) {
+      throw new Error('Base element not specified.');
+    }
+    this.setBaseElement(baseElement);
+    this.initApp_();
+  };
+
+  /**
+   * Holds app reference.
+   * @type {senna.App}
+   */
+  senna.DataAttributeHandler.prototype.app = null;
+
+  /**
+   * Holds the base element to search initialization data attributes.
+   * @type {Element}
+   * @default null
+   */
+  senna.DataAttributeHandler.prototype.baseElement = null;
+
+  /**
+   * Gets app reference.
+   * @return {senna.App}
+   */
+  senna.DataAttributeHandler.prototype.getApp = function() {
+    return this.app;
+  };
+
+  /**
+   * Gets base element.
+   * @return {Element}
+   */
+  senna.DataAttributeHandler.prototype.getBaseElement = function() {
+    return this.baseElement;
+  };
+
+  /**
+   * Initializes app.
+   * @protected
+   */
+  senna.DataAttributeHandler.prototype.initApp_ = function() {
+    var baseElement = this.baseElement;
+    if (!baseElement.hasAttribute('data-senna')) {
+      console.log('Senna not initialized from data attribute, try passing <body data-senna>.');
+      return;
+    }
+
+    console.log('Senna initialized from data attribute.');
+    this.app = new senna.App();
+
+    var basePath = baseElement.getAttribute('data-senna-basepath');
+    if (!senna.isNull(basePath)) {
+      this.app.setBasePath(basePath);
+      console.log('Senna scanned basepath ' + basePath);
+    }
+    var linkSelector = baseElement.getAttribute('data-senna-link-selector');
+    if (!senna.isNull(linkSelector)) {
+      this.app.setLinkSelector(linkSelector);
+      console.log('Senna scanned link selector ' + linkSelector);
+    }
+    this.scanSurfaces();
+    this.scanRoutes();
+  };
+
+  /**
+   * Makes default route in case of not found any.
+   * @return {Element}
+   */
+  senna.DataAttributeHandler.prototype.makeDefaultRoute_ = function() {
+    var link = document.createElement('link');
+    link.href = 'regex:.*';
+    link.rel = 'senna-route';
+    link.type = 'senna.HtmlScreen';
+    return link;
+  };
+
+  /**
+   * Scans routes from link elements.
+   */
+  senna.DataAttributeHandler.prototype.scanRoutes = function() {
+    var routes = document.querySelectorAll('link[rel="senna-route"]');
+    if (routes.length === 0) {
+      console.log('Senna can\'t find a route element, adding default.');
+      routes = [this.makeDefaultRoute_()];
+    }
+
+    for (var i = 0; i < routes.length; i++) {
+      var route = routes[i];
+      if (route.hasAttribute('senna-parsed')) {
+        continue;
+      }
+
+      var path = route.getAttribute('href');
+      var handler = route.getAttribute('type');
+
+      if (senna.isDefAndNotNull(path) && senna.isDefAndNotNull(handler)) {
+        if (path.indexOf('regex:') === 0) {
+          path = new RegExp(path.substring(6));
+        }
+        this.app.addRoutes(new senna.Route(path, senna.getObjectByName(handler)));
+        route.setAttribute('data-parsed', '');
+        console.log('Senna scanned route ' + path);
+      }
+    }
+  };
+
+  /**
+   * Scans surfaces with data attribute.
+   */
+  senna.DataAttributeHandler.prototype.scanSurfaces = function() {
+    var surfaces = this.baseElement.querySelectorAll('[data-senna-surface]');
+    for (var i = 0; i < surfaces.length; i++) {
+
+      var surfaceId = surfaces[i].id;
+
+      if (surfaceId && !this.app.surfaces[surfaceId]) {
+        this.app.addSurfaces(surfaceId);
+        console.log('Senna scanned surface ' + surfaceId);
+      }
+    }
+  };
+
+  /**
+   * Sets the app.
+   * @param {senna.App} app
+   */
+  senna.DataAttributeHandler.prototype.setApp = function(app) {
+    this.app = app;
+  };
+
+  /**
+   * Sets the base element.
+   * @param {Element} baseElement
+   */
+  senna.DataAttributeHandler.prototype.setBaseElement = function(baseElement) {
+    this.baseElement = baseElement;
   };
 }());
 
@@ -1145,7 +1331,7 @@
   senna.App.prototype.onPopstate_ = function(event) {
     var state = event.state;
 
-    if (state === null) {
+    if (state === null || !state.surface) {
       if (this.skipLoadPopstate) {
         return;
       }
@@ -1976,7 +2162,7 @@
     senna.RequestScreen.base(this, 'load', path);
     var self = this;
     var cache = this.getCache();
-    if (senna.isValue(cache)) {
+    if (senna.isDefAndNotNull(cache)) {
       return senna.Promise.resolve(cache);
     }
     return senna.request(path, this.httpMethod, this.httpHeaders, this.timeout).then(function(xhr) {
