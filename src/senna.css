@@ -35,3 +35,25 @@
     transform: translateX(100%)
   }
 }
+
+/* Transition */
+
+[class^=senna-transition] .flipped {
+  animation-duration: 0.40s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.senna-transition-fade .flipped {
+  animation-name: fadeIn;
+}
+

@@ -45,9 +45,11 @@
    * surface.setTransitionFn(function(from, to) {
    *   if (from) {
    *     from.style.display = 'none';
+   *     from.classList.remove('flipped');
    *   }
    *   if (to) {
    *     to.style.display = 'block';
+   *     to.classList.add('flipped');
    *   }
    *   return null;
    * });
@@ -60,13 +62,13 @@
   senna.Surface.TRANSITION = function(from, to) {
     if (from) {
       from.style.display = 'none';
+      from.classList.remove('flipped');
     }
     if (to) {
       to.style.display = 'block';
+      to.classList.add('flipped');
     }
-    return null;
   };
-
   /**
    * Holds the active child element.
    * @type {Element}
@@ -106,7 +108,7 @@
    * @param {?Element=} to The surface element to be flipped.
    * @default senna.Surface.TRANSITION
    */
-  senna.Surface.prototype.transitionFn = senna.Surface.TRANSITION;
+  senna.Surface.prototype.transitionFn = null;
 
   /**
    * Adds screen content to a surface. If content hasn't been passed, see if
@@ -285,6 +287,7 @@
    *     navigation until it is resolved.
    */
   senna.Surface.prototype.transition = function(from, to) {
-    return senna.Promise.resolve(this.transitionFn.call(this, from, to));
+    var transitionFn = this.transitionFn || senna.Surface.TRANSITION;
+    return senna.Promise.resolve(transitionFn.call(this, from, to));
   };
 }());
