@@ -10,6 +10,7 @@ var mainFiles = [
   'src/senna.js',
   'src/utils/EventEmitter.js',
   'src/utils/Cacheable.js',
+  'src/utils/DataAttributeHandler.js',
   'src/app/App.js',
   'src/route/Route.js',
   'src/surface/Surface.js',
