@@ -174,8 +174,8 @@
    * @param {*} val
    * @return {Boolean}
    */
-  senna.isValue = function(val) {
-    return senna.isDef(val) && val !== null;
+  senna.isDefAndNotNull = function(val) {
+    return senna.isDef(val) && !senna.isNull(val);
   };
 
   /**
@@ -194,6 +194,15 @@
    */
   senna.isFunction = function(val) {
     return typeof (val) === 'function';
+  };
+
+  /**
+   * Returns true if value is null.
+   * @param {*} val
+   * @return {Boolean}
+   */
+  senna.isNull = function(val) {
+    return val === null;
   };
 
   /**

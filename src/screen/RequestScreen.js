@@ -103,7 +103,7 @@
     senna.RequestScreen.base(this, 'load', path);
     var self = this;
     var cache = this.getCache();
-    if (senna.isValue(cache)) {
+    if (senna.isDefAndNotNull(cache)) {
       return senna.Promise.resolve(cache);
     }
     return senna.request(path, this.httpMethod, this.httpHeaders, this.timeout).then(function(xhr) {
