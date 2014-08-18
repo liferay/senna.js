@@ -20,6 +20,7 @@
   "license": "BSD",
   "devDependencies": {
     "gulp": "^3.8.1",
+    "gulp-autoprefixer": "0.0.8",
     "gulp-concat": "^2.2.0",
     "gulp-csso": "^0.2.9",
     "gulp-esformatter": "^0.5.0",

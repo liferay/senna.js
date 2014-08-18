@@ -26,6 +26,7 @@ gulp.task('build', ['clean'], function() {
 gulp.task('build-css', function() {
   return gulp.src('src/senna.css')
     .pipe(plugins.csso())
+    .pipe(plugins.autoprefixer('last 3 version'))
     .pipe(gulp.dest('build'));
 });
 
