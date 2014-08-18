@@ -97,6 +97,27 @@
   };
 
   /**
+   * Returns an object based on its fully qualified external name.
+   * @param {String} name The fully qualified name.
+   * @param {Object=} opt_obj The object within which to look; default is
+   *     <code>window</code>.
+   * @return {?} The value (object or primitive) or, if not found, null.
+   */
+  senna.getObjectByName = function(name, opt_obj) {
+    var parts = name.split('.');
+    var cur = opt_obj || window;
+    var part;
+    while ((part = parts.shift())) {
+      if (senna.isDefAndNotNull(cur[part])) {
+        cur = cur[part];
+      } else {
+        return null;
+      }
+    }
+    return cur;
+  };
+
+  /**
    * Evaluates script globally.
    * @param {String} data
    */
