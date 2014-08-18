@@ -38,7 +38,7 @@
 
 /* Transition */
 
-[class^=senna-transition] .flipped {
+[class^="senna-transition-"] .flipped {
   animation-duration: 0.40s;
   animation-fill-mode: both;
 }
