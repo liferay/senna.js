@@ -124,3 +124,62 @@ h6 {
     height: 250px;
   }
 }
+
+.canvas {
+  display: inline-block;
+  max-width: 60%;
+  position: relative;
+  top: 30%;
+  transform: translateY(-30%);
+  -webkit-transform: translateY(-30%);
+  -ms-transform: translateY(-30%);
+}
+
+.arrow {
+  color: #333;
+  font-size: 6em;
+  margin-top: -305px;
+  opacity: .9;
+  padding: 250px 100px;
+  position: absolute;
+  text-decoration: none;
+  top: 50%;
+}
+
+.arrow:active {
+  background: transparent;
+  color: #fec723;
+}
+
+.arrow.left {
+  left: -250px;
+}
+
+.arrow.right {
+  right: -250px;
+}
+
+#preview {
+  position: absolute;
+  text-align: center;
+  z-index: 1;
+}
+
+#preview .visible {
+  height: 100%;
+  position: fixed;
+  width: 100%;
+}
+
+#preview .overlay {
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  background: rgba(255,255,255,.8);
+}
+
+#preview .pure-img {
+  position: relative;
+  border-radius: 2px;
+  box-shadow: 0 27px 24px 0 rgba(0,0,0,.7);
+}
