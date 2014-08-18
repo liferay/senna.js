@@ -553,7 +553,7 @@
   senna.App.prototype.onPopstate_ = function(event) {
     var state = event.state;
 
-    if (state === null) {
+    if (state === null || !state.surface) {
       if (this.skipLoadPopstate) {
         return;
       }
