@@ -47,13 +47,17 @@ app.on('endNavigate', function() {
    ========================================================================== */
 
 document.addEventListener('scroll', function() {
+  if (window.pageYOffset < 0) {
+    return;
+  }
+
   scrollSensitivity++;
 
   if (isLoading || scrollSensitivity < 5) {
     return;
   }
 
-  if (window.pageYOffset > getScrollTopOffset()) {
+  if (window.innerHeight * 0.4 > getScrollDistanceToBottom()) {
     debouncedNextPageLoader();
   }
 });
@@ -69,6 +73,6 @@ function loadNextPage() {
   }
 }
 
-function getScrollTopOffset() {
-  return document.body.offsetHeight - window.innerHeight - 200;
+function getScrollDistanceToBottom() {
+  return document.body.offsetHeight - window.pageYOffset - window.innerHeight;
 }
