@@ -53,9 +53,6 @@ document.addEventListener('scroll', function() {
     return;
   }
 
-  console.log(window.pageYOffset);
-  console.log(getScrollTopOffset());
-
   if (window.pageYOffset > getScrollTopOffset()) {
     debouncedNextPageLoader();
   }
