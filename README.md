@@ -5,7 +5,7 @@
 *Senna* is a blazing-fast single page application engine that provides several low-level APIs that allows you to build modern web-based applications with only ~8 KB of JavaScript without any dependency.
 
 * [Official website](http://sennajs.com)
-* [Website repository](https://github.com/eduardolundgren/trackingjs.com)
+* [Website repository](https://github.com/eduardolundgren/sennajs.com)
 * [Documentation](http://sennajs.com/docs/)
 * [API Docs](http://sennajs.com/api/)
 
