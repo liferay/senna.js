@@ -363,21 +363,6 @@ describe('Senna', function() {
     });
   });
 
-  it('should not navigate to history states that are not ours', function(done) {
-    window.history.pushState({}, '', '/unknown/state');
-    app.navigate('/base/page').then(function() {
-      setTimeout(function() {
-        test.assertPath('/unknown/state');
-        test.assertSurfaceContent('body', 'page');
-        test.assertSurfaceContent('header', 'page');
-        assert.equal(document.title, 'page');
-
-        done();
-      }, 200);
-      window.history.back();
-    });
-  });
-
   it('should navigate to clicked links', function(done) {
     app.on('endNavigate', function() {
       test.assertNavigation('/base/page', 'page');
