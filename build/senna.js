@@ -861,7 +861,7 @@
   senna.App.prototype.loadingCssClass = 'senna-loading';
 
   /**
-   * Holds the window hotizontal scroll position when the navigation using
+   * Holds the window horizontal scroll position when the navigation using
    * back or forward happens to be restored after the surfaces are updated.
    * @type {!Number}
    * @default 0
@@ -927,6 +927,15 @@
    * @protected
    */
   senna.App.prototype.surfaces = null;
+
+  /**
+   * When set to true, moves the scroll position using the
+   * <code>syncScrollLeft</code> and <code>syncScrollTop</code> values.
+   * @type {!Boolean}
+   * @default true
+   * @protected
+   */
+  senna.App.prototype.updateScrollPosition = true;
 
   /**
    * Adds one or more screens to the application.
@@ -1193,6 +1202,14 @@
   };
 
   /**
+   * Gets the update scroll position value.
+   * @return {String}
+   */
+  senna.App.prototype.getUpdateScrollPosition = function() {
+    return this.updateScrollPosition;
+  };
+
+  /**
    * Handle navigation error.
    * @param {!String} path Path containing the querystring part.
    * @param {!Screen} nextScreen
@@ -1442,6 +1459,14 @@
   };
 
   /**
+   * Sets the update scroll position value.
+   * @param {!String} updateScrollPosition
+   */
+  senna.App.prototype.setUpdateScrollPosition = function(updateScrollPosition) {
+    this.updateScrollPosition = updateScrollPosition;
+  };
+
+  /**
    * Cancels pending navigate with <code>Cancel pending navigation</code> error.
    * @protected
    */
@@ -1494,7 +1519,11 @@
   senna.App.prototype.syncScrollPosition_ = function(opt_replaceHistory) {
     var scrollLeft = opt_replaceHistory ? this.syncScrollLeft : 0;
     var scrollTop = opt_replaceHistory ? this.syncScrollTop : 0;
-    window.scrollTo(scrollLeft, scrollTop);
+
+    if (this.updateScrollPosition) {
+      window.scrollTo(scrollLeft, scrollTop);
+    }
+
     this.storeScrollPosition_(scrollLeft, scrollTop);
   };
 }(window));
