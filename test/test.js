@@ -8,6 +8,19 @@ describe('Senna', function() {
 
   test.originalPath = test.getCurrentPath();
 
+  before(function(done) {
+    senna.request('fixture/doc.html', 'GET', {}, null, true).then(
+      function(data) {
+        var fixtures = document.createElement('div');
+
+        fixtures.setAttribute('id', 'fixtures');
+        fixtures.innerHTML = data.response;
+
+        document.body.appendChild(fixtures);
+        done();
+    });
+  });
+
   // Tests =====================================================================
 
   beforeEach(function() {
