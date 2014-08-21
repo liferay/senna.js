@@ -42,6 +42,11 @@ IE 10+ ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ |
 
 For detailed changelog, check [Releases](https://github.com/eduardolundgren/senna/releases).
 
+## Credits
+
+* Inspired by Daniel Pupius' [Surface project](https://github.com/dpup/surface)
+* Demo layouts by [Pure CSS](http://purecss.io/)
+
 ## Team
 
 *Senna* is maintained by these people and a bunch of awesome [contributors](https://github.com/eduardolundgren/senna/graphs/contributors).
