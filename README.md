@@ -22,7 +22,7 @@ bower install senna
 
 * **[Williams Email](http://sennajs.com/examples/email):** *Enable Single Page Apps using only HTML5 data-attributes;*
 * **[Lotus Gallery](http://sennajs.com/examples/gallery):** *Carousel app with history support and cacheable screens;*
-* **[McLaren Blog](http://sennajs.com/examples/gallery):** *Infinite scrolling pages done right with history support;*
+* **[McLaren Blog](http://sennajs.com/examples/blog):** *Infinite scrolling pages done right with history support;*
 
 ## Browser Support
 
