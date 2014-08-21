@@ -1,11 +1,11 @@
 {
   "name": "senna",
   "version": "0.0.0",
+  "description": "A blazing-fast Single Page Application engine",
   "homepage": "http://sennajs.com",
   "authors": [
     "Eduardo Lundgren <edu@rdo.io>"
   ],
-  "description": "TODO: Write description",
   "main": "src/senna.js",
   "keywords": [
     "spa",

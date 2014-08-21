@@ -1,23 +1,5 @@
 {
-  "name": "senna",
-  "version": "0.0.0",
-  "description": "TODO: Write description",
-  "homepage": "http://sennajs.com",
-  "keywords": [],
-  "author": {
-    "name": "Eduardo Lundgren",
-    "email": "edu@rdo.io",
-    "web": "http://eduardo.io",
-    "twitter": "eduardolundgren"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:eduardolundgren/senna.git"
-  },
-  "scripts": {
-    "test": "gulp test"
-  },
-  "license": "BSD",
+  "private": true,
   "devDependencies": {
     "gulp": "^3.8.1",
     "gulp-autoprefixer": "0.0.8",
