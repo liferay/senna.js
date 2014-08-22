@@ -1,7 +1,7 @@
 /**
- * senna - TODO: Write description
+ * Senna - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v0.0.0
+ * @version v0.1.0
  * @link http://sennajs.com
  * @license BSD
  */
