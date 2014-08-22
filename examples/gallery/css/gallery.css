@@ -178,6 +178,23 @@ h6 {
   background: rgba(255,255,255,.8);
 }
 
+#preview .overlay-close {
+  position: absolute;
+  top: -.5em;
+  right: -.5em;
+  z-index: 10;
+  padding: 0 .3em;
+  color: #fff;
+  background-color: #333;
+  font-size: 3em;
+  text-decoration: none;
+  opacity: .5;
+}
+
+#preview .overlay-close:hover {
+  opacity: 1;
+}
+
 #preview .pure-img {
   position: relative;
   border-radius: 2px;
