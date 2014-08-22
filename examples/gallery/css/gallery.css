@@ -180,19 +180,19 @@ h6 {
 
 #preview .overlay-close {
   position: absolute;
-  top: -.5em;
-  right: -.5em;
+  top: -20px;
+  right: -20px;
   z-index: 10;
-  padding: 0 .3em;
+  display: block;
+  width: 40px;
+  height: 40px;
   color: #fff;
   background-color: #333;
-  font-size: 3em;
+  font-size: 30px;
   text-decoration: none;
-  opacity: .5;
-}
-
-#preview .overlay-close:hover {
-  opacity: 1;
+  line-height: 35px;
+  text-align: center;
+  border-radius: 50%;
 }
 
 #preview .pure-img {
