@@ -99,8 +99,8 @@ function banner() {
     ' * <%= pkg.name %> - <%= pkg.description %>',
     ' * @author <%= pkg.author.name %> <<%= pkg.author.email %>>',
     ' * @version v<%= pkg.version %>',
-    ' * @link <%= pkg.homepage %>',
-    ' * @license <%= pkg.license %>',
+    ' * @link http://sennajs.com',
+    ' * @license BSD',
     ' */',
     ''
   ].join('\n');

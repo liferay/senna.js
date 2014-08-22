@@ -1,5 +1,8 @@
 {
+  "name": "Senna",
   "private": true,
+  "version": "0.1.0",
+  "description": "A blazing-fast Single Page Application engine",
   "author": {
     "name": "Eduardo Lundgren",
     "email": "edu@rdo.io",
