@@ -1,5 +1,11 @@
 {
   "private": true,
+  "author": {
+    "name": "Eduardo Lundgren",
+    "email": "edu@rdo.io",
+    "web": "http://eduardo.io",
+    "twitter": "eduardolundgren"
+  },
   "devDependencies": {
     "gulp": "^3.8.1",
     "gulp-autoprefixer": "0.0.8",
