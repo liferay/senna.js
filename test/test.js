@@ -404,6 +404,29 @@ describe('Senna', function() {
     });
   });
 
+  it('should not navigate to links clicked with modifier keys', function(done) {
+    var link = document.querySelector('a[href="/base/page#hash"]');
+
+    function simulateEvent(element, type, modifiers) {
+      modifiers.cancelable = true;
+      element.dispatchEvent(new MouseEvent(type, modifiers));
+    }
+
+    simulateEvent(link, 'click', {altKey: true});
+    assert.strictEqual(app.pendingNavigate, null);
+
+    simulateEvent(link, 'click', {ctrlKey: true});
+    assert.strictEqual(app.pendingNavigate, null);
+
+    simulateEvent(link, 'click', {metaKey: true});
+    assert.strictEqual(app.pendingNavigate, null);
+
+    simulateEvent(link, 'click', {shiftKey: true});
+    assert.strictEqual(app.pendingNavigate, null);
+
+    done();
+  });
+
   it('should navigate to previous page asynchronously', function(done) {
     app.navigate('/base/delayed200ms').then(function() {
       var start = Date.now();
