@@ -344,7 +344,6 @@
         reject(error);
       };
     }).thenCatch(function(reason) {
-      xhr.abort();
       throw reason;
     }).thenAlways(function() {
       clearTimeout(timeout);
