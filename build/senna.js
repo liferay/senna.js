@@ -1296,6 +1296,11 @@
    * @protected
    */
   senna.App.prototype.onDocClick_ = function(event) {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+      void 0;
+      return;
+    }
+
     var link = event.target;
     while (link && link.tagName !== 'A') {
       link = link.parentNode;
