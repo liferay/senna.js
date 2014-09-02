@@ -1347,7 +1347,7 @@
   senna.App.prototype.onPopstate_ = function(event) {
     var state = event.state;
 
-    if (state === null || !state.surface) {
+    if (state === null || state.isNullState) {
       if (this.skipLoadPopstate) {
         return;
       }
@@ -1358,7 +1358,7 @@
       }
     }
 
-    if (state && state.surface) {
+    if (state && state.senna) {
       void 0;
       this.syncScrollTop = state.scrollTop;
       this.syncScrollLeft = state.scrollLeft;
@@ -1486,7 +1486,7 @@
   senna.App.prototype.updateHistory_ = function(title, path, opt_replaceHistory) {
     var historyParams = {
       path: path,
-      surface: true
+      senna: true
     };
 
     if (opt_replaceHistory) {
@@ -1503,6 +1503,7 @@
    */
   senna.App.prototype.storeScrollPosition_ = function(scrollLeft, scrollTop) {
     var state = window.history.state || {};
+    state.isNullState = senna.isNull(window.history.state);
     state.scrollLeft = scrollLeft;
     state.scrollTop = scrollTop;
     window.history.replaceState(state, null, null);
