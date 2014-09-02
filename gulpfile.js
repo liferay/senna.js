@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
+var karma = require('karma').server;
 var pkg = require('./package.json');
 var plugins = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
@@ -88,6 +89,19 @@ gulp.task('serve', function() {
 
 gulp.task('watch', ['build', 'serve'], function() {
   gulp.watch('src/**/*', ['build']);
+});
+
+gulp.task('test', function(done) {
+  karma.start({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true
+  }, done);
+});
+
+gulp.task('test-watch', function(done) {
+  karma.start({
+    configFile: __dirname + '/karma.conf.js'
+  }, done);
 });
 
 // Private helpers
