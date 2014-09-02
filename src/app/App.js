@@ -520,6 +520,11 @@
    */
   senna.App.prototype.onDocClick_ = function(event) {
     var link = event.target;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+      console.log('Stop the SPA navigation when a modifier key is pressed');
+      return;
+    }
+
     while (link && link.tagName !== 'A') {
       link = link.parentNode;
     }
