@@ -1,6 +1,6 @@
-'use strict';
-
 (function(window, undefined) {
+  'use strict';
+
   window.senna = window.senna || {};
 
   /**

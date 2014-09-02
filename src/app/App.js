@@ -1,6 +1,6 @@
-'use strict';
-
 (function(window) {
+  'use strict';
+
   /**
    * App class that handle routes and screens lifecycle.
    * @constructor

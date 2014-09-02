@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Screen class is a special type of route handler that provides helper
    * utilities that adds lifecycle and methods to provide content to each

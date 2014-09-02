@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Request screen abstract class to perform io operations on descendant
    * screens.

@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Abstract class for cacheable classes.
    * @constructor

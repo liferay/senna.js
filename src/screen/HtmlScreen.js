@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Screen class that perform a request and extracts surface contents from
    * the response content.

@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Route class.
    * @param {!String|RegExp|Function} path

@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Initilizes senna.App, register surfaces and routes from data attributes.
    * @constructor

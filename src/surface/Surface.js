@@ -1,6 +1,6 @@
-'use strict';
-
 (function() {
+  'use strict';
+
   /**
    * Surface class representing the references to elements on the page that
    * can potentially be updated by <code>senna.App</code>.
