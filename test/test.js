@@ -319,7 +319,7 @@ describe('Senna', function() {
             // invoked
             setTimeout(function() {
               window.history.back();
-            }, 200);
+            }, 300);
           });
         }, 1000);
       }, false);
@@ -360,7 +360,7 @@ describe('Senna', function() {
         assert.equal(document.title, 'page');
 
         done();
-      }, 200);
+      }, 300);
       window.history.back();
     });
   });
