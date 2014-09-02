@@ -1503,7 +1503,9 @@
    */
   senna.App.prototype.storeScrollPosition_ = function(scrollLeft, scrollTop) {
     var state = window.history.state || {};
-    state.isNullState = senna.isNull(window.history.state);
+    if (senna.isNull(window.history.state)) {
+      state.isNullState = true;
+    }
     state.scrollLeft = scrollLeft;
     state.scrollTop = scrollTop;
     window.history.replaceState(state, null, null);
