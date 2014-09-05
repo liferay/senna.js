@@ -12,6 +12,7 @@
     if (senna.isString(child)) {
       child = senna.buildFragment(child);
     }
+
     return parent.appendChild(senna.parseScripts(child));
   };
 

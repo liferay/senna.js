@@ -12,6 +12,23 @@
       throw new Error('Surface element id not specified.');
     }
     this.setId(id);
+
+    // if the new surface does not contain a child with id "mysurface-default"
+    // it will create
+    if(!document.getElementById(this.makeId_(senna.Surface.DEFAULT)) && this.getEl()){
+      var parent = this.getEl();
+      var children = [];
+      while (parent.firstChild) {
+        var removedEl = parent.removeChild(parent.firstChild);
+        children.push(removedEl);
+      }
+      var child = this.createChild(senna.Surface.DEFAULT);
+      for (var i = 0; i < children.length; i++) {
+        child.appendChild(children[i]);
+      }
+      parent.appendChild(child);
+      this.activeChild = child;
+    }
   };
 
   /**
