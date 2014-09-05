@@ -17,15 +17,6 @@
   };
 
   /**
-   * Replace the parent element by the child.
-   * @param {!Node} parent The node element to be replaced.
-   * @param {!Node|String} child The thing to replace the parent.
-   */
-  senna.replace = function(parent, child){
-    return parent.innerHTML = senna.parseScripts(child).innerHTML;
-  }
-
-  /**
    * Creates a new function that, when called, has its this keyword set to the
    * provided value, with a given sequence of arguments preceding any provided
    * when the new function is called.
