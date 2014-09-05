@@ -12,8 +12,18 @@
     if (senna.isString(child)) {
       child = senna.buildFragment(child);
     }
+
     return parent.appendChild(senna.parseScripts(child));
   };
+
+  /**
+   * Replace the parent element by the child.
+   * @param {!Node} parent The node element to be replaced.
+   * @param {!Node|String} child The thing to replace the parent.
+   */
+  senna.replace = function(parent, child){
+    return parent.innerHTML = senna.parseScripts(child).innerHTML;
+  }
 
   /**
    * Creates a new function that, when called, has its this keyword set to the

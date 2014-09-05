@@ -135,7 +135,7 @@
     this.transition(child, null);
 
     if (el) {
-      senna.append(el, child);
+      senna.replace(el, child);
     }
 
     return child;
