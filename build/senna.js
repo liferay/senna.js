@@ -1,7 +1,7 @@
 /**
  * Senna - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v0.1.0
+ * @version v0.2.0
  * @link http://sennajs.com
  * @license BSD
  */
@@ -365,13 +365,6 @@
 
     return promise;
   };
-
-  /**
-   * Browser features
-   */
-  senna.BrowserFeatures = {};
-  senna.BrowserFeatures.chrome = navigator.userAgent.indexOf('Chrome') > -1;
-  senna.BrowserFeatures.safari = navigator.userAgent.indexOf('Safari') > -1 && !senna.BrowserFeatures.chrome;
 
   document.addEventListener('DOMContentLoaded', function() {
     /**
@@ -791,17 +784,15 @@
     this.screens = {};
 
     this.docClickEventHandler_ = senna.bind(this.onDocClick_, this);
+    this.loadEventHandler_ = senna.bind(this.onLoad_, this);
     this.popstateEventHandler_ = senna.bind(this.onPopstate_, this);
     this.scrollEventHandler_ = senna.debounce(this.onScroll_, 50, this);
 
     this.on('startNavigate', this.onStartNavigate_);
     document.addEventListener('click', this.docClickEventHandler_, false);
+    window.addEventListener('load', this.loadEventHandler_, false);
     window.addEventListener('popstate', this.popstateEventHandler_, false);
     document.addEventListener('scroll', this.scrollEventHandler_, false);
-
-    // Don't fire popstate event on initial document load, for more
-    // information see https://codereview.chromium.org/136463002.
-    this.skipLoadPopstate = senna.BrowserFeatures.safari && (document.readyState === 'interactive' || document.readyState === 'loading');
   };
   senna.inherits(senna.App, senna.EventEmitter);
 
@@ -1035,6 +1026,7 @@
       this.surfaces[surfaceId].remove(this.activeScreen);
       this.surfaces[surfaceId].show();
     }
+    window.removeEventListener('load', this.loadEventHandler_, false);
     window.removeEventListener('popstate', this.popstateEventHandler_, false);
     document.removeEventListener('click', this.docClickEventHandler_, false);
     document.removeEventListener('scroll', this.scrollEventHandler_, false);
@@ -1341,6 +1333,23 @@
   };
 
   /**
+   * Listens to the window's load event in order to avoid issues with some browsers
+   * that trigger popstate calls on the first load. For more information see
+   * http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome.
+   * @protected
+   */
+  senna.App.prototype.onLoad_ = function() {
+    var self = this;
+
+    this.skipLoadPopstate = true;
+    setTimeout(function() {
+        // The timeout ensures that popstate events will be unblocked right
+        // after the load event occured, but not in the same event-loop cycle.
+        self.skipLoadPopstate = false;
+    }, 0);
+  };
+
+  /**
    * Handles browser history changes and fires app's navigation if the state
    * belows to us. If we detect a popstate and the state is <code>null</code>,
    * assume it is navigating to an external page or to a page we don't have
@@ -1370,8 +1379,6 @@
       this.lockHistoryScrollPosition_();
       this.navigate(state.path, true);
     }
-
-    this.skipLoadPopstate = false;
   };
 
   /**
