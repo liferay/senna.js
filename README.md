@@ -41,7 +41,7 @@ IE 10+ ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ |
 
 ## History
 
-For detailed changelog, check [Releases](https://github.com/eduardolundgren/senna/releases).
+For detailed changelog, check [Releases](https://github.com/eduardolundgren/senna/releases). Each tag represents a [Grand Prix that Senna scored](http://en.wikipedia.org/wiki/Ayrton_Senna#Complete_Formula_One_results) :car::dash:
 
 ## Credits
 
