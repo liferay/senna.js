@@ -1,7 +1,7 @@
 /**
  * Senna - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v0.2.0
+ * @version v0.2.1
  * @link http://sennajs.com
  * @license BSD
  */
@@ -1343,9 +1343,9 @@
 
     this.skipLoadPopstate = true;
     setTimeout(function() {
-        // The timeout ensures that popstate events will be unblocked right
-        // after the load event occured, but not in the same event-loop cycle.
-        self.skipLoadPopstate = false;
+      // The timeout ensures that popstate events will be unblocked right
+      // after the load event occured, but not in the same event-loop cycle.
+      self.skipLoadPopstate = false;
     }, 0);
   };
 
