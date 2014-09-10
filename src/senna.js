@@ -359,13 +359,6 @@
     return promise;
   };
 
-  /**
-   * Browser features
-   */
-  senna.BrowserFeatures = {};
-  senna.BrowserFeatures.chrome = navigator.userAgent.indexOf('Chrome') > -1;
-  senna.BrowserFeatures.safari = navigator.userAgent.indexOf('Safari') > -1 && !senna.BrowserFeatures.chrome;
-
   document.addEventListener('DOMContentLoaded', function() {
     /**
      * Data attribute handler.

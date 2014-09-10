@@ -573,9 +573,9 @@
 
     this.skipLoadPopstate = true;
     setTimeout(function() {
-        // The timeout ensures that popstate events will be unblocked right
-        // after the load event occured, but not in the same event-loop cycle.
-        self.skipLoadPopstate = false;
+      // The timeout ensures that popstate events will be unblocked right
+      // after the load event occured, but not in the same event-loop cycle.
+      self.skipLoadPopstate = false;
     }, 0);
   };
 
