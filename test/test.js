@@ -417,7 +417,7 @@ describe('Senna', function() {
     });
   });
 
-  it('should not navigate to links clicked with modifier keys', function(done) {
+  it('should not navigate to links clicked with invalid mouse button or modifier keys pressed', function(done) {
     var link = document.querySelector('a[href="/base/page#hash"]');
 
     function simulateEvent(element, type, modifiers) {
@@ -435,6 +435,9 @@ describe('Senna', function() {
     assert.strictEqual(app.pendingNavigate, null);
 
     simulateEvent(link, 'click', {shiftKey: true});
+    assert.strictEqual(app.pendingNavigate, null);
+
+    simulateEvent(link, 'click', {button: 2});
     assert.strictEqual(app.pendingNavigate, null);
 
     done();

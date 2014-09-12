@@ -518,13 +518,8 @@
    * @protected
    */
   senna.App.prototype.onDocClick_ = function(event) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-      console.log('Navigate aborted, modifier key is pressed.');
-      return;
-    }
-
-    if (event.button) {
-      console.log('Navigate aborted, invalid mouse key is pressed');
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
+      console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
       return;
     }
 
