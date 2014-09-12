@@ -116,19 +116,16 @@
    * Scans surfaces with data attribute.
    */
   senna.DataAttributeHandler.prototype.scanSurfaces = function() {
-    var surface, surfaceId;
     var surfaces = this.baseElement.querySelectorAll('[data-senna-surface]');
     for (var i = 0; i < surfaces.length; i++) {
-      surface = surfaces[i];
-      surfaceId = surface.id;
-
-      if (!surface.hasAttribute('id')) {
+      var surfaceId = surfaces[i].id;
+      if (surfaceId) {
+        if (!this.app.surfaces[surfaceId]) {
+          this.app.addSurfaces(surfaceId);
+          console.log('Senna scanned surface ' + surfaceId);
+        }
+      } else {
         throw new Error('Surface element id not specified.');
-      }
-
-      if (surfaceId && !this.app.surfaces[surfaceId]) {
-        this.app.addSurfaces(surfaceId);
-        console.log('Senna scanned surface ' + surfaceId);
       }
     }
   };
