@@ -744,6 +744,10 @@
 
       var surfaceId = surfaces[i].id;
 
+      if (!senna.isDef(surfaceId)) {
+        throw new Error('Id attribute is required for surfaces');
+      }
+
       if (surfaceId && !this.app.surfaces[surfaceId]) {
         this.app.addSurfaces(surfaceId);
         console.log('Senna scanned surface ' + surfaceId);
