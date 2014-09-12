@@ -121,8 +121,8 @@
 
       var surfaceId = surfaces[i].id;
 
-      if (!surfaceId) {
-        console.error('An id attribute is required for all "data-senna-surface" elements');
+      if (!senna.isDef(surfaceId)) {
+        throw new Error('Id attribute is required for surfaces');
       }
 
       if (surfaceId && !this.app.surfaces[surfaceId]) {
