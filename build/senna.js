@@ -1288,7 +1288,7 @@
    * @protected
    */
   senna.App.prototype.onDocClick_ = function(event) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
       void 0;
       return;
     }
