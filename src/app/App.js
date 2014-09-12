@@ -523,6 +523,11 @@
       return;
     }
 
+    if (event.button) {
+      console.log('Navigate aborted, invalid mouse key is pressed');
+      return;
+    }
+
     var link = event.target;
     while (link && link.tagName !== 'A') {
       link = link.parentNode;
