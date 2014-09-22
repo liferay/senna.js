@@ -66,6 +66,34 @@ describe('Senna', function() {
     window.history.pushState(null, null, test.originalPath);
   });
 
+  it('should set / get base path', function(done) {
+    app.setBasePath('/common');
+    assert.equal(app.getBasePath(), '/common');
+
+    done();
+  });
+
+  it('should set / get link selector', function(done) {
+    app.setLinkSelector('button');
+    assert.equal(app.getLinkSelector(), 'button');
+
+    done();
+  });
+
+  it('should set / get loading CSS class', function(done) {
+    app.setLoadingCssClass('loading-page');
+    assert.equal(app.getLoadingCssClass(), 'loading-page');
+
+    done();
+  });
+
+  it('should set / get the update scroll position', function(done) {
+    app.setUpdateScrollPosition(false);
+    assert.equal(app.getUpdateScrollPosition(), false);
+
+    done();
+  });
+
   it('should find route from path', function(done) {
     var route = app.findRoute('/base/unknown');
     assert.strictEqual(route, null);
