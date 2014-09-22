@@ -185,7 +185,7 @@
   };
 
   /**
-   * Gets the syrface transition function.
+   * Gets the surface transition function.
    * See <code>senna.Surface.TRANSITION</code>.
    * @return {?Function=} The transition function.
    */
@@ -212,7 +212,7 @@
   };
 
   /**
-   * Sets the syrface transition function.
+   * Sets the surface transition function.
    * See <code>senna.Surface.TRANSITION</code>.
    * @param {?Function=} transitionFn The transition function.
    */
