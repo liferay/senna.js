@@ -156,6 +156,47 @@ describe('Senna', function() {
     });
   });
 
+  it('should prefetch', function(done) {
+    var fetched = false;
+
+    app.prefetch('/base/page').then(function() {
+      fetched = true;
+    })
+    .thenAlways(function() {
+      assert.ok(fetched);
+      done();
+    });
+  });
+
+  it('should prefetch fail using HtmlScreen', function(done) {
+    var fail = false;
+
+    app.setBasePath(test.getOriginalBasePath());
+    app.addRoutes({
+      path: '/fixture/404.txt',
+      handler: senna.HtmlScreen
+    });
+    app.prefetch(test.getOriginalBasePath() + '/fixture/404.txt').thenCatch(function() {
+      fail = true;
+    })
+    .thenAlways(function() {
+      assert.ok(fail);
+      done();
+    });
+  });
+
+  it('should not prefetch unrouted path', function(done) {
+    var fail = false;
+
+    app.prefetch('/no-route').thenCatch(function() {
+      fail = true;
+    })
+    .thenAlways(function() {
+      assert.ok(fail);
+      done();
+    });
+  });
+
   it('should navigate with screen lifecycle', function(done) {
     var lifecycle = [];
     var cycle = {
