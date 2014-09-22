@@ -512,6 +512,39 @@
   };
 
   /**
+   * Prefetches the specified path if there is a route handler that matches.
+   * @param {!String} path Path to navigate containing the base path.
+   * @return {Promise} Returns a pending request cancellable promise.
+   */
+  senna.App.prototype.prefetch = function(path) {
+    var self = this;
+    var pendingPrefetch;
+
+    var route = this.findRoute(path);
+    if (!route) {
+      return senna.Promise.reject(new senna.Promise.CancellationError('No route for ' + path));
+    }
+
+    console.log('Prefetching [' + path + ']');
+
+    var nextScreen = this.createScreenInstance_(path, route);
+
+    pendingPrefetch = senna.Promise.resolve()
+      .then(function() {
+        return nextScreen.load(path);
+      })
+      .then(function() {
+        self.screens[path] = nextScreen;
+      })
+      .thenCatch(function(reason) {
+        self.removeScreen_(path, nextScreen);
+        throw reason;
+      });
+
+    return pendingPrefetch;
+  };
+
+  /**
    * Intercepts document clicks and test link elements in order to decide
    * whether Surface app can navigate.
    * @param {!Event} event Event facade
