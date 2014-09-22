@@ -424,7 +424,7 @@
 
   /**
    * Gets the update scroll position value.
-   * @return {String}
+   * @return {Boolean}
    */
   senna.App.prototype.getUpdateScrollPosition = function() {
     return this.updateScrollPosition;
@@ -701,7 +701,7 @@
 
   /**
    * Sets the update scroll position value.
-   * @param {!String} updateScrollPosition
+   * @param {Boolean} updateScrollPosition
    */
   senna.App.prototype.setUpdateScrollPosition = function(updateScrollPosition) {
     this.updateScrollPosition = updateScrollPosition;
