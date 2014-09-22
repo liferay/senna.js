@@ -1,7 +1,7 @@
 module.exports = function(config) {
   'use strict';
 
-  config.set({
+  var configuration = {
     frameworks: ['mocha'],
     files: [
         'bower_components/mocha/mocha.css',
@@ -34,5 +34,18 @@ module.exports = function(config) {
     },
     reporters: ['progress', 'coverage'],
     browsers: ['Chrome', 'Firefox', 'Safari']
-  });
+  };
+
+  if (process.env.TRAVIS) {
+    configuration.customLaunchers = {
+      Chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    };
+
+    configuration.browsers = ['Firefox', 'Chrome_travis_ci'];
+  }
+
+  config.set(configuration);
 };
