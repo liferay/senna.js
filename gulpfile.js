@@ -76,7 +76,8 @@ gulp.task('format', function() {
 gulp.task('lint', function() {
   return gulp.src(['src/**/*.js', '!src/vendor/Promise.js'])
     .pipe(plugins.jshint())
-    .pipe(plugins.jshint.reporter(stylish));
+    .pipe(plugins.jshint.reporter(stylish))
+    .pipe(plugins.jshint.reporter('fail'));
 });
 
 gulp.task('serve', function() {

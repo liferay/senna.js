@@ -66,6 +66,34 @@ describe('Senna', function() {
     window.history.pushState(null, null, test.originalPath);
   });
 
+  it('should set / get base path', function(done) {
+    app.setBasePath('/common');
+    assert.equal(app.getBasePath(), '/common');
+
+    done();
+  });
+
+  it('should set / get link selector', function(done) {
+    app.setLinkSelector('button');
+    assert.equal(app.getLinkSelector(), 'button');
+
+    done();
+  });
+
+  it('should set / get loading CSS class', function(done) {
+    app.setLoadingCssClass('loading-page');
+    assert.equal(app.getLoadingCssClass(), 'loading-page');
+
+    done();
+  });
+
+  it('should set / get the update scroll position', function(done) {
+    app.setUpdateScrollPosition(false);
+    assert.equal(app.getUpdateScrollPosition(), false);
+
+    done();
+  });
+
   it('should find route from path', function(done) {
     var route = app.findRoute('/base/unknown');
     assert.strictEqual(route, null);
@@ -125,6 +153,47 @@ describe('Senna', function() {
           done();
         });
       });
+    });
+  });
+
+  it('should prefetch', function(done) {
+    var fetched = false;
+
+    app.prefetch('/base/page').then(function() {
+      fetched = true;
+    })
+    .thenAlways(function() {
+      assert.ok(fetched);
+      done();
+    });
+  });
+
+  it('should prefetch fail using HtmlScreen', function(done) {
+    var fail = false;
+
+    app.setBasePath(test.getOriginalBasePath());
+    app.addRoutes({
+      path: '/fixture/404.txt',
+      handler: senna.HtmlScreen
+    });
+    app.prefetch(test.getOriginalBasePath() + '/fixture/404.txt').thenCatch(function() {
+      fail = true;
+    })
+    .thenAlways(function() {
+      assert.ok(fail);
+      done();
+    });
+  });
+
+  it('should not prefetch unrouted path', function(done) {
+    var fail = false;
+
+    app.prefetch('/no-route').thenCatch(function() {
+      fail = true;
+    })
+    .thenAlways(function() {
+      assert.ok(fail);
+      done();
     });
   });
 
