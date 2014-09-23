@@ -216,9 +216,8 @@
    * Retrieves or create a screen instance to a path.
    * @param {!String} path Path containing the querystring part.
    * @return {senna.Screen}
-   * @protected
    */
-  senna.App.prototype.createScreenInstance_ = function(path, route) {
+  senna.App.prototype.createScreenInstance = function(path, route) {
     var cachedScreen;
     if (path === this.activePath) {
       // When simulating page refresh the request lifecycle must be respected,
@@ -300,7 +299,7 @@
 
     console.log('Navigate to [' + path + ']');
 
-    var nextScreen = this.createScreenInstance_(path, route);
+    var nextScreen = this.createScreenInstance(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
       .then(function() {
@@ -518,8 +517,6 @@
    */
   senna.App.prototype.prefetch = function(path) {
     var self = this;
-    var pendingPrefetch;
-
     var route = this.findRoute(path);
     if (!route) {
       return senna.Promise.reject(new senna.Promise.CancellationError('No route for ' + path));
@@ -527,9 +524,8 @@
 
     console.log('Prefetching [' + path + ']');
 
-    var nextScreen = this.createScreenInstance_(path, route);
-
-    pendingPrefetch = senna.Promise.resolve()
+    var nextScreen = this.createScreenInstance(path, route);
+    var pendingPrefetch = senna.Promise.resolve()
       .then(function() {
         return nextScreen.load(path);
       })
