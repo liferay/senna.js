@@ -741,16 +741,14 @@
   senna.DataAttributeHandler.prototype.scanSurfaces = function() {
     var surfaces = this.baseElement.querySelectorAll('[data-senna-surface]');
     for (var i = 0; i < surfaces.length; i++) {
-
       var surfaceId = surfaces[i].id;
-
-      if (!senna.isDef(surfaceId)) {
-        throw new Error('Id attribute is required for surfaces');
-      }
-
-      if (surfaceId && !this.app.surfaces[surfaceId]) {
-        this.app.addSurfaces(surfaceId);
-        void 0;
+      if (surfaceId) {
+        if (!this.app.surfaces[surfaceId]) {
+          this.app.addSurfaces(surfaceId);
+          void 0;
+        }
+      } else {
+        throw new Error('Surface element id not specified.');
       }
     }
   };
@@ -990,9 +988,8 @@
    * Retrieves or create a screen instance to a path.
    * @param {!String} path Path containing the querystring part.
    * @return {senna.Screen}
-   * @protected
    */
-  senna.App.prototype.createScreenInstance_ = function(path, route) {
+  senna.App.prototype.createScreenInstance = function(path, route) {
     var cachedScreen;
     if (path === this.activePath) {
       // When simulating page refresh the request lifecycle must be respected,
@@ -1074,7 +1071,7 @@
 
     void 0;
 
-    var nextScreen = this.createScreenInstance_(path, route);
+    var nextScreen = this.createScreenInstance(path, route);
 
     this.pendingNavigate = senna.Promise.resolve()
       .then(function() {
@@ -1198,7 +1195,7 @@
 
   /**
    * Gets the update scroll position value.
-   * @return {String}
+   * @return {Boolean}
    */
   senna.App.prototype.getUpdateScrollPosition = function() {
     return this.updateScrollPosition;
@@ -1283,6 +1280,36 @@
       replaceHistory: !!opt_replaceHistory
     });
     return this.pendingNavigate;
+  };
+
+  /**
+   * Prefetches the specified path if there is a route handler that matches.
+   * @param {!String} path Path to navigate containing the base path.
+   * @return {Promise} Returns a pending request cancellable promise.
+   */
+  senna.App.prototype.prefetch = function(path) {
+    var self = this;
+    var route = this.findRoute(path);
+    if (!route) {
+      return senna.Promise.reject(new senna.Promise.CancellationError('No route for ' + path));
+    }
+
+    void 0;
+
+    var nextScreen = this.createScreenInstance(path, route);
+    var pendingPrefetch = senna.Promise.resolve()
+      .then(function() {
+        return nextScreen.load(path);
+      })
+      .then(function() {
+        self.screens[path] = nextScreen;
+      })
+      .thenCatch(function(reason) {
+        self.removeScreen_(path, nextScreen);
+        throw reason;
+      });
+
+    return pendingPrefetch;
   };
 
   /**
@@ -1475,7 +1502,7 @@
 
   /**
    * Sets the update scroll position value.
-   * @param {!String} updateScrollPosition
+   * @param {Boolean} updateScrollPosition
    */
   senna.App.prototype.setUpdateScrollPosition = function(updateScrollPosition) {
     this.updateScrollPosition = updateScrollPosition;
@@ -1824,7 +1851,7 @@
   };
 
   /**
-   * Gets the syrface transition function.
+   * Gets the surface transition function.
    * See <code>senna.Surface.TRANSITION</code>.
    * @return {?Function=} The transition function.
    */
@@ -1851,7 +1878,7 @@
   };
 
   /**
-   * Sets the syrface transition function.
+   * Sets the surface transition function.
    * See <code>senna.Surface.TRANSITION</code>.
    * @param {?Function=} transitionFn The transition function.
    */
