@@ -706,6 +706,14 @@
     delete this.screens[path];
   };
 
+  senna.App.prototype.purgeCache = function() {
+    for (var i in this.screens) {
+      if (i !== this.activePath) {
+        this.removeScreen_(i, this.screens[i]);
+      }
+    }
+  };
+
   /**
    * Sets link base path.
    * @param {!String} path
