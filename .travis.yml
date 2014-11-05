@@ -10,5 +10,6 @@ install:
   - npm install bower
   - bower install
 script:
+  - gulp build
   - gulp lint
   - gulp test
