@@ -663,7 +663,6 @@ describe('Senna', function() {
     done();
   });
 
-
   it('should parse scripts', function(done) {
     senna.parseScripts(senna.buildFragment('Hello<script src="' + test.getOriginalBasePath() + '/fixture/sentinel.js"></script><script>window.sentinel_inline_ = window.sentinel_ + 1;</script>'));
     senna.async.nextTick(function() {
@@ -709,18 +708,42 @@ describe('Senna', function() {
     });
   });
 
-    it('should update path before request is sent', function(done) {
-      app.resolvePath = function(path) {
-          return path + '&param=resolvePath';
-      };
+  it('should update path before request is sent', function(done) {
+    app.resolvePath = function(path) {
+        return path + '&param=resolvePath';
+    };
 
-      var path = '/base/page#hash';
+    var path = '/base/page#hash';
 
-      app.navigate(path).then(function() {
-        test.assertPath(path + '&param=resolvePath');
+    app.navigate(path).then(function() {
+      test.assertPath(path + '&param=resolvePath');
 
-        done();
-      });
+      done();
     });
+  });
+
+  it('should not invalidate active screen', function(done) {
+    app.navigate('/base/page#hash').then(function() {
+      app.purgeCache();
+
+      assert.ok(app.screens[app.activePath] instanceof senna.Screen);
+
+      done();
+    });
+  });
+
+  it('should invalidate all screens when no screen is active', function(done) {
+    app.screens = {
+      '/cached': new senna.Screen()
+    };
+
+    assert.ok(this.activeScreen === undefined);
+
+    app.purgeCache();
+
+    assert.ok(Object.getOwnPropertyNames(app.screens).length === 0);
+
+    done();
+  });
 
 });
