@@ -1,6 +1,7 @@
 'use strict';
 
 var gulp = require('gulp');
+var bower = require('gulp-bower');
 var karma = require('karma').server;
 var pkg = require('./package.json');
 var plugins = require('gulp-load-plugins')();
@@ -20,6 +21,10 @@ var mainFiles = [
   'src/screen/HtmlScreen.js',
   'src/vendor/Promise.js'
 ];
+
+gulp.task('init', function() {
+  return bower();
+});
 
 gulp.task('build', ['clean'], function() {
   return runSequence('build-raw', 'build-min', 'build-debug', 'build-css');
