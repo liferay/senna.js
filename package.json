@@ -12,6 +12,7 @@
   "devDependencies": {
     "gulp": "^3.8.1",
     "gulp-autoprefixer": "0.0.10",
+    "gulp-bower": "^0.0.7",
     "gulp-concat": "^2.2.0",
     "gulp-csso": "^0.2.9",
     "gulp-esformatter": "^1.0.0",
