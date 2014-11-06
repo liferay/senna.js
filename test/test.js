@@ -109,6 +109,22 @@ describe('Senna', function() {
     done();
   });
 
+  it('should throw error when route path is not found', function(done) {
+    assert.throws(function() {
+      new senna.Route();
+    }, Error);
+
+    done();
+  });
+
+  it('should throw error when route handler is not found', function(done) {
+    assert.throws(function() {
+      new senna.Route('/foo.html');
+    }, Error);
+
+    done();
+  });
+
   it('should throw error when surface is not found', function(done) {
     assert.throws(function() {
       new senna.Surface('');
