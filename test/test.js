@@ -598,4 +598,28 @@ describe('Senna', function() {
     });
   });
 
+  it('should not invalidate active screen', function(done) {
+    app.navigate('/base/page#hash').then(function() {
+      app.purgeCache();
+
+      assert.ok(app.screens[app.activePath] instanceof senna.Screen);
+
+      done();
+    });
+  });
+
+  it('should invalidate all screens when no screen is active', function(done) {
+    app.screens = {
+      '/cached': new senna.Screen()
+    };
+
+    assert.ok(this.activeScreen === undefined);
+
+    app.purgeCache();
+
+    assert.ok(Object.getOwnPropertyNames(app.screens).length === 0);
+
+    done();
+  });
+
 });
