@@ -13,11 +13,6 @@
   senna.inherits(senna.RequestScreen, senna.Screen);
 
   /**
-   * @inheritDoc
-   */
-  senna.RequestScreen.prototype.cacheable = true;
-
-  /**
    * Holds default http headers to set on request.
    * @type {?Object=}
    * @default {
