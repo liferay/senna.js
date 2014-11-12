@@ -108,10 +108,10 @@ function DelayedScreen() {
 }
 senna.inherits(DelayedScreen, senna.Screen);
 DelayedScreen.prototype.title = 'delayed';
-DelayedScreen.prototype.flip = function(sufaces) {
+DelayedScreen.prototype.flip = function(surfaces) {
   var instance = this;
   return test.delay(200).then(function() {
-    return DelayedScreen.base(instance, 'flip', sufaces);
+    return DelayedScreen.base(instance, 'flip', surfaces);
   });
 };
 DelayedScreen.prototype.getSurfaceContent = function(surfaceId) {
