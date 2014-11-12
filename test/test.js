@@ -66,6 +66,13 @@ describe('Senna', function() {
     window.history.pushState(null, null, test.originalPath);
   });
 
+  it('should set / get surface transitions', function (done) {
+    assert.equal(app.surfaces.body.getTransitionFn(), null);
+    app.surfaces.body.setTransitionFn(senna.Surface.TRANSITION);
+    assert.equal(app.surfaces.body.getTransitionFn(), senna.Surface.TRANSITION);
+    done();
+  });
+
   it('should set / get base path', function(done) {
     app.setBasePath('/common');
     assert.equal(app.getBasePath(), '/common');
