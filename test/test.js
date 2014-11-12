@@ -87,6 +87,17 @@ describe('Senna', function() {
     done();
   });
 
+  it('should set / get HTMLScreen title selector', function(done) {
+    var htmlScreen = new senna.HtmlScreen();
+
+    htmlScreen.setTitleSelector('h1');
+    assert.equal(htmlScreen.getTitleSelector(), 'h1');
+
+    htmlScreen.destroy();
+
+    done();
+  });
+
   it('should set / get loading CSS class', function(done) {
     app.setLoadingCssClass('loading-page');
     assert.equal(app.getLoadingCssClass(), 'loading-page');
