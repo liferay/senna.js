@@ -606,6 +606,17 @@ describe('Senna', function() {
     });
   });
 
+  it('should resolve content for HtmlScreen with HTML element', function(done) {
+    var htmlScreen = new senna.HtmlScreen();
+    var element = document.createElement('div');
+
+    htmlScreen.resolveContent(element);
+    htmlScreen.destroy();
+
+    done();
+  });
+
+
   it('should parse scripts', function(done) {
     senna.parseScripts(senna.buildFragment('Hello<script src="' + test.getOriginalBasePath() + '/fixture/sentinel.js"></script><script>window.sentinel_inline_ = window.sentinel_ + 1;</script>'));
     senna.async.nextTick(function() {
