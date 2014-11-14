@@ -180,6 +180,19 @@ describe('Senna', function() {
     done();
   });
 
+  it('should abort request', function(done) {
+    var requestScreen = new senna.RequestScreen();
+    var request;
+
+    requestScreen.load(test.getOriginalBasePath() + '/fixture/foo.txt').then(function() {
+      request = requestScreen.getRequest();
+      requestScreen.abortRequest();
+    }).thenAlways(function() {
+      assert.ok(request.status === 0);
+      done();
+    });
+  });
+
   it('should match surface elements', function(done) {
     assert.equal(document.querySelector('#body'), app.surfaces.body.getEl());
     assert.equal(document.querySelector('#header'), app.surfaces.header.getEl());
