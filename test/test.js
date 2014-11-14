@@ -151,6 +151,35 @@ describe('Senna', function() {
     done();
   });
 
+  it('should set HTTP method', function(done) {
+    var requestScreen = new senna.RequestScreen();
+
+    requestScreen.setHttpMethod('POST');
+
+    assert.ok(requestScreen.getHttpMethod(), 'POST');
+    done();
+  });
+
+  it('should set HTTP headers', function(done) {
+    var requestScreen = new senna.RequestScreen();
+
+    requestScreen.setHttpHeaders({
+      'X-test': 'true'
+    });
+
+    assert.ok(requestScreen.getHttpHeaders()['X-test'] === 'true');
+    done();
+  });
+
+  it('should set Request timeout', function(done) {
+    var requestScreen = new senna.RequestScreen();
+
+    requestScreen.setTimeout(1);
+
+    assert.equal(requestScreen.getTimeout(), 1);
+    done();
+  });
+
   it('should match surface elements', function(done) {
     assert.equal(document.querySelector('#body'), app.surfaces.body.getEl());
     assert.equal(document.querySelector('#header'), app.surfaces.header.getEl());
