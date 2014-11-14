@@ -70,6 +70,7 @@ describe('Senna', function() {
     assert.equal(app.surfaces.body.getTransitionFn(), null);
     app.surfaces.body.setTransitionFn(senna.Surface.TRANSITION);
     assert.equal(app.surfaces.body.getTransitionFn(), senna.Surface.TRANSITION);
+
     done();
   });
 
@@ -157,6 +158,7 @@ describe('Senna', function() {
     requestScreen.setHttpMethod('POST');
 
     assert.ok(requestScreen.getHttpMethod(), 'POST');
+
     done();
   });
 
@@ -168,6 +170,7 @@ describe('Senna', function() {
     });
 
     assert.ok(requestScreen.getHttpHeaders()['X-test'] === 'true');
+
     done();
   });
 
@@ -177,6 +180,7 @@ describe('Senna', function() {
     requestScreen.setTimeout(1);
 
     assert.equal(requestScreen.getTimeout(), 1);
+
     done();
   });
 
@@ -189,6 +193,7 @@ describe('Senna', function() {
       requestScreen.abortRequest();
     }).thenAlways(function() {
       assert.ok(request.status === 0);
+
       done();
     });
   });
@@ -240,6 +245,7 @@ describe('Senna', function() {
     })
     .thenAlways(function() {
       assert.ok(fetched);
+
       done();
     });
   });
@@ -257,6 +263,7 @@ describe('Senna', function() {
     })
     .thenAlways(function() {
       assert.ok(fail);
+
       done();
     });
   });
@@ -269,6 +276,7 @@ describe('Senna', function() {
     })
     .thenAlways(function() {
       assert.ok(fail);
+
       done();
     });
   });
