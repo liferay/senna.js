@@ -70,7 +70,7 @@
    * @default a
    * @protected
    */
-  senna.App.prototype.linkSelector = 'a';
+  senna.App.prototype.linkSelector = 'a:not([data-senna-off])';
 
   /**
    * Holds the loading css class.
