@@ -67,7 +67,7 @@
   /**
    * Holds the link selector to define links that are routed.
    * @type {!String}
-   * @default a
+   * @default a:not([data-senna-off])
    * @protected
    */
   senna.App.prototype.linkSelector = 'a:not([data-senna-off])';
