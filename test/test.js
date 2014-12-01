@@ -186,13 +186,10 @@ describe('Senna', function() {
 
   it('should abort request', function(done) {
     var requestScreen = new senna.RequestScreen();
-    var request;
-
-    requestScreen.load(test.getOriginalBasePath() + '/fixture/foo.txt').then(function() {
-      request = requestScreen.getRequest();
+    requestScreen.load(test.getOriginalBasePath() + '/fixture/content.txt').then(function() {
+      assert.equal(200, requestScreen.getRequest().status);
       requestScreen.abortRequest();
-    }).thenAlways(function() {
-      assert.ok(request.status === 0);
+      assert.equal(0, requestScreen.getRequest().status);
 
       done();
     });
