@@ -674,4 +674,25 @@ describe('Senna', function() {
     });
   });
 
+  it('should keep surfaces contents until transition is done', function(done) {
+    var defaultTransition = senna.Surface.TRANSITION;
+    senna.Surface.TRANSITION = function() {
+      return new senna.Promise(function(res) {
+        setTimeout(res, 10);
+      });
+    };
+    app.navigate('/base/page').then(function() {
+      app.navigate('/base/querystring?p=transition').then(function() {
+        assert.equal(1, document.querySelectorAll('#body div').length);
+        assert.equal(1, document.querySelectorAll('#header div').length);
+        senna.Surface.TRANSITION = defaultTransition;
+        done();
+      });
+      setTimeout(function(){
+        assert.equal(2, document.querySelectorAll('#body div').length);
+        assert.equal(2, document.querySelectorAll('#header div').length);
+      }, 5);
+    });
+  });
+
 });
