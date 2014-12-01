@@ -1910,10 +1910,6 @@
       to = this.defaultChild;
     }
 
-    if (from && from !== to) {
-      senna.remove(from);
-    }
-
     // Avoid repainting if the child is already in place or the element does
     // not exist
     var el = this.getEl();
@@ -1922,9 +1918,14 @@
     }
 
     var deferred = this.transition(from, to);
+
     this.activeChild = to;
 
-    return deferred;
+    return deferred.then(function() {
+      if(from && from !== to) {
+        senna.remove(from);
+      }
+    });
   };
 
   /**
