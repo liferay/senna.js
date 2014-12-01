@@ -1,7 +1,7 @@
 /**
  * Senna - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v0.2.1
+ * @version v0.3.0
  * @link http://sennajs.com
  * @license BSD
  */
