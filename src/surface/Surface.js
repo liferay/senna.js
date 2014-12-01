@@ -252,16 +252,14 @@
     }
 
     var deferred = this.transition(from, to);
-    
-    deferred.then( function() {
-      if(from && from !== to) {
-        senna.remove(from);
-      }
-    });
 
     this.activeChild = to;
 
-    return deferred;
+    return deferred.then(function() {
+      if (from && from !== to) {
+        senna.remove(from);
+      }
+    });
   };
 
   /**
