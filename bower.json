@@ -6,7 +6,10 @@
   "authors": [
     "Eduardo Lundgren <edu@rdo.io>"
   ],
-  "main": "src/senna.js",
+  "main": [
+    "build/senna.js",
+    "build/senna.css"
+  ],
   "keywords": [
     "spa",
     "single",
