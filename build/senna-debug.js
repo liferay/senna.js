@@ -292,6 +292,10 @@
     while (scripts.length) {
       var script = scripts.shift();
 
+      if (script.getAttribute('type') === 'text/parsed') {
+        continue;
+      }
+
       // Some browsers evaluates scripts when appended to document. Sterilizes
       // evaluated scripts setting type to text/parsed.
       script.setAttribute('type', 'text/parsed');
