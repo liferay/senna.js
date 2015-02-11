@@ -674,6 +674,20 @@ describe('Senna', function() {
     });
   });
 
+  it('should not parse scripts twice', function(done) {
+    window.sentinel_ = 0;
+    var frag = senna.buildFragment('<script>window.sentinel_++;</script>');
+    senna.parseScripts(frag);
+    senna.async.nextTick(function() {
+      senna.parseScripts(frag);
+      senna.async.nextTick(function() {
+        assert.equal(window.sentinel_, 1);
+
+        done();
+      });
+    });
+  });
+
   it('should keep surfaces contents until transition is done', function(done) {
     var defaultTransition = senna.Surface.TRANSITION;
     senna.Surface.TRANSITION = function() {
