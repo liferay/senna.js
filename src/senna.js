@@ -122,16 +122,9 @@
    * @param {String} data
    */
   senna.globalEval = function(data) {
-    /* jshint evil: true */
-    if (data && data.trim()) {
-      var evaluator = window.execScript;
-      if (!evaluator) {
-        evaluator = function(data) {
-          window['eval'].call(window, data);
-        };
-      }
-      evaluator(data);
-    }
+    var script = document.createElement('script');
+    script.text = data;
+    document.head.appendChild(script).parentNode.removeChild(script);
   };
 
   /**
