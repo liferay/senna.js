@@ -129,16 +129,9 @@
    * @param {String} data
    */
   senna.globalEval = function(data) {
-    /* jshint evil: true */
-    if (data && data.trim()) {
-      var evaluator = window.execScript;
-      if (!evaluator) {
-        evaluator = function(data) {
-          window['eval'].call(window, data);
-        };
-      }
-      evaluator(data);
-    }
+    var script = document.createElement('script');
+    script.text = data;
+    document.head.appendChild(script).parentNode.removeChild(script);
   };
 
   /**
@@ -292,14 +285,6 @@
     while (scripts.length) {
       var script = scripts.shift();
 
-      if (script.getAttribute('type') === 'text/parsed') {
-        continue;
-      }
-
-      // Some browsers evaluates scripts when appended to document. Sterilizes
-      // evaluated scripts setting type to text/parsed.
-      script.setAttribute('type', 'text/parsed');
-
       if (script.src) {
         var headers = {
           'Content-Type': 'text/javascript'
@@ -307,6 +292,12 @@
         senna.request(script.src, 'GET', headers, null, true).then(globalEval);
       } else {
         senna.async.nextTick(senna.bind(globalEval, null, script));
+      }
+
+      // Some browsers evaluates scripts when appended to document, removes
+      // scripts from fragment after evaluation.
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
       }
     }
     return frag;
