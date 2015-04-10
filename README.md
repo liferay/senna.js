@@ -1,8 +1,6 @@
 # Senna
 [![Build Status](http://img.shields.io/travis/eduardolundgren/senna/master.svg?style=flat)](https://travis-ci.org/eduardolundgren/senna)
 
-![Senna Helmet](https://cloud.githubusercontent.com/assets/398893/4001086/3ea857fc-2960-11e4-8c50-d43fe89b3316.png)
-
 *Senna* is a blazing-fast single page application engine that provides several low-level APIs that allows you to build modern web-based applications with only ~8 KB of JavaScript without any dependency.
 
 * [Official website](http://sennajs.com)
@@ -21,9 +19,9 @@ bower install senna
 
 ## Examples
 
-* **[Williams Email](http://sennajs.com/examples/email):** *Enable Single Page Apps using only HTML5 data-attributes;*
-* **[Lotus Gallery](http://sennajs.com/examples/gallery):** *Carousel app with history support and cacheable screens;*
-* **[McLaren Blog](http://sennajs.com/examples/blog):** *Infinite scrolling pages done right with history support;*
+* **[Email Example](http://sennajs.com/examples/email):** *Enable Single Page Apps using only HTML5 data-attributes;*
+* **[Gallery Example](http://sennajs.com/examples/gallery):** *Carousel app with history support and cacheable screens;*
+* **[Blog Example](http://sennajs.com/examples/blog):** *Infinite scrolling pages done right with history support;*
 
 ## Browser Support
 
@@ -41,7 +39,7 @@ IE 10+ ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ |
 
 ## History
 
-For detailed changelog, check [Releases](https://github.com/eduardolundgren/senna/releases). Each tag represents a [Grand Prix that Senna scored](http://en.wikipedia.org/wiki/Ayrton_Senna#Complete_Formula_One_results) :car::dash:
+For detailed changelog, check [Releases](https://github.com/eduardolundgren/senna/releases).
 
 ## Credits
 
