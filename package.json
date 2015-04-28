@@ -1,7 +1,7 @@
 {
   "name": "Senna",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A blazing-fast Single Page Application engine",
   "author": {
     "name": "Eduardo Lundgren",
