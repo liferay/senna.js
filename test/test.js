@@ -709,4 +709,18 @@ describe('Senna', function() {
     });
   });
 
+    it('should update path before request is sent', function(done) {
+      app.resolvePath = function(path) {
+          return path + '&param=resolvePath';
+      };
+
+      var path = '/base/page#hash';
+
+      app.navigate(path).then(function() {
+        test.assertPath(path + '&param=resolvePath');
+
+        done();
+      });
+    });
+
 });
