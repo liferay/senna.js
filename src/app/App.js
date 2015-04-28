@@ -106,10 +106,10 @@
    */
   senna.App.prototype.pendingNavigate = null;
 
-/**
-   * Updates path before request is made.
-   * @param {!String} path
-   */
+  /**
+     * Updates path before request is made.
+     * @param {!String} path
+     */
   senna.App.prototype.resolvePath = function(path) {
     return path;
   };
