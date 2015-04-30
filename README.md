@@ -45,6 +45,7 @@ For detailed changelog, check [Releases](https://github.com/liferay/senna.js/rel
 
 * Inspired by Daniel Pupius' [Surface project](https://github.com/dpup/surface)
 * Demo layouts by [Pure CSS](http://purecss.io/)
+* Icon made by [Freepik](http://www.freepik.com)
 
 ## Team
 
