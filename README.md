@@ -1,17 +1,17 @@
-# Senna
-[![Build Status](http://img.shields.io/travis/eduardolundgren/senna/master.svg?style=flat)](https://travis-ci.org/eduardolundgren/senna)
+# Senna.js
+[![Build Status](http://img.shields.io/travis/liferay/senna.js/master.svg?style=flat)](https://travis-ci.org/liferay/senna.js)
 
-*Senna* is a blazing-fast single page application engine that provides several low-level APIs that allows you to build modern web-based applications with only ~8 KB of JavaScript without any dependency.
+*Senna.js* is a blazing-fast single page application engine that provides several low-level APIs that allows you to build modern web-based applications with only ~8 KB of JavaScript without any dependency.
 
 * [Official website](http://sennajs.com)
-* [Website repository](https://github.com/eduardolundgren/sennajs.com)
+* [Website repository](https://github.com/liferay/sennajs.com)
 * [Documentation](http://sennajs.com/docs/)
 * [API Docs](http://sennajs.com/api/)
 
 ## Install
 
 Install via [Bower](http://bower.io/) or
-[download as a zip](https://github.com/eduardolundgren/senna/archive/master.zip):
+[download as a zip](https://github.com/liferay/senna.js/archive/master.zip):
 
 ```
 bower install senna
@@ -39,7 +39,7 @@ IE 10+ ✔ | Latest ✔ | Latest ✔ | Latest ✔ | Latest ✔ |
 
 ## History
 
-For detailed changelog, check [Releases](https://github.com/eduardolundgren/senna/releases).
+For detailed changelog, check [Releases](https://github.com/liferay/senna.js/releases).
 
 ## Credits
 
@@ -48,7 +48,7 @@ For detailed changelog, check [Releases](https://github.com/eduardolundgren/senn
 
 ## Team
 
-*Senna* is maintained by these people and a bunch of awesome [contributors](https://github.com/eduardolundgren/senna/graphs/contributors).
+*Senna.js* is maintained by these people and a bunch of awesome [contributors](https://github.com/liferay/senna.js/graphs/contributors).
 
 [![Eduardo Lundgren](https://2.gravatar.com/avatar/42327de520e674a6d1686845b30778d0)](https://github.com/eduardolundgren) | [![Iliyan Peychev](https://2.gravatar.com/avatar/c2a0cb9ed0d19196b7fe061055c18838)](https://github.com/ipeychev) | [![Pedro Marques](https://2.gravatar.com/avatar/1cf95bc9cee05a0bba25f7529bcdb888)](https://github.com/pedromarks) | [![Zeno Rocha](https://2.gravatar.com/avatar/e190023b66e2b8aa73a842b106920c93)](https://github.com/zenorocha)
 --- | --- | --- | --- | ---
@@ -56,4 +56,4 @@ For detailed changelog, check [Releases](https://github.com/eduardolundgren/senn
 
 ## License
 
-[BSD License](https://github.com/eduardolundgren/senna/blob/master/LICENSE) © Eduardo Lundgren
+[BSD License](https://github.com/liferay/senna.js/blob/master/LICENSE) © Eduardo Lundgren
