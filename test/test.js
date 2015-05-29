@@ -722,10 +722,9 @@ describe('Senna', function() {
     });
   });
 
-  it('should not invalidate active screen', function(done) {
+  it('should clear screens cache but not invalidate the active screen', function(done) {
     app.navigate('/base/page#hash').then(function() {
-      app.purgeCache();
-
+      app.clearScreensCache();
       assert.ok(app.screens[app.activePath] instanceof senna.Screen);
 
       done();
@@ -737,11 +736,10 @@ describe('Senna', function() {
       '/cached': new senna.Screen()
     };
 
-    assert.ok(this.activeScreen === undefined);
-
-    app.purgeCache();
-
-    assert.ok(Object.getOwnPropertyNames(app.screens).length === 0);
+    assert.ok(!this.activeScreen);
+    assert.ok(Object.keys(app.screens).length);
+    app.clearScreensCache();
+    assert.ok(!Object.keys(app.screens).length);
 
     done();
   });

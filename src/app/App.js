@@ -221,6 +221,18 @@
   };
 
   /**
+   * Clear screens cache.
+   * @chainable
+   */
+  senna.App.prototype.clearScreensCache = function() {
+    for (var path in this.screens) {
+      if (path !== this.activePath) {
+        this.removeScreen_(path, this.screens[path]);
+      }
+    }
+  };
+
+  /**
    * Retrieves or create a screen instance to a path.
    * @param {!String} path Path containing the querystring part.
    * @return {senna.Screen}
@@ -704,14 +716,6 @@
 
     screen.destroy();
     delete this.screens[path];
-  };
-
-  senna.App.prototype.purgeCache = function() {
-    for (var i in this.screens) {
-      if (i !== this.activePath) {
-        this.removeScreen_(i, this.screens[i]);
-      }
-    }
   };
 
   /**
