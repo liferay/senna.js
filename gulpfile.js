@@ -116,7 +116,7 @@ gulp.task('test-watch', function(done) {
 function banner() {
   var stamp = [
     '/**',
-    ' * <%= pkg.name %> - <%= pkg.description %>',
+    ' * Senna.js - <%= pkg.description %>',
     ' * @author <%= pkg.author.name %> <<%= pkg.author.email %>>',
     ' * @version v<%= pkg.version %>',
     ' * @link http://sennajs.com',
