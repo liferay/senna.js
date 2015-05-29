@@ -1,5 +1,5 @@
 /**
- * Senna - A blazing-fast Single Page Application engine
+ * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
  * @version v0.4.0
  * @link http://sennajs.com
@@ -1471,6 +1471,14 @@
 
     screen.destroy();
     delete this.screens[path];
+  };
+
+  senna.App.prototype.purgeCache = function() {
+    for (var i in this.screens) {
+      if (i !== this.activePath) {
+        this.removeScreen_(i, this.screens[i]);
+      }
+    }
   };
 
   /**
