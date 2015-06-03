@@ -1,13 +1,21 @@
 {
-  "private": true,
+  "name": "senna",
   "version": "0.4.0",
   "description": "A blazing-fast Single Page Application engine",
+  "license": "BSD",
+  "repository": "eduardolundgren/senna.js",
   "author": {
     "name": "Eduardo Lundgren",
     "email": "edu@rdo.io",
     "web": "http://eduardo.io",
     "twitter": "eduardolundgren"
   },
+  "keywords": [
+    "spa",
+    "single",
+    "page",
+    "apps"
+  ],
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-autoprefixer": "^2.0.0",
