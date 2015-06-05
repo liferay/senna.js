@@ -178,6 +178,23 @@ h6 {
   background: rgba(255,255,255,.8);
 }
 
+#preview .overlay-close {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  z-index: 10;
+  display: block;
+  width: 40px;
+  height: 40px;
+  color: #fff;
+  background-color: #333;
+  font-size: 30px;
+  text-decoration: none;
+  line-height: 35px;
+  text-align: center;
+  border-radius: 50%;
+}
+
 #preview .pure-img {
   position: relative;
   border-radius: 2px;
