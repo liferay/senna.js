@@ -165,6 +165,12 @@ h6 {
   z-index: 1;
 }
 
+#preview a {
+  color: #000;
+  text-decoration: none;
+  cursor: default;
+}
+
 #preview .visible {
   height: 100%;
   position: fixed;
