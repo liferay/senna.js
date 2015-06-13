@@ -492,6 +492,26 @@ describe('Senna', function() {
     });
   });
 
+  it('it should change history before adding the contents of surface', function(done) {
+    // If changes history after adding the contents of the surfaces,
+    // the relative paths of the requested page will use the base path of previous page.
+    // Then, the history should change before.
+
+    var path = test.getOriginalBasePath() + '/fixture/relativescript.txt';
+    app.addRoutes({
+      path: '/fixture/relativescript.txt',
+      handler: senna.HtmlScreen
+    });
+
+    window.sentinel_ = 0;
+    app.setBasePath(test.getOriginalBasePath());
+    app.navigate(path).then(function() {
+      assert.equal(window.sentinel_, 1);
+
+      done();
+    });
+  });
+
   it('should navigate when history buttons are clicked', function(done) {
     var history = [];
 

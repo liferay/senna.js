@@ -1,0 +1,3 @@
+<div id="body">
+  <script src="sentinel.js"></script>
+</div>
