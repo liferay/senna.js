@@ -326,6 +326,17 @@
         return nextScreen.load(path);
       })
       .then(function(contents) {
+        var title = nextScreen.getTitle() || self.getDefaultTitle();
+
+        self.updateHistory_(title, path, opt_replaceHistory);
+
+        self.syncScrollPosition_(opt_replaceHistory);
+
+        document.title = title;
+
+        return contents;
+      })
+      .then(function(contents) {
         var screenId = nextScreen.getId();
         for (var surfaceId in self.surfaces) {
           var surface = self.surfaces[surfaceId];
@@ -338,7 +349,7 @@
         return nextScreen.flip(self.surfaces);
       })
       .then(function() {
-        self.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
+        self.finalizeNavigate_(path, nextScreen);
       })
       .thenCatch(function(reason) {
         self.handleNavigateError_(path, nextScreen, reason);
@@ -351,20 +362,12 @@
   /**
    * Finalizes a screen navigation.
    * @param {!String} path Path containing the querystring part.
-   * @param {!Screen} nextScreen
-   * @param {Boolean=} opt_replaceHistory Replaces browser history.
+   * @param {!Screen} nextScreen.
    * @protected
    */
-  senna.App.prototype.finalizeNavigate_ = function(path, nextScreen, opt_replaceHistory) {
+  senna.App.prototype.finalizeNavigate_ = function(path, nextScreen) {
     var activeScreen = this.activeScreen;
-    var title = nextScreen.getTitle() || this.getDefaultTitle();
-
-    this.updateHistory_(title, path, opt_replaceHistory);
-
-    this.syncScrollPosition_(opt_replaceHistory);
-
-    document.title = title;
-
+    
     nextScreen.activate();
 
     if (activeScreen && !activeScreen.isCacheable()) {
