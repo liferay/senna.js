@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v0.4.0
+ * @version v0.4.1
  * @link http://sennajs.com
  * @license BSD
  */
@@ -325,6 +325,8 @@
   senna.request = function(url, httpMethod, opt_httpHeaders, opt_timeout, opt_sync) {
     var xhr = new XMLHttpRequest();
 
+    url = this.resolveRequest(url);
+
     var promise = new senna.Promise(function(resolve, reject) {
       xhr.onload = function() {
         if (xhr.status === 200) {
@@ -359,6 +361,14 @@
     }
 
     return promise;
+  };
+
+  /**
+     * Updates url right before request is made.
+     * @param {!String} url
+     */
+  senna.resolveRequest = function(url) {
+    return url;
   };
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -874,14 +884,6 @@
   senna.App.prototype.pendingNavigate = null;
 
   /**
-     * Updates path before request is made.
-     * @param {!String} path
-     */
-  senna.App.prototype.resolvePath = function(path) {
-    return path;
-  };
-
-  /**
    * Holds the screen routes configuration.
    * @type {?Array}
    * @default null
@@ -985,6 +987,18 @@
       this.surfaces[surface.getId()] = surface;
     }
     return this;
+  };
+
+  /**
+   * Clear screens cache.
+   * @chainable
+   */
+  senna.App.prototype.clearScreensCache = function() {
+    for (var path in this.screens) {
+      if (path !== this.activePath) {
+        this.removeScreen_(path, this.screens[path]);
+      }
+    }
   };
 
   /**
@@ -1278,8 +1292,6 @@
   senna.App.prototype.navigate = function(path, opt_replaceHistory) {
     this.stopPending_();
 
-    path = this.resolvePath(path);
-
     this.emit('startNavigate', {
       path: path,
       replaceHistory: !!opt_replaceHistory
@@ -1471,14 +1483,6 @@
 
     screen.destroy();
     delete this.screens[path];
-  };
-
-  senna.App.prototype.purgeCache = function() {
-    for (var i in this.screens) {
-      if (i !== this.activePath) {
-        this.removeScreen_(i, this.screens[i]);
-      }
-    }
   };
 
   /**
