@@ -107,14 +107,6 @@
   senna.App.prototype.pendingNavigate = null;
 
   /**
-     * Updates path before request is made.
-     * @param {!String} path
-     */
-  senna.App.prototype.resolvePath = function(path) {
-    return path;
-  };
-
-  /**
    * Holds the screen routes configuration.
    * @type {?Array}
    * @default null
@@ -522,8 +514,6 @@
    */
   senna.App.prototype.navigate = function(path, opt_replaceHistory) {
     this.stopPending_();
-
-    path = this.resolvePath(path);
 
     this.emit('startNavigate', {
       path: path,
