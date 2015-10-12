@@ -318,6 +318,8 @@
   senna.request = function(url, httpMethod, opt_httpHeaders, opt_timeout, opt_sync) {
     var xhr = new XMLHttpRequest();
 
+    url = this.resolveRequest(url);
+
     var promise = new senna.Promise(function(resolve, reject) {
       xhr.onload = function() {
         if (xhr.status === 200) {
@@ -352,6 +354,14 @@
     }
 
     return promise;
+  };
+
+  /**
+     * Updates url right before request is made.
+     * @param {!String} url
+     */
+  senna.resolveRequest = function(url) {
+    return url;
   };
 
   document.addEventListener('DOMContentLoaded', function() {

@@ -708,18 +708,16 @@ describe('Senna', function() {
     });
   });
 
-  it('should update path before request is sent', function(done) {
-    app.resolvePath = function(path) {
-        return path + '&param=resolvePath';
-    };
+  it('should add param to url before request is sent', function(done) {
+      senna.resolveRequest = function(url) {
+          return url + '?newParam=true';
+      };
 
-    var path = '/base/page#hash';
+      var requestUrl = senna.resolveRequest('/base/page');
 
-    app.navigate(path).then(function() {
-      test.assertPath(path + '&param=resolvePath');
+      assert.equal(requestUrl, '/base/page?newParam=true');
 
       done();
-    });
   });
 
   it('should clear screens cache but not invalidate the active screen', function(done) {
