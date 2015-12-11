@@ -1740,9 +1740,10 @@
    *
    * @param {?Element=} from The visible surface element.
    * @param {?Element=} to The surface element to be flipped.
+   * @param {Object} screen The screen which is showing the surface.
    * @static
    */
-  senna.Surface.TRANSITION = function(from, to) {
+  senna.Surface.TRANSITION = function(from, to, screen) {
     if (from) {
       from.style.display = 'none';
       from.classList.remove('flipped');
@@ -1906,10 +1907,11 @@
   /**
    * Shows screen content from a surface.
    * @param {String} screenId The screen id to show.
+   * @param {Object} screen The screen which is showing the surface.
    * @return {?Promise=} If returns a promise pauses the navigation until it is
    *     resolved.
    */
-  senna.Surface.prototype.show = function(screenId) {
+  senna.Surface.prototype.show = function(screen) {
     if (!this.defaultChild) {
       this.defaultChild = this.addContent(senna.Surface.DEFAULT);
     }
@@ -1919,7 +1921,7 @@
     }
 
     var from = this.activeChild;
-    var to = this.getChild(screenId);
+    var to = this.getChild(screen.id);
 
     if (!to) {
       // When surface child for screen not found retrieve the default
@@ -1934,7 +1936,7 @@
       senna.append(el, to);
     }
 
-    var deferred = this.transition(from, to);
+    var deferred = this.transition(from, to, screen);
 
     this.activeChild = to;
 
@@ -1967,12 +1969,13 @@
    * Invokes the transition function specified on `transition` attribute.
    * @param {?Element=} from
    * @param {?Element=} to
+   * @param {Object} screen The screen which is showing the surface.
    * @return {?Promise=} This can return a promise, which will pause the
    *     navigation until it is resolved.
    */
-  senna.Surface.prototype.transition = function(from, to) {
+  senna.Surface.prototype.transition = function(from, to, screen) {
     var transitionFn = this.transitionFn || senna.Surface.TRANSITION;
-    return senna.Promise.resolve(transitionFn.call(this, from, to));
+    return senna.Promise.resolve(transitionFn.call(this, from, to, screen));
   };
 }());
 
@@ -2056,7 +2059,7 @@
 
     var transitions = [];
     for (var surfaceId in surfaces) {
-      transitions.push(surfaces[surfaceId].show(this.id));
+      transitions.push(surfaces[surfaceId].show(this));
     }
 
     return senna.Promise.all(transitions);
