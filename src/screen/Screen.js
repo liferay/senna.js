@@ -78,7 +78,7 @@
 
     var transitions = [];
     for (var surfaceId in surfaces) {
-      transitions.push(surfaces[surfaceId].show(this.id));
+      transitions.push(surfaces[surfaceId].show(this));
     }
 
     return senna.Promise.all(transitions);
