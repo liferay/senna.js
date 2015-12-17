@@ -1,2 +1,0 @@
-<div id="header">html</div>
-<div id="body">html</div>
