@@ -31,6 +31,39 @@ npm install senna
       
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/senna.svg)](https://travis-ci.org/liferay/senna.js)
 
+## Setup
+
+1. Install NodeJS >= [v0.12.0](http://nodejs.org/dist/v0.12.0/), if you don't have it yet.
+
+2. Install global dependencies:
+
+  ```
+  [sudo] npm install -g gulp
+  ```
+
+3. Install local dependencies:
+
+  ```
+  npm install
+  bower install
+  ```
+
+4. Build the code:
+
+  ```
+  gulp build
+  ```
+
+5. Test the code:
+
+  ```
+  gulp test
+  ```
+
+  ```
+  gulp test:coverage
+  ```
+
 ## Contributing
 
 1. Fork it!
