@@ -1,3 +1,5 @@
+var isparta = require('isparta');
+
 var babelOptions = {
 	presets: ['metal'],
 	sourceMap: 'both'
@@ -16,7 +18,8 @@ module.exports = function (config) {
 		],
 
 		preprocessors: {
-			'src/**/*.js': ['babel', 'commonjs'],
+			'src/**/!(*.soy).js': ['coverage', 'commonjs'],
+			'src/**/*.soy.js': ['babel', 'commonjs'],
 			'bower_components/metal/**/*.js': ['babel', 'commonjs'],
 			'bower_components/metal-*/**/*.js': ['babel', 'commonjs'],
 			'test/**/*.js': ['babel', 'commonjs']
@@ -24,6 +27,18 @@ module.exports = function (config) {
 
 		browsers: ['Chrome'],
 
-		babelPreprocessor: {options: babelOptions}
+		reporters: ['coverage', 'progress'],
+
+		babelPreprocessor: {options: babelOptions},
+
+		coverageReporter: {
+			instrumenters: {isparta : isparta},
+			instrumenter: {'**/*.js': 'isparta'},
+			instrumenterOptions: {isparta: {babel: babelOptions}},
+			reporters: [
+				{type: 'lcov', subdir: 'lcov'},
+				{type: 'text-summary'}
+			]
+		}
 	});
 }
