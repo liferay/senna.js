@@ -1,90 +1,77 @@
-(function() {
-  'use strict';
+'use strict';
 
-  /**
-   * Route class.
-   * @param {!String|RegExp|Function} path
-   * @param {!Function} handler
-   * @constructor
-   */
-  senna.Route = function(path, handler) {
-    if (!senna.isDef(path)) {
-      throw new Error('Route path not specified.');
-    }
-    if (!senna.isFunction(handler)) {
-      throw new Error('Route handler is not a function.');
-    }
-    this.setPath(path);
-    this.setHandler(handler);
-  };
+import core from 'bower:metal/src/core';
 
-  /**
-   * Defines the path which will trigger the route handler.
-   * @type {!String|RegExp|Function}
-   * @default null
-   * @protected
-   */
-  senna.Route.prototype.path = null;
+class Route {
 
-  /**
-   * Defines the handler which will execute once a URL in the application
-   * matches the path.
-   * @type {!Function}
-   * @default null
-   * @protected
-   */
-  senna.Route.prototype.handler = null;
+	/**
+	 * Route class.
+	 * @param {!string|RegExp|Function} path
+	 * @param {!Function} handler
+	 * @constructor
+	 */
+	constructor(path, handler) {
+		if (!core.isDefAndNotNull(path)) {
+			throw new Error('Route path not specified.');
+		}
+		if (!core.isFunction(handler)) {
+			throw new Error('Route handler is not a function.');
+		}
 
-  /**
-   * Gets the route handler.
-   * @return {!Function}
-   */
-  senna.Route.prototype.getHandler = function() {
-    return this.handler;
-  };
+		/**
+		 * Defines the handler which will execute once a URL in the application
+		 * matches the path.
+		 * @type {!Function}
+		 * @protected
+		 */
+		this.handler = handler;
 
-  /**
-   * Gets the route path.
-   * @return {!String|RegExp|Function}
-   */
-  senna.Route.prototype.getPath = function() {
-    return this.path;
-  };
+		/**
+		 * Defines the path which will trigger the route handler.
+		 * @type {!string|RegExp|Function}
+		 * @protected
+		 */
+		this.path = path;
+	}
 
-  /**
-   * Matches if the router can handle the tested path, if not returns null.
-   * @param {!String} value Path to test and may contains the querystring
-   *     part.
-   * @return {Boolean} Returns true if matches any route.
-   */
-  senna.Route.prototype.matchesPath = function(value) {
-    var path = this.path;
+	/**
+	 * Gets the route handler.
+	 * @return {!Function}
+	 */
+	getHandler() {
+		return this.handler;
+	}
 
-    if (senna.isString(path)) {
-      return value === path;
-    }
-    if (senna.isFunction(path)) {
-      return path(value);
-    }
-    if (path instanceof RegExp) {
-      return value.search(path) > -1;
-    }
-    return null;
-  };
+	/**
+	 * Gets the route path.
+	 * @return {!string|RegExp|Function}
+	 */
+	getPath() {
+		return this.path;
+	}
 
-  /**
-   * Sets the route handler.
-   * @param {!Function} handler
-   */
-  senna.Route.prototype.setHandler = function(handler) {
-    this.handler = handler;
-  };
+	/**
+	 * Matches if the router can handle the tested path.
+	 * @param {!string} value Path to test and may contains the querystring
+	 *     part.
+	 * @return {Boolean} Returns true if matches any route.
+	 */
+	matchesPath(value) {
+		var path = this.path;
 
-  /**
-   * Sets the route path.
-   * @param {!String|RegExp|Function} path
-   */
-  senna.Route.prototype.setPath = function(path) {
-    this.path = path;
-  };
-}());
+		if (core.isString(path)) {
+			return value === path;
+		}
+		if (core.isFunction(path)) {
+			return path(value);
+		}
+		if (path instanceof RegExp) {
+			return value.search(path) > -1;
+		}
+
+		return false;
+	}
+
+}
+
+export default Route;
