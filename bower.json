@@ -7,8 +7,8 @@
     "Eduardo Lundgren <edu@rdo.io>"
   ],
   "main": [
-    "build/senna-min.js",
-    "build/senna.js",
+    "build/globals/senna-min.js",
+    "build/globals/senna.js",
     "build/senna.css"
   ],
   "keywords": [
