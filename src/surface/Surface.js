@@ -1,20 +1,231 @@
-(function() {
-  'use strict';
+'use strict';
 
-  /**
-   * Surface class representing the references to elements on the page that
-   * can potentially be updated by <code>senna.App</code>.
-   * @param {String} id
-   * @constructor
-   */
-  senna.Surface = function(id) {
-    if (!id) {
-      throw new Error('Surface element id not specified.');
-    }
-    this.setId(id);
-  };
+import globals from '../globals/globals';
+import dom from 'bower:metal/src/dom/dom';
+import globalEval from 'bower:metal/src/eval/globalEval';
+import Disposable from 'bower:metal/src/disposable/Disposable';
+import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
 
-  /**
+class Surface extends Disposable {
+
+	/**
+	 * Surface class representing the references to elements on the page that
+	 * can potentially be updated by <code>App</code>.
+	 * @param {string} id
+	 * @constructor
+	 */
+	constructor(id) {
+		super();
+
+		if (!id) {
+			throw new Error('Surface element id not specified.');
+		}
+
+		/**
+		 * Holds the active child element.
+		 * @type {Element}
+		 * @default null
+		 * @protected
+		 */
+		this.activeChild = null;
+
+		/**
+		 * Holds the default child element.
+		 * @type {Element}
+		 * @default null
+		 * @protected
+		 */
+		this.defaultChild = null;
+
+		/**
+		 * Holds the element with the specified surface id, if not found creates a
+		 * new element with the specified id.
+		 * @type {Element}
+		 * @default null
+		 * @protected
+		 */
+		this.element = null;
+
+		/**
+		 * Holds the surface id.
+		 * @type {String}
+		 * @default null
+		 * @protected
+		 */
+		this.id = id;
+
+		/**
+		 * Holds the default transitionFn for the surfaces.
+		 * @param {?Element=} from The visible surface element.
+		 * @param {?Element=} to The surface element to be flipped.
+		 * @default Surface.TRANSITION
+		 */
+		this.transitionFn = Surface.TRANSITION;
+
+		this.activeChild = this.addContent(Surface.DEFAULT);
+	}
+
+	/**
+	 * Adds screen content to a surface. If content hasn't been passed, see if
+	 * an element exists in the DOM that matches the id. By convention, the
+	 * element should already be nested in the right element and should have an
+	 * id that is a concatentation of the surface id + '-' + the screen id.
+	 * @param {!string} screenId The screen id the content belongs too.
+	 * @param {?string|Element=} opt_content The string content or element to add
+	 *     be added as surface content.
+	 * @return {Element}
+	 */
+	addContent(screenId, opt_content) {
+		if (!opt_content) {
+			return this.getChild(screenId);
+		}
+
+		console.log('Screen [' + screenId + '] add content to surface [' + this + ']');
+
+		var element = this.getElement();
+		var child = this.createChild(screenId);
+
+		dom.append(child, opt_content);
+
+		if (element) {
+			globalEval.runScriptsInElement(child);
+			this.transition(child, null);
+			dom.append(element, child);
+		}
+
+		return child;
+	}
+
+	/**
+	 * Creates child node for the surface.
+	 * @param {!string} screenId The screen id.
+	 * @return {Element}
+	 */
+	createChild(screenId) {
+		var child = globals.document.createElement('div');
+		child.setAttribute('id', this.makeId_(screenId));
+		return child;
+	}
+
+	/**
+	 * Gets child node of the surface.
+	 * @param {!string} screenId The screen id.
+	 * @return {?Element}
+	 */
+	getChild(screenId) {
+		return globals.document.getElementById(this.makeId_(screenId));
+	}
+
+	/**
+	 * Gets the surface element from element, and sets it to the el property of
+	 * the current instance.
+	 * <code>this.element</code> will be used.
+	 * @return {?Element} The current surface element.
+	 */
+	getElement() {
+		if (this.element) {
+			return this.element;
+		}
+		this.element = globals.document.getElementById(this.id);
+		return this.element;
+	}
+
+	/**
+	 * Gets the surface id.
+	 * @return {String}
+	 */
+	getId() {
+		return this.id;
+	}
+
+	/**
+	 * Gets the surface transition function.
+	 * See <code>Surface.TRANSITION</code>.
+	 * @return {?Function=} The transition function.
+	 */
+	getTransitionFn() {
+		return this.transitionFn;
+	}
+
+	/**
+	 * Makes the id for the element that holds content for a screen.
+	 * @param {!string} screenId The screen id the content belongs too.
+	 * @return {String}
+	 * @private
+	 */
+	makeId_(screenId) {
+		return this.id + '-' + screenId;
+	}
+
+	/**
+	 * Sets the surface id.
+	 * @param {!string} id
+	 */
+	setId(id) {
+		this.id = id;
+	}
+
+	/**
+	 * Sets the surface transition function.
+	 * See <code>Surface.TRANSITION</code>.
+	 * @param {?Function=} transitionFn The transition function.
+	 */
+	setTransitionFn(transitionFn) {
+		this.transitionFn = transitionFn;
+	}
+
+	/**
+	 * Shows screen content from a surface.
+	 * @param {String} screenId The screen id to show.
+	 * @return {?Promise=} If returns a promise pauses the navigation until it
+	 *     is resolved.
+	 */
+	show(screenId) {
+		var from = this.activeChild;
+		var to = this.getChild(screenId);
+		if (!to) {
+			to = this.getChild(Surface.DEFAULT);
+		}
+		this.activeChild = to;
+		return this.transition(from, to).thenAlways(() => {
+			if (from && from !== to) {
+				dom.exitDocument(from);
+			}
+		});
+	}
+
+	/**
+	 * Removes screen content from a surface.
+	 * @param {!string} screenId The screen id to remove.
+	 */
+	remove(screenId) {
+		var child = this.getChild(screenId);
+		if (child) {
+			dom.exitDocument(child);
+		}
+	}
+
+	/**
+	 * @return {String}
+	 */
+	toString() {
+		return this.id;
+	}
+
+	/**
+	 * Invokes the transition function specified on <code>transition</code> attribute.
+	 * @param {?Element=} from
+	 * @param {?Element=} to
+	 * @return {?Promise=} This can return a promise, which will pause the
+	 *     navigation until it is resolved.
+	 */
+	transition(from, to) {
+		return Promise.resolve(this.transitionFn.call(this, from, to));
+	}
+
+}
+
+/**
    * Holds the default surface name. Elements on the page must contain a child
    * element containing the default content, this element must be as following:
    *
@@ -33,262 +244,41 @@
    * @default default
    * @static
    */
-  senna.Surface.DEFAULT = 'default';
+Surface.DEFAULT = 'default';
 
-  /**
-   * Holds the default transition for all surfaces. Each surface could have its
-   * own transition.
-   *
-   * Example:
-   *
-   * <code>
-   * surface.setTransitionFn(function(from, to) {
-   *   if (from) {
-   *     from.style.display = 'none';
-   *     from.classList.remove('flipped');
-   *   }
-   *   if (to) {
-   *     to.style.display = 'block';
-   *     to.classList.add('flipped');
-   *   }
-   *   return null;
-   * });
-   * </code>
-   *
-   * @param {?Element=} from The visible surface element.
-   * @param {?Element=} to The surface element to be flipped.
-   * @static
-   */
-  senna.Surface.TRANSITION = function(from, to) {
-    if (from) {
-      from.style.display = 'none';
-      from.classList.remove('flipped');
-    }
-    if (to) {
-      to.style.display = 'block';
-      to.classList.add('flipped');
-    }
-  };
-  /**
-   * Holds the active child element.
-   * @type {Element}
-   * @default null
-   * @protected
-   */
-  senna.Surface.prototype.activeChild = null;
+/**
+ * Holds the default transition for all surfaces. Each surface could have its
+ * own transition.
+ *
+ * Example:
+ *
+ * <code>
+ * surface.setTransitionFn(function(from, to) {
+ *   if (from) {
+ *     from.style.display = 'none';
+ *     from.classList.remove('flipped');
+ *   }
+ *   if (to) {
+ *     to.style.display = 'block';
+ *     to.classList.add('flipped');
+ *   }
+ *   return null;
+ * });
+ * </code>
+ *
+ * @param {?Element=} from The visible surface element.
+ * @param {?Element=} to The surface element to be flipped.
+ * @static
+ */
+Surface.TRANSITION = function(from, to) {
+	if (from) {
+		from.style.display = 'none';
+		from.classList.remove('flipped');
+	}
+	if (to) {
+		to.style.display = 'block';
+		to.classList.add('flipped');
+	}
+};
 
-  /**
-   * Holds the default child element.
-   * @type {Element}
-   * @default null
-   * @protected
-   */
-  senna.Surface.prototype.defaultChild = null;
-
-  /**
-   * Holds the element with the specified surface id, if not found creates a
-   * new element with the specified id.
-   * @type {Element}
-   * @default null
-   * @protected
-   */
-  senna.Surface.prototype.el = null;
-
-  /**
-   * Holds the surface id.
-   * @type {String}
-   * @default null
-   * @protected
-   */
-  senna.Surface.prototype.id = null;
-
-  /**
-   * Holds the default transitionFn for the surfaces.
-   * @param {?Element=} from The visible surface element.
-   * @param {?Element=} to The surface element to be flipped.
-   * @default senna.Surface.TRANSITION
-   */
-  senna.Surface.prototype.transitionFn = null;
-
-  /**
-   * Adds screen content to a surface. If content hasn't been passed, see if
-   * an element exists in the DOM that matches the id. By convention, the
-   * element should already be nested in the right element and should have an
-   * id that is a concatentation of the surface id + '-' + the screen id.
-   * @param {!String} screenId The screen id the content belongs too.
-   * @param {?String|Element=} opt_content The string content or element to add
-   *     be added as surface content.
-   * @return {Element}
-   */
-  senna.Surface.prototype.addContent = function(screenId, opt_content) {
-    if (!opt_content) {
-      return this.getChild(screenId);
-    }
-
-    console.log('Screen [' + screenId + '] add content to surface [' + this + ']');
-
-    var el = this.getEl();
-    var child = this.createChild(screenId);
-
-    senna.append(child, opt_content);
-
-    this.transition(child, null);
-
-    if (el) {
-      senna.append(el, child);
-    }
-
-    return child;
-  };
-
-  /**
-   * Creates child node for the surface.
-   * @param {!String} screenId The screen id.
-   * @return {Element}
-   */
-  senna.Surface.prototype.createChild = function(screenId) {
-    var child = document.createElement('div');
-    child.setAttribute('id', this.makeId_(screenId));
-    return child;
-  };
-
-  /**
-   * Gets the surface element from element, and sets it to the el property of
-   * the current instance.
-   * @param {!String} opt_id The id of the surface element. If not provided,
-   *     <code>this.el</code> will be used.
-   * @return {?Element} The current surface element.
-   */
-  senna.Surface.prototype.getEl = function(opt_id) {
-    if (this.el) {
-      return this.el;
-    }
-    this.el = document.getElementById(opt_id || this.id);
-    return this.el;
-  };
-
-  /**
-   * Gets the surface id.
-   * @return {String}
-   */
-  senna.Surface.prototype.getId = function() {
-    return this.id;
-  };
-
-  /**
-   * Gets child node of the surface.
-   * @param {!String} screenId The screen id.
-   * @return {?Element}
-   */
-  senna.Surface.prototype.getChild = function(screenId) {
-    return document.getElementById(this.makeId_(screenId));
-  };
-
-  /**
-   * Gets the surface transition function.
-   * See <code>senna.Surface.TRANSITION</code>.
-   * @return {?Function=} The transition function.
-   */
-  senna.Surface.prototype.getTransitionFn = function() {
-    return this.transitionFn;
-  };
-
-  /**
-   * Makes the id for the element that holds content for a screen.
-   * @param {!String} screenId The screen id the content belongs too.
-   * @return {String}
-   * @private
-   */
-  senna.Surface.prototype.makeId_ = function(screenId) {
-    return this.id + '-' + screenId;
-  };
-
-  /**
-   * Sets the surface id.
-   * @param {!String} id
-   */
-  senna.Surface.prototype.setId = function(id) {
-    this.id = id;
-  };
-
-  /**
-   * Sets the surface transition function.
-   * See <code>senna.Surface.TRANSITION</code>.
-   * @param {?Function=} transitionFn The transition function.
-   */
-  senna.Surface.prototype.setTransitionFn = function(transitionFn) {
-    this.transitionFn = transitionFn;
-  };
-
-  /**
-   * Shows screen content from a surface.
-   * @param {String} screenId The screen id to show.
-   * @return {?Promise=} If returns a promise pauses the navigation until it is
-   *     resolved.
-   */
-  senna.Surface.prototype.show = function(screenId) {
-    if (!this.defaultChild) {
-      this.defaultChild = this.addContent(senna.Surface.DEFAULT);
-    }
-
-    if (!this.activeChild) {
-      this.activeChild = this.defaultChild;
-    }
-
-    var from = this.activeChild;
-    var to = this.getChild(screenId);
-
-    if (!to) {
-      // When surface child for screen not found retrieve the default
-      // content from DOM element with id `surfaceId-default`
-      to = this.defaultChild;
-    }
-
-    // Avoid repainting if the child is already in place or the element does
-    // not exist
-    var el = this.getEl();
-    if (el && to && !to.parentNode) {
-      senna.append(el, to);
-    }
-
-    var deferred = this.transition(from, to);
-
-    this.activeChild = to;
-
-    return deferred.then(function() {
-      if (from && from !== to) {
-        senna.remove(from);
-      }
-    });
-  };
-
-  /**
-   * Removes screen content from a surface.
-   * @param {!String} screenId The screen id to remove.
-   */
-  senna.Surface.prototype.remove = function(screenId) {
-    var child = this.getChild(screenId);
-    if (child) {
-      senna.remove(child);
-    }
-  };
-
-  /**
-   * @return {String}
-   */
-  senna.Surface.prototype.toString = function() {
-    return this.id;
-  };
-
-  /**
-   * Invokes the transition function specified on `transition` attribute.
-   * @param {?Element=} from
-   * @param {?Element=} to
-   * @return {?Promise=} This can return a promise, which will pause the
-   *     navigation until it is resolved.
-   */
-  senna.Surface.prototype.transition = function(from, to) {
-    var transitionFn = this.transitionFn || senna.Surface.TRANSITION;
-    return senna.Promise.resolve(transitionFn.call(this, from, to));
-  };
-}());
+export default Surface;
