@@ -1,172 +1,180 @@
-(function() {
-  'use strict';
+'use strict';
 
-  /**
-   * Screen class is a special type of route handler that provides helper
-   * utilities that adds lifecycle and methods to provide content to each
-   * registered surface.
-   * @constructor
-   * @extends {senna.Cacheable}
-   */
-  senna.Screen = function() {
-    senna.Screen.base(this, 'constructor');
-    this.setId(senna.Screen.uniqueIdCounter++);
-  };
-  senna.inherits(senna.Screen, senna.Cacheable);
+import core from 'bower:metal/src/core';
+import Cacheable from '../cacheable/Cacheable';
+import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
 
-  /**
-   * @param {*} object
-   * @return {boolean} Whether a given instance implements
-   * <code>senna.Screen</code>.
-   */
-  senna.Screen.isImplementedBy = function(object) {
-    return object instanceof senna.Screen;
-  };
+class Screen extends Cacheable {
 
-  /**
-   * Holds a unique id counter for random screen names.
-   * @type {Number}
-   * @protected
-   */
-  senna.Screen.uniqueIdCounter = +new Date();
+	/**
+	 * Screen class is a special type of route handler that provides helper
+	 * utilities that adds lifecycle and methods to provide content to each
+	 * registered surface.
+	 * @constructor
+	 * @extends {Cacheable}
+	 */
+	constructor() {
+		super();
 
-  /**
-   * Holds the screen id.
-   * @type {String}
-   * @default null
-   * @protected
-   */
-  senna.Screen.prototype.id = null;
+		/**
+		 * Holds the screen id.
+		 * @type {string}
+		 * @protected
+		 */
+		this.id = this.makeId_(core.getUid());
 
-  /**
-   * Holds the screen title. Relevant when the page title should be upadated
-   * when screen is rendered.
-   * @type {?String=}
-   * @default null
-   * @protected
-   */
-  senna.Screen.prototype.title = null;
+		/**
+		 * Holds the screen title. Relevant when the page title should be
+		 * upadated when screen is rendered.
+		 * @type {?string=}
+		 * @default null
+		 * @protected
+		 */
+		this.title = null;
+	}
 
-  /**
-   * Fires when the screen is active. Allows a screen to perform any setup
-   * that requires its DOM to be visible. Lifecycle.
-   */
-  senna.Screen.prototype.activate = function() {
-    console.log('Screen [' + this + '] activate');
-  };
+	/**
+	 * Fires when the screen is active. Allows a screen to perform any setup
+	 * that requires its DOM to be visible. Lifecycle.
+	 */
+	activate() {
+		console.log('Screen [' + this + '] activate');
+	}
 
-  /**
-   * Gives the Screen a chance to cancel the navigation and stop itself from
-   * being deactivated. Can be used, for example, if the screen has unsaved
-   * state. Lifecycle. Clean-up should not be preformed here, since the
-   * navigation may still be cancelled. Do clean-up in deactivate.
-   * @return {Boolean=} If returns true, the current screen is locked and the
-   *     next navation interrupted.
-   */
-  senna.Screen.prototype.beforeDeactivate = function() {
-    console.log('Screen [' + this + '] beforeDeactivate');
-  };
+	/**
+	 * Gives the Screen a chance to cancel the navigation and stop itself from
+	 * being deactivated. Can be used, for example, if the screen has unsaved
+	 * state. Lifecycle. Clean-up should not be preformed here, since the
+	 * navigation may still be cancelled. Do clean-up in deactivate.
+	 * @return {boolean=} If returns true, the current screen is locked and the
+	 *     next nagivation interrupted.
+	 */
+	beforeDeactivate() {
+		console.log('Screen [' + this + '] beforeDeactivate');
+	}
 
-  /**
-   * Allows a screen to perform any setup immediately before the element is
-   * made visible. Lifecycle.
-   * @return {?Promise=} This can return a promise, which will pause the
-   *     navigation until it is resolved.
-   */
-  senna.Screen.prototype.flip = function(surfaces) {
-    console.log('Screen [' + this + '] flip');
+	/**
+	 * Allows a screen to do any cleanup necessary after it has been
+	 * deactivated, for example cancelling outstanding requests or stopping
+	 * timers. Lifecycle.
+	 */
+	deactivate() {
+		console.log('Screen [' + this + '] deactivate');
+	}
 
-    var transitions = [];
-    for (var surfaceId in surfaces) {
-      transitions.push(surfaces[surfaceId].show(this.id));
-    }
+	/**
+	 * Dispose a screen, either after it is deactivated (in the case of a
+	 * non-cacheable view) or when the App is itself disposed for whatever
+	 * reason. Lifecycle.
+	 */
+	disposeInternal() {
+		super.disposeInternal();
+		console.log('Screen [' + this + '] dispose');
+	}
 
-    return senna.Promise.all(transitions);
-  };
+	/**
+	 * Allows a screen to perform any setup immediately before the element is
+	 * made visible. Lifecycle.
+	 * @param {object} surfaces Map of surfaces to flip keyed by surface id.
+	 * @return {?Promise=} This can return a promise, which will pause the
+	 *     navigation until it is resolved.
+	 */
+	flip(surfaces) {
+		console.log('Screen [' + this + '] flip');
 
-  /**
-   * Allows a screen to do any cleanup necessary after it has been
-   * deactivated, for example cancelling outstanding XHRs or stopping
-   * timers. Lifecycle.
-   */
-  senna.Screen.prototype.deactivate = function() {
-    console.log('Screen [' + this + '] deactivate');
-  };
+		var transitions = [];
 
-  /**
-   * Destroy a screen, either after it is deactivated (in the case of a
-   * non-cacheable view) or when the App is itself disposed for whatever
-   * reason. Lifecycle.
-   */
-  senna.Screen.prototype.destroy = function() {
-    senna.Screen.base(this, 'destroy');
-    console.log('Screen [' + this + '] destructor');
-  };
+		Object.keys(surfaces).forEach(sId => transitions.push(surfaces[sId].show(this.id)));
 
-  /**
-   * Gets the screen id.
-   * @return {String}
-   */
-  senna.Screen.prototype.getId = function() {
-    return this.id;
-  };
+		return Promise.all(transitions);
+	}
 
-  /**
-   * Returns the content for the given surface, or null if the surface isn't
-   * used by this screen. This will be called when a screen is initially
-   * constructed or, if a screen is non-cacheable, when navigated.
-   * @param {!String} surfaceId The id of the surface DOM element.
-   * @param {?String=} opt_contents Optional content fetch by
-   *     <code>senna.Screen.load</code>.
-   * @return {?String|Element=} This can return a string or node representing
-   *     the content of the surface. If returns falsy values surface default
-   *     content is restored.
-   */
-  senna.Screen.prototype.getSurfaceContent = function() {
-    console.log('Screen [' + this + '] getSurfaceContent');
-  };
+	/**
+	 * Gets the screen id.
+	 * @return {string}
+	 */
+	getId() {
+		return this.id;
+	}
 
-  /**
-   * Gets the screen title.
-   * @return {?String=}
-   */
-  senna.Screen.prototype.getTitle = function() {
-    return this.title;
-  };
+	/**
+	 * Returns the content for the given surface, or null if the surface isn't
+	 * used by this screen. This will be called when a screen is initially
+	 * constructed or, if a screen is non-cacheable, when navigated.
+	 * @param {!string} surfaceId The id of the surface DOM element.
+	 * @param {?string=} opt_contents Optional content fetch by
+	 *     <code>Screen.load</code>.
+	 * @return {?string|Element=} This can return a string or node representing
+	 *     the content of the surface. If returns falsy values surface default
+	 *     content is restored.
+	 */
+	getSurfaceContent() {
+		console.log('Screen [' + this + '] getSurfaceContent');
+	}
 
-  /**
-   * Returns all contents for the surfaces. This will pass the loaded content
-   * to <code>senna.Screen.load</code> with all information you
-   * need to fulfill the surfaces. Lifecycle.
-   * @param {!String=} path The requested path.
-   * @return {?String|Promise=} This can return a string representing the
-   *     contents of the surfaces or a promise, which will pause the navigation
-   *     until it is resolved. This is useful for loading async content.
-   */
-  senna.Screen.prototype.load = function() {
-    console.log('Screen [' + this + '] load');
-  };
+	/**
+	 * Gets the screen title.
+	 * @return {?string=}
+	 */
+	getTitle() {
+		return this.title;
+	}
 
-  /**
-   * Sets the screen id.
-   * @param {!String} id
-   */
-  senna.Screen.prototype.setId = function(id) {
-    this.id = 'screen_' + String(id);
-  };
+	/**
+	 * Returns all contents for the surfaces. This will pass the loaded content
+	 * to <code>Screen.load</code> with all information you
+	 * need to fulfill the surfaces. Lifecycle.
+	 * @param {!string=} path The requested path.
+	 * @return {?string|Promise=} This can return a string representing the
+	 *     contents of the surfaces or a promise, which will pause the navigation
+	 *     until it is resolved. This is useful for loading async content.
+	 */
+	load() {
+		console.log('Screen [' + this + '] load');
+	}
 
-  /**
-   * Sets the screen title.
-   * @param {?String=} title
-   */
-  senna.Screen.prototype.setTitle = function(title) {
-    this.title = title;
-  };
+	/**
+	 * Makes the id for the screen.
+	 * @param {!string} id The screen id the content belongs too.
+	 * @return {string}
+	 * @private
+	 */
+	makeId_(id) {
+		return 'screen_' + id;
+	}
 
-  /**
-   * @return {String}
-   */
-  senna.Screen.prototype.toString = function() {
-    return this.id;
-  };
-}());
+	/**
+	 * Sets the screen id.
+	 * @param {!string} id
+	 */
+	setId(id) {
+		this.id = id;
+	}
+
+	/**
+	 * Sets the screen title.
+	 * @param {?string=} title
+	 */
+	setTitle(title) {
+		this.title = title;
+	}
+
+	/**
+	 * @return {string}
+	 */
+	toString() {
+		return this.id;
+	}
+
+}
+
+/**
+ * @param {*} object
+ * @return {boolean} Whether a given instance implements
+ * <code>Screen</code>.
+ */
+Screen.isImplementedBy = function(object) {
+	return object instanceof Screen;
+};
+
+export default Screen;
