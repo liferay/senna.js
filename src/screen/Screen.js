@@ -2,7 +2,7 @@
 
 import core from 'bower:metal/src/core';
 import Cacheable from '../cacheable/Cacheable';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 
 class Screen extends Cacheable {
 
@@ -76,7 +76,7 @@ class Screen extends Cacheable {
 	 * Allows a screen to perform any setup immediately before the element is
 	 * made visible. Lifecycle.
 	 * @param {object} surfaces Map of surfaces to flip keyed by surface id.
-	 * @return {?Promise=} This can return a promise, which will pause the
+	 * @return {?CancellablePromise=} This can return a promise, which will pause the
 	 *     navigation until it is resolved.
 	 */
 	flip(surfaces) {
@@ -86,7 +86,7 @@ class Screen extends Cacheable {
 
 		Object.keys(surfaces).forEach(sId => transitions.push(surfaces[sId].show(this.id)));
 
-		return Promise.all(transitions);
+		return CancellablePromise.all(transitions);
 	}
 
 	/**
@@ -125,7 +125,7 @@ class Screen extends Cacheable {
 	 * to <code>Screen.load</code> with all information you
 	 * need to fulfill the surfaces. Lifecycle.
 	 * @param {!string=} path The requested path.
-	 * @return {?string|Promise=} This can return a string representing the
+	 * @return {?string|CancellablePromise=} This can return a string representing the
 	 *     contents of the surfaces or a promise, which will pause the navigation
 	 *     until it is resolved. This is useful for loading async content.
 	 */

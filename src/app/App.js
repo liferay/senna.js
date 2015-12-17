@@ -6,7 +6,7 @@ import debounce from 'bower:metal-debounce/src/debounce';
 import dom from 'bower:metal/src/dom/dom';
 import EventEmitter from 'bower:metal/src/events/EventEmitter';
 import EventHandler from 'bower:metal/src/events/EventHandler';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';
@@ -96,7 +96,7 @@ class App extends EventEmitter {
 
 		/**
 		 * Holds a deferred withe the current navigation.
-		 * @type {?Promise}
+		 * @type {?CancellablePromise}
 		 * @default null
 		 * @protected
 		 */
@@ -285,7 +285,7 @@ class App extends EventEmitter {
 	/**
 	 * Dispatches to the first route handler that matches the current path, if
 	 * any.
-	 * @return {Promise} Returns a pending request cancellable promise.
+	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	dispatch() {
 		var currentPath = globals.window.location.pathname + globals.window.location.search + globals.window.location.hash;
@@ -296,17 +296,17 @@ class App extends EventEmitter {
 	 * Starts navigation to a path.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
-	 * @return {Promise} Returns a pending request cancellable promise.
+	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	doNavigate_(path, opt_replaceHistory) {
 		if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-			this.pendingNavigate = Promise.reject(new Promise.CancellationError('Cancelled by active screen'));
+			this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
 			return this.pendingNavigate;
 		}
 
 		var route = this.findRoute(path);
 		if (!route) {
-			this.pendingNavigate = Promise.reject(new Promise.CancellationError('No route for ' + path));
+			this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
 			return this.pendingNavigate;
 		}
 
@@ -314,7 +314,7 @@ class App extends EventEmitter {
 
 		var nextScreen = this.createScreenInstance(path, route);
 
-		this.pendingNavigate = Promise.resolve()
+		this.pendingNavigate = CancellablePromise.resolve()
 			.then(() => {
 				return nextScreen.load(path);
 			})
@@ -523,7 +523,7 @@ class App extends EventEmitter {
 	 * Navigates to the specified path if there is a route handler that matches.
 	 * @param {!string} path Path to navigate containing the base path.
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
-	 * @return {Promise} Returns a pending request cancellable promise.
+	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	navigate(path, opt_replaceHistory) {
 		this.stopPending_();
@@ -545,19 +545,19 @@ class App extends EventEmitter {
 	/**
 	 * Prefetches the specified path if there is a route handler that matches.
 	 * @param {!string} path Path to navigate containing the base path.
-	 * @return {Promise} Returns a pending request cancellable promise.
+	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	prefetch(path) {
 		var route = this.findRoute(path);
 		if (!route) {
-			return Promise.reject(new Promise.CancellationError('No route for ' + path));
+			return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
 		}
 
 		console.log('Prefetching [' + path + ']');
 
 		var nextScreen = this.createScreenInstance(path, route);
 
-		var pendingPrefetch = Promise.resolve()
+		var pendingPrefetch = CancellablePromise.resolve()
 			.then(() => {
 				return nextScreen.load(path);
 			})

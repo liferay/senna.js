@@ -4,7 +4,7 @@ import globals from '../globals/globals';
 import dom from 'bower:metal/src/dom/dom';
 import globalEval from 'bower:metal/src/eval/globalEval';
 import Disposable from 'bower:metal/src/disposable/Disposable';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 
 class Surface extends Disposable {
 
@@ -177,7 +177,7 @@ class Surface extends Disposable {
 	/**
 	 * Shows screen content from a surface.
 	 * @param {String} screenId The screen id to show.
-	 * @return {?Promise=} If returns a promise pauses the navigation until it
+	 * @return {?CancellablePromise=} If returns a promise pauses the navigation until it
 	 *     is resolved.
 	 */
 	show(screenId) {
@@ -216,11 +216,11 @@ class Surface extends Disposable {
 	 * Invokes the transition function specified on <code>transition</code> attribute.
 	 * @param {?Element=} from
 	 * @param {?Element=} to
-	 * @return {?Promise=} This can return a promise, which will pause the
+	 * @return {?CancellablePromise=} This can return a promise, which will pause the
 	 *     navigation until it is resolved.
 	 */
 	transition(from, to) {
-		return Promise.resolve(this.transitionFn.call(this, from, to));
+		return CancellablePromise.resolve(this.transitionFn.call(this, from, to));
 	}
 
 }

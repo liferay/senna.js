@@ -3,7 +3,7 @@
 import core from 'bower:metal/src/core';
 import Ajax from 'bower:metal-ajax/src/Ajax';
 import MultiMap from 'bower:metal-multimap/src/MultiMap';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 import Screen from './Screen';
 
 class RequestScreen extends Screen {
@@ -100,7 +100,7 @@ class RequestScreen extends Screen {
 	load(path) {
 		var cache = this.getCache();
 		if (core.isDefAndNotNull(cache)) {
-			return Promise.resolve(cache);
+			return CancellablePromise.resolve(cache);
 		}
 
 		var headers = new MultiMap();

@@ -3,7 +3,7 @@
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
 import Surface from '../../src/surface/Surface';
-import { CancellablePromise as Promise } from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 
 describe('Surface', function() {
 
@@ -160,7 +160,7 @@ describe('Surface', function() {
 			var surfaceChild = surface.addContent('screenId', 'content');
 			var surfaceChildNext = surface.addContent('screenNextId', 'content');
 			var transitionFn = function() {
-				return Promise.resolve();
+				return CancellablePromise.resolve();
 			};
 			surface.setTransitionFn(transitionFn);
 			surface.show('screenId');
