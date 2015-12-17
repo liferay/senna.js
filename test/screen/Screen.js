@@ -2,6 +2,7 @@
 
 import Screen from '../../src/screen/Screen';
 import Surface from '../../src/surface/Surface';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 
 describe('Screen', function() {
 
@@ -56,11 +57,11 @@ describe('Screen', function() {
 		var stub2 = sinon.stub();
 		surfaces.surface1.show = function() {
 			stub1();
-			return Promise.resolve();
+			return CancellablePromise.resolve();
 		};
 		surfaces.surface2.show = function() {
 			stub2();
-			return Promise.resolve();
+			return CancellablePromise.resolve();
 		};
 		new Screen().flip(surfaces).then(function() {
 			assert.strictEqual(1, stub1.callCount);
