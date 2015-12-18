@@ -88,9 +88,9 @@ class Surface extends Disposable {
 		dom.append(child, opt_content);
 
 		if (element) {
-			globalEval.runScriptsInElement(child);
 			this.transition(child, null);
 			dom.append(element, child);
+			globalEval.runScriptsInElement(child);
 		}
 
 		return child;
