@@ -58,9 +58,9 @@ class Surface extends Disposable {
 		 * Holds the default transitionFn for the surfaces.
 		 * @param {?Element=} from The visible surface element.
 		 * @param {?Element=} to The surface element to be flipped.
-		 * @default Surface.TRANSITION
+		 * @default null
 		 */
-		this.transitionFn = Surface.TRANSITION;
+		this.transitionFn = null;
 
 		this.activeChild = this.addContent(Surface.DEFAULT);
 	}
@@ -220,7 +220,8 @@ class Surface extends Disposable {
 	 *     navigation until it is resolved.
 	 */
 	transition(from, to) {
-		return CancellablePromise.resolve(this.transitionFn.call(this, from, to));
+		var transitionFn = this.transitionFn || Surface.TRANSITION;
+		return CancellablePromise.resolve(transitionFn.call(this, from, to));
 	}
 
 }
