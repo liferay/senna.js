@@ -140,7 +140,7 @@ class Surface extends Disposable {
 
 	/**
 	 * Gets the surface transition function.
-	 * See <code>Surface.TRANSITION</code>.
+	 * See <code>Surface.defaultTransition</code>.
 	 * @return {?Function=} The transition function.
 	 */
 	getTransitionFn() {
@@ -167,7 +167,7 @@ class Surface extends Disposable {
 
 	/**
 	 * Sets the surface transition function.
-	 * See <code>Surface.TRANSITION</code>.
+	 * See <code>Surface.defaultTransition</code>.
 	 * @param {?Function=} transitionFn The transition function.
 	 */
 	setTransitionFn(transitionFn) {
@@ -220,7 +220,7 @@ class Surface extends Disposable {
 	 *     navigation until it is resolved.
 	 */
 	transition(from, to) {
-		var transitionFn = this.transitionFn || Surface.TRANSITION;
+		var transitionFn = this.transitionFn || Surface.defaultTransition;
 		return CancellablePromise.resolve(transitionFn.call(this, from, to));
 	}
 
@@ -271,7 +271,7 @@ Surface.DEFAULT = 'default';
  * @param {?Element=} to The surface element to be flipped.
  * @static
  */
-Surface.TRANSITION = function(from, to) {
+Surface.defaultTransition = function(from, to) {
 	if (from) {
 		from.style.display = 'none';
 		from.classList.remove('flipped');
