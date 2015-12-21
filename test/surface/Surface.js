@@ -36,12 +36,10 @@ describe('Surface', function() {
 			assert.strictEqual('content', surfaceChild.innerHTML);
 		});
 
-		it('should get surface child when adding screen content to surface without content', function() {
-			enterDocumentSurfaceElement('surfaceId');
+		it('should wrap initial surface content as default child if default wrapper missing', function() {
+			enterDocumentSurfaceElement('surfaceId', 'default');
 			var surface = new Surface('surfaceId');
-			var surfaceChild = surface.addContent('screenId', 'content');
-			assert.ok(core.isElement(surfaceChild));
-			assert.strictEqual(surfaceChild, surface.addContent('screenId'));
+			assert.strictEqual('default', surface.defaultChild.innerHTML);
 			exitDocumentSurfaceElement('surfaceId');
 		});
 
@@ -50,6 +48,24 @@ describe('Surface', function() {
 			var surface = new Surface('surfaceId');
 			var surfaceChild = surface.addContent('screenId', 'content');
 			assert.strictEqual('content', surfaceChild.innerHTML);
+			exitDocumentSurfaceElement('surfaceId');
+		});
+
+		it('should add empty string as screen content to surface child', function() {
+			enterDocumentSurfaceElement('surfaceId');
+			var surface = new Surface('surfaceId');
+			var surfaceChild = surface.addContent('screenId', '');
+			assert.strictEqual('', surfaceChild.innerHTML);
+			exitDocumentSurfaceElement('surfaceId');
+		});
+
+		it('should not add null/undefined as screen content to surface child', function() {
+			enterDocumentSurfaceElement('surfaceId');
+			var surface = new Surface('surfaceId');
+			var surfaceChild = surface.addContent('screenId', undefined);
+			assert.strictEqual(surface.defaultChild, surfaceChild);
+			surfaceChild = surface.addContent('screenId', null);
+			assert.strictEqual(surface.defaultChild, surfaceChild);
 			exitDocumentSurfaceElement('surfaceId');
 		});
 
@@ -173,20 +189,20 @@ describe('Surface', function() {
 			assert.ok(surfaceChildNext.parentNode);
 			exitDocumentSurfaceElement('surfaceId');
 		});
-	});
 
-	it('should evaluate scripts when adding screen content to surface', function() {
-		enterDocumentSurfaceElement('surfaceId');
-		var surface = new Surface('surfaceId');
-		surface.addContent('screenId', '<script>window.sentinel=true;</script>');
-		assert.ok(window.sentinel);
-		exitDocumentSurfaceElement('surfaceId');
+		it('should evaluate scripts when adding screen content to surface', function() {
+			enterDocumentSurfaceElement('surfaceId');
+			var surface = new Surface('surfaceId');
+			surface.addContent('screenId', '<script>window.sentinel=true;</script>');
+			assert.ok(window.sentinel);
+			exitDocumentSurfaceElement('surfaceId');
+		});
 	});
 
 });
 
-function enterDocumentSurfaceElement(surfaceId) {
-	dom.enterDocument('<div id="' + surfaceId + '"></div>');
+function enterDocumentSurfaceElement(surfaceId, opt_content) {
+	dom.enterDocument('<div id="' + surfaceId + '">' + (opt_content ? opt_content : '') + '</div>');
 	return document.getElementById(surfaceId);
 }
 

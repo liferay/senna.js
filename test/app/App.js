@@ -715,6 +715,61 @@ describe('App', function() {
 		});
 	});
 
+	it('should render default surface content when not provided by screen', function(done) {
+		class ContentScreen1 extends Screen {
+			getSurfaceContent(surfaceId) {
+				if (surfaceId === 'surfaceId1') {
+					return 'content1';
+				}
+			}
+			getId() {
+				return 'screenId1';
+			}
+		}
+		class ContentScreen2 extends Screen {
+			getSurfaceContent(surfaceId) {
+				if (surfaceId === 'surfaceId2') {
+					return 'content2';
+				}
+			}
+			getId() {
+				return 'screenId2';
+			}
+		}
+		dom.enterDocument('<div id="surfaceId1"><div id="surfaceId1-default">default1</div></div>');
+		dom.enterDocument('<div id="surfaceId2"><div id="surfaceId2-default">default2</div></div>');
+		var surface1 = new Surface('surfaceId1');
+		var surface2 = new Surface('surfaceId2');
+		surface1.addContent = sinon.stub();
+		surface2.addContent = sinon.stub();
+		var app = new App();
+		app.addRoutes(new Route('/path1', ContentScreen1));
+		app.addRoutes(new Route('/path2', ContentScreen2));
+		app.addSurfaces([surface1, surface2]);
+		app.navigate('/path1').then(function() {
+			assert.strictEqual(1, surface1.addContent.callCount);
+			assert.strictEqual('screenId1', surface1.addContent.args[0][0]);
+			assert.strictEqual('content1', surface1.addContent.args[0][1]);
+			assert.strictEqual(1, surface2.addContent.callCount);
+			assert.strictEqual('screenId1', surface2.addContent.args[0][0]);
+			assert.strictEqual(undefined, surface2.addContent.args[0][1]);
+			assert.strictEqual('<div id="surfaceId2-default" class="flipped" style="display: block;">default2</div>', surface2.getElement().innerHTML);
+			app.navigate('/path2').then(function() {
+				assert.strictEqual(2, surface1.addContent.callCount);
+				assert.strictEqual('screenId2', surface1.addContent.args[1][0]);
+				assert.strictEqual(undefined, surface1.addContent.args[1][1]);
+				assert.strictEqual('<div id="surfaceId1-default" class="flipped" style="display: block;">default1</div>', surface1.getElement().innerHTML);
+				assert.strictEqual(2, surface2.addContent.callCount);
+				assert.strictEqual('screenId2', surface2.addContent.args[1][0]);
+				assert.strictEqual('content2', surface2.addContent.args[1][1]);
+				app.dispose();
+				dom.exitDocument(surface1.getElement());
+				dom.exitDocument(surface2.getElement());
+				done();
+			});
+		});
+	});
+
 });
 
 function enterDocumentLinkElement(href) {

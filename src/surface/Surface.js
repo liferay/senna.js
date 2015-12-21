@@ -1,6 +1,7 @@
 'use strict';
 
 import globals from '../globals/globals';
+import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
 import globalEval from 'bower:metal/src/eval/globalEval';
 import Disposable from 'bower:metal/src/disposable/Disposable';
@@ -62,7 +63,9 @@ class Surface extends Disposable {
 		 */
 		this.transitionFn = null;
 
-		this.activeChild = this.addContent(Surface.DEFAULT);
+		this.defaultChild = this.getChild(Surface.DEFAULT);
+		this.maybeWrapContentAsDefault_();
+		this.activeChild = this.defaultChild;
 	}
 
 	/**
@@ -76,17 +79,18 @@ class Surface extends Disposable {
 	 * @return {Element}
 	 */
 	addContent(screenId, opt_content) {
-		if (!opt_content) {
-			return this.getChild(screenId);
-		}
-
 		console.log('Screen [' + screenId + '] add content to surface [' + this + ']');
 
-		var element = this.getElement();
-		var child = this.createChild(screenId);
+		var child = this.defaultChild;
 
-		dom.append(child, opt_content);
+		if (core.isDefAndNotNull(opt_content)) {
+			child = this.createChild(screenId);
+			dom.append(child, opt_content);
+		}
+
 		this.transition(child, null);
+
+		var element = this.getElement();
 
 		if (element) {
 			dom.append(element, child);
@@ -158,6 +162,24 @@ class Surface extends Disposable {
 	}
 
 	/**
+	 * If default child is missing, wraps surface content as default child. If
+	 * surface have static content, make sure to place a
+	 * <code>surfaceId-default</code> element inside surface, only contents
+	 * inside the default child will be replaced by navigation.
+	 */
+	maybeWrapContentAsDefault_() {
+		var element = this.getElement();
+		if (element && !this.defaultChild) {
+			var fragment = globals.document.createDocumentFragment();
+			while (element.firstChild) {
+				fragment.appendChild(element.firstChild);
+			}
+			this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
+			this.transition(null, this.defaultChild);
+		}
+	}
+
+	/**
 	 * Sets the surface id.
 	 * @param {!string} id
 	 */
@@ -184,7 +206,7 @@ class Surface extends Disposable {
 		var from = this.activeChild;
 		var to = this.getChild(screenId);
 		if (!to) {
-			to = this.getChild(Surface.DEFAULT);
+			to = this.defaultChild;
 		}
 		this.activeChild = to;
 		return this.transition(from, to).thenAlways(() => {
