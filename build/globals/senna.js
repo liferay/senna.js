@@ -3404,7 +3404,7 @@ babelHelpers;
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
 			if (!id) {
-				throw new Error('Surface element id not specified.');
+				throw new Error('Surface element id not specified. A surface element requires a valid id.');
 			}
 
 			/**
@@ -5132,8 +5132,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.senna.core;
-	var dom = this.senna.dom;
 	var RequestScreen = this.senna.RequestScreen;
 	var Surface = this.senna.Surface;
 
@@ -5168,8 +5166,17 @@ babelHelpers;
    * @inheritDoc
    */
 
+		HtmlScreen.prototype.disposeInternal = function disposeInternal() {
+			this.virtualDocumentElement = null;
+			_RequestScreen.prototype.disposeInternal.call(this);
+		};
+
+		/**
+   * @inheritDoc
+   */
+
 		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId) {
-			var surface = this.resolvedContentAsFragment.querySelector('#' + surfaceId);
+			var surface = this.virtualDocumentElement.querySelector('#' + surfaceId);
 			if (surface) {
 				var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 				if (defaultChild) {
@@ -5196,28 +5203,28 @@ babelHelpers;
 			var _this2 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				return _this2.resolveContent(content);
+				return _this2.resolveContentFromHtmlString(content);
 			}).thenCatch(function (err) {
 				throw err;
 			});
 		};
 
 		/**
-   * Resolves the screen content as fragment from the response.
+   * Resolves the screen content from the response string.
    * @param {XMLHttpRequest} xhr
-   * @return {?Element}
    */
 
-		HtmlScreen.prototype.resolveContent = function resolveContent(content) {
-			if (core.isString(content)) {
-				content = dom.buildFragment(content);
+		HtmlScreen.prototype.resolveContentFromHtmlString = function resolveContentFromHtmlString(htmlString) {
+			if (!this.virtualDocumentElement) {
+				this.virtualDocumentElement = document.documentElement.cloneNode();
 			}
-			var title = content.querySelector(this.titleSelector);
+
+			this.virtualDocumentElement.innerHTML = htmlString;
+
+			var title = this.virtualDocumentElement.querySelector(this.titleSelector);
 			if (title) {
 				this.setTitle(title.innerHTML.trim());
 			}
-			this.resolvedContentAsFragment = content;
-			return content;
 		};
 
 		/**
