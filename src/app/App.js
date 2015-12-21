@@ -587,7 +587,11 @@ class App extends EventEmitter {
 		this.updateHistory_(title, path, opt_replaceHistory);
 		this.syncScrollPosition_(opt_replaceHistory);
 		globals.document.title = title;
-		Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId)));
+		Object.keys(this.surfaces).forEach((surfaceId) => {
+			var surface = this.surfaces[surfaceId];
+			surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId))
+			console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surface + ']');
+		});
 	}
 
 	/**

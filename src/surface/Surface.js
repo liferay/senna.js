@@ -79,8 +79,6 @@ class Surface extends Disposable {
 	 * @return {Element}
 	 */
 	addContent(screenId, opt_content) {
-		console.log('Screen [' + screenId + '] add content to surface [' + this + ']');
-
 		var child = this.defaultChild;
 
 		if (core.isDefAndNotNull(opt_content)) {
