@@ -784,6 +784,17 @@ describe('App', function() {
 		});
 	});
 
+	it('should not navigate when HTML5 History api is not supported', function() {
+		assert.throws(function() {
+			var app = new App();
+			app.addRoutes(new Route('/path', Screen));
+			app.isHtml5HistorySupported = function() {
+				return false;
+			};
+			app.navigate('/path');
+		}, Error);
+	});
+
 });
 
 function enterDocumentLinkElement(href) {
