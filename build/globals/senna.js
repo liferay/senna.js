@@ -3466,8 +3466,6 @@ babelHelpers;
    */
 
 		Surface.prototype.addContent = function addContent(screenId, opt_content) {
-			console.log('Screen [' + screenId + '] add content to surface [' + this + ']');
-
 			var child = this.defaultChild;
 
 			if (core.isDefAndNotNull(opt_content)) {
@@ -4331,7 +4329,9 @@ babelHelpers;
 			this.syncScrollPosition_(opt_replaceHistory);
 			globals.document.title = title;
 			Object.keys(this.surfaces).forEach(function (surfaceId) {
-				return _this7.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId));
+				var surface = _this7.surfaces[surfaceId];
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surface + ']');
+				surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId));
 			});
 		};
 
