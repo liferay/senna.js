@@ -27,16 +27,8 @@ class HtmlScreen extends RequestScreen {
 	/**
 	 * @inheritDoc
 	 */
-	disposeInternal() {
-		this.virtualDocumentElement = null;
-		super.disposeInternal();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	getSurfaceContent(surfaceId) {
-		var surface = this.virtualDocumentElement.querySelector('#' + surfaceId);
+		var surface = HtmlScreen.virtualDocumentElement.querySelector('#' + surfaceId);
 		if (surface) {
 			var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 			if (defaultChild) {
@@ -70,13 +62,13 @@ class HtmlScreen extends RequestScreen {
 	 * @param {XMLHttpRequest} xhr
 	 */
 	resolveContentFromHtmlString(htmlString) {
-		if (!this.virtualDocumentElement) {
-			this.virtualDocumentElement = document.documentElement.cloneNode();
+		if (!HtmlScreen.virtualDocumentElement) {
+			HtmlScreen.virtualDocumentElement = document.documentElement.cloneNode();
 		}
 
-		this.virtualDocumentElement.innerHTML = htmlString;
+		HtmlScreen.virtualDocumentElement.innerHTML = htmlString;
 
-		var title = this.virtualDocumentElement.querySelector(this.titleSelector);
+		var title = HtmlScreen.virtualDocumentElement.querySelector(this.titleSelector);
 		if (title) {
 			this.setTitle(title.innerHTML.trim());
 		}
