@@ -319,14 +319,14 @@ class App extends EventEmitter {
 				return nextScreen.load(path);
 			})
 			.then(() => {
-				Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId)));
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}
+				this.prepareScreenFlip_(path, nextScreen, opt_replaceHistory);
 				return nextScreen.flip(this.surfaces);
 			})
 			.then(() => {
-				this.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
+				this.finalizeNavigate_(path, nextScreen);
 			})
 			.catch((reason) => {
 				this.handleNavigateError_(path, nextScreen, reason);
@@ -340,18 +340,10 @@ class App extends EventEmitter {
 	 * Finalizes a screen navigation.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {!Screen} nextScreen
-	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 * @protected
 	 */
-	finalizeNavigate_(path, nextScreen, opt_replaceHistory) {
+	finalizeNavigate_(path, nextScreen) {
 		var activeScreen = this.activeScreen;
-		var title = nextScreen.getTitle() || this.getDefaultTitle();
-
-		this.updateHistory_(title, path, opt_replaceHistory);
-
-		this.syncScrollPosition_(opt_replaceHistory);
-
-		globals.document.title = title;
 
 		nextScreen.activate();
 
@@ -570,6 +562,20 @@ class App extends EventEmitter {
 			});
 
 		return pendingPrefetch;
+	}
+
+	/**
+	 * Prepares screen flip. Updates history state and surfaces content.
+	 * @param {!string} path Path containing the querystring part.
+	 * @param {!Screen} nextScreen
+	 * @param {boolean=} opt_replaceHistory Replaces browser history.
+	 */
+	prepareScreenFlip_(path, nextScreen, opt_replaceHistory) {
+		var title = nextScreen.getTitle() || this.getDefaultTitle();
+		this.updateHistory_(title, path, opt_replaceHistory);
+		this.syncScrollPosition_(opt_replaceHistory);
+		globals.document.title = title;
+		Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId)));
 	}
 
 	/**

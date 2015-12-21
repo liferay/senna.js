@@ -770,6 +770,20 @@ describe('App', function() {
 		});
 	});
 
+	it('should add surface content after history path is updated', function(done) {
+		var surface = new Surface('surfaceId');
+		surface.addContent = function() {
+			assert.strictEqual('/path', globals.window.location.pathname);
+		};
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.addSurfaces(surface);
+		app.navigate('/path').then(function() {
+			app.dispose();
+			done();
+		});
+	});
+
 });
 
 function enterDocumentLinkElement(href) {
