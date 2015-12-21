@@ -1,8 +1,9 @@
 'use strict';
 
 import core from 'bower:metal/src/core';
-import globals from '../globals/globals';
+import dom from 'bower:metal/src/dom/dom';
 import RequestScreen from './RequestScreen';
+import Surface from '../surface/Surface';
 
 class HtmlScreen extends RequestScreen {
 
@@ -31,7 +32,11 @@ class HtmlScreen extends RequestScreen {
 	getSurfaceContent(surfaceId) {
 		var surface = this.resolvedContentAsFragment.querySelector('#' + surfaceId);
 		if (surface) {
-			return surface.innerHTML;
+			var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
+			if (defaultChild) {
+				return defaultChild.innerHTML;
+			}
+			return surface.innerHTML; // If default content not found, use surface content
 		}
 	}
 
