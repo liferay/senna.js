@@ -45,20 +45,18 @@ describe('HtmlScreen', function() {
 
 	it('should extract surface content from response content', function() {
 		var screen = new HtmlScreen();
-		var resolvedContentAsElement = screen.resolveContent('<div id="surfaceId">surface</div>');
-		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId', resolvedContentAsElement));
-		resolvedContentAsElement = screen.resolveContent(resolvedContentAsElement); // resolve from element
-		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId', resolvedContentAsElement));
-		assert.strictEqual(undefined, screen.getSurfaceContent('surfaceIdInvalid', resolvedContentAsElement));
+		screen.resolveContentFromHtmlString('<div id="surfaceId">surface</div>');
+		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId'));
+		screen.resolveContentFromHtmlString('<div id="surfaceId">surface</div>');
+		assert.strictEqual(undefined, screen.getSurfaceContent('surfaceIdInvalid'));
 	});
 
 	it('should extract surface content from response content default child if present', function() {
 		var screen = new HtmlScreen();
-		var resolvedContentAsElement = screen.resolveContent('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
-		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId', resolvedContentAsElement));
-		resolvedContentAsElement = screen.resolveContent(resolvedContentAsElement); // resolve from element
-		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId', resolvedContentAsElement));
-		assert.strictEqual(undefined, screen.getSurfaceContent('surfaceIdInvalid', resolvedContentAsElement));
+		screen.resolveContentFromHtmlString('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
+		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId'));
+		screen.resolveContentFromHtmlString('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
+		assert.strictEqual(undefined, screen.getSurfaceContent('surfaceIdInvalid'));
 	});
 
 });

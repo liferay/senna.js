@@ -1,7 +1,5 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
 import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
 
@@ -29,8 +27,16 @@ class HtmlScreen extends RequestScreen {
 	/**
 	 * @inheritDoc
 	 */
+	disposeInternal() {
+		this.virtualDocumentElement = null;
+		super.disposeInternal();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	getSurfaceContent(surfaceId) {
-		var surface = this.resolvedContentAsFragment.querySelector('#' + surfaceId);
+		var surface = this.virtualDocumentElement.querySelector('#' + surfaceId);
 		if (surface) {
 			var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 			if (defaultChild) {
@@ -53,27 +59,27 @@ class HtmlScreen extends RequestScreen {
 	 */
 	load(path) {
 		return super.load(path)
-			.then(content => this.resolveContent(content))
+			.then(content => this.resolveContentFromHtmlString(content))
 			.thenCatch(err => {
 				throw err;
 			});
 	}
 
 	/**
-	 * Resolves the screen content as fragment from the response.
+	 * Resolves the screen content from the response string.
 	 * @param {XMLHttpRequest} xhr
-	 * @return {?Element}
 	 */
-	resolveContent(content) {
-		if (core.isString(content)) {
-			content = dom.buildFragment(content);
+	resolveContentFromHtmlString(htmlString) {
+		if (!this.virtualDocumentElement) {
+			this.virtualDocumentElement = document.documentElement.cloneNode();
 		}
-		var title = content.querySelector(this.titleSelector);
+
+		this.virtualDocumentElement.innerHTML = htmlString;
+
+		var title = this.virtualDocumentElement.querySelector(this.titleSelector);
 		if (title) {
 			this.setTitle(title.innerHTML.trim());
 		}
-		this.resolvedContentAsFragment = content;
-		return content;
 	}
 
 	/**

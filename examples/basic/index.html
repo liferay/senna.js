@@ -13,10 +13,16 @@
       Header default <a href="foo.html">Foo</a>
   </div>
   <div id="content">
-     Content default <a href="index.html">Bar</a>
+     Content default <a href="index.html">Index</a>
   </div>
   <div id="footer">
-    Footer
+    This is a footer static content.
+    <div id="footer-default">
+      This is a footer dynamic content from index.html.
+    </div>
+  </div>
+  <div id="indexOnlySurface">
+     Always show default content since it's only present on index.html.
   </div>
 
   <!-- Initializing Senna -->
@@ -24,7 +30,7 @@
     'use strict';
     var app = new senna.App();
     app.setBasePath('/examples/basic');
-    app.addSurfaces(['header', 'content', 'footer']);
+    app.addSurfaces(['header', 'content', 'footer', 'indexOnlySurface']);
     app.addRoutes([
       {
         path: '/index.html',

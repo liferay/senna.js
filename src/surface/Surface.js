@@ -19,7 +19,7 @@ class Surface extends Disposable {
 		super();
 
 		if (!id) {
-			throw new Error('Surface element id not specified.');
+			throw new Error('Surface element id not specified. A surface element requires a valid id.');
 		}
 
 		/**
