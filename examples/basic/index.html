@@ -10,15 +10,13 @@
 </head>
 <body>
   <div id="header">
-    <div id="header-default">
-      Header default
-      <a href="foo.html">Foo</a>
-    </div>
+      Header default <a href="foo.html">Foo</a>
   </div>
   <div id="content">
-    <div id="content-default">
-      Content default <a href="index.html">Bar</a>
-    </div>
+     Content default <a href="index.html">Bar</a>
+  </div>
+  <div id="footer">
+    Footer
   </div>
 
   <!-- Initializing Senna -->
@@ -26,7 +24,7 @@
     'use strict';
     var app = new senna.App();
     app.setBasePath('/examples/basic');
-    app.addSurfaces(['header', 'content']);
+    app.addSurfaces(['header', 'content', 'footer']);
     app.addRoutes([
       {
         path: '/index.html',
