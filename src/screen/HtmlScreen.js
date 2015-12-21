@@ -70,9 +70,6 @@ class HtmlScreen extends RequestScreen {
 		if (title) {
 			this.setTitle(title.innerHTML.trim());
 		}
-
-		this.addCache(content);
-
 		return content;
 	}
 

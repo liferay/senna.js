@@ -111,6 +111,9 @@ class RequestScreen extends Screen {
 			.request(path, this.httpMethod, null, headers, null, this.timeout)
 			.then(xhr => {
 				this.setRequest(xhr);
+				if (this.isCacheable()) {
+					this.addCache(xhr.responseText);
+				}
 				return xhr.responseText;
 			});
 	}
