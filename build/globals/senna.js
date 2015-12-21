@@ -275,13 +275,13 @@ babelHelpers;
 
 	this.senna.async = async;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
  * A collection of core utility functions.
  * @const
  */
-;
+
 (function () {
 	var core = (function () {
 		function core() {
@@ -531,7 +531,7 @@ babelHelpers;
 
 	this.senna.core = core;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
   * Debounces function execution.
@@ -539,7 +539,7 @@ babelHelpers;
   * @param {number} delay
   * @return {!function()}
   */
-;
+
 (function () {
   function debounce(fn, delay) {
     var id;
@@ -626,7 +626,7 @@ babelHelpers;
 
 	this.senna.object = object;
 }).call(this);
-'use strict'
+'use strict';
 
 /**
  * Disposable utility. When inherited provides the `dispose` function to its
@@ -635,7 +635,7 @@ babelHelpers;
  * `disposeInternal` to implement any specific disposing logic.
  * @constructor
  */
-;
+
 (function () {
 	var Disposable = (function () {
 		function Disposable() {
@@ -3099,7 +3099,7 @@ babelHelpers;
 (function () {
 	var core = this.senna.core;
 	var Cacheable = this.senna.Cacheable;
-	var Promise = this.sennaNamed.Promise.CancellablePromise;
+	var CancellablePromise = this.senna.Promise;
 
 	var Screen = (function (_Cacheable) {
 		babelHelpers.inherits(Screen, _Cacheable);
@@ -3183,7 +3183,7 @@ babelHelpers;
    * Allows a screen to perform any setup immediately before the element is
    * made visible. Lifecycle.
    * @param {object} surfaces Map of surfaces to flip keyed by surface id.
-   * @return {?Promise=} This can return a promise, which will pause the
+   * @return {?CancellablePromise=} This can return a promise, which will pause the
    *     navigation until it is resolved.
    */
 
@@ -3198,7 +3198,7 @@ babelHelpers;
 				return transitions.push(surfaces[sId].show(_this2.id));
 			});
 
-			return Promise.all(transitions);
+			return CancellablePromise.all(transitions);
 		};
 
 		/**
@@ -3215,8 +3215,6 @@ babelHelpers;
    * used by this screen. This will be called when a screen is initially
    * constructed or, if a screen is non-cacheable, when navigated.
    * @param {!string} surfaceId The id of the surface DOM element.
-   * @param {?string=} opt_contents Optional content fetch by
-   *     <code>Screen.load</code>.
    * @return {?string|Element=} This can return a string or node representing
    *     the content of the surface. If returns falsy values surface default
    *     content is restored.
@@ -3240,7 +3238,7 @@ babelHelpers;
    * to <code>Screen.load</code> with all information you
    * need to fulfill the surfaces. Lifecycle.
    * @param {!string=} path The requested path.
-   * @return {?string|Promise=} This can return a string representing the
+   * @return {?string|CancellablePromise=} This can return a string representing the
    *     contents of the surfaces or a promise, which will pause the navigation
    *     until it is resolved. This is useful for loading async content.
    */
@@ -3384,10 +3382,11 @@ babelHelpers;
 
 (function () {
 	var globals = this.senna.globals;
+	var core = this.senna.core;
 	var dom = this.senna.dom;
 	var globalEval = this.senna.globalEval;
 	var Disposable = this.senna.Disposable;
-	var Promise = this.sennaNamed.Promise.CancellablePromise;
+	var CancellablePromise = this.senna.Promise;
 
 	var Surface = (function (_Disposable) {
 		babelHelpers.inherits(Surface, _Disposable);
@@ -3445,11 +3444,13 @@ babelHelpers;
     * Holds the default transitionFn for the surfaces.
     * @param {?Element=} from The visible surface element.
     * @param {?Element=} to The surface element to be flipped.
-    * @default Surface.TRANSITION
+    * @default null
     */
-			_this.transitionFn = Surface.TRANSITION;
+			_this.transitionFn = null;
 
-			_this.activeChild = _this.addContent(Surface.DEFAULT);
+			_this.defaultChild = _this.getChild(Surface.DEFAULT);
+			_this.maybeWrapContentAsDefault_();
+			_this.activeChild = _this.defaultChild;
 			return _this;
 		}
 
@@ -3465,21 +3466,22 @@ babelHelpers;
    */
 
 		Surface.prototype.addContent = function addContent(screenId, opt_content) {
-			if (!opt_content) {
-				return this.getChild(screenId);
-			}
-
 			console.log('Screen [' + screenId + '] add content to surface [' + this + ']');
 
-			var element = this.getElement();
-			var child = this.createChild(screenId);
+			var child = this.defaultChild;
 
-			dom.append(child, opt_content);
+			if (core.isDefAndNotNull(opt_content)) {
+				child = this.createChild(screenId);
+				dom.append(child, opt_content);
+			}
+
+			this.transition(child, null);
+
+			var element = this.getElement();
 
 			if (element) {
-				globalEval.runScriptsInElement(child);
-				this.transition(child, null);
 				dom.append(element, child);
+				globalEval.runScriptsInElement(child);
 			}
 
 			return child;
@@ -3533,7 +3535,7 @@ babelHelpers;
 
 		/**
    * Gets the surface transition function.
-   * See <code>Surface.TRANSITION</code>.
+   * See <code>Surface.defaultTransition</code>.
    * @return {?Function=} The transition function.
    */
 
@@ -3553,6 +3555,25 @@ babelHelpers;
 		};
 
 		/**
+   * If default child is missing, wraps surface content as default child. If
+   * surface have static content, make sure to place a
+   * <code>surfaceId-default</code> element inside surface, only contents
+   * inside the default child will be replaced by navigation.
+   */
+
+		Surface.prototype.maybeWrapContentAsDefault_ = function maybeWrapContentAsDefault_() {
+			var element = this.getElement();
+			if (element && !this.defaultChild) {
+				var fragment = globals.document.createDocumentFragment();
+				while (element.firstChild) {
+					fragment.appendChild(element.firstChild);
+				}
+				this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
+				this.transition(null, this.defaultChild);
+			}
+		};
+
+		/**
    * Sets the surface id.
    * @param {!string} id
    */
@@ -3563,7 +3584,7 @@ babelHelpers;
 
 		/**
    * Sets the surface transition function.
-   * See <code>Surface.TRANSITION</code>.
+   * See <code>Surface.defaultTransition</code>.
    * @param {?Function=} transitionFn The transition function.
    */
 
@@ -3574,7 +3595,7 @@ babelHelpers;
 		/**
    * Shows screen content from a surface.
    * @param {String} screenId The screen id to show.
-   * @return {?Promise=} If returns a promise pauses the navigation until it
+   * @return {?CancellablePromise=} If returns a promise pauses the navigation until it
    *     is resolved.
    */
 
@@ -3582,7 +3603,7 @@ babelHelpers;
 			var from = this.activeChild;
 			var to = this.getChild(screenId);
 			if (!to) {
-				to = this.getChild(Surface.DEFAULT);
+				to = this.defaultChild;
 			}
 			this.activeChild = to;
 			return this.transition(from, to).thenAlways(function () {
@@ -3616,12 +3637,13 @@ babelHelpers;
    * Invokes the transition function specified on <code>transition</code> attribute.
    * @param {?Element=} from
    * @param {?Element=} to
-   * @return {?Promise=} This can return a promise, which will pause the
+   * @return {?CancellablePromise=} This can return a promise, which will pause the
    *     navigation until it is resolved.
    */
 
 		Surface.prototype.transition = function transition(from, to) {
-			return Promise.resolve(this.transitionFn.call(this, from, to));
+			var transitionFn = this.transitionFn || Surface.defaultTransition;
+			return CancellablePromise.resolve(transitionFn.call(this, from, to));
 		};
 
 		return Surface;
@@ -3674,7 +3696,7 @@ babelHelpers;
   * @param {?Element=} to The surface element to be flipped.
   * @static
   */
-	Surface.TRANSITION = function (from, to) {
+	Surface.defaultTransition = function (from, to) {
 		if (from) {
 			from.style.display = 'none';
 			from.classList.remove('flipped');
@@ -3696,7 +3718,7 @@ babelHelpers;
 	var dom = this.senna.dom;
 	var EventEmitter = this.senna.EventEmitter;
 	var EventHandler = this.senna.EventHandler;
-	var Promise = this.sennaNamed.Promise.CancellablePromise;
+	var CancellablePromise = this.senna.Promise;
 	var globals = this.senna.globals;
 	var Route = this.senna.Route;
 	var Screen = this.senna.Screen;
@@ -3791,7 +3813,7 @@ babelHelpers;
 
 			/**
     * Holds a deferred withe the current navigation.
-    * @type {?Promise}
+    * @type {?CancellablePromise}
     * @default null
     * @protected
     */
@@ -3988,7 +4010,7 @@ babelHelpers;
 		/**
    * Dispatches to the first route handler that matches the current path, if
    * any.
-   * @return {Promise} Returns a pending request cancellable promise.
+   * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
 
 		App.prototype.dispatch = function dispatch() {
@@ -4000,20 +4022,20 @@ babelHelpers;
    * Starts navigation to a path.
    * @param {!string} path Path containing the querystring part.
    * @param {boolean=} opt_replaceHistory Replaces browser history.
-   * @return {Promise} Returns a pending request cancellable promise.
+   * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
 
 		App.prototype.doNavigate_ = function doNavigate_(path, opt_replaceHistory) {
 			var _this5 = this;
 
 			if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-				this.pendingNavigate = Promise.reject(new Promise.CancellationError('Cancelled by active screen'));
+				this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
 				return this.pendingNavigate;
 			}
 
 			var route = this.findRoute(path);
 			if (!route) {
-				this.pendingNavigate = Promise.reject(new Promise.CancellationError('No route for ' + path));
+				this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
 				return this.pendingNavigate;
 			}
 
@@ -4021,11 +4043,11 @@ babelHelpers;
 
 			var nextScreen = this.createScreenInstance(path, route);
 
-			this.pendingNavigate = Promise.resolve().then(function () {
+			this.pendingNavigate = CancellablePromise.resolve().then(function () {
 				return nextScreen.load(path);
-			}).then(function (contents) {
+			}).then(function () {
 				Object.keys(_this5.surfaces).forEach(function (surfaceId) {
-					return _this5.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId, contents));
+					return _this5.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId));
 				});
 				if (_this5.activeScreen) {
 					_this5.activeScreen.deactivate();
@@ -4241,7 +4263,7 @@ babelHelpers;
    * Navigates to the specified path if there is a route handler that matches.
    * @param {!string} path Path to navigate containing the base path.
    * @param {boolean=} opt_replaceHistory Replaces browser history.
-   * @return {Promise} Returns a pending request cancellable promise.
+   * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
 
 		App.prototype.navigate = function navigate(path, opt_replaceHistory) {
@@ -4264,7 +4286,7 @@ babelHelpers;
 		/**
    * Prefetches the specified path if there is a route handler that matches.
    * @param {!string} path Path to navigate containing the base path.
-   * @return {Promise} Returns a pending request cancellable promise.
+   * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
 
 		App.prototype.prefetch = function prefetch(path) {
@@ -4272,14 +4294,14 @@ babelHelpers;
 
 			var route = this.findRoute(path);
 			if (!route) {
-				return Promise.reject(new Promise.CancellationError('No route for ' + path));
+				return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
 			}
 
 			console.log('Prefetching [' + path + ']');
 
 			var nextScreen = this.createScreenInstance(path, route);
 
-			var pendingPrefetch = Promise.resolve().then(function () {
+			var pendingPrefetch = CancellablePromise.resolve().then(function () {
 				return nextScreen.load(path);
 			}).then(function () {
 				_this6.screens[path] = nextScreen;
@@ -4937,7 +4959,7 @@ babelHelpers;
 	var core = this.senna.core;
 	var Ajax = this.senna.Ajax;
 	var MultiMap = this.senna.MultiMap;
-	var Promise = this.sennaNamed.Promise.CancellablePromise;
+	var CancellablePromise = this.senna.Promise;
 	var Screen = this.senna.Screen;
 
 	var RequestScreen = (function (_Screen) {
@@ -5047,7 +5069,7 @@ babelHelpers;
 
 			var cache = this.getCache();
 			if (core.isDefAndNotNull(cache)) {
-				return Promise.resolve(cache);
+				return CancellablePromise.resolve(cache);
 			}
 
 			var headers = new MultiMap();
@@ -5058,6 +5080,9 @@ babelHelpers;
 
 			return Ajax.request(path, this.httpMethod, null, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
+				if (_this2.isCacheable()) {
+					_this2.addCache(xhr.responseText);
+				}
 				return xhr.responseText;
 			});
 		};
@@ -5108,8 +5133,9 @@ babelHelpers;
 
 (function () {
 	var core = this.senna.core;
-	var globals = this.senna.globals;
+	var dom = this.senna.dom;
 	var RequestScreen = this.senna.RequestScreen;
+	var Surface = this.senna.Surface;
 
 	var HtmlScreen = (function (_RequestScreen) {
 		babelHelpers.inherits(HtmlScreen, _RequestScreen);
@@ -5142,10 +5168,14 @@ babelHelpers;
    * @inheritDoc
    */
 
-		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId, resolvedContentAsElement) {
-			var surface = resolvedContentAsElement.querySelector('#' + surfaceId);
+		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId) {
+			var surface = this.resolvedContentAsFragment.querySelector('#' + surfaceId);
 			if (surface) {
-				return surface.innerHTML;
+				var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
+				if (defaultChild) {
+					return defaultChild.innerHTML;
+				}
+				return surface.innerHTML; // If default content not found, use surface content
 			}
 		};
 
@@ -5180,18 +5210,13 @@ babelHelpers;
 
 		HtmlScreen.prototype.resolveContent = function resolveContent(content) {
 			if (core.isString(content)) {
-				var div = globals.document.createElement('div');
-				div.innerHTML = content;
-				content = div;
+				content = dom.buildFragment(content);
 			}
-
 			var title = content.querySelector(this.titleSelector);
 			if (title) {
 				this.setTitle(title.innerHTML.trim());
 			}
-
-			this.addCache(content);
-
+			this.resolvedContentAsFragment = content;
 			return content;
 		};
 
