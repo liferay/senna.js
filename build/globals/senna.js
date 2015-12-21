@@ -4046,15 +4046,13 @@ babelHelpers;
 			this.pendingNavigate = CancellablePromise.resolve().then(function () {
 				return nextScreen.load(path);
 			}).then(function () {
-				Object.keys(_this5.surfaces).forEach(function (surfaceId) {
-					return _this5.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId));
-				});
 				if (_this5.activeScreen) {
 					_this5.activeScreen.deactivate();
 				}
+				_this5.prepareScreenFlip_(path, nextScreen, opt_replaceHistory);
 				return nextScreen.flip(_this5.surfaces);
 			}).then(function () {
-				_this5.finalizeNavigate_(path, nextScreen, opt_replaceHistory);
+				_this5.finalizeNavigate_(path, nextScreen);
 			}).catch(function (reason) {
 				_this5.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
@@ -4067,19 +4065,11 @@ babelHelpers;
    * Finalizes a screen navigation.
    * @param {!string} path Path containing the querystring part.
    * @param {!Screen} nextScreen
-   * @param {boolean=} opt_replaceHistory Replaces browser history.
    * @protected
    */
 
-		App.prototype.finalizeNavigate_ = function finalizeNavigate_(path, nextScreen, opt_replaceHistory) {
+		App.prototype.finalizeNavigate_ = function finalizeNavigate_(path, nextScreen) {
 			var activeScreen = this.activeScreen;
-			var title = nextScreen.getTitle() || this.getDefaultTitle();
-
-			this.updateHistory_(title, path, opt_replaceHistory);
-
-			this.syncScrollPosition_(opt_replaceHistory);
-
-			globals.document.title = title;
 
 			nextScreen.activate();
 
@@ -4314,6 +4304,25 @@ babelHelpers;
 		};
 
 		/**
+   * Prepares screen flip. Updates history state and surfaces content.
+   * @param {!string} path Path containing the querystring part.
+   * @param {!Screen} nextScreen
+   * @param {boolean=} opt_replaceHistory Replaces browser history.
+   */
+
+		App.prototype.prepareScreenFlip_ = function prepareScreenFlip_(path, nextScreen, opt_replaceHistory) {
+			var _this7 = this;
+
+			var title = nextScreen.getTitle() || this.getDefaultTitle();
+			this.updateHistory_(title, path, opt_replaceHistory);
+			this.syncScrollPosition_(opt_replaceHistory);
+			globals.document.title = title;
+			Object.keys(this.surfaces).forEach(function (surfaceId) {
+				return _this7.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId));
+			});
+		};
+
+		/**
    * Intercepts document clicks and test link elements in order to decide
    * whether Surface app can navigate.
    * @param {!Event} event Event facade
@@ -4363,13 +4372,13 @@ babelHelpers;
    */
 
 		App.prototype.onLoad_ = function onLoad_() {
-			var _this7 = this;
+			var _this8 = this;
 
 			this.skipLoadPopstate = true;
 			setTimeout(function () {
 				// The timeout ensures that popstate events will be unblocked right
 				// after the load event occured, but not in the same event-loop cycle.
-				_this7.skipLoadPopstate = false;
+				_this8.skipLoadPopstate = false;
 			}, 0);
 		};
 
@@ -4425,7 +4434,7 @@ babelHelpers;
    */
 
 		App.prototype.onStartNavigate_ = function onStartNavigate_(event) {
-			var _this8 = this;
+			var _this9 = this;
 
 			this.captureHistoryScrollPosition = false;
 
@@ -4436,13 +4445,13 @@ babelHelpers;
 			var endNavigatePayload = {};
 
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
-				_this8.stopPending_();
+				_this9.stopPending_();
 				endNavigatePayload.error = err;
 				throw err;
 			}).thenAlways(function () {
 				endNavigatePayload.path = event.path;
-				_this8.emit('endNavigate', endNavigatePayload);
-				dom.removeClasses(globals.document.documentElement, _this8.loadingCssClass);
+				_this9.emit('endNavigate', endNavigatePayload);
+				dom.removeClasses(globals.document.documentElement, _this9.loadingCssClass);
 			});
 		};
 
@@ -4462,10 +4471,10 @@ babelHelpers;
    */
 
 		App.prototype.removeScreen_ = function removeScreen_(path, screen) {
-			var _this9 = this;
+			var _this10 = this;
 
 			Object.keys(this.surfaces).forEach(function (surfaceId) {
-				return _this9.surfaces[surfaceId].remove(screen.getId());
+				return _this10.surfaces[surfaceId].remove(screen.getId());
 			});
 			screen.dispose();
 			delete this.screens[path];
@@ -5166,17 +5175,8 @@ babelHelpers;
    * @inheritDoc
    */
 
-		HtmlScreen.prototype.disposeInternal = function disposeInternal() {
-			this.virtualDocumentElement = null;
-			_RequestScreen.prototype.disposeInternal.call(this);
-		};
-
-		/**
-   * @inheritDoc
-   */
-
 		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId) {
-			var surface = this.virtualDocumentElement.querySelector('#' + surfaceId);
+			var surface = HtmlScreen.virtualDocumentElement.querySelector('#' + surfaceId);
 			if (surface) {
 				var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 				if (defaultChild) {
@@ -5215,13 +5215,13 @@ babelHelpers;
    */
 
 		HtmlScreen.prototype.resolveContentFromHtmlString = function resolveContentFromHtmlString(htmlString) {
-			if (!this.virtualDocumentElement) {
-				this.virtualDocumentElement = document.documentElement.cloneNode();
+			if (!HtmlScreen.virtualDocumentElement) {
+				HtmlScreen.virtualDocumentElement = document.documentElement.cloneNode();
 			}
 
-			this.virtualDocumentElement.innerHTML = htmlString;
+			HtmlScreen.virtualDocumentElement.innerHTML = htmlString;
 
-			var title = this.virtualDocumentElement.querySelector(this.titleSelector);
+			var title = HtmlScreen.virtualDocumentElement.querySelector(this.titleSelector);
 			if (title) {
 				this.setTitle(title.innerHTML.trim());
 			}
