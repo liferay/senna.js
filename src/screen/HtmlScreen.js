@@ -28,8 +28,8 @@ class HtmlScreen extends RequestScreen {
 	/**
 	 * @inheritDoc
 	 */
-	getSurfaceContent(surfaceId, resolvedContentAsElement) {
-		var surface = resolvedContentAsElement.querySelector('#' + surfaceId);
+	getSurfaceContent(surfaceId) {
+		var surface = this.resolvedContentAsFragment.querySelector('#' + surfaceId);
 		if (surface) {
 			return surface.innerHTML;
 		}
@@ -61,15 +61,13 @@ class HtmlScreen extends RequestScreen {
 	 */
 	resolveContent(content) {
 		if (core.isString(content)) {
-			var div = globals.document.createElement('div');
-			div.innerHTML = content;
-			content = div;
+			content = dom.buildFragment(content);
 		}
-
 		var title = content.querySelector(this.titleSelector);
 		if (title) {
 			this.setTitle(title.innerHTML.trim());
 		}
+		this.resolvedContentAsFragment = content;
 		return content;
 	}
 

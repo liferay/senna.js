@@ -318,8 +318,8 @@ class App extends EventEmitter {
 			.then(() => {
 				return nextScreen.load(path);
 			})
-			.then((contents) => {
-				Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId, contents)));
+			.then(() => {
+				Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId)));
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}

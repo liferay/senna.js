@@ -102,8 +102,6 @@ class Screen extends Cacheable {
 	 * used by this screen. This will be called when a screen is initially
 	 * constructed or, if a screen is non-cacheable, when navigated.
 	 * @param {!string} surfaceId The id of the surface DOM element.
-	 * @param {?string=} opt_contents Optional content fetch by
-	 *     <code>Screen.load</code>.
 	 * @return {?string|Element=} This can return a string or node representing
 	 *     the content of the surface. If returns falsy values surface default
 	 *     content is restored.
