@@ -15,9 +15,15 @@ metal.registerTasks({
 			base: 'SauceLabs',
 			browserName: 'chrome'
 		},
-		sl_safari: {
+		sl_safari_8: {
 			base: 'SauceLabs',
-			browserName: 'safari'
+			browserName: 'safari',
+			version: '8'
+		},
+		sl_safari_9: {
+			base: 'SauceLabs',
+			browserName: 'safari',
+			version: '9'
 		},
 		sl_firefox: {
 			base: 'SauceLabs',
