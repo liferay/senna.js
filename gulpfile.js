@@ -61,5 +61,3 @@ metal.registerTasks({
 		}
 	}
 });
-
-gulp.task('default', ['build:globals', 'build:amd']);
