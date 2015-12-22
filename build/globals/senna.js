@@ -3465,7 +3465,7 @@ babelHelpers;
    * @return {Element}
    */
 
-		Surface.prototype.addContent = function addContent(screenId, opt_content) {
+		Surface.prototype.addContent = function addContent(screenId, opt_content, opt_runScriptsInElement) {
 			var child = this.defaultChild;
 
 			if (core.isDefAndNotNull(opt_content)) {
@@ -3479,7 +3479,9 @@ babelHelpers;
 
 			if (element) {
 				dom.append(element, child);
-				globalEval.runScriptsInElement(child);
+				if (opt_runScriptsInElement) {
+					globalEval.runScriptsInElement(child);
+				}
 			}
 
 			return child;
@@ -3566,7 +3568,7 @@ babelHelpers;
 				while (element.firstChild) {
 					fragment.appendChild(element.firstChild);
 				}
-				this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
+				this.defaultChild = this.addContent(Surface.DEFAULT, fragment, false);
 				this.transition(null, this.defaultChild);
 			}
 		};
@@ -4330,8 +4332,8 @@ babelHelpers;
 			globals.document.title = title;
 			Object.keys(this.surfaces).forEach(function (surfaceId) {
 				var surface = _this7.surfaces[surfaceId];
+				surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId), true);
 				console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surface + ']');
-				surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId));
 			});
 		};
 
