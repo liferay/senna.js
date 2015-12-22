@@ -753,12 +753,12 @@ describe('App', function() {
 			assert.strictEqual(1, surface2.addContent.callCount);
 			assert.strictEqual('screenId1', surface2.addContent.args[0][0]);
 			assert.strictEqual(undefined, surface2.addContent.args[0][1]);
-			assert.strictEqual('<div id="surfaceId2-default" class="flipped" style="display: block;">default2</div>', surface2.getElement().innerHTML);
+			assert.strictEqual('default2', surface2.getChild('default').innerHTML);
 			app.navigate('/path2').then(function() {
 				assert.strictEqual(2, surface1.addContent.callCount);
 				assert.strictEqual('screenId2', surface1.addContent.args[1][0]);
 				assert.strictEqual(undefined, surface1.addContent.args[1][1]);
-				assert.strictEqual('<div id="surfaceId1-default" class="flipped" style="display: block;">default1</div>', surface1.getElement().innerHTML);
+				assert.strictEqual('default1', surface1.getChild('default').innerHTML);
 				assert.strictEqual(2, surface2.addContent.callCount);
 				assert.strictEqual('screenId2', surface2.addContent.args[1][0]);
 				assert.strictEqual('content2', surface2.addContent.args[1][1]);
