@@ -193,7 +193,7 @@ describe('Surface', function() {
 		it('should evaluate scripts when adding screen content to surface', function() {
 			enterDocumentSurfaceElement('surfaceId');
 			var surface = new Surface('surfaceId');
-			surface.addContent('screenId', '<script>window.sentinel=true;</script>');
+			surface.addContent('screenId', '<script>window.sentinel=true;</script>', true);
 			assert.ok(window.sentinel);
 			exitDocumentSurfaceElement('surfaceId');
 		});

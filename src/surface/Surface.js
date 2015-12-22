@@ -78,7 +78,7 @@ class Surface extends Disposable {
 	 *     be added as surface content.
 	 * @return {Element}
 	 */
-	addContent(screenId, opt_content) {
+	addContent(screenId, opt_content, opt_runScriptsInElement) {
 		var child = this.defaultChild;
 
 		if (core.isDefAndNotNull(opt_content)) {
@@ -92,7 +92,9 @@ class Surface extends Disposable {
 
 		if (element) {
 			dom.append(element, child);
-			globalEval.runScriptsInElement(child);
+			if (opt_runScriptsInElement) {
+				globalEval.runScriptsInElement(child);
+			}
 		}
 
 		return child;
@@ -172,7 +174,7 @@ class Surface extends Disposable {
 			while (element.firstChild) {
 				fragment.appendChild(element.firstChild);
 			}
-			this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
+			this.defaultChild = this.addContent(Surface.DEFAULT, fragment, false);
 			this.transition(null, this.defaultChild);
 		}
 	}

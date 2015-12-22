@@ -589,7 +589,7 @@ class App extends EventEmitter {
 		globals.document.title = title;
 		Object.keys(this.surfaces).forEach((surfaceId) => {
 			var surface = this.surfaces[surfaceId];
-			surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId))
+			surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId), true);
 			console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surface + ']');
 		});
 	}
