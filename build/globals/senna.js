@@ -38,6 +38,168 @@ babelHelpers.possibleConstructorReturn = function (self, call) {
 };
 
 babelHelpers;
+'use strict';
+
+/**
+ * Disposable utility. When inherited provides the `dispose` function to its
+ * subclass, which is responsible for disposing of any object references
+ * when an instance won't be used anymore. Subclasses should override
+ * `disposeInternal` to implement any specific disposing logic.
+ * @constructor
+ */
+
+(function () {
+	var Disposable = (function () {
+		function Disposable() {
+			babelHelpers.classCallCheck(this, Disposable);
+
+			/**
+    * Flag indicating if this instance has already been disposed.
+    * @type {boolean}
+    * @protected
+    */
+			this.disposed_ = false;
+		}
+
+		/**
+   * Disposes of this instance's object references. Calls `disposeInternal`.
+   */
+
+		Disposable.prototype.dispose = function dispose() {
+			if (!this.disposed_) {
+				this.disposeInternal();
+				this.disposed_ = true;
+			}
+		};
+
+		/**
+   * Subclasses should override this method to implement any specific
+   * disposing logic (like clearing references and calling `dispose` on other
+   * disposables).
+   */
+
+		Disposable.prototype.disposeInternal = function disposeInternal() {};
+
+		/**
+   * Checks if this instance has already been disposed.
+   * @return {boolean}
+   */
+
+		Disposable.prototype.isDisposed = function isDisposed() {
+			return this.disposed_;
+		};
+
+		return Disposable;
+	})();
+
+	this.senna.Disposable = Disposable;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.senna.Disposable;
+
+	var Cacheable = (function (_Disposable) {
+		babelHelpers.inherits(Cacheable, _Disposable);
+
+		/**
+   * Abstract class for defining cacheable behavior.
+   * @constructor
+   */
+
+		function Cacheable() {
+			babelHelpers.classCallCheck(this, Cacheable);
+
+			/**
+    * Holds the cached data.
+    * @type {!Object}
+    * @default null
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.cache = null;
+
+			/**
+    * Holds whether class is cacheable.
+    * @type {boolean}
+    * @default false
+    * @protected
+    */
+			_this.cacheable = false;
+			return _this;
+		}
+
+		/**
+   * Adds content to the cache.
+   * @param {string} content Content to be cached.
+   * @chainable
+   */
+
+		Cacheable.prototype.addCache = function addCache(content) {
+			if (this.cacheable) {
+				this.cache = content;
+			}
+			return this;
+		};
+
+		/**
+   * Clears the cache.
+   * @chainable
+   */
+
+		Cacheable.prototype.clearCache = function clearCache() {
+			this.cache = null;
+			return this;
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+		Cacheable.prototype.disposeInternal = function disposeInternal() {
+			this.clearCache();
+		};
+
+		/**
+   * Gets the cached content.
+   * @return {Object} Cached content.
+   * @protected
+   */
+
+		Cacheable.prototype.getCache = function getCache() {
+			return this.cache;
+		};
+
+		/**
+   * Whether the class is cacheable.
+   * @return {boolean} Returns true when class is cacheable, false otherwise.
+   */
+
+		Cacheable.prototype.isCacheable = function isCacheable() {
+			return this.cacheable;
+		};
+
+		/**
+   * Sets whether the class is cacheable.
+   * @param {boolean} cacheable
+   */
+
+		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
+			if (!cacheable) {
+				this.clearCache();
+			}
+			this.cacheable = cacheable;
+		};
+
+		return Cacheable;
+	})(Disposable);
+
+	Cacheable.prototype.registerMetalComponent && Cacheable.prototype.registerMetalComponent(Cacheable, 'Cacheable')
+	this.senna.Cacheable = Cacheable;
+}).call(this);
 /*!
  * Polyfill from Google's Closure Library.
  * Copyright 2013 The Closure Library Authors. All Rights Reserved.
@@ -625,62 +787,6 @@ babelHelpers;
 	})();
 
 	this.senna.object = object;
-}).call(this);
-'use strict';
-
-/**
- * Disposable utility. When inherited provides the `dispose` function to its
- * subclass, which is responsible for disposing of any object references
- * when an instance won't be used anymore. Subclasses should override
- * `disposeInternal` to implement any specific disposing logic.
- * @constructor
- */
-
-(function () {
-	var Disposable = (function () {
-		function Disposable() {
-			babelHelpers.classCallCheck(this, Disposable);
-
-			/**
-    * Flag indicating if this instance has already been disposed.
-    * @type {boolean}
-    * @protected
-    */
-			this.disposed_ = false;
-		}
-
-		/**
-   * Disposes of this instance's object references. Calls `disposeInternal`.
-   */
-
-		Disposable.prototype.dispose = function dispose() {
-			if (!this.disposed_) {
-				this.disposeInternal();
-				this.disposed_ = true;
-			}
-		};
-
-		/**
-   * Subclasses should override this method to implement any specific
-   * disposing logic (like clearing references and calling `dispose` on other
-   * disposables).
-   */
-
-		Disposable.prototype.disposeInternal = function disposeInternal() {};
-
-		/**
-   * Checks if this instance has already been disposed.
-   * @return {boolean}
-   */
-
-		Disposable.prototype.isDisposed = function isDisposed() {
-			return this.disposed_;
-		};
-
-		return Disposable;
-	})();
-
-	this.senna.Disposable = Disposable;
 }).call(this);
 'use strict';
 
@@ -2987,112 +3093,6 @@ babelHelpers;
 	})();
 
 	this.senna.Route = Route;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.senna.Disposable;
-
-	var Cacheable = (function (_Disposable) {
-		babelHelpers.inherits(Cacheable, _Disposable);
-
-		/**
-   * Abstract class for defining cacheable behavior.
-   * @constructor
-   */
-
-		function Cacheable() {
-			babelHelpers.classCallCheck(this, Cacheable);
-
-			/**
-    * Holds the cached data.
-    * @type {!Object}
-    * @default null
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.cache = null;
-
-			/**
-    * Holds whether class is cacheable.
-    * @type {boolean}
-    * @default false
-    * @protected
-    */
-			_this.cacheable = false;
-			return _this;
-		}
-
-		/**
-   * Adds content to the cache.
-   * @param {string} content Content to be cached.
-   * @chainable
-   */
-
-		Cacheable.prototype.addCache = function addCache(content) {
-			if (this.cacheable) {
-				this.cache = content;
-			}
-			return this;
-		};
-
-		/**
-   * Clears the cache.
-   * @chainable
-   */
-
-		Cacheable.prototype.clearCache = function clearCache() {
-			this.cache = null;
-			return this;
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-		Cacheable.prototype.disposeInternal = function disposeInternal() {
-			this.clearCache();
-		};
-
-		/**
-   * Gets the cached content.
-   * @return {Object} Cached content.
-   * @protected
-   */
-
-		Cacheable.prototype.getCache = function getCache() {
-			return this.cache;
-		};
-
-		/**
-   * Whether the class is cacheable.
-   * @return {boolean} Returns true when class is cacheable, false otherwise.
-   */
-
-		Cacheable.prototype.isCacheable = function isCacheable() {
-			return this.cacheable;
-		};
-
-		/**
-   * Sets whether the class is cacheable.
-   * @param {boolean} cacheable
-   */
-
-		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
-			if (!cacheable) {
-				this.clearCache();
-			}
-			this.cacheable = cacheable;
-		};
-
-		return Cacheable;
-	})(Disposable);
-
-	Cacheable.prototype.registerMetalComponent && Cacheable.prototype.registerMetalComponent(Cacheable, 'Cacheable')
-	this.senna.Cacheable = Cacheable;
 }).call(this);
 'use strict';
 
