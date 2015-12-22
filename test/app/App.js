@@ -606,11 +606,13 @@ describe('App', function() {
 
 	it('should not reload page on navigate back to a routed page with hashbang without history state', function(done) {
 		var app = new App();
+		app.addRoutes(new Route('/path1', Screen));
+		app.addRoutes(new Route('/path2', Screen));
 		app.reloadPage = sinon.stub();
-		app.addRoutes(new Route('/path', Screen));
-		app.navigate('/path#hash').then(function() {
+		app.navigate('/path1').then(function() {
+			globals.window.location.hash = 'hash';
 			window.history.replaceState(null, null, null);
-			app.navigate('/path').then(function() {
+			app.navigate('/path2').then(function() {
 				dom.once(globals.window, 'popstate', function() {
 					assert.strictEqual(0, app.reloadPage.callCount);
 					app.dispose();
