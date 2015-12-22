@@ -29,6 +29,7 @@
     "karma-commonjs": "0.0.13",
     "karma-coverage": "^0.5.1",
     "karma-firefox-launcher": "^0.1.7",
+    "karma-ievms": "^0.1.0",
     "karma-mocha": "^0.2.0",
     "karma-safari-launcher": "^0.1.1",
     "karma-sauce-launcher": "^0.3.0",
