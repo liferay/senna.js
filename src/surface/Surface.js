@@ -74,8 +74,10 @@ class Surface extends Disposable {
 	 * element should already be nested in the right element and should have an
 	 * id that is a concatentation of the surface id + '-' + the screen id.
 	 * @param {!string} screenId The screen id the content belongs too.
-	 * @param {?string|Element=} opt_content The string content or element to add
-	 *     be added as surface content.
+	 * @param {?string|Element=} opt_content The string content or element to
+	 *     add be added as surface content.
+	 * @param {boolean} opt_runScriptsInElement If true, run scripts inside
+	 *     <code>opt_content</code>.
 	 * @return {Element}
 	 */
 	addContent(screenId, opt_content, opt_runScriptsInElement) {
