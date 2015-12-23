@@ -697,8 +697,7 @@ class App extends EventEmitter {
 	 */
 	onStartNavigate_(event) {
 		this.captureScrollPositionFromScrollEvent = false;
-
-		this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
+		this.storeCurrentPageScrollPosition_();
 
 		var endPayload = {};
 		var documentElement = globals.document.documentElement;
@@ -819,6 +818,11 @@ class App extends EventEmitter {
 		} else {
 			globals.window.history.pushState(historyParams, title, path);
 		}
+	/**
+	 * Stores scroll position from page offset.
+	 */
+	storeCurrentPageScrollPosition_() {
+		this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
 	}
 
 	/**
