@@ -75,7 +75,7 @@ class Screen extends Cacheable {
 	/**
 	 * Allows a screen to perform any setup immediately before the element is
 	 * made visible. Lifecycle.
-	 * @param {object} surfaces Map of surfaces to flip keyed by surface id.
+	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
 	 * @return {?CancellablePromise=} This can return a promise, which will pause the
 	 *     navigation until it is resolved.
 	 */

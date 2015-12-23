@@ -511,7 +511,8 @@ class App extends EventEmitter {
 	/**
 	 * Lock the document scroll in order to avoid the browser native back and
 	 * forward navigation to change the scroll position. Surface app takes care
-	 * of updating it when surfaces are ready.
+	 * of updating it when surfaces are ready. Only used when native scroll
+	 * restoration is enabled.
 	 * @protected
 	 */
 	lockHistoryScrollPosition_() {
