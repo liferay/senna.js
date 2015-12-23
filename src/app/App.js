@@ -315,19 +315,16 @@ class App extends EventEmitter {
 		var nextScreen = this.createScreenInstance(path, route);
 
 		this.pendingNavigate = CancellablePromise.resolve()
-			.then(() => {
-				return nextScreen.load(path);
-			})
+			.then(() => nextScreen.load(path))
 			.then(() => {
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}
-				this.prepareScreenFlip_(path, nextScreen, opt_replaceHistory);
+				this.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
+				this.prepareNavigateSurfaces_(nextScreen, this.surfaces);
 				return nextScreen.flip(this.surfaces);
 			})
-			.then(() => {
-				this.finalizeNavigate_(path, nextScreen);
-			})
+			.then(() => this.finalizeNavigate_(path, nextScreen, opt_replaceHistory))
 			.catch((reason) => {
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
@@ -340,9 +337,10 @@ class App extends EventEmitter {
 	 * Finalizes a screen navigation.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {!Screen} nextScreen
+	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 * @protected
 	 */
-	finalizeNavigate_(path, nextScreen) {
+	finalizeNavigate_(path, nextScreen, opt_replaceHistory) {
 		var activeScreen = this.activeScreen;
 
 		nextScreen.activate();
@@ -525,7 +523,7 @@ class App extends EventEmitter {
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	navigate(path, opt_replaceHistory) {
-		this.stopPending_();
+		this.stopPendingNavigate_();
 
 		if (!this.isHtml5HistorySupported()) {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
@@ -702,20 +700,21 @@ class App extends EventEmitter {
 
 		this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
 
-		dom.addClasses(globals.document.documentElement, this.loadingCssClass);
+		var endPayload = {};
+		var documentElement = globals.document.documentElement;
 
-		var endNavigatePayload = {};
+		dom.addClasses(documentElement, this.loadingCssClass);
 
 		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
 			.catch((err) => {
-				this.stopPending_();
-				endNavigatePayload.error = err;
+				endPayload.error = err;
+				this.stopPendingNavigate_();
 				throw err;
 			})
 			.thenAlways(() => {
-				endNavigatePayload.path = event.path;
-				this.emit('endNavigate', endNavigatePayload);
-				dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
+				endPayload.path = event.path;
+				this.emit('endNavigate', endPayload);
+				dom.removeClasses(documentElement, this.loadingCssClass);
 				this.captureScrollPositionFromScrollEvent = true;
 			});
 	}
@@ -795,7 +794,7 @@ class App extends EventEmitter {
 	 * Cancels pending navigate with <code>Cancel pending navigation</code> error.
 	 * @protected
 	 */
-	stopPending_() {
+	stopPendingNavigate_() {
 		if (this.pendingNavigate) {
 			this.pendingNavigate.cancel('Cancel pending navigation');
 			this.pendingNavigate = null;
