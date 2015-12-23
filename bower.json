@@ -17,7 +17,7 @@
     "page",
     "apps"
   ],
-  "license": "BSD",
+  "license": "BSD-3-Clause",
   "ignore": [
     "**/.*",
     "node_modules",

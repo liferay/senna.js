@@ -20,6 +20,8 @@
     "babel-preset-metal": "^1.0.3",
     "chai": "^2.3.0",
     "gulp": "^3.8.11",
+    "gulp-connect": "^2.3.1",
+    "gulp-header": "^1.7.1",
     "gulp-metal": "^0.7.4",
     "isparta": "^4.0.0",
     "karma": "^0.13.9",
@@ -36,6 +38,7 @@
     "karma-sinon": "^1.0.4",
     "karma-source-map-support": "1.0.0",
     "mocha": "^2.2.5",
+    "run-sequence": "^1.1.5",
     "sinon": "^1.14.1"
   }
 }

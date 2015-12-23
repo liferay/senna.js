@@ -1,7 +1,12 @@
 'use strict';
 
+var connect = require('gulp-connect');
 var gulp = require('gulp');
+var header = require('gulp-header');
 var metal = require('gulp-metal');
+var runSequence = require('run-sequence');
+
+// Metal -----------------------------------------------------------------------
 
 metal.registerTasks({
 	bundleCssFileName: 'senna.css',
@@ -60,4 +65,35 @@ metal.registerTasks({
 			version: '5.0'
 		}
 	}
+});
+
+// Helpers ---------------------------------------------------------------------
+
+gulp.task('banner', function() {
+	var stamp = [
+		'/**',
+		' * Senna.js - <%= description %>',
+		' * @author <%= author.name %> <<%= author.email %>>',
+		' * @version v<%= version %>',
+		' * @link http://sennajs.com',
+		' * @license BSD-3-Clause',
+		' */',
+		''
+	].join('\n');
+
+	return gulp.src('build/globals/*.js')
+		.pipe(header(stamp, require('./package.json')))
+		.pipe(gulp.dest('build/globals'));
+});
+
+// Runner ----------------------------------------------------------------------
+
+gulp.task('default', function(done) {
+	runSequence('build', 'banner', done);
+});
+
+gulp.task('server', ['default'], function() {
+	connect.server({
+		port: 8888
+	});
 });

@@ -51,7 +51,11 @@ npm install senna
 4. Build the code:
 
   ```
-  gulp build
+  gulp
+  ```
+
+  ```
+  gulp server
   ```
 
 5. Test the code:
