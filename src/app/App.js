@@ -362,6 +362,10 @@ class App extends EventEmitter {
 	finalizeNavigate_(path, nextScreen, opt_replaceHistory) {
 		var activeScreen = this.activeScreen;
 
+		if (this.updateScrollPosition) {
+			this.syncScrollPosition_(opt_replaceHistory);
+		}
+
 		nextScreen.activate();
 
 		if (activeScreen && !activeScreen.isCacheable()) {
@@ -882,9 +886,9 @@ class App extends EventEmitter {
 		var scrollLeft = opt_replaceHistory ? this.popstateScrollLeft : 0;
 		var scrollTop = opt_replaceHistory ? this.popstateScrollTop : 0;
 
-		if (this.updateScrollPosition) {
-			globals.window.scrollTo(scrollLeft, scrollTop);
-		}
+		console.log('Restore scroll position ', scrollTop, scrollLeft);
+
+		globals.window.scrollTo(scrollLeft, scrollTop);
 
 		this.storeScrollPosition_(scrollLeft, scrollTop);
 	}
