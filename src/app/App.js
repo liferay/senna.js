@@ -858,8 +858,8 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	syncScrollPosition_(opt_replaceHistory) {
-		var scrollLeft = opt_replaceHistory ? this.syncScrollLeft : 0;
-		var scrollTop = opt_replaceHistory ? this.syncScrollTop : 0;
+		var scrollLeft = opt_replaceHistory ? this.popstateScrollLeft : 0;
+		var scrollTop = opt_replaceHistory ? this.popstateScrollTop : 0;
 
 		if (this.updateScrollPosition) {
 			globals.window.scrollTo(scrollLeft, scrollTop);
