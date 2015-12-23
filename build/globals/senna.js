@@ -5194,6 +5194,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var globals = this.senna.globals;
 	var RequestScreen = this.senna.RequestScreen;
 	var Surface = this.senna.Surface;
 
@@ -5269,7 +5270,7 @@ babelHelpers;
 
 		HtmlScreen.prototype.resolveContentFromHtmlString = function resolveContentFromHtmlString(htmlString) {
 			if (!HtmlScreen.virtualDocumentElement) {
-				HtmlScreen.virtualDocumentElement = document.documentElement.cloneNode();
+				HtmlScreen.virtualDocumentElement = globals.document.documentElement.cloneNode();
 			}
 
 			HtmlScreen.virtualDocumentElement.innerHTML = htmlString;
