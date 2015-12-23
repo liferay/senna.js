@@ -548,54 +548,6 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Prefetches the specified path if there is a route handler that matches.
-	 * @param {!string} path Path to navigate containing the base path.
-	 * @return {CancellablePromise} Returns a pending request cancellable promise.
-	 */
-	prefetch(path) {
-		var route = this.findRoute(path);
-		if (!route) {
-			return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
-		}
-
-		console.log('Prefetching [' + path + ']');
-
-		var nextScreen = this.createScreenInstance(path, route);
-
-		var pendingPrefetch = CancellablePromise.resolve()
-			.then(() => {
-				return nextScreen.load(path);
-			})
-			.then(() => {
-				this.screens[path] = nextScreen;
-			})
-			.catch((reason) => {
-				this.removeScreen_(path, nextScreen);
-				throw reason;
-			});
-
-		return pendingPrefetch;
-	}
-
-	/**
-	 * Prepares screen flip. Updates history state and surfaces content.
-	 * @param {!string} path Path containing the querystring part.
-	 * @param {!Screen} nextScreen
-	 * @param {boolean=} opt_replaceHistory Replaces browser history.
-	 */
-	prepareScreenFlip_(path, nextScreen, opt_replaceHistory) {
-		var title = nextScreen.getTitle() || this.getDefaultTitle();
-		this.updateHistory_(title, path, opt_replaceHistory);
-		this.syncScrollPosition_(opt_replaceHistory);
-		globals.document.title = title;
-		Object.keys(this.surfaces).forEach((surfaceId) => {
-			var surface = this.surfaces[surfaceId];
-			surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId), true);
-			console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surface + ']');
-		});
-	}
-
-	/**
 	 * Intercepts document clicks and test link elements in order to decide
 	 * whether Surface app can navigate.
 	 * @param {!Event} event Event facade
@@ -723,6 +675,56 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Prefetches the specified path if there is a route handler that matches.
+	 * @param {!string} path Path to navigate containing the base path.
+	 * @return {CancellablePromise} Returns a pending request cancellable promise.
+	 */
+	prefetch(path) {
+		var route = this.findRoute(path);
+		if (!route) {
+			return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
+		}
+
+		console.log('Prefetching [' + path + ']');
+
+		var nextScreen = this.createScreenInstance(path, route);
+
+		return CancellablePromise.resolve()
+			.then(() => nextScreen.load(path))
+			.then(() => this.screens[path] = nextScreen)
+			.catch((reason) => {
+				this.removeScreen_(path, nextScreen);
+				throw reason;
+			});
+	}
+
+	/**
+	 * Prepares screen flip. Updates history state and surfaces content.
+	 * @param {!string} path Path containing the querystring part.
+	 * @param {!Screen} nextScreen
+	 * @param {boolean=} opt_replaceHistory Replaces browser history.
+	 */
+	prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
+		var title = nextScreen.getTitle();
+		if (!core.isString(title)) {
+			title = this.getDefaultTitle();
+		}
+		this.updateHistory_(title, path, opt_replaceHistory);
+	}
+
+	/**
+	 * Prepares screen flip. Updates history state and surfaces content.
+	 * @param {!Screen} nextScreen
+	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+	 */
+	prepareNavigateSurfaces_(nextScreen, surfaces) {
+		Object.keys(surfaces).forEach((id) => {
+			surfaces[id].addContent(nextScreen.getId(), nextScreen.getSurfaceContent(id), true);
+			console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surfaces[id] + ']');
+		});
+	}
+
+	/**
 	 * Reloads the page by performing `window.location.reload()`.
 	 */
 	reloadPage() {
@@ -822,6 +824,10 @@ class App extends EventEmitter {
 		} else {
 			globals.window.history.pushState(historyParams, title, path);
 		}
+
+		globals.document.title = title;
+	}
+
 	/**
 	 * Stores scroll position from page offset.
 	 */
