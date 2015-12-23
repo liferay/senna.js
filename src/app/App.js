@@ -77,6 +77,20 @@ class App extends EventEmitter {
 		this.loadingCssClass = 'senna-loading';
 
 		/**
+		 * Using the History API to manage your URLs is awesome and, as it happens,
+		 * a crucial feature of good web apps. One of its downsides, however, is
+		 * that scroll positions are stored and then, more importantly, restored
+		 * whenever you traverse the history. This often means unsightly jumps as
+		 * the scroll position changes automatically, and especially so if your app
+		 * does transitions, or changes the contents of the page in any way.
+		 * Ultimately this leads to an horrible user experience. The good news is,
+		 * however, that there’s a potential fix: history.scrollRestoration.
+		 * https://developers.google.com/web/updates/2015/09/history-api-scroll-restoration
+		 * @type {boolean}
+		 * @protected
+		 */
+		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
+
 		/**
 		 * Holds a deferred withe the current navigation.
 		 * @type {?CancellablePromise}
@@ -176,6 +190,7 @@ class App extends EventEmitter {
 		this.on('startNavigate', this.onStartNavigate_);
 
 		this.setLinkSelector(this.linkSelector);
+		this.setUpdateScrollPosition(this.updateScrollPosition);
 	}
 
 	/**
@@ -792,6 +807,10 @@ class App extends EventEmitter {
 	 * @param {boolean} updateScrollPosition
 	 */
 	setUpdateScrollPosition(updateScrollPosition) {
+		if (this.nativeScrollRestorationSupported) {
+			// Back off, browser, I got this...
+			globals.window.history.scrollRestoration = updateScrollPosition ? 'manual' : 'auto';
+		}
 		this.updateScrollPosition = updateScrollPosition;
 	}
 
