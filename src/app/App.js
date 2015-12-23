@@ -45,12 +45,12 @@ class App extends EventEmitter {
 		this.basePath = '';
 
 		/**
-		 * Captures scroll position and saves on history state.
+		 * Captures scroll position from scroll event.
 		 * @type {!boolean}
 		 * @default true
 		 * @protected
 		 */
-		this.captureHistoryScrollPosition = true;
+		this.captureScrollPositionFromScrollEvent = true;
 
 		/**
 		 * Holds the default page title.
@@ -355,7 +355,6 @@ class App extends EventEmitter {
 		this.activeScreen = nextScreen;
 		this.screens[path] = nextScreen;
 		this.pendingNavigate = null;
-		this.captureHistoryScrollPosition = true;
 		console.log('Navigation done');
 	}
 
@@ -687,8 +686,8 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	onScroll_() {
-		if (this.captureHistoryScrollPosition) {
-			this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
+		if (this.captureScrollPositionFromScrollEvent) {
+			this.storeCurrentPageScrollPosition_();
 		}
 	}
 
@@ -699,7 +698,7 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	onStartNavigate_(event) {
-		this.captureHistoryScrollPosition = false;
+		this.captureScrollPositionFromScrollEvent = false;
 
 		this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
 
@@ -717,6 +716,7 @@ class App extends EventEmitter {
 				endNavigatePayload.path = event.path;
 				this.emit('endNavigate', endNavigatePayload);
 				dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
+				this.captureScrollPositionFromScrollEvent = true;
 			});
 	}
 

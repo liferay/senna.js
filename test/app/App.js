@@ -359,16 +359,16 @@ describe('App', function() {
 		globals.window.scrollTo(100, 100);
 	});
 
-	it('should not store scroll position during navigate', function(done) {
+	it('should not store page scroll position during navigate', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		app.on('startNavigate', function() {
 			app.onScroll_(); // Coverage
-			assert.ok(!app.captureHistoryScrollPosition);
+			assert.ok(!app.captureScrollPositionFromScrollEvent);
 		});
-		assert.ok(app.captureHistoryScrollPosition);
+		assert.ok(app.captureScrollPositionFromScrollEvent);
 		app.navigate('/path').then(function() {
-			assert.ok(app.captureHistoryScrollPosition);
+			assert.ok(app.captureScrollPositionFromScrollEvent);
 			app.dispose();
 			done();
 		});
