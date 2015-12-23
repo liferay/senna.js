@@ -642,9 +642,11 @@ class App extends EventEmitter {
 
 		if (state && state.senna) {
 			console.log('History navigation to [' + state.path + ']');
-			this.lockHistoryScrollPosition_();
 			this.popstateScrollTop = state.scrollTop;
 			this.popstateScrollLeft = state.scrollLeft;
+			if (this.updateScrollPosition && !this.nativeScrollRestorationSupported) {
+				this.lockHistoryScrollPosition_();
+			}
 			this.navigate(state.path, true);
 		}
 	}
