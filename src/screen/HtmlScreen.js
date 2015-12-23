@@ -1,5 +1,6 @@
 'use strict';
 
+import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
 
@@ -63,7 +64,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	resolveContentFromHtmlString(htmlString) {
 		if (!HtmlScreen.virtualDocumentElement) {
-			HtmlScreen.virtualDocumentElement = document.documentElement.cloneNode();
+			HtmlScreen.virtualDocumentElement = globals.document.documentElement.cloneNode();
 		}
 
 		HtmlScreen.virtualDocumentElement.innerHTML = htmlString;
