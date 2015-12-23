@@ -77,13 +77,22 @@ class App extends EventEmitter {
 		this.loadingCssClass = 'senna-loading';
 
 		/**
+		/**
+		 * Holds a deferred withe the current navigation.
+		 * @type {?CancellablePromise}
+		 * @default null
+		 * @protected
+		 */
+		this.pendingNavigate = null;
+
+		/**
 		 * Holds the window horizontal scroll position when the navigation using
 		 * back or forward happens to be restored after the surfaces are updated.
 		 * @type {!Number}
 		 * @default 0
 		 * @protected
 		 */
-		this.syncScrollLeft = 0;
+		this.popstateScrollLeft = 0;
 
 		/**
 		 * Holds the window vertical scroll position when the navigation using
@@ -92,15 +101,7 @@ class App extends EventEmitter {
 		 * @default 0
 		 * @protected
 		 */
-		this.syncScrollTop = 0;
-
-		/**
-		 * Holds a deferred withe the current navigation.
-		 * @type {?CancellablePromise}
-		 * @default null
-		 * @protected
-		 */
-		this.pendingNavigate = null;
+		this.popstateScrollTop = 0;
 
 		/**
 		 * Holds the screen routes configuration.
@@ -154,7 +155,10 @@ class App extends EventEmitter {
 
 		/**
 		 * When set to true, moves the scroll position using the
-		 * <code>syncScrollLeft</code> and <code>syncScrollTop</code> values.
+		 * <code>popstateScrollLeft</code> and <code>popstateScrollTop</code>
+		 * values after popstate, or to the top of the viewport for new
+		 * navigation. If false, the browser will take care of scroll
+		 * restoration.
 		 * @type {!boolean}
 		 * @default true
 		 * @protected
@@ -671,9 +675,9 @@ class App extends EventEmitter {
 
 		if (state && state.senna) {
 			console.log('History navigation to [' + state.path + ']');
-			this.syncScrollTop = state.scrollTop;
-			this.syncScrollLeft = state.scrollLeft;
 			this.lockHistoryScrollPosition_();
+			this.popstateScrollTop = state.scrollTop;
+			this.popstateScrollLeft = state.scrollLeft;
 			this.navigate(state.path, true);
 		}
 	}
