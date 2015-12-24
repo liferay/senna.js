@@ -4397,7 +4397,7 @@ babelHelpers;
 		App.prototype.onPopstate_ = function onPopstate_(event) {
 			var state = event.state;
 
-			if (state === null || state.isNullState) {
+			if (state === null) {
 				if (this.skipLoadPopstate) {
 					return;
 				}
