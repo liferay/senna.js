@@ -631,7 +631,7 @@ class App extends EventEmitter {
 	onPopstate_(event) {
 		var state = event.state;
 
-		if (state === null || state.isNullState) {
+		if (state === null) {
 			if (this.skipLoadPopstate) {
 				return;
 			}
