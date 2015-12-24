@@ -248,7 +248,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path', Screen));
 		app.on('startNavigate', startNavigateStub);
 		app.on('endNavigate', endNavigateStub);
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			assert.strictEqual(1, startNavigateStub.callCount);
 			assert.strictEqual('/path', startNavigateStub.args[0][0].path);
 			assert.strictEqual(false, startNavigateStub.args[0][0].replaceHistory);
@@ -266,7 +266,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path', Screen));
 		app.on('startNavigate', startNavigateStub);
 		app.on('endNavigate', endNavigateStub);
-		app.navigate('/path', true).then(function() {
+		app.navigate('/path', true).then(() => {
 			assert.strictEqual(1, startNavigateStub.callCount);
 			assert.strictEqual('/path', startNavigateStub.args[0][0].path);
 			assert.strictEqual(true, startNavigateStub.args[0][0].replaceHistory);
@@ -296,11 +296,11 @@ describe('App', function() {
 		app.once('startNavigate', function(payload) {
 			assert.ok(!payload.replaceHistory);
 		});
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			app.once('startNavigate', function(payload) {
 				assert.ok(payload.replaceHistory);
 			});
-			app.navigate('/path').then(function() {
+			app.navigate('/path').then(() => {
 				app.dispose();
 				done();
 			});
@@ -317,7 +317,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path', Screen));
 		app.on('startNavigate', failIfNotContainsLoadingCssClass);
 		app.on('endNavigate', failIfNotContainsLoadingCssClass);
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			if (globals.document.documentElement.classList.contains(app.getLoadingCssClass())) {
 				assert.fail();
 			}
@@ -359,7 +359,7 @@ describe('App', function() {
 			assert.ok(!app.captureScrollPositionFromScrollEvent);
 		});
 		assert.ok(app.captureScrollPositionFromScrollEvent);
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			assert.ok(app.captureScrollPositionFromScrollEvent);
 			app.dispose();
 			done();
@@ -371,9 +371,9 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			setTimeout(function() {
-				app.navigate('/path2').then(function() {
+				app.navigate('/path2').then(() => {
 					assert.strictEqual(0, window.pageXOffset);
 					assert.strictEqual(0, window.pageYOffset);
 					app.dispose();
@@ -391,9 +391,9 @@ describe('App', function() {
 		app.setUpdateScrollPosition(false);
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			setTimeout(function() {
-				app.navigate('/path2').then(function() {
+				app.navigate('/path2').then(() => {
 					assert.strictEqual(100, window.pageXOffset);
 					assert.strictEqual(100, window.pageYOffset);
 					app.dispose();
@@ -410,9 +410,9 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			setTimeout(function() {
-				app.navigate('/path2').then(function() {
+				app.navigate('/path2').then(() => {
 					assert.strictEqual(0, window.pageXOffset);
 					assert.strictEqual(0, window.pageYOffset);
 					app.once('endNavigate', function() {
@@ -452,7 +452,7 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path1', NoNavigateScreen));
 		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			app.on('endNavigate', function(payload) {
 				assert.ok(payload.error instanceof Error);
 			});
@@ -467,7 +467,7 @@ describe('App', function() {
 	it('should prefetch paths', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
-		app.prefetch('/path').then(function() {
+		app.prefetch('/path').then(() => {
 			assert.ok(app.screens['/path'] instanceof Screen);
 			app.dispose();
 			done();
@@ -583,9 +583,9 @@ describe('App', function() {
 		app.reloadPage = sinon.stub();
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			window.history.replaceState(null, null, null);
-			app.navigate('/path2').then(function() {
+			app.navigate('/path2').then(() => {
 				dom.once(globals.window, 'popstate', function() {
 					assert.strictEqual(1, app.reloadPage.callCount);
 					app.dispose();
@@ -601,11 +601,11 @@ describe('App', function() {
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
 		app.reloadPage = sinon.stub();
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			globals.window.location.hash = 'hash';
 			window.history.replaceState(null, null, null);
-			app.navigate('/path2').then(function() {
-				dom.once(globals.window, 'popstate', function() {
+			app.navigate('/path2').then(() => {
+				dom.once(globals.window, 'popstate', () => {
 					assert.strictEqual(0, app.reloadPage.callCount);
 					app.dispose();
 					done();
@@ -620,10 +620,10 @@ describe('App', function() {
 		app.reloadPage = sinon.stub();
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			window.history.replaceState(null, null, null);
-			app.navigate('/path2').then(function() {
-				dom.once(globals.window, 'popstate', function() {
+			app.navigate('/path2').then(() => {
+				dom.once(globals.window, 'popstate', () => {
 					assert.strictEqual(0, app.reloadPage.callCount);
 					app.dispose();
 					done();
@@ -638,7 +638,7 @@ describe('App', function() {
 		var app = new App();
 		app.onLoad_(); // Simulate
 		assert.ok(app.skipLoadPopstate);
-		setTimeout(function() {
+		setTimeout(() => {
 			assert.ok(!app.skipLoadPopstate);
 			app.dispose();
 			done();
@@ -664,8 +664,8 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path1', StubScreen1));
 		app.addRoutes(new Route('/path2', StubScreen2));
-		app.navigate('/path1').then(function() {
-			app.navigate('/path2').then(function() {
+		app.navigate('/path1').then(() => {
+			app.navigate('/path2').then(() => {
 				var lifecycleOrder = [
 					StubScreen1.prototype.load,
 					StubScreen1.prototype.flip,
@@ -700,7 +700,7 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path', ContentScreen));
 		app.addSurfaces(surface);
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			assert.strictEqual(1, surface.addContent.callCount);
 			assert.strictEqual('screenId', surface.addContent.args[0][0]);
 			assert.strictEqual('surfaceId', surface.addContent.args[0][1]);
@@ -740,7 +740,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path1', ContentScreen1));
 		app.addRoutes(new Route('/path2', ContentScreen2));
 		app.addSurfaces([surface1, surface2]);
-		app.navigate('/path1').then(function() {
+		app.navigate('/path1').then(() => {
 			assert.strictEqual(1, surface1.addContent.callCount);
 			assert.strictEqual('screenId1', surface1.addContent.args[0][0]);
 			assert.strictEqual('content1', surface1.addContent.args[0][1]);
@@ -748,7 +748,7 @@ describe('App', function() {
 			assert.strictEqual('screenId1', surface2.addContent.args[0][0]);
 			assert.strictEqual(undefined, surface2.addContent.args[0][1]);
 			assert.strictEqual('default2', surface2.getChild('default').innerHTML);
-			app.navigate('/path2').then(function() {
+			app.navigate('/path2').then(() => {
 				assert.strictEqual(2, surface1.addContent.callCount);
 				assert.strictEqual('screenId2', surface1.addContent.args[1][0]);
 				assert.strictEqual(undefined, surface1.addContent.args[1][1]);
@@ -772,7 +772,7 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		app.addSurfaces(surface);
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			app.dispose();
 			done();
 		});
