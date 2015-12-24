@@ -2,7 +2,6 @@
 
 import async from 'bower:metal/src/async/async';
 import core from 'bower:metal/src/core';
-import debounce from 'bower:metal-debounce/src/debounce';
 import dom from 'bower:metal/src/dom/dom';
 import EventEmitter from 'bower:metal/src/events/EventEmitter';
 import EventHandler from 'bower:metal/src/events/EventHandler';
@@ -142,14 +141,6 @@ class App extends EventEmitter {
 		this.scrollHandle = null;
 
 		/**
-		 * Holds the scroll position capturing delay.
-		 * @type {!number}
-		 * @default 50
-		 * @protected
-		 */
-		this.scrollPositionCapturingDelay = 50;
-
-		/**
 		 * When set to true the first erroneous popstate fired on page load will be
 		 * ignored, only if <code>globals.window.history.state</code> is also
 		 * <code>null</code>.
@@ -168,11 +159,9 @@ class App extends EventEmitter {
 		this.surfaces = {};
 
 		/**
-		 * When set to true, moves the scroll position using the
-		 * <code>popstateScrollLeft</code> and <code>popstateScrollTop</code>
-		 * values after popstate, or to the top of the viewport for new
-		 * navigation. If false, the browser will take care of scroll
-		 * restoration.
+		 * When set to true, moves the scroll position after popstate, or to the
+		 * top of the viewport for new navigation. If false, the browser will
+		 * take care of scroll restoration.
 		 * @type {!boolean}
 		 * @default true
 		 * @protected
@@ -182,7 +171,7 @@ class App extends EventEmitter {
 		this.appEventHandlers_ = new EventHandler();
 
 		this.appEventHandlers_.add(
-			dom.on(globals.document, 'scroll', debounce(this.onScroll_.bind(this), this.scrollPositionCapturingDelay)),
+			dom.on(globals.window, 'scroll', this.onScroll_.bind(this)),
 			dom.on(globals.window, 'load', this.onLoad_.bind(this)),
 			dom.on(globals.window, 'popstate', this.onPopstate_.bind(this))
 		);
@@ -190,7 +179,6 @@ class App extends EventEmitter {
 		this.on('startNavigate', this.onStartNavigate_);
 
 		this.setLinkSelector(this.linkSelector);
-		this.setUpdateScrollPosition(this.updateScrollPosition);
 	}
 
 	/**
@@ -343,7 +331,8 @@ class App extends EventEmitter {
 				this.prepareNavigateSurfaces_(nextScreen, this.surfaces);
 				return nextScreen.flip(this.surfaces);
 			})
-			.then(() => this.finalizeNavigate_(path, nextScreen, opt_replaceHistory))
+			.then(() => this.syncScrollPositionSyncThenAsync_())
+			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.catch((reason) => {
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
@@ -356,15 +345,10 @@ class App extends EventEmitter {
 	 * Finalizes a screen navigation.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {!Screen} nextScreen
-	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 * @protected
 	 */
-	finalizeNavigate_(path, nextScreen, opt_replaceHistory) {
+	finalizeNavigate_(path, nextScreen) {
 		var activeScreen = this.activeScreen;
-
-		if (this.updateScrollPosition) {
-			this.syncScrollPosition_(opt_replaceHistory);
-		}
 
 		nextScreen.activate();
 
@@ -451,14 +435,6 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Gets the scroll position capturing delay.
-	 * @return {number}
-	 */
-	getScrollPositionCapturingDelay() {
-		return this.scrollPositionCapturingDelay;
-	}
-
-	/**
 	 * Handle navigation error.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {!Screen} nextScreen
@@ -510,9 +486,8 @@ class App extends EventEmitter {
 
 	/**
 	 * Lock the document scroll in order to avoid the browser native back and
-	 * forward navigation to change the scroll position. Surface app takes care
-	 * of updating it when surfaces are ready. Only used when native scroll
-	 * restoration is enabled.
+	 * forward navigation to change the scroll position. In the end of
+	 * navigation lifecycle scroll is repositioned.
 	 * @protected
 	 */
 	lockHistoryScrollPosition_() {
@@ -538,6 +513,27 @@ class App extends EventEmitter {
 		};
 		async.nextTick(switchScrollPositionRace);
 		globals.document.addEventListener('scroll', switchScrollPositionRace, false);
+	}
+
+	/**
+	 * If supported by the browser, disables native scroll restoration and
+	 * stores current value.
+	 */
+	maybeDisableNativeScrollRestoration() {
+		if (this.nativeScrollRestorationSupported) {
+			this.nativeScrollRestoration_ = globals.window.history.scrollRestoration;
+			globals.window.history.scrollRestoration = 'manual';
+		}
+	}
+
+	/**
+	 * If supported by the browser, restores native scroll restoration to the
+	 * value captured by `maybeDisableNativeScrollRestoration`.
+	 */
+	maybeRestoreNativeScrollRestoration() {
+		if (this.nativeScrollRestorationSupported && this.nativeScrollRestoration_) {
+			globals.window.history.scrollRestoration = this.nativeScrollRestoration_;
+		}
 	}
 
 	/**
@@ -649,7 +645,7 @@ class App extends EventEmitter {
 			console.log('History navigation to [' + state.path + ']');
 			this.popstateScrollTop = state.scrollTop;
 			this.popstateScrollLeft = state.scrollLeft;
-			if (this.updateScrollPosition && !this.nativeScrollRestorationSupported) {
+			if (!this.nativeScrollRestorationSupported) {
 				this.lockHistoryScrollPosition_();
 			}
 			this.navigate(state.path, true);
@@ -663,7 +659,7 @@ class App extends EventEmitter {
 	 */
 	onScroll_() {
 		if (this.captureScrollPositionFromScrollEvent) {
-			this.storeCurrentPageScrollPosition_();
+			this.saveHistoryCurrentPageScrollPosition_();
 		}
 	}
 
@@ -674,8 +670,8 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	onStartNavigate_(event) {
+		this.maybeDisableNativeScrollRestoration();
 		this.captureScrollPositionFromScrollEvent = false;
-		this.storeCurrentPageScrollPosition_();
 
 		var endPayload = {};
 		var documentElement = globals.document.documentElement;
@@ -690,9 +686,10 @@ class App extends EventEmitter {
 			})
 			.thenAlways(() => {
 				endPayload.path = event.path;
-				this.emit('endNavigate', endPayload);
 				dom.removeClasses(documentElement, this.loadingCssClass);
+				this.maybeRestoreNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = true;
+				this.emit('endNavigate', endPayload);
 			});
 	}
 
@@ -768,6 +765,18 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Saves scroll position from page offset into history state.
+	 */
+	saveHistoryCurrentPageScrollPosition_() {
+		var state = globals.window.history.state;
+		if (state && state.senna) {
+			state.scrollTop = globals.window.pageYOffset;
+			state.scrollLeft = globals.window.pageXOffset;
+			globals.window.history.replaceState(state, null, null);
+		}
+	}
+
+	/**
 	 * Sets link base path.
 	 * @param {!string} path
 	 */
@@ -804,22 +813,10 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Sets the scroll position capturing delay.
-	 * @param {!number} scrollPositionCapturingDelay
-	 */
-	setScrollPositionCapturingDelay(scrollPositionCapturingDelay) {
-		this.scrollPositionCapturingDelay = scrollPositionCapturingDelay;
-	}
-
-	/**
 	 * Sets the update scroll position value.
 	 * @param {boolean} updateScrollPosition
 	 */
 	setUpdateScrollPosition(updateScrollPosition) {
-		if (this.nativeScrollRestorationSupported) {
-			// Back off, browser, I got this...
-			globals.window.history.scrollRestoration = updateScrollPosition ? 'manual' : 'auto';
-		}
 		this.updateScrollPosition = updateScrollPosition;
 	}
 
@@ -835,6 +832,31 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Sync document scroll position twice, the first one synchronous and then
+	 * one inside <code>async.nextTick</code>. Relevant to browsers that fires
+	 * scroll restoration asynchronously after popstate.
+	 * @protected
+	 * @return {?CancellablePromise=}
+	 */
+	syncScrollPositionSyncThenAsync_() {
+		var state = globals.window.history.state;
+		if (!state) {
+			return;
+		}
+
+		var scrollTop = state.scrollTop;
+		var scrollLeft = state.scrollLeft;
+
+		var sync = () => {
+			if (this.updateScrollPosition) {
+				globals.window.scrollTo(scrollLeft, scrollTop);
+			}
+		};
+
+		return new CancellablePromise((resolve) => sync() & async.nextTick(() => sync() & resolve()));
+	}
+
+	/**
 	 * Updates or replace browser history.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {?string} title Document title.
@@ -844,56 +866,20 @@ class App extends EventEmitter {
 	updateHistory_(title, path, opt_replaceHistory) {
 		var historyParams = {
 			path: path,
-			senna: true
+			senna: true,
+			scrollTop: 0,
+			scrollLeft: 0
 		};
 
 		if (opt_replaceHistory) {
+			historyParams.scrollTop = this.popstateScrollTop;
+			historyParams.scrollLeft = this.popstateScrollLeft;
 			globals.window.history.replaceState(historyParams, title, path);
 		} else {
 			globals.window.history.pushState(historyParams, title, path);
 		}
 
 		globals.document.title = title;
-	}
-
-	/**
-	 * Stores scroll position from page offset.
-	 */
-	storeCurrentPageScrollPosition_() {
-		this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
-	}
-
-	/**
-	 * Stores scroll position and saves on history state.
-	 * @param {!Number} scrollLeft
-	 * @param {!Number} scrollTop
-	 */
-	storeScrollPosition_(scrollLeft, scrollTop) {
-		var state = globals.window.history.state || {};
-		if (core.isNull(globals.window.history.state)) {
-			state.isNullState = true;
-		}
-		state.scrollLeft = scrollLeft;
-		state.scrollTop = scrollTop;
-		globals.window.history.replaceState(state, null, null);
-	}
-
-	/**
-	 * Sync document scroll position to the values captured when the default
-	 * back and forward navigation happened. The scroll position updates after
-	 * <code>beforeFlip</code> is called and before the surface transitions.
-	 * @param {boolean=} opt_replaceHistory Replaces browser history.
-	 * @protected
-	 */
-	syncScrollPosition_(opt_replaceHistory) {
-		var scrollLeft = opt_replaceHistory ? this.popstateScrollLeft : 0;
-		var scrollTop = opt_replaceHistory ? this.popstateScrollTop : 0;
-
-		console.log('Restore scroll position ', scrollTop, scrollLeft);
-
-		globals.window.scrollTo(scrollLeft, scrollTop);
-
-		this.storeScrollPosition_(scrollLeft, scrollTop);
 	}
 
 }

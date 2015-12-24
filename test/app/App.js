@@ -241,14 +241,6 @@ describe('App', function() {
 		app.dispose();
 	});
 
-	it('should get scroll position capturing delay', function() {
-		var app = new App();
-		assert.strictEqual(50, app.getScrollPositionCapturingDelay());
-		app.setScrollPositionCapturingDelay(0);
-		assert.strictEqual(0, app.getScrollPositionCapturingDelay());
-		app.dispose();
-	});
-
 	it('should navigate emit startNavigate and endNavigate custom event', function(done) {
 		var startNavigateStub = sinon.stub();
 		var endNavigateStub = sinon.stub();
@@ -355,7 +347,7 @@ describe('App', function() {
 			app.dispose();
 			hidePageScrollbar();
 			done();
-		}, app.getScrollPositionCapturingDelay() * 2);
+		}, 100);
 		globals.window.scrollTo(100, 100);
 	});
 
@@ -388,7 +380,7 @@ describe('App', function() {
 					hidePageScrollbar();
 					done();
 				});
-			}, app.getScrollPositionCapturingDelay() * 2);
+			}, 100);
 			globals.window.scrollTo(100, 100);
 		});
 	});
@@ -408,7 +400,7 @@ describe('App', function() {
 					hidePageScrollbar();
 					done();
 				});
-			}, app.getScrollPositionCapturingDelay() * 2);
+			}, 100);
 			globals.window.scrollTo(100, 100);
 		});
 	});
@@ -432,7 +424,7 @@ describe('App', function() {
 					});
 					globals.window.history.back();
 				});
-			}, app.getScrollPositionCapturingDelay() * 2);
+			}, 100);
 			globals.window.scrollTo(100, 100);
 		});
 	});
