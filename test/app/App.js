@@ -799,6 +799,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path', TitledScreen));
 		app.navigate('/path').then(() => {
 			assert.strictEqual('title', globals.document.title);
+			app.dispose();
 			done();
 		});
 	});
