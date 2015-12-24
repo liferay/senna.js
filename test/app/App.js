@@ -789,6 +789,20 @@ describe('App', function() {
 		}, Error);
 	});
 
+	it('should set document title from screen title', function(done) {
+		class TitledScreen extends Screen {
+			getTitle() {
+				return 'title';
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path', TitledScreen));
+		app.navigate('/path').then(() => {
+			assert.strictEqual('title', globals.document.title);
+			done();
+		});
+	});
+
 });
 
 function enterDocumentLinkElement(href) {
