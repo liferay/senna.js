@@ -1,10 +1,3 @@
-/**
- * Senna.js - A blazing-fast Single Page Application engine
- * @author Eduardo Lundgren <edu@rdo.io>
- * @version v1.0.0-alpha
- * @link http://sennajs.com
- * @license BSD-3-Clause
- */
 (function() {
 this.senna = this.senna || {};
 this.sennaNamed = this.sennaNamed || {};
@@ -537,29 +530,6 @@ babelHelpers;
 	core.uniqueIdCounter_ = 1;
 
 	this.senna.core = core;
-}).call(this);
-'use strict';
-
-/**
-  * Debounces function execution.
-  * @param {!function()} fn
-  * @param {number} delay
-  * @return {!function()}
-  */
-
-(function () {
-  function debounce(fn, delay) {
-    var id;
-    return function () {
-      var args = arguments;
-      clearTimeout(id);
-      id = setTimeout(function () {
-        fn.apply(null, args);
-      }, delay);
-    };
-  }
-
-  this.senna.debounce = debounce;
 }).call(this);
 'use strict';
 
@@ -3189,7 +3159,7 @@ babelHelpers;
 		/**
    * Allows a screen to perform any setup immediately before the element is
    * made visible. Lifecycle.
-   * @param {object} surfaces Map of surfaces to flip keyed by surface id.
+   * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
    * @return {?CancellablePromise=} This can return a promise, which will pause the
    *     navigation until it is resolved.
    */
@@ -3515,7 +3485,7 @@ babelHelpers;
 
 			var element = this.getElement();
 
-			if (element) {
+			if (element && child) {
 				dom.append(element, child);
 				if (opt_runScriptsInElement) {
 					globalEval.runScriptsInElement(child);
@@ -3752,7 +3722,6 @@ babelHelpers;
 (function () {
 	var async = this.senna.async;
 	var core = this.senna.core;
-	var debounce = this.senna.debounce;
 	var dom = this.senna.dom;
 	var EventEmitter = this.senna.EventEmitter;
 	var EventHandler = this.senna.EventHandler;
@@ -3800,12 +3769,12 @@ babelHelpers;
 			_this.basePath = '';
 
 			/**
-    * Captures scroll position and saves on history state.
+    * Captures scroll position from scroll event.
     * @type {!boolean}
     * @default true
     * @protected
     */
-			_this.captureHistoryScrollPosition = true;
+			_this.captureScrollPositionFromScrollEvent = true;
 
 			/**
     * Holds the default page title.
@@ -3832,22 +3801,19 @@ babelHelpers;
 			_this.loadingCssClass = 'senna-loading';
 
 			/**
-    * Holds the window horizontal scroll position when the navigation using
-    * back or forward happens to be restored after the surfaces are updated.
-    * @type {!Number}
-    * @default 0
+    * Using the History API to manage your URLs is awesome and, as it happens,
+    * a crucial feature of good web apps. One of its downsides, however, is
+    * that scroll positions are stored and then, more importantly, restored
+    * whenever you traverse the history. This often means unsightly jumps as
+    * the scroll position changes automatically, and especially so if your app
+    * does transitions, or changes the contents of the page in any way.
+    * Ultimately this leads to an horrible user experience. The good news is,
+    * however, that there’s a potential fix: history.scrollRestoration.
+    * https://developers.google.com/web/updates/2015/09/history-api-scroll-restoration
+    * @type {boolean}
     * @protected
     */
-			_this.syncScrollLeft = 0;
-
-			/**
-    * Holds the window vertical scroll position when the navigation using
-    * back or forward happens to be restored after the surfaces are updated.
-    * @type {!Number}
-    * @default 0
-    * @protected
-    */
-			_this.syncScrollTop = 0;
+			_this.nativeScrollRestorationSupported = 'scrollRestoration' in globals.window.history;
 
 			/**
     * Holds a deferred withe the current navigation.
@@ -3856,6 +3822,24 @@ babelHelpers;
     * @protected
     */
 			_this.pendingNavigate = null;
+
+			/**
+    * Holds the window horizontal scroll position when the navigation using
+    * back or forward happens to be restored after the surfaces are updated.
+    * @type {!Number}
+    * @default 0
+    * @protected
+    */
+			_this.popstateScrollLeft = 0;
+
+			/**
+    * Holds the window vertical scroll position when the navigation using
+    * back or forward happens to be restored after the surfaces are updated.
+    * @type {!Number}
+    * @default 0
+    * @protected
+    */
+			_this.popstateScrollTop = 0;
 
 			/**
     * Holds the screen routes configuration.
@@ -3882,14 +3866,6 @@ babelHelpers;
 			_this.scrollHandle = null;
 
 			/**
-    * Holds the scroll position capturing delay.
-    * @type {!number}
-    * @default 50
-    * @protected
-    */
-			_this.scrollPositionCapturingDelay = 50;
-
-			/**
     * When set to true the first erroneous popstate fired on page load will be
     * ignored, only if <code>globals.window.history.state</code> is also
     * <code>null</code>.
@@ -3908,8 +3884,9 @@ babelHelpers;
 			_this.surfaces = {};
 
 			/**
-    * When set to true, moves the scroll position using the
-    * <code>syncScrollLeft</code> and <code>syncScrollTop</code> values.
+    * When set to true, moves the scroll position after popstate, or to the
+    * top of the viewport for new navigation. If false, the browser will
+    * take care of scroll restoration.
     * @type {!boolean}
     * @default true
     * @protected
@@ -3918,7 +3895,7 @@ babelHelpers;
 
 			_this.appEventHandlers_ = new EventHandler();
 
-			_this.appEventHandlers_.add(dom.on(globals.document, 'scroll', debounce(_this.onScroll_.bind(_this), _this.scrollPositionCapturingDelay)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', _this.onScroll_.bind(_this)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 
@@ -4087,10 +4064,13 @@ babelHelpers;
 				if (_this5.activeScreen) {
 					_this5.activeScreen.deactivate();
 				}
-				_this5.prepareScreenFlip_(path, nextScreen, opt_replaceHistory);
+				_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
+				_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces);
 				return nextScreen.flip(_this5.surfaces);
 			}).then(function () {
-				_this5.finalizeNavigate_(path, nextScreen);
+				return _this5.syncScrollPositionSyncThenAsync_();
+			}).then(function () {
+				return _this5.finalizeNavigate_(path, nextScreen);
 			}).catch(function (reason) {
 				_this5.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
@@ -4119,7 +4099,6 @@ babelHelpers;
 			this.activeScreen = nextScreen;
 			this.screens[path] = nextScreen;
 			this.pendingNavigate = null;
-			this.captureHistoryScrollPosition = true;
 			console.log('Navigation done');
 		};
 
@@ -4201,15 +4180,6 @@ babelHelpers;
 		};
 
 		/**
-   * Gets the scroll position capturing delay.
-   * @return {number}
-   */
-
-		App.prototype.getScrollPositionCapturingDelay = function getScrollPositionCapturingDelay() {
-			return this.scrollPositionCapturingDelay;
-		};
-
-		/**
    * Handle navigation error.
    * @param {!string} path Path containing the querystring part.
    * @param {!Screen} nextScreen
@@ -4266,8 +4236,8 @@ babelHelpers;
 
 		/**
    * Lock the document scroll in order to avoid the browser native back and
-   * forward navigation to change the scroll position. Surface app takes care
-   * of updating it when surfaces are ready.
+   * forward navigation to change the scroll position. In the end of
+   * navigation lifecycle scroll is repositioned.
    * @protected
    */
 
@@ -4297,6 +4267,29 @@ babelHelpers;
 		};
 
 		/**
+   * If supported by the browser, disables native scroll restoration and
+   * stores current value.
+   */
+
+		App.prototype.maybeDisableNativeScrollRestoration = function maybeDisableNativeScrollRestoration() {
+			if (this.nativeScrollRestorationSupported) {
+				this.nativeScrollRestoration_ = globals.window.history.scrollRestoration;
+				globals.window.history.scrollRestoration = 'manual';
+			}
+		};
+
+		/**
+   * If supported by the browser, restores native scroll restoration to the
+   * value captured by `maybeDisableNativeScrollRestoration`.
+   */
+
+		App.prototype.maybeRestoreNativeScrollRestoration = function maybeRestoreNativeScrollRestoration() {
+			if (this.nativeScrollRestorationSupported && this.nativeScrollRestoration_) {
+				globals.window.history.scrollRestoration = this.nativeScrollRestoration_;
+			}
+		};
+
+		/**
    * Navigates to the specified path if there is a route handler that matches.
    * @param {!string} path Path to navigate containing the base path.
    * @param {boolean=} opt_replaceHistory Replaces browser history.
@@ -4304,7 +4297,7 @@ babelHelpers;
    */
 
 		App.prototype.navigate = function navigate(path, opt_replaceHistory) {
-			this.stopPending_();
+			this.stopPendingNavigate_();
 
 			if (!this.isHtml5HistorySupported()) {
 				throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
@@ -4322,57 +4315,6 @@ babelHelpers;
 			});
 
 			return this.pendingNavigate;
-		};
-
-		/**
-   * Prefetches the specified path if there is a route handler that matches.
-   * @param {!string} path Path to navigate containing the base path.
-   * @return {CancellablePromise} Returns a pending request cancellable promise.
-   */
-
-		App.prototype.prefetch = function prefetch(path) {
-			var _this6 = this;
-
-			var route = this.findRoute(path);
-			if (!route) {
-				return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
-			}
-
-			console.log('Prefetching [' + path + ']');
-
-			var nextScreen = this.createScreenInstance(path, route);
-
-			var pendingPrefetch = CancellablePromise.resolve().then(function () {
-				return nextScreen.load(path);
-			}).then(function () {
-				_this6.screens[path] = nextScreen;
-			}).catch(function (reason) {
-				_this6.removeScreen_(path, nextScreen);
-				throw reason;
-			});
-
-			return pendingPrefetch;
-		};
-
-		/**
-   * Prepares screen flip. Updates history state and surfaces content.
-   * @param {!string} path Path containing the querystring part.
-   * @param {!Screen} nextScreen
-   * @param {boolean=} opt_replaceHistory Replaces browser history.
-   */
-
-		App.prototype.prepareScreenFlip_ = function prepareScreenFlip_(path, nextScreen, opt_replaceHistory) {
-			var _this7 = this;
-
-			var title = nextScreen.getTitle() || this.getDefaultTitle();
-			this.updateHistory_(title, path, opt_replaceHistory);
-			this.syncScrollPosition_(opt_replaceHistory);
-			globals.document.title = title;
-			Object.keys(this.surfaces).forEach(function (surfaceId) {
-				var surface = _this7.surfaces[surfaceId];
-				surface.addContent(nextScreen.getId(), nextScreen.getSurfaceContent(surfaceId), true);
-				console.log('Screen [' + nextScreen.getId() + '] add content to surface [' + surface + ']');
-			});
 		};
 
 		/**
@@ -4425,13 +4367,13 @@ babelHelpers;
    */
 
 		App.prototype.onLoad_ = function onLoad_() {
-			var _this8 = this;
+			var _this6 = this;
 
 			this.skipLoadPopstate = true;
 			setTimeout(function () {
 				// The timeout ensures that popstate events will be unblocked right
 				// after the load event occured, but not in the same event-loop cycle.
-				_this8.skipLoadPopstate = false;
+				_this6.skipLoadPopstate = false;
 			}, 0);
 		};
 
@@ -4460,9 +4402,11 @@ babelHelpers;
 
 			if (state && state.senna) {
 				console.log('History navigation to [' + state.path + ']');
-				this.syncScrollTop = state.scrollTop;
-				this.syncScrollLeft = state.scrollLeft;
-				this.lockHistoryScrollPosition_();
+				this.popstateScrollTop = state.scrollTop;
+				this.popstateScrollLeft = state.scrollLeft;
+				if (!this.nativeScrollRestorationSupported) {
+					this.lockHistoryScrollPosition_();
+				}
 				this.navigate(state.path, true);
 			}
 		};
@@ -4474,8 +4418,8 @@ babelHelpers;
    */
 
 		App.prototype.onScroll_ = function onScroll_() {
-			if (this.captureHistoryScrollPosition) {
-				this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
+			if (this.captureScrollPositionFromScrollEvent) {
+				this.saveHistoryCurrentPageScrollPosition_();
 			}
 		};
 
@@ -4487,24 +4431,83 @@ babelHelpers;
    */
 
 		App.prototype.onStartNavigate_ = function onStartNavigate_(event) {
-			var _this9 = this;
+			var _this7 = this;
 
-			this.captureHistoryScrollPosition = false;
+			this.maybeDisableNativeScrollRestoration();
+			this.captureScrollPositionFromScrollEvent = false;
 
-			this.storeScrollPosition_(globals.window.pageXOffset, globals.window.pageYOffset);
+			var endPayload = {};
+			var documentElement = globals.document.documentElement;
 
-			dom.addClasses(globals.document.documentElement, this.loadingCssClass);
-
-			var endNavigatePayload = {};
+			dom.addClasses(documentElement, this.loadingCssClass);
 
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
-				_this9.stopPending_();
-				endNavigatePayload.error = err;
+				endPayload.error = err;
+				_this7.stopPendingNavigate_();
 				throw err;
 			}).thenAlways(function () {
-				endNavigatePayload.path = event.path;
-				_this9.emit('endNavigate', endNavigatePayload);
-				dom.removeClasses(globals.document.documentElement, _this9.loadingCssClass);
+				endPayload.path = event.path;
+				dom.removeClasses(documentElement, _this7.loadingCssClass);
+				_this7.maybeRestoreNativeScrollRestoration();
+				_this7.captureScrollPositionFromScrollEvent = true;
+				_this7.emit('endNavigate', endPayload);
+			});
+		};
+
+		/**
+   * Prefetches the specified path if there is a route handler that matches.
+   * @param {!string} path Path to navigate containing the base path.
+   * @return {CancellablePromise} Returns a pending request cancellable promise.
+   */
+
+		App.prototype.prefetch = function prefetch(path) {
+			var _this8 = this;
+
+			var route = this.findRoute(path);
+			if (!route) {
+				return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
+			}
+
+			console.log('Prefetching [' + path + ']');
+
+			var nextScreen = this.createScreenInstance(path, route);
+
+			return CancellablePromise.resolve().then(function () {
+				return nextScreen.load(path);
+			}).then(function () {
+				return _this8.screens[path] = nextScreen;
+			}).catch(function (reason) {
+				_this8.removeScreen_(path, nextScreen);
+				throw reason;
+			});
+		};
+
+		/**
+   * Prepares screen flip. Updates history state and surfaces content.
+   * @param {!string} path Path containing the querystring part.
+   * @param {!Screen} nextScreen
+   * @param {boolean=} opt_replaceHistory Replaces browser history.
+   */
+
+		App.prototype.prepareNavigateHistory_ = function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
+			var title = nextScreen.getTitle();
+			if (!core.isString(title)) {
+				title = this.getDefaultTitle();
+			}
+			this.updateHistory_(title, path, opt_replaceHistory);
+		};
+
+		/**
+   * Prepares screen flip. Updates history state and surfaces content.
+   * @param {!Screen} nextScreen
+   * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+   */
+
+		App.prototype.prepareNavigateSurfaces_ = function prepareNavigateSurfaces_(nextScreen, surfaces) {
+			Object.keys(surfaces).forEach(function (id) {
+				var surfaceContent = nextScreen.getSurfaceContent(id);
+				surfaces[id].addContent(nextScreen.getId(), surfaceContent, true);
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		};
 
@@ -4524,13 +4527,26 @@ babelHelpers;
    */
 
 		App.prototype.removeScreen_ = function removeScreen_(path, screen) {
-			var _this10 = this;
+			var _this9 = this;
 
 			Object.keys(this.surfaces).forEach(function (surfaceId) {
-				return _this10.surfaces[surfaceId].remove(screen.getId());
+				return _this9.surfaces[surfaceId].remove(screen.getId());
 			});
 			screen.dispose();
 			delete this.screens[path];
+		};
+
+		/**
+   * Saves scroll position from page offset into history state.
+   */
+
+		App.prototype.saveHistoryCurrentPageScrollPosition_ = function saveHistoryCurrentPageScrollPosition_() {
+			var state = globals.window.history.state;
+			if (state && state.senna) {
+				state.scrollTop = globals.window.pageYOffset;
+				state.scrollLeft = globals.window.pageXOffset;
+				globals.window.history.replaceState(state, null, null);
+			}
 		};
 
 		/**
@@ -4574,15 +4590,6 @@ babelHelpers;
 		};
 
 		/**
-   * Sets the scroll position capturing delay.
-   * @param {!number} scrollPositionCapturingDelay
-   */
-
-		App.prototype.setScrollPositionCapturingDelay = function setScrollPositionCapturingDelay(scrollPositionCapturingDelay) {
-			this.scrollPositionCapturingDelay = scrollPositionCapturingDelay;
-		};
-
-		/**
    * Sets the update scroll position value.
    * @param {boolean} updateScrollPosition
    */
@@ -4596,11 +4603,43 @@ babelHelpers;
    * @protected
    */
 
-		App.prototype.stopPending_ = function stopPending_() {
+		App.prototype.stopPendingNavigate_ = function stopPendingNavigate_() {
 			if (this.pendingNavigate) {
 				this.pendingNavigate.cancel('Cancel pending navigation');
 				this.pendingNavigate = null;
 			}
+		};
+
+		/**
+   * Sync document scroll position twice, the first one synchronous and then
+   * one inside <code>async.nextTick</code>. Relevant to browsers that fires
+   * scroll restoration asynchronously after popstate.
+   * @protected
+   * @return {?CancellablePromise=}
+   */
+
+		App.prototype.syncScrollPositionSyncThenAsync_ = function syncScrollPositionSyncThenAsync_() {
+			var _this10 = this;
+
+			var state = globals.window.history.state;
+			if (!state) {
+				return;
+			}
+
+			var scrollTop = state.scrollTop;
+			var scrollLeft = state.scrollLeft;
+
+			var sync = function sync() {
+				if (_this10.updateScrollPosition) {
+					globals.window.scrollTo(scrollLeft, scrollTop);
+				}
+			};
+
+			return new CancellablePromise(function (resolve) {
+				return sync() & async.nextTick(function () {
+					return sync() & resolve();
+				});
+			});
 		};
 
 		/**
@@ -4614,49 +4653,20 @@ babelHelpers;
 		App.prototype.updateHistory_ = function updateHistory_(title, path, opt_replaceHistory) {
 			var historyParams = {
 				path: path,
-				senna: true
+				senna: true,
+				scrollTop: 0,
+				scrollLeft: 0
 			};
 
 			if (opt_replaceHistory) {
+				historyParams.scrollTop = this.popstateScrollTop;
+				historyParams.scrollLeft = this.popstateScrollLeft;
 				globals.window.history.replaceState(historyParams, title, path);
 			} else {
 				globals.window.history.pushState(historyParams, title, path);
 			}
-		};
 
-		/**
-   * Stores scroll position and saves on history state.
-   * @param {!Number} scrollLeft
-   * @param {!Number} scrollTop
-   */
-
-		App.prototype.storeScrollPosition_ = function storeScrollPosition_(scrollLeft, scrollTop) {
-			var state = globals.window.history.state || {};
-			if (core.isNull(globals.window.history.state)) {
-				state.isNullState = true;
-			}
-			state.scrollLeft = scrollLeft;
-			state.scrollTop = scrollTop;
-			globals.window.history.replaceState(state, null, null);
-		};
-
-		/**
-   * Sync document scroll position to the values captured when the default
-   * back and forward navigation happened. The scroll position updates after
-   * <code>beforeFlip</code> is called and before the surface transitions.
-   * @param {boolean=} opt_replaceHistory Replaces browser history.
-   * @protected
-   */
-
-		App.prototype.syncScrollPosition_ = function syncScrollPosition_(opt_replaceHistory) {
-			var scrollLeft = opt_replaceHistory ? this.syncScrollLeft : 0;
-			var scrollTop = opt_replaceHistory ? this.syncScrollTop : 0;
-
-			if (this.updateScrollPosition) {
-				globals.window.scrollTo(scrollLeft, scrollTop);
-			}
-
-			this.storeScrollPosition_(scrollLeft, scrollTop);
+			globals.document.title = title;
 		};
 
 		return App;
