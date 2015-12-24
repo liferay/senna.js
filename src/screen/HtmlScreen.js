@@ -32,7 +32,6 @@ class HtmlScreen extends RequestScreen {
 		var surface = HtmlScreen.virtualDocumentElement.querySelector('#' + surfaceId);
 		if (surface) {
 			var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
-			HtmlScreen.virtualDocumentElement.innerHTML = '';
 			if (defaultChild) {
 				return defaultChild.innerHTML;
 			}
