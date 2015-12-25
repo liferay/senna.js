@@ -28,8 +28,28 @@ class HtmlScreen extends RequestScreen {
 	/**
 	 * @inheritDoc
 	 */
+	activate() {
+		super.activate();
+		this.releaseVirtualDocument();
+	}
+
+	/**
+	 * Allocates virtual document for content. After allocated virtual document
+	 * can be accessed by <code>this.virtualDocument</code>.
+	 * @param {!string} htmlString
+	 */
+	allocateVirtualDocumentForContent(htmlString) {
+		if (!this.virtualDocument) {
+			this.virtualDocument = globals.document.createElement('html');
+		}
+		this.virtualDocument.innerHTML = htmlString;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	getSurfaceContent(surfaceId) {
-		var surface = HtmlScreen.virtualDocumentElement.querySelector('#' + surfaceId);
+		var surface = this.virtualDocument.querySelector('#' + surfaceId);
 		if (surface) {
 			var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 			if (defaultChild) {
@@ -59,17 +79,19 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
+	 * Releases virtual document allocated for content.
+	 */
+	releaseVirtualDocument() {
+		this.virtualDocument = null;
+	}
+
+	/**
 	 * Resolves the screen content from the response string.
 	 * @param {XMLHttpRequest} xhr
 	 */
 	resolveContentFromHtmlString(htmlString) {
-		if (!HtmlScreen.virtualDocumentElement) {
-			HtmlScreen.virtualDocumentElement = globals.document.documentElement.cloneNode();
-		}
-
-		HtmlScreen.virtualDocumentElement.innerHTML = htmlString;
-
-		var title = HtmlScreen.virtualDocumentElement.querySelector(this.titleSelector);
+		this.allocateVirtualDocumentForContent(htmlString);
+		var title = this.virtualDocument.querySelector(this.titleSelector);
 		if (title) {
 			this.setTitle(title.innerHTML.trim());
 		}
@@ -82,7 +104,6 @@ class HtmlScreen extends RequestScreen {
 	setTitleSelector(titleSelector) {
 		this.titleSelector = titleSelector;
 	}
-
 
 }
 
