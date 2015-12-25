@@ -34,6 +34,15 @@ describe('HtmlScreen', function() {
 		this.requests[0].respond(200, null, '<title>new</title>');
 	});
 
+	it('should not set title from response content if not present', function(done) {
+		var screen = new HtmlScreen();
+		screen.load('/url').then(() => {
+			assert.strictEqual(null, screen.getTitle());
+			done();
+		});
+		this.requests[0].respond(200, null, '');
+	});
+
 	it('should cancel load request to an url', function(done) {
 		var screen = new HtmlScreen();
 		screen.load('/url')
@@ -45,18 +54,26 @@ describe('HtmlScreen', function() {
 
 	it('should extract surface content from response content', function() {
 		var screen = new HtmlScreen();
-		screen.resolveContentFromHtmlString('<div id="surfaceId">surface</div>');
+		screen.allocateVirtualDocumentForContent('<div id="surfaceId">surface</div>');
 		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId'));
-		screen.resolveContentFromHtmlString('<div id="surfaceId">surface</div>');
+		screen.allocateVirtualDocumentForContent('<div id="surfaceId">surface</div>');
 		assert.strictEqual(undefined, screen.getSurfaceContent('surfaceIdInvalid'));
 	});
 
 	it('should extract surface content from response content default child if present', function() {
 		var screen = new HtmlScreen();
-		screen.resolveContentFromHtmlString('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
+		screen.allocateVirtualDocumentForContent('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
 		assert.strictEqual('surface', screen.getSurfaceContent('surfaceId'));
-		screen.resolveContentFromHtmlString('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
+		screen.allocateVirtualDocumentForContent('<div id="surfaceId">static<div id="surfaceId-default">surface</div></div>');
 		assert.strictEqual(undefined, screen.getSurfaceContent('surfaceIdInvalid'));
+	});
+
+	it('should release virtual document after activate', function() {
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('');
+		assert.ok(screen.virtualDocument);
+		screen.activate();
+		assert.ok(!screen.virtualDocument);
 	});
 
 });

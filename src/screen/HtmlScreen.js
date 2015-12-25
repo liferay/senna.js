@@ -72,7 +72,8 @@ class HtmlScreen extends RequestScreen {
 	 */
 	load(path) {
 		return super.load(path)
-			.then(content => this.resolveContentFromHtmlString(content))
+			.then(content => this.allocateVirtualDocumentForContent(content))
+			.then(() => this.resolveTitleFromVirtualDocument())
 			.thenCatch(err => {
 				throw err;
 			});
@@ -86,11 +87,9 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
-	 * Resolves the screen content from the response string.
-	 * @param {XMLHttpRequest} xhr
+	 * Resolves title from allocated virtual document.
 	 */
-	resolveContentFromHtmlString(htmlString) {
-		this.allocateVirtualDocumentForContent(htmlString);
+	resolveTitleFromVirtualDocument() {
 		var title = this.virtualDocument.querySelector(this.titleSelector);
 		if (title) {
 			this.setTitle(title.innerHTML.trim());
