@@ -5246,8 +5246,30 @@ babelHelpers;
    * @inheritDoc
    */
 
+		HtmlScreen.prototype.activate = function activate() {
+			_RequestScreen.prototype.activate.call(this);
+			this.releaseVirtualDocument();
+		};
+
+		/**
+   * Allocates virtual document for content. After allocated virtual document
+   * can be accessed by <code>this.virtualDocument</code>.
+   * @param {!string} htmlString
+   */
+
+		HtmlScreen.prototype.allocateVirtualDocumentForContent = function allocateVirtualDocumentForContent(htmlString) {
+			if (!this.virtualDocument) {
+				this.virtualDocument = globals.document.createElement('html');
+			}
+			this.virtualDocument.innerHTML = htmlString;
+		};
+
+		/**
+   * @inheritDoc
+   */
+
 		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId) {
-			var surface = HtmlScreen.virtualDocumentElement.querySelector('#' + surfaceId);
+			var surface = this.virtualDocument.querySelector('#' + surfaceId);
 			if (surface) {
 				var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 				if (defaultChild) {
@@ -5274,25 +5296,28 @@ babelHelpers;
 			var _this2 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				return _this2.resolveContentFromHtmlString(content);
+				return _this2.allocateVirtualDocumentForContent(content);
+			}).then(function () {
+				return _this2.resolveTitleFromVirtualDocument();
 			}).thenCatch(function (err) {
 				throw err;
 			});
 		};
 
 		/**
-   * Resolves the screen content from the response string.
-   * @param {XMLHttpRequest} xhr
+   * Releases virtual document allocated for content.
    */
 
-		HtmlScreen.prototype.resolveContentFromHtmlString = function resolveContentFromHtmlString(htmlString) {
-			if (!HtmlScreen.virtualDocumentElement) {
-				HtmlScreen.virtualDocumentElement = globals.document.documentElement.cloneNode();
-			}
+		HtmlScreen.prototype.releaseVirtualDocument = function releaseVirtualDocument() {
+			this.virtualDocument = null;
+		};
 
-			HtmlScreen.virtualDocumentElement.innerHTML = htmlString;
+		/**
+   * Resolves title from allocated virtual document.
+   */
 
-			var title = HtmlScreen.virtualDocumentElement.querySelector(this.titleSelector);
+		HtmlScreen.prototype.resolveTitleFromVirtualDocument = function resolveTitleFromVirtualDocument() {
+			var title = this.virtualDocument.querySelector(this.titleSelector);
 			if (title) {
 				this.setTitle(title.innerHTML.trim());
 			}
