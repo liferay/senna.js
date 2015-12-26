@@ -4685,6 +4685,19 @@ babelHelpers;
 'use strict';
 
 (function () {
+	this.senna.dataAttributes = {
+		basePath: 'data-senna-base-path',
+		linkSelector: 'data-senna-link-selector',
+		loadingCssClass: 'data-senna-loading-css-class',
+		senna: 'data-senna',
+		dispatch: 'data-senna-dispatch',
+		surface: 'data-senna-surface',
+		updateScrollPosition: 'data-senna-update-scroll-position'
+	};
+}).call(this);
+'use strict';
+
+(function () {
 	var core = this.senna.core;
 	var Promise = this.sennaNamed.Promise.CancellablePromise;
 
@@ -5214,6 +5227,7 @@ babelHelpers;
 	var globals = this.senna.globals;
 	var RequestScreen = this.senna.RequestScreen;
 	var Surface = this.senna.Surface;
+	var dataAttributes = this.senna.dataAttributes;
 
 	var HtmlScreen = (function (_RequestScreen) {
 		babelHelpers.inherits(HtmlScreen, _RequestScreen);
@@ -5299,6 +5313,8 @@ babelHelpers;
 				return _this2.allocateVirtualDocumentForContent(content);
 			}).then(function () {
 				return _this2.resolveTitleFromVirtualDocument();
+			}).then(function () {
+				return _this2.maybeSetBodyIdInVirtualDocument();
 			}).thenCatch(function (err) {
 				throw err;
 			});
@@ -5332,6 +5348,18 @@ babelHelpers;
 			this.titleSelector = titleSelector;
 		};
 
+		/**
+   * If body is used as surface forces the requested documents to have same id
+   * of the initial page.
+   */
+
+		HtmlScreen.prototype.maybeSetBodyIdInVirtualDocument = function maybeSetBodyIdInVirtualDocument() {
+			var bodySurface = this.virtualDocument.querySelector('body[' + dataAttributes.surface + ']');
+			if (bodySurface) {
+				bodySurface.id = globals.document.body.id;
+			}
+		};
+
 		return HtmlScreen;
 	})(RequestScreen);
 
@@ -5341,22 +5369,14 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var globals = this.senna.globals;
 	var core = this.senna.core;
 	var object = this.senna.object;
+	var Disposable = this.senna.Disposable;
+	var dataAttributes = this.senna.dataAttributes;
+	var globals = this.senna.globals;
 	var App = this.senna.App;
 	var HtmlScreen = this.senna.HtmlScreen;
 	var Route = this.senna.Route;
-	var Disposable = this.senna.Disposable;
-
-	var scannableDataAttributes = {
-		basePath: 'data-senna-base-path',
-		linkSelector: 'data-senna-link-selector',
-		loadingCssClass: 'data-senna-loading-css-class',
-		senna: 'data-senna',
-		surface: 'data-senna-surface',
-		updateScrollPosition: 'data-senna-update-scroll-position'
-	};
 
 	var AppDataAttributeHandler = (function (_Disposable) {
 		babelHelpers.inherits(AppDataAttributeHandler, _Disposable);
@@ -5399,7 +5419,7 @@ babelHelpers;
 				throw new Error('Senna data attribute handler base element ' + 'not set or invalid, try setting a valid element that ' + 'contains a `data-senna` attribute.');
 			}
 
-			if (!this.baseElement.hasAttribute(scannableDataAttributes.senna)) {
+			if (!this.baseElement.hasAttribute(dataAttributes.senna)) {
 				console.log('Senna was not initialized from data attributes. ' + 'In order to enable its usage from data attributes try setting ' + 'in the base element, e.g. `<body data-senna>`.');
 				return;
 			}
@@ -5417,6 +5437,7 @@ babelHelpers;
 			this.maybeSetLinkSelector_();
 			this.maybeSetLoadingCssClass_();
 			this.maybeSetUpdateScrollPosition_();
+			this.maybeDispatch_();
 		};
 
 		/**
@@ -5472,10 +5493,21 @@ babelHelpers;
 		AppDataAttributeHandler.prototype.maybeAddSurfaces_ = function maybeAddSurfaces_() {
 			var _this3 = this;
 
-			var surfacesSelector = '[' + scannableDataAttributes.surface + ']';
-			this.querySelectorAllAsArray_(surfacesSelector).forEach(function (surface) {
-				return _this3.app.addSurfaces(surface.id);
+			var surfacesSelector = '[' + dataAttributes.surface + ']';
+			this.querySelectorAllAsArray_(surfacesSelector).forEach(function (surfaceElement) {
+				_this3.updateElementIdIfSpecialSurface_(surfaceElement);
+				_this3.app.addSurfaces(surfaceElement.id);
 			});
+		};
+
+		/**
+   * Dispatches app navigation to the current path when initializes.
+   */
+
+		AppDataAttributeHandler.prototype.maybeDispatch_ = function maybeDispatch_() {
+			if (this.baseElement.hasAttribute(dataAttributes.dispatch)) {
+				this.app.dispatch();
+			}
 		};
 
 		/**
@@ -5525,7 +5557,7 @@ babelHelpers;
    */
 
 		AppDataAttributeHandler.prototype.maybeSetBasePath_ = function maybeSetBasePath_() {
-			var basePath = this.baseElement.getAttribute(scannableDataAttributes.basePath);
+			var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
 			if (core.isDefAndNotNull(basePath)) {
 				this.app.setBasePath(basePath);
 				console.log('Senna scanned base path ' + basePath);
@@ -5538,7 +5570,7 @@ babelHelpers;
    */
 
 		AppDataAttributeHandler.prototype.maybeSetLinkSelector_ = function maybeSetLinkSelector_() {
-			var linkSelector = this.baseElement.getAttribute(scannableDataAttributes.linkSelector);
+			var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
 			if (core.isDefAndNotNull(linkSelector)) {
 				this.app.setLinkSelector(linkSelector);
 				console.log('Senna scanned link selector ' + linkSelector);
@@ -5551,7 +5583,7 @@ babelHelpers;
    */
 
 		AppDataAttributeHandler.prototype.maybeSetLoadingCssClass_ = function maybeSetLoadingCssClass_() {
-			var loadingCssClass = this.baseElement.getAttribute(scannableDataAttributes.loadingCssClass);
+			var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
 			if (core.isDefAndNotNull(loadingCssClass)) {
 				this.app.setLoadingCssClass(loadingCssClass);
 				console.log('Senna scanned loading css class ' + loadingCssClass);
@@ -5564,7 +5596,7 @@ babelHelpers;
    */
 
 		AppDataAttributeHandler.prototype.maybeSetUpdateScrollPosition_ = function maybeSetUpdateScrollPosition_() {
-			var updateScrollPosition = this.baseElement.getAttribute(scannableDataAttributes.updateScrollPosition);
+			var updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
 			if (core.isDefAndNotNull(updateScrollPosition)) {
 				if (updateScrollPosition === 'false') {
 					this.app.setUpdateScrollPosition(false);
@@ -5583,6 +5615,19 @@ babelHelpers;
 
 		AppDataAttributeHandler.prototype.querySelectorAllAsArray_ = function querySelectorAllAsArray_(selector) {
 			return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
+		};
+
+		/**
+   * Updates element id if handled as special surface element. Some surfaces
+   * are slightly different from others, like when threating <code>body</code>
+   * as surface.
+   * @param {Element} element
+   */
+
+		AppDataAttributeHandler.prototype.updateElementIdIfSpecialSurface_ = function updateElementIdIfSpecialSurface_(element) {
+			if (!element.id && element === globals.document.body) {
+				element.id = 'senna_surface_' + core.getUid();
+			}
 		};
 
 		/**
