@@ -90,6 +90,16 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentSurfaceElement('surfaceId');
 	});
 
+	it('should adds random id to body without id when used as app surface', function() {
+		globals.document.body.setAttribute('data-senna-surface', '');
+		var appDataAttributeHandler = new AppDataAttributeHandler();
+		appDataAttributeHandler.setBaseElement(globals.document.body);
+		appDataAttributeHandler.handle();
+		assert.ok(globals.document.body);
+		appDataAttributeHandler.dispose();
+		globals.document.body.removeAttribute('data-senna-surface');
+	});
+
 	it('should throw error when adding app surfaces from document missing id', function() {
 		enterDocumentSurfaceElementMissingId('surfaceId');
 		assert.throws(function() {

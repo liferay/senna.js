@@ -110,8 +110,13 @@ class AppDataAttributeHandler extends Disposable {
 	 * Maybe adds app surfaces by scanning `data-senna-surface` data attribute.
 	 */
 	maybeAddSurfaces_() {
-		var surfacesSelector = '[' + scannableDataAttributes.surface + ']';
-		this.querySelectorAllAsArray_(surfacesSelector).forEach((surface) => this.app.addSurfaces(surface.id));
+		var surfacesSelector = '[' + dataAttributes.surface + ']';
+		this.querySelectorAllAsArray_(surfacesSelector).forEach((surfaceElement) => {
+			this.updateElementIdIfSpecialSurface_(surfaceElement);
+			this.app.addSurfaces(surfaceElement.id);
+		});
+	}
+
 	/**
 	 * Dispatches app navigation to the current path when initializes.
 	 */
@@ -218,6 +223,18 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	querySelectorAllAsArray_(selector) {
 		return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
+	}
+
+	/**
+	 * Updates element id if handled as special surface element. Some surfaces
+	 * are slightly different from others, like when threating <code>body</code>
+	 * as surface.
+	 * @param {Element} element
+	 */
+	updateElementIdIfSpecialSurface_(element) {
+		if (!element.id && element === globals.document.body) {
+			element.id = 'senna_surface_' + core.getUid();
+		}
 	}
 
 	/**

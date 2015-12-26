@@ -1,5 +1,6 @@
 'use strict';
 
+import globals from '../../src/globals/globals';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 
 describe('HtmlScreen', function() {
@@ -74,6 +75,14 @@ describe('HtmlScreen', function() {
 		assert.ok(screen.virtualDocument);
 		screen.activate();
 		assert.ok(!screen.virtualDocument);
+	});
+
+	it('should set body id in virtual document to page body id', function() {
+		var screen = new HtmlScreen();
+		globals.document.body.id = 'bodyAsSurface';
+		screen.allocateVirtualDocumentForContent('<body data-senna-surface>body</body>');
+		screen.maybeSetBodyIdInVirtualDocument();
+		assert.strictEqual('bodyAsSurface', screen.virtualDocument.querySelector('body').id);
 	});
 
 });

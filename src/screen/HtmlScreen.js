@@ -3,6 +3,7 @@
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
+import dataAttributes from '../app/dataAttributes';
 
 class HtmlScreen extends RequestScreen {
 
@@ -74,6 +75,7 @@ class HtmlScreen extends RequestScreen {
 		return super.load(path)
 			.then(content => this.allocateVirtualDocumentForContent(content))
 			.then(() => this.resolveTitleFromVirtualDocument())
+			.then(() => this.maybeSetBodyIdInVirtualDocument())
 			.thenCatch(err => {
 				throw err;
 			});
@@ -102,6 +104,17 @@ class HtmlScreen extends RequestScreen {
 	 */
 	setTitleSelector(titleSelector) {
 		this.titleSelector = titleSelector;
+	}
+
+	/**
+	 * If body is used as surface forces the requested documents to have same id
+	 * of the initial page.
+	 */
+	maybeSetBodyIdInVirtualDocument() {
+		var bodySurface = this.virtualDocument.querySelector('body[' + dataAttributes.surface + ']');
+		if (bodySurface) {
+			bodySurface.id = globals.document.body.id;
+		}
 	}
 
 }
