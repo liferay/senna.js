@@ -1,21 +1,13 @@
 'use strict';
 
-import globals from '../globals/globals';
 import core from 'bower:metal/src/core';
 import object from 'bower:metal/src/object/object';
+import Disposable from 'bower:metal/src/disposable/Disposable';
+import dataAttributes from './dataAttributes';
+import globals from '../globals/globals';
 import App from './App';
 import HtmlScreen from '../screen/HtmlScreen';
 import Route from '../route/Route';
-import Disposable from 'bower:metal/src/disposable/Disposable';
-
-const scannableDataAttributes = {
-	basePath: 'data-senna-base-path',
-	linkSelector: 'data-senna-link-selector',
-	loadingCssClass: 'data-senna-loading-css-class',
-	senna: 'data-senna',
-	surface: 'data-senna-surface',
-	updateScrollPosition: 'data-senna-update-scroll-position'
-};
 
 class AppDataAttributeHandler extends Disposable {
 
@@ -53,7 +45,7 @@ class AppDataAttributeHandler extends Disposable {
 				'contains a `data-senna` attribute.');
 		}
 
-		if (!this.baseElement.hasAttribute(scannableDataAttributes.senna)) {
+		if (!this.baseElement.hasAttribute(dataAttributes.senna)) {
 			console.log('Senna was not initialized from data attributes. ' +
 				'In order to enable its usage from data attributes try setting ' +
 				'in the base element, e.g. `<body data-senna>`.');
@@ -73,6 +65,7 @@ class AppDataAttributeHandler extends Disposable {
 		this.maybeSetLinkSelector_();
 		this.maybeSetLoadingCssClass_();
 		this.maybeSetUpdateScrollPosition_();
+		this.maybeDispatch_();
 	}
 
 	/**
@@ -119,6 +112,13 @@ class AppDataAttributeHandler extends Disposable {
 	maybeAddSurfaces_() {
 		var surfacesSelector = '[' + scannableDataAttributes.surface + ']';
 		this.querySelectorAllAsArray_(surfacesSelector).forEach((surface) => this.app.addSurfaces(surface.id));
+	/**
+	 * Dispatches app navigation to the current path when initializes.
+	 */
+	maybeDispatch_() {
+		if (this.baseElement.hasAttribute(dataAttributes.dispatch)) {
+			this.app.dispatch();
+		}
 	}
 
 	/**
@@ -164,7 +164,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * Maybe sets app base path from `data-senna-base-path` data attribute.
 	 */
 	maybeSetBasePath_() {
-		var basePath = this.baseElement.getAttribute(scannableDataAttributes.basePath);
+		var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
 		if (core.isDefAndNotNull(basePath)) {
 			this.app.setBasePath(basePath);
 			console.log('Senna scanned base path ' + basePath);
@@ -176,7 +176,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * attribute.
 	 */
 	maybeSetLinkSelector_() {
-		var linkSelector = this.baseElement.getAttribute(scannableDataAttributes.linkSelector);
+		var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
 		if (core.isDefAndNotNull(linkSelector)) {
 			this.app.setLinkSelector(linkSelector);
 			console.log('Senna scanned link selector ' + linkSelector);
@@ -188,7 +188,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * data attribute.
 	 */
 	maybeSetLoadingCssClass_() {
-		var loadingCssClass = this.baseElement.getAttribute(scannableDataAttributes.loadingCssClass);
+		var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
 		if (core.isDefAndNotNull(loadingCssClass)) {
 			this.app.setLoadingCssClass(loadingCssClass);
 			console.log('Senna scanned loading css class ' + loadingCssClass);
@@ -200,7 +200,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * `data-senna-update-scroll-position` data attribute.
 	 */
 	maybeSetUpdateScrollPosition_() {
-		var updateScrollPosition = this.baseElement.getAttribute(scannableDataAttributes.updateScrollPosition);
+		var updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
 		if (core.isDefAndNotNull(updateScrollPosition)) {
 			if (updateScrollPosition === 'false') {
 				this.app.setUpdateScrollPosition(false);

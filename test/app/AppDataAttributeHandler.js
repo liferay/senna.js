@@ -200,6 +200,18 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-update-scroll-position');
 	});
 
+	it('should dispatch app from data attribute', function(done) {
+		globals.document.body.setAttribute('data-senna-dispatch', '');
+		var appDataAttributeHandler = new AppDataAttributeHandler();
+		appDataAttributeHandler.setBaseElement(globals.document.body);
+		appDataAttributeHandler.handle();
+		appDataAttributeHandler.getApp().on('endNavigate', () => {
+			appDataAttributeHandler.dispose();
+			done();
+		});
+		globals.document.body.removeAttribute('data-senna-dispatch');
+	});
+
 });
 
 function enterDocumentRouteElement(path) {
