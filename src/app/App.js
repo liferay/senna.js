@@ -1,5 +1,6 @@
 'use strict';
 
+import array from 'bower:metal/src/array/array';
 import async from 'bower:metal/src/async/async';
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
@@ -750,6 +751,15 @@ class App extends EventEmitter {
 	 */
 	reloadPage() {
 		globals.window.location.reload();
+	}
+
+	/**
+	 * Removes route instance from app routes.
+	 * @param {Route} route
+	 * @return {boolean} True if an element was removed.
+	 */
+	removeRoute(route) {
+		return array.remove(this.routes, route);
 	}
 
 	/**

@@ -21,6 +21,14 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should remove route', function() {
+		var app = new App();
+		var route = new Route('/path', Screen);
+		app.addRoutes(route);
+		assert.ok(app.removeRoute(route));
+		app.dispose();
+	});
+
 	it('should add route from object', function() {
 		var app = new App();
 		app.addRoutes({
