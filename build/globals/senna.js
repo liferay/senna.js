@@ -45,243 +45,6 @@ babelHelpers.possibleConstructorReturn = function (self, call) {
 };
 
 babelHelpers;
-/*!
- * Polyfill from Google's Closure Library.
- * Copyright 2013 The Closure Library Authors. All Rights Reserved.
- */
-
-'use strict';
-
-(function () {
-	var async = {};
-
-	/**
-  * Throw an item without interrupting the current execution context.  For
-  * example, if processing a group of items in a loop, sometimes it is useful
-  * to report an error while still allowing the rest of the batch to be
-  * processed.
-  * @param {*} exception
-  */
-	async.throwException = function (exception) {
-		// Each throw needs to be in its own context.
-		async.nextTick(function () {
-			throw exception;
-		});
-	};
-
-	/**
-  * Fires the provided callback just before the current callstack unwinds, or as
-  * soon as possible after the current JS execution context.
-  * @param {function(this:THIS)} callback
-  * @param {THIS=} opt_context Object to use as the "this value" when calling
-  *     the provided function.
-  * @template THIS
-  */
-	async.run = function (callback, opt_context) {
-		if (!async.run.workQueueScheduled_) {
-			// Nothing is currently scheduled, schedule it now.
-			async.nextTick(async.run.processWorkQueue);
-			async.run.workQueueScheduled_ = true;
-		}
-
-		async.run.workQueue_.push(new async.run.WorkItem_(callback, opt_context));
-	};
-
-	/** @private {boolean} */
-	async.run.workQueueScheduled_ = false;
-
-	/** @private {!Array.<!async.run.WorkItem_>} */
-	async.run.workQueue_ = [];
-
-	/**
-  * Run any pending async.run work items. This function is not intended
-  * for general use, but for use by entry point handlers to run items ahead of
-  * async.nextTick.
-  */
-	async.run.processWorkQueue = function () {
-		// NOTE: additional work queue items may be pushed while processing.
-		while (async.run.workQueue_.length) {
-			// Don't let the work queue grow indefinitely.
-			var workItems = async.run.workQueue_;
-			async.run.workQueue_ = [];
-			for (var i = 0; i < workItems.length; i++) {
-				var workItem = workItems[i];
-				try {
-					workItem.fn.call(workItem.scope);
-				} catch (e) {
-					async.throwException(e);
-				}
-			}
-		}
-
-		// There are no more work items, reset the work queue.
-		async.run.workQueueScheduled_ = false;
-	};
-
-	/**
-  * @constructor
-  * @final
-  * @struct
-  * @private
-  *
-  * @param {function()} fn
-  * @param {Object|null|undefined} scope
-  */
-	async.run.WorkItem_ = function (fn, scope) {
-		/** @const */
-		this.fn = fn;
-		/** @const */
-		this.scope = scope;
-	};
-
-	/**
-  * Fires the provided callbacks as soon as possible after the current JS
-  * execution context. setTimeout(…, 0) always takes at least 5ms for legacy
-  * reasons.
-  * @param {function(this:SCOPE)} callback Callback function to fire as soon as
-  *     possible.
-  * @param {SCOPE=} opt_context Object in whose scope to call the listener.
-  * @template SCOPE
-  */
-	async.nextTick = function (callback, opt_context) {
-		var cb = callback;
-		if (opt_context) {
-			cb = callback.bind(opt_context);
-		}
-		cb = async.nextTick.wrapCallback_(cb);
-		// Introduced and currently only supported by IE10.
-		// Verify if variable is defined on the current runtime (i.e., node, browser).
-		// Can't use typeof enclosed in a function (such as core.isFunction) or an
-		// exception will be thrown when the function is called on an environment
-		// where the variable is undefined.
-		if (typeof setImmediate === 'function') {
-			setImmediate(cb);
-			return;
-		}
-		// Look for and cache the custom fallback version of setImmediate.
-		if (!async.nextTick.setImmediate_) {
-			async.nextTick.setImmediate_ = async.nextTick.getSetImmediateEmulator_();
-		}
-		async.nextTick.setImmediate_(cb);
-	};
-
-	/**
-  * Cache for the setImmediate implementation.
-  * @type {function(function())}
-  * @private
-  */
-	async.nextTick.setImmediate_ = null;
-
-	/**
-  * Determines the best possible implementation to run a function as soon as
-  * the JS event loop is idle.
-  * @return {function(function())} The "setImmediate" implementation.
-  * @private
-  */
-	async.nextTick.getSetImmediateEmulator_ = function () {
-		// Create a private message channel and use it to postMessage empty messages
-		// to ourselves.
-		var Channel;
-
-		// Verify if variable is defined on the current runtime (i.e., node, browser).
-		// Can't use typeof enclosed in a function (such as core.isFunction) or an
-		// exception will be thrown when the function is called on an environment
-		// where the variable is undefined.
-		if (typeof MessageChannel === 'function') {
-			Channel = MessageChannel;
-		}
-
-		// If MessageChannel is not available and we are in a browser, implement
-		// an iframe based polyfill in browsers that have postMessage and
-		// document.addEventListener. The latter excludes IE8 because it has a
-		// synchronous postMessage implementation.
-		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
-			/** @constructor */
-			Channel = function () {
-				// Make an empty, invisible iframe.
-				var iframe = document.createElement('iframe');
-				iframe.style.display = 'none';
-				iframe.src = '';
-				document.documentElement.appendChild(iframe);
-				var win = iframe.contentWindow;
-				var doc = win.document;
-				doc.open();
-				doc.write('');
-				doc.close();
-				var message = 'callImmediate' + Math.random();
-				var origin = win.location.protocol + '//' + win.location.host;
-				var onmessage = (function (e) {
-					// Validate origin and message to make sure that this message was
-					// intended for us.
-					if (e.origin !== origin && e.data !== message) {
-						return;
-					}
-					this.port1.onmessage();
-				}).bind(this);
-				win.addEventListener('message', onmessage, false);
-				this.port1 = {};
-				this.port2 = {
-					postMessage: function postMessage() {
-						win.postMessage(message, origin);
-					}
-				};
-			};
-		}
-		if (typeof Channel !== 'undefined') {
-			var channel = new Channel();
-			// Use a fifo linked list to call callbacks in the right order.
-			var head = {};
-			var tail = head;
-			channel.port1.onmessage = function () {
-				head = head.next;
-				var cb = head.cb;
-				head.cb = null;
-				cb();
-			};
-			return function (cb) {
-				tail.next = {
-					cb: cb
-				};
-				tail = tail.next;
-				channel.port2.postMessage(0);
-			};
-		}
-		// Implementation for IE6-8: Script elements fire an asynchronous
-		// onreadystatechange event when inserted into the DOM.
-		if (typeof document !== 'undefined' && 'onreadystatechange' in document.createElement('script')) {
-			return function (cb) {
-				var script = document.createElement('script');
-				script.onreadystatechange = function () {
-					// Clean up and call the callback.
-					script.onreadystatechange = null;
-					script.parentNode.removeChild(script);
-					script = null;
-					cb();
-					cb = null;
-				};
-				document.documentElement.appendChild(script);
-			};
-		}
-		// Fall back to setTimeout with 0. In browsers this creates a delay of 5ms
-		// or more.
-		return function (cb) {
-			setTimeout(cb, 0);
-		};
-	};
-
-	/**
-  * Helper function that is overrided to protect callbacks with entry point
-  * monitor if the application monitors entry points.
-  * @param {function()} callback Callback function to fire as soon as possible.
-  * @return {function()} The wrapped callback.
-  * @private
-  */
-	async.nextTick.wrapCallback_ = function (opt_returnValue) {
-		return opt_returnValue;
-	};
-
-	this.senna.async = async;
-}).call(this);
 'use strict';
 
 /**
@@ -537,6 +300,355 @@ babelHelpers;
 	core.uniqueIdCounter_ = 1;
 
 	this.senna.core = core;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.senna.core;
+
+	var array = (function () {
+		function array() {
+			babelHelpers.classCallCheck(this, array);
+		}
+
+		/**
+   * Checks if the given arrays have the same content.
+   * @param {!Array<*>} arr1
+   * @param {!Array<*>} arr2
+   * @return {boolean}
+   */
+
+		array.equal = function equal(arr1, arr2) {
+			for (var i = 0; i < arr1.length; i++) {
+				if (arr1[i] !== arr2[i]) {
+					return false;
+				}
+			}
+			return arr1.length === arr2.length;
+		};
+
+		/**
+   * Returns the first value in the given array that isn't undefined.
+   * @param {!Array} arr
+   * @return {*}
+   */
+
+		array.firstDefinedValue = function firstDefinedValue(arr) {
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i] !== undefined) {
+					return arr[i];
+				}
+			}
+		};
+
+		/**
+   * Transforms the input nested array to become flat.
+   * @param {Array.<*|Array.<*>>} arr Nested array to flatten.
+   * @param {Array.<*>} opt_output Optional output array.
+   * @return {Array.<*>} Flat array.
+   */
+
+		array.flatten = function flatten(arr, opt_output) {
+			var output = opt_output || [];
+			for (var i = 0; i < arr.length; i++) {
+				if (Array.isArray(arr[i])) {
+					array.flatten(arr[i], output);
+				} else {
+					output.push(arr[i]);
+				}
+			}
+			return output;
+		};
+
+		/**
+   * Removes the first occurrence of a particular value from an array.
+   * @param {Array.<T>} arr Array from which to remove value.
+   * @param {T} obj Object to remove.
+   * @return {boolean} True if an element was removed.
+   * @template T
+   */
+
+		array.remove = function remove(arr, obj) {
+			var i = arr.indexOf(obj);
+			var rv;
+			if (rv = i >= 0) {
+				array.removeAt(arr, i);
+			}
+			return rv;
+		};
+
+		/**
+   * Removes from an array the element at index i
+   * @param {Array} arr Array or array like object from which to remove value.
+   * @param {number} i The index to remove.
+   * @return {boolean} True if an element was removed.
+   */
+
+		array.removeAt = function removeAt(arr, i) {
+			return Array.prototype.splice.call(arr, i, 1).length === 1;
+		};
+
+		/**
+   * Slices the given array, just like Array.prototype.slice, but this
+   * is faster and working on all array-like objects (like arguments).
+   * @param {!Object} arr Array-like object to slice.
+   * @param {number} start The index that should start the slice.
+   * @param {number=} opt_end The index where the slice should end, not
+   *   included in the final array. If not given, all elements after the
+   *   start index will be included.
+   * @return {!Array}
+   */
+
+		array.slice = function slice(arr, start, opt_end) {
+			var sliced = [];
+			var end = core.isDef(opt_end) ? opt_end : arr.length;
+			for (var i = start; i < end; i++) {
+				sliced.push(arr[i]);
+			}
+			return sliced;
+		};
+
+		return array;
+	})();
+
+	this.senna.array = array;
+}).call(this);
+/*!
+ * Polyfill from Google's Closure Library.
+ * Copyright 2013 The Closure Library Authors. All Rights Reserved.
+ */
+
+'use strict';
+
+(function () {
+	var async = {};
+
+	/**
+  * Throw an item without interrupting the current execution context.  For
+  * example, if processing a group of items in a loop, sometimes it is useful
+  * to report an error while still allowing the rest of the batch to be
+  * processed.
+  * @param {*} exception
+  */
+	async.throwException = function (exception) {
+		// Each throw needs to be in its own context.
+		async.nextTick(function () {
+			throw exception;
+		});
+	};
+
+	/**
+  * Fires the provided callback just before the current callstack unwinds, or as
+  * soon as possible after the current JS execution context.
+  * @param {function(this:THIS)} callback
+  * @param {THIS=} opt_context Object to use as the "this value" when calling
+  *     the provided function.
+  * @template THIS
+  */
+	async.run = function (callback, opt_context) {
+		if (!async.run.workQueueScheduled_) {
+			// Nothing is currently scheduled, schedule it now.
+			async.nextTick(async.run.processWorkQueue);
+			async.run.workQueueScheduled_ = true;
+		}
+
+		async.run.workQueue_.push(new async.run.WorkItem_(callback, opt_context));
+	};
+
+	/** @private {boolean} */
+	async.run.workQueueScheduled_ = false;
+
+	/** @private {!Array.<!async.run.WorkItem_>} */
+	async.run.workQueue_ = [];
+
+	/**
+  * Run any pending async.run work items. This function is not intended
+  * for general use, but for use by entry point handlers to run items ahead of
+  * async.nextTick.
+  */
+	async.run.processWorkQueue = function () {
+		// NOTE: additional work queue items may be pushed while processing.
+		while (async.run.workQueue_.length) {
+			// Don't let the work queue grow indefinitely.
+			var workItems = async.run.workQueue_;
+			async.run.workQueue_ = [];
+			for (var i = 0; i < workItems.length; i++) {
+				var workItem = workItems[i];
+				try {
+					workItem.fn.call(workItem.scope);
+				} catch (e) {
+					async.throwException(e);
+				}
+			}
+		}
+
+		// There are no more work items, reset the work queue.
+		async.run.workQueueScheduled_ = false;
+	};
+
+	/**
+  * @constructor
+  * @final
+  * @struct
+  * @private
+  *
+  * @param {function()} fn
+  * @param {Object|null|undefined} scope
+  */
+	async.run.WorkItem_ = function (fn, scope) {
+		/** @const */
+		this.fn = fn;
+		/** @const */
+		this.scope = scope;
+	};
+
+	/**
+  * Fires the provided callbacks as soon as possible after the current JS
+  * execution context. setTimeout(…, 0) always takes at least 5ms for legacy
+  * reasons.
+  * @param {function(this:SCOPE)} callback Callback function to fire as soon as
+  *     possible.
+  * @param {SCOPE=} opt_context Object in whose scope to call the listener.
+  * @template SCOPE
+  */
+	async.nextTick = function (callback, opt_context) {
+		var cb = callback;
+		if (opt_context) {
+			cb = callback.bind(opt_context);
+		}
+		cb = async.nextTick.wrapCallback_(cb);
+		// Introduced and currently only supported by IE10.
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof setImmediate === 'function') {
+			setImmediate(cb);
+			return;
+		}
+		// Look for and cache the custom fallback version of setImmediate.
+		if (!async.nextTick.setImmediate_) {
+			async.nextTick.setImmediate_ = async.nextTick.getSetImmediateEmulator_();
+		}
+		async.nextTick.setImmediate_(cb);
+	};
+
+	/**
+  * Cache for the setImmediate implementation.
+  * @type {function(function())}
+  * @private
+  */
+	async.nextTick.setImmediate_ = null;
+
+	/**
+  * Determines the best possible implementation to run a function as soon as
+  * the JS event loop is idle.
+  * @return {function(function())} The "setImmediate" implementation.
+  * @private
+  */
+	async.nextTick.getSetImmediateEmulator_ = function () {
+		// Create a private message channel and use it to postMessage empty messages
+		// to ourselves.
+		var Channel;
+
+		// Verify if variable is defined on the current runtime (i.e., node, browser).
+		// Can't use typeof enclosed in a function (such as core.isFunction) or an
+		// exception will be thrown when the function is called on an environment
+		// where the variable is undefined.
+		if (typeof MessageChannel === 'function') {
+			Channel = MessageChannel;
+		}
+
+		// If MessageChannel is not available and we are in a browser, implement
+		// an iframe based polyfill in browsers that have postMessage and
+		// document.addEventListener. The latter excludes IE8 because it has a
+		// synchronous postMessage implementation.
+		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
+			/** @constructor */
+			Channel = function () {
+				// Make an empty, invisible iframe.
+				var iframe = document.createElement('iframe');
+				iframe.style.display = 'none';
+				iframe.src = '';
+				document.documentElement.appendChild(iframe);
+				var win = iframe.contentWindow;
+				var doc = win.document;
+				doc.open();
+				doc.write('');
+				doc.close();
+				var message = 'callImmediate' + Math.random();
+				var origin = win.location.protocol + '//' + win.location.host;
+				var onmessage = (function (e) {
+					// Validate origin and message to make sure that this message was
+					// intended for us.
+					if (e.origin !== origin && e.data !== message) {
+						return;
+					}
+					this.port1.onmessage();
+				}).bind(this);
+				win.addEventListener('message', onmessage, false);
+				this.port1 = {};
+				this.port2 = {
+					postMessage: function postMessage() {
+						win.postMessage(message, origin);
+					}
+				};
+			};
+		}
+		if (typeof Channel !== 'undefined') {
+			var channel = new Channel();
+			// Use a fifo linked list to call callbacks in the right order.
+			var head = {};
+			var tail = head;
+			channel.port1.onmessage = function () {
+				head = head.next;
+				var cb = head.cb;
+				head.cb = null;
+				cb();
+			};
+			return function (cb) {
+				tail.next = {
+					cb: cb
+				};
+				tail = tail.next;
+				channel.port2.postMessage(0);
+			};
+		}
+		// Implementation for IE6-8: Script elements fire an asynchronous
+		// onreadystatechange event when inserted into the DOM.
+		if (typeof document !== 'undefined' && 'onreadystatechange' in document.createElement('script')) {
+			return function (cb) {
+				var script = document.createElement('script');
+				script.onreadystatechange = function () {
+					// Clean up and call the callback.
+					script.onreadystatechange = null;
+					script.parentNode.removeChild(script);
+					script = null;
+					cb();
+					cb = null;
+				};
+				document.documentElement.appendChild(script);
+			};
+		}
+		// Fall back to setTimeout with 0. In browsers this creates a delay of 5ms
+		// or more.
+		return function (cb) {
+			setTimeout(cb, 0);
+		};
+	};
+
+	/**
+  * Helper function that is overrided to protect callbacks with entry point
+  * monitor if the application monitors entry points.
+  * @param {function()} callback Callback function to fire as soon as possible.
+  * @return {function()} The wrapped callback.
+  * @private
+  */
+	async.nextTick.wrapCallback_ = function (opt_returnValue) {
+		return opt_returnValue;
+	};
+
+	this.senna.async = async;
 }).call(this);
 'use strict';
 
@@ -1386,118 +1498,6 @@ babelHelpers;
 	dom.customEvents = {};
 
 	this.senna.dom = dom;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.senna.core;
-
-	var array = (function () {
-		function array() {
-			babelHelpers.classCallCheck(this, array);
-		}
-
-		/**
-   * Checks if the given arrays have the same content.
-   * @param {!Array<*>} arr1
-   * @param {!Array<*>} arr2
-   * @return {boolean}
-   */
-
-		array.equal = function equal(arr1, arr2) {
-			for (var i = 0; i < arr1.length; i++) {
-				if (arr1[i] !== arr2[i]) {
-					return false;
-				}
-			}
-			return arr1.length === arr2.length;
-		};
-
-		/**
-   * Returns the first value in the given array that isn't undefined.
-   * @param {!Array} arr
-   * @return {*}
-   */
-
-		array.firstDefinedValue = function firstDefinedValue(arr) {
-			for (var i = 0; i < arr.length; i++) {
-				if (arr[i] !== undefined) {
-					return arr[i];
-				}
-			}
-		};
-
-		/**
-   * Transforms the input nested array to become flat.
-   * @param {Array.<*|Array.<*>>} arr Nested array to flatten.
-   * @param {Array.<*>} opt_output Optional output array.
-   * @return {Array.<*>} Flat array.
-   */
-
-		array.flatten = function flatten(arr, opt_output) {
-			var output = opt_output || [];
-			for (var i = 0; i < arr.length; i++) {
-				if (Array.isArray(arr[i])) {
-					array.flatten(arr[i], output);
-				} else {
-					output.push(arr[i]);
-				}
-			}
-			return output;
-		};
-
-		/**
-   * Removes the first occurrence of a particular value from an array.
-   * @param {Array.<T>} arr Array from which to remove value.
-   * @param {T} obj Object to remove.
-   * @return {boolean} True if an element was removed.
-   * @template T
-   */
-
-		array.remove = function remove(arr, obj) {
-			var i = arr.indexOf(obj);
-			var rv;
-			if (rv = i >= 0) {
-				array.removeAt(arr, i);
-			}
-			return rv;
-		};
-
-		/**
-   * Removes from an array the element at index i
-   * @param {Array} arr Array or array like object from which to remove value.
-   * @param {number} i The index to remove.
-   * @return {boolean} True if an element was removed.
-   */
-
-		array.removeAt = function removeAt(arr, i) {
-			return Array.prototype.splice.call(arr, i, 1).length === 1;
-		};
-
-		/**
-   * Slices the given array, just like Array.prototype.slice, but this
-   * is faster and working on all array-like objects (like arguments).
-   * @param {!Object} arr Array-like object to slice.
-   * @param {number} start The index that should start the slice.
-   * @param {number=} opt_end The index where the slice should end, not
-   *   included in the final array. If not given, all elements after the
-   *   start index will be included.
-   * @return {!Array}
-   */
-
-		array.slice = function slice(arr, start, opt_end) {
-			var sliced = [];
-			var end = core.isDef(opt_end) ? opt_end : arr.length;
-			for (var i = start; i < end; i++) {
-				sliced.push(arr[i]);
-			}
-			return sliced;
-		};
-
-		return array;
-	})();
-
-	this.senna.array = array;
 }).call(this);
 'use strict';
 
@@ -3727,6 +3727,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var array = this.senna.array;
 	var async = this.senna.async;
 	var core = this.senna.core;
 	var dom = this.senna.dom;
@@ -4524,6 +4525,16 @@ babelHelpers;
 
 		App.prototype.reloadPage = function reloadPage() {
 			globals.window.location.reload();
+		};
+
+		/**
+   * Removes route instance from app routes.
+   * @param {Route} route
+   * @return {boolean} True if an element was removed.
+   */
+
+		App.prototype.removeRoute = function removeRoute(route) {
+			return array.remove(this.routes, route);
 		};
 
 		/**
