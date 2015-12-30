@@ -40,10 +40,10 @@ class RequestScreen extends Screen {
 		/**
 		 * Holds default http method to perform the request.
 		 * @type {!string}
-		 * @default GET
+		 * @default RequestScreen.GET
 		 * @protected
 		 */
-		this.httpMethod = 'GET';
+		this.httpMethod = RequestScreen.GET;
 
 		/**
 		 * Holds the XHR object responsible for the request.
@@ -131,7 +131,7 @@ class RequestScreen extends Screen {
 	 * @param {!string} httpMethod
 	 */
 	setHttpMethod(httpMethod) {
-		this.httpMethod = httpMethod;
+		this.httpMethod = httpMethod.toLowerCase();
 	}
 
 	/**
@@ -151,5 +151,21 @@ class RequestScreen extends Screen {
 	}
 
 }
+
+/**
+ * Holds value for method get.
+ * @type {string}
+ * @default 'get'
+ * @static
+ */
+RequestScreen.GET = 'get';
+
+/**
+ * Holds value for method post.
+ * @type {string}
+ * @default 'post'
+ * @static
+ */
+RequestScreen.POST = 'post';
 
 export default RequestScreen;
