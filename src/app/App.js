@@ -61,6 +61,14 @@ class App extends EventEmitter {
 		this.defaultTitle = '';
 
 		/**
+		 * Holds the form selector to define forms that are routed.
+		 * @type {!string}
+		 * @default form:not([data-senna-off])
+		 * @protected
+		 */
+		this.formSelector = 'form:not([data-senna-off])';
+
+		/**
 		 * Holds the link selector to define links that are routed.
 		 * @type {!string}
 		 * @default a:not([data-senna-off])
@@ -180,6 +188,7 @@ class App extends EventEmitter {
 		this.on('startNavigate', this.onStartNavigate_);
 
 		this.setLinkSelector(this.linkSelector);
+		this.setFormSelector(this.formSelector);
 	}
 
 	/**
@@ -285,6 +294,7 @@ class App extends EventEmitter {
 		if (this.activeScreen) {
 			this.removeScreen_(this.activePath, this.activeScreen);
 		}
+		this.formEventHandler_.removeListener();
 		this.linkEventHandler_.removeListener();
 		this.appEventHandlers_.removeAllListeners();
 		super.disposeInternal();
@@ -361,6 +371,7 @@ class App extends EventEmitter {
 		this.activeScreen = nextScreen;
 		this.screens[path] = nextScreen;
 		this.pendingNavigate = null;
+		globals.capturedFormElement = null;
 		console.log('Navigation done');
 	}
 
@@ -409,6 +420,14 @@ class App extends EventEmitter {
 	 */
 	getDefaultTitle() {
 		return this.defaultTitle;
+	}
+
+	/**
+	 * Gets the form selector.
+	 * @return {!string}
+	 */
+	getFormSelector() {
+		return this.formSelector;
 	}
 
 	/**
@@ -611,6 +630,26 @@ class App extends EventEmitter {
 		}
 		this.maybeNavigateToLinkElement_(event.delegateTarget, event);
 	}
+
+	/**
+	 * Intercepts document form submits and test action path in order to decide
+	 * whether Surface app can navigate.
+	 * @param {!Event} event Event facade
+	 * @protected
+	 */
+	onDocSubmitDelegate_(event) {
+		var form = event.delegateTarget;
+		var link = globals.document.createElement('a');
+		link.href = form.action;
+		if (form.method === 'get') {
+			console.log('GET method not supported');
+			return;
+		}
+		globals.capturedFormElement = form;
+		this.maybeNavigateToLinkElement_(link, event);
+	}
+
+	/**
 	 * Listens to the window's load event in order to avoid issues with some browsers
 	 * that trigger popstate calls on the first load. For more information see
 	 * http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome.
@@ -680,6 +719,12 @@ class App extends EventEmitter {
 		this.captureScrollPositionFromScrollEvent = false;
 
 		var endPayload = {};
+
+		if (globals.capturedFormElement) {
+			event.form = globals.capturedFormElement;
+			endPayload.form = globals.capturedFormElement;
+		}
+
 		var documentElement = globals.document.documentElement;
 
 		dom.addClasses(documentElement, this.loadingCssClass);
@@ -735,6 +780,8 @@ class App extends EventEmitter {
 			title = this.getDefaultTitle();
 		}
 		var historyState = {
+			form: core.isDefAndNotNull(globals.capturedFormElement),
+			navigatePath: path,
 			path: nextScreen.beforeUpdateHistoryPath(path),
 			senna: true,
 			scrollTop: 0,
@@ -815,6 +862,18 @@ class App extends EventEmitter {
 	 */
 	setDefaultTitle(defaultTitle) {
 		this.defaultTitle = defaultTitle;
+	}
+
+	/**
+	 * Sets the form selector.
+	 * @param {!string} formSelector
+	 */
+	setFormSelector(formSelector) {
+		this.formSelector = formSelector;
+		if (this.formEventHandler_) {
+			this.formEventHandler_.removeListener();
+		}
+		this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
 	}
 
 	/**

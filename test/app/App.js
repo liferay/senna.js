@@ -233,6 +233,14 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should get form selector', function() {
+		var app = new App();
+		assert.strictEqual('form:not([data-senna-off])', app.getFormSelector());
+		app.setFormSelector('');
+		assert.strictEqual('', app.getFormSelector());
+		app.dispose();
+	});
+
 	it('should get link selector', function() {
 		var app = new App();
 		assert.strictEqual('a:not([data-senna-off])', app.getLinkSelector());
@@ -247,6 +255,23 @@ describe('App', function() {
 		app.setLinkSelector('');
 		assert.strictEqual('', app.getLinkSelector());
 		app.dispose();
+	});
+
+	it('should store proper senna state after navigate', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.navigate('/path').then(() => {
+			assert.deepEqual({
+				form: false,
+				navigatePath: '/path',
+				path: '/path',
+				senna: true,
+				scrollTop: 0,
+				scrollLeft: 0
+			}, globals.window.history.state);
+			app.dispose();
+			done();
+		});
 	});
 
 	it('should navigate emit startNavigate and endNavigate custom event', function(done) {
@@ -642,6 +667,72 @@ describe('App', function() {
 		});
 	});
 
+	it('should navigate when submitting routed forms', function() {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
+		assert.ok(app.pendingNavigate);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
+	it('should expose form reference in event data when submitting routed forms', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
+		app.on('startNavigate', function(data) {
+			assert.ok(data.form);
+		});
+		app.on('endNavigate', function(data) {
+			assert.ok(data.form);
+			exitDocumentFormElement();
+			app.dispose();
+			done();
+		});
+	});
+
+	it('should not navigate when submitting forms with method get', function() {
+		var form = enterDocumentFormElement('/path', 'get');
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		dom.on(form, 'submit', preventDefault);
+		dom.triggerEvent(form, 'submit');
+		assert.strictEqual(null, app.pendingNavigate);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
+	it('should not navigate when submitting on external forms', function() {
+		var form = enterDocumentFormElement('http://sennajs.com', 'post');
+		var app = new App();
+		dom.on(form, 'submit', preventDefault);
+		dom.triggerEvent(form, 'submit');
+		assert.strictEqual(null, app.pendingNavigate);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
+	it('should not navigate when submitting on forms outside basepath', function() {
+		var form = enterDocumentFormElement('/path', 'post');
+		var app = new App();
+		app.setBasePath('/base');
+		dom.on(form, 'submit', preventDefault);
+		dom.triggerEvent(form, 'submit');
+		assert.strictEqual(null, app.pendingNavigate);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
+	it('should not navigate when submitting on unrouted forms', function() {
+		var form = enterDocumentFormElement('/path', 'post');
+		var app = new App();
+		dom.on(form, 'submit', preventDefault);
+		dom.triggerEvent(form, 'submit');
+		assert.strictEqual(null, app.pendingNavigate);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
 	it('should skipLoadPopstate before page is loaded', function(done) {
 		var app = new App();
 		app.onLoad_(); // Simulate
@@ -812,6 +903,16 @@ describe('App', function() {
 		});
 	});
 
+	it('should set globals.capturedFormElement to null after navigate', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.navigate('/path').then(() => {
+			assert.strictEqual(null, globals.capturedFormElement);
+			app.dispose();
+			done();
+		});
+	});
+
 });
 
 function enterDocumentLinkElement(href) {
@@ -819,8 +920,17 @@ function enterDocumentLinkElement(href) {
 	return document.getElementById('link');
 }
 
+function enterDocumentFormElement(action, method) {
+	dom.enterDocument('<form id="form" action="' + action + '" method="' + method + '"></form>');
+	return document.getElementById('form');
+}
+
 function exitDocumentLinkElement() {
 	dom.exitDocument(document.getElementById('link'));
+}
+
+function exitDocumentFormElement() {
+	dom.exitDocument(document.getElementById('form'));
 }
 
 function preventDefault(event) {

@@ -4,6 +4,7 @@ import core from 'bower:metal/src/core';
 import Ajax from 'bower:metal-ajax/src/Ajax';
 import MultiMap from 'bower:metal-multimap/src/MultiMap';
 import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import globals from '../globals/globals';
 import Screen from './Screen';
 
 class RequestScreen extends Screen {
@@ -72,6 +73,21 @@ class RequestScreen extends Screen {
 		}
 		return path;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	beforeUpdateHistoryState(state) {
+		// If state is ours and navigate to post-without-redirect-get set
+		// history state to null, that way Senna will reload the page on
+		// popstate since it cannot predict post data.
+		if (state.senna && state.form && state.navigatePath === state.path) {
+			return null;
+		}
+		return state;
+	}
+
+	/**
 	 * Gets the http headers.
 	 * @return {?Object=}
 	 */
@@ -126,13 +142,20 @@ class RequestScreen extends Screen {
 			return CancellablePromise.resolve(cache);
 		}
 
+		var body = null;
 		var httpMethod = this.httpMethod;
+
+		if (globals.capturedFormElement) {
+			body = new FormData(globals.capturedFormElement);
+			httpMethod = RequestScreen.POST;
+		}
+
 		var headers = new MultiMap();
 
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 
 		return Ajax
-			.request(path, this.httpMethod, null, headers, null, this.timeout)
+			.request(path, httpMethod, body, headers, null, this.timeout)
 			.then(xhr => {
 				this.setRequest(xhr);
 				if (httpMethod === RequestScreen.GET && this.isCacheable()) {

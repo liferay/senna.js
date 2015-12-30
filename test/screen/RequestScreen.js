@@ -1,5 +1,6 @@
 'use strict';
 
+import globals from '../../src/globals/globals';
 import RequestScreen from '../../src/screen/RequestScreen';
 
 describe('RequestScreen', function() {
@@ -25,9 +26,9 @@ describe('RequestScreen', function() {
 
 	it('should set HTTP method', function() {
 		var screen = new RequestScreen();
-		assert.strictEqual('GET', screen.getHttpMethod());
-		screen.setHttpMethod('POST');
-		assert.strictEqual('POST', screen.getHttpMethod());
+		assert.strictEqual(RequestScreen.GET, screen.getHttpMethod());
+		screen.setHttpMethod(RequestScreen.POST);
+		assert.strictEqual(RequestScreen.POST, screen.getHttpMethod());
 	});
 
 	it('should set HTTP headers', function() {
@@ -54,6 +55,22 @@ describe('RequestScreen', function() {
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
+
+	it('should screen beforeUpdateHistoryState returns null if form navigate to post-without-redirect-get', function() {
+		var screen = new RequestScreen();
+		assert.strictEqual(null, screen.beforeUpdateHistoryState({
+			senna: true,
+			form: true,
+			navigatePath: '/post',
+			path: '/post'
+		}));
+	});
+
+	it('should request response path return null if no requests were made', function() {
+		var screen = new RequestScreen();
+		assert.strictEqual(null, screen.getRequestResponsePath());
+	});
+
 	it('should send request to an url', function(done) {
 		var screen = new RequestScreen();
 		screen.load('/url').then(function() {
@@ -77,6 +94,20 @@ describe('RequestScreen', function() {
 		});
 	});
 
+	it('should not load response content from cache for post requests', function(done) {
+		var screen = new RequestScreen();
+		var cache = {};
+		screen.setHttpMethod(RequestScreen.POST);
+		screen.load('/url').then(() => {
+			screen.load('/url').then((cachedContent) => {
+				assert.notStrictEqual(cache, cachedContent);
+				done();
+			});
+			this.requests[1].respond(200);
+		});
+		this.requests[0].respond(200);
+	});
+
 	it('should cancel load request to an url', function(done) {
 		var self = this;
 		var screen = new RequestScreen();
@@ -89,6 +120,18 @@ describe('RequestScreen', function() {
 				done();
 			})
 			.cancel();
+	});
+
+	it('should form navigate force post method and request body wrapped in FormData', function(done) {
+		globals.capturedFormElement = globals.document.createElement('form');
+		var screen = new RequestScreen();
+		screen.load('/url').then(function() {
+			assert.strictEqual(RequestScreen.POST, screen.getRequest().method);
+			assert.ok(screen.getRequest().requestBody instanceof FormData);
+			globals.capturedFormElement = null;
+			done();
+		});
+		this.requests[0].respond(200);
 	});
 
 });

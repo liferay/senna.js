@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Form</title>
+  <link rel="shortcut icon" href="http://sennajs.com/images/favicon.ico">
+
+  <!-- Including Senna -->
+  <script src="../../build/globals/senna.js"></script>
+</head>
+<body data-senna>
+  <h1>Post</h1>
+  <form action="/post" method="post">
+    <input type="text" name="name" placeholder="Type your name"><br>
+    <input type="text" name="email" placeholder="Type your email"><br>
+    <button>Submit</button>
+  </form>
+
+  <div id="result1" data-senna-surface>
+    Waiting for post result...
+  </div>
+
+  <h1>Post Redirect Get</h1>
+  <form action="/post-get" method="post">
+    <input type="text" name="name" placeholder="Type your name"><br>
+    <input type="text" name="email" placeholder="Type your email"><br>
+    <button>Submit</button>
+  </form>
+
+  <div id="result2" data-senna-surface>
+    Waiting for post result...
+  </div>
+</body>
+</html>
