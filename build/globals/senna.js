@@ -3143,6 +3143,26 @@ babelHelpers;
 		};
 
 		/**
+   * Gives the Screen a chance format the path before history update.
+   * @path {!string} path Navigation path.
+   * @return {!string} Navigation path to use on history.
+   */
+
+		Screen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
+			return path;
+		};
+
+		/**
+   * Gives the Screen a chance format the state before history update.
+   * @path {!object} state History state.
+   * @return {!object} History state to use on history.
+   */
+
+		Screen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
+			return state;
+		};
+
+		/**
    * Allows a screen to do any cleanup necessary after it has been
    * deactivated, for example cancelling outstanding requests or stopping
    * timers. Lifecycle.
@@ -3793,6 +3813,14 @@ babelHelpers;
 			_this.defaultTitle = '';
 
 			/**
+    * Holds the form selector to define forms that are routed.
+    * @type {!string}
+    * @default form:not([data-senna-off])
+    * @protected
+    */
+			_this.formSelector = 'form:not([data-senna-off])';
+
+			/**
     * Holds the link selector to define links that are routed.
     * @type {!string}
     * @default a:not([data-senna-off])
@@ -3908,6 +3936,7 @@ babelHelpers;
 			_this.on('startNavigate', _this.onStartNavigate_);
 
 			_this.setLinkSelector(_this.linkSelector);
+			_this.setFormSelector(_this.formSelector);
 			return _this;
 		}
 
@@ -4025,6 +4054,7 @@ babelHelpers;
 			if (this.activeScreen) {
 				this.removeScreen_(this.activePath, this.activeScreen);
 			}
+			this.formEventHandler_.removeListener();
 			this.linkEventHandler_.removeListener();
 			this.appEventHandlers_.removeAllListeners();
 			_EventEmitter.prototype.disposeInternal.call(this);
@@ -4107,6 +4137,7 @@ babelHelpers;
 			this.activeScreen = nextScreen;
 			this.screens[path] = nextScreen;
 			this.pendingNavigate = null;
+			globals.capturedFormElement = null;
 			console.log('Navigation done');
 		};
 
@@ -4158,6 +4189,15 @@ babelHelpers;
 
 		App.prototype.getDefaultTitle = function getDefaultTitle() {
 			return this.defaultTitle;
+		};
+
+		/**
+   * Gets the form selector.
+   * @return {!string}
+   */
+
+		App.prototype.getFormSelector = function getFormSelector() {
+			return this.formSelector;
 		};
 
 		/**
@@ -4326,21 +4366,13 @@ babelHelpers;
 		};
 
 		/**
-   * Intercepts document clicks and test link elements in order to decide
-   * whether Surface app can navigate.
-   * @param {!Event} event Event facade
-   * @protected
+   * Maybe navigate to link element.
+   * @param {Element} link Link element that holds navigation information.
+   * @param {Event} event Dom event that initiated the navigation.
    */
 
-		App.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
-			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
-				return;
-			}
-
-			var link = event.delegateTarget;
+		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(link, event) {
 			var path = link.pathname + link.search + link.hash;
-			var navigateFailed = false;
 
 			if (!this.isLinkSameOrigin_(link.hostname)) {
 				console.log('Offsite link clicked');
@@ -4355,6 +4387,7 @@ babelHelpers;
 				return;
 			}
 
+			var navigateFailed = false;
 			try {
 				this.navigate(path);
 			} catch (err) {
@@ -4365,6 +4398,40 @@ babelHelpers;
 			if (!navigateFailed) {
 				event.preventDefault();
 			}
+		};
+
+		/**
+   * Intercepts document clicks and test link elements in order to decide
+   * whether Surface app can navigate.
+   * @param {!Event} event Event facade
+   * @protected
+   */
+
+		App.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
+			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
+				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
+				return;
+			}
+			this.maybeNavigateToLinkElement_(event.delegateTarget, event);
+		};
+
+		/**
+   * Intercepts document form submits and test action path in order to decide
+   * whether Surface app can navigate.
+   * @param {!Event} event Event facade
+   * @protected
+   */
+
+		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
+			var form = event.delegateTarget;
+			var link = globals.document.createElement('a');
+			link.href = form.action;
+			if (form.method === 'get') {
+				console.log('GET method not supported');
+				return;
+			}
+			globals.capturedFormElement = form;
+			this.maybeNavigateToLinkElement_(link, event);
 		};
 
 		/**
@@ -4445,6 +4512,12 @@ babelHelpers;
 			this.captureScrollPositionFromScrollEvent = false;
 
 			var endPayload = {};
+
+			if (globals.capturedFormElement) {
+				event.form = globals.capturedFormElement;
+				endPayload.form = globals.capturedFormElement;
+			}
+
 			var documentElement = globals.document.documentElement;
 
 			dom.addClasses(documentElement, this.loadingCssClass);
@@ -4502,7 +4575,19 @@ babelHelpers;
 			if (!core.isString(title)) {
 				title = this.getDefaultTitle();
 			}
-			this.updateHistory_(title, path, opt_replaceHistory);
+			var historyState = {
+				form: core.isDefAndNotNull(globals.capturedFormElement),
+				navigatePath: path,
+				path: nextScreen.beforeUpdateHistoryPath(path),
+				senna: true,
+				scrollTop: 0,
+				scrollLeft: 0
+			};
+			if (opt_replaceHistory) {
+				historyState.scrollTop = this.popstateScrollTop;
+				historyState.scrollLeft = this.popstateScrollLeft;
+			}
+			this.updateHistory_(title, historyState.path, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 		};
 
 		/**
@@ -4586,6 +4671,19 @@ babelHelpers;
 		};
 
 		/**
+   * Sets the form selector.
+   * @param {!string} formSelector
+   */
+
+		App.prototype.setFormSelector = function setFormSelector(formSelector) {
+			this.formSelector = formSelector;
+			if (this.formEventHandler_) {
+				this.formEventHandler_.removeListener();
+			}
+			this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+		};
+
+		/**
    * Sets the link selector.
    * @param {!string} linkSelector
    */
@@ -4662,28 +4760,19 @@ babelHelpers;
 
 		/**
    * Updates or replace browser history.
-   * @param {!string} path Path containing the querystring part.
    * @param {?string} title Document title.
+   * @param {!string} path Path containing the querystring part.
+   * @param {!object} state
    * @param {boolean=} opt_replaceHistory Replaces browser history.
    * @protected
    */
 
-		App.prototype.updateHistory_ = function updateHistory_(title, path, opt_replaceHistory) {
-			var historyParams = {
-				path: path,
-				senna: true,
-				scrollTop: 0,
-				scrollLeft: 0
-			};
-
+		App.prototype.updateHistory_ = function updateHistory_(title, path, state, opt_replaceHistory) {
 			if (opt_replaceHistory) {
-				historyParams.scrollTop = this.popstateScrollTop;
-				historyParams.scrollLeft = this.popstateScrollLeft;
-				globals.window.history.replaceState(historyParams, title, path);
+				globals.window.history.replaceState(state, title, path);
 			} else {
-				globals.window.history.pushState(historyParams, title, path);
+				globals.window.history.pushState(state, title, path);
 			}
-
 			globals.document.title = title;
 		};
 
@@ -5063,6 +5152,7 @@ babelHelpers;
 	var Ajax = this.senna.Ajax;
 	var MultiMap = this.senna.MultiMap;
 	var CancellablePromise = this.senna.Promise;
+	var globals = this.senna.globals;
 	var Screen = this.senna.Screen;
 
 	var RequestScreen = (function (_Screen) {
@@ -5104,10 +5194,10 @@ babelHelpers;
 			/**
     * Holds default http method to perform the request.
     * @type {!string}
-    * @default GET
+    * @default RequestScreen.GET
     * @protected
     */
-			_this.httpMethod = 'GET';
+			_this.httpMethod = RequestScreen.GET;
 
 			/**
     * Holds the XHR object responsible for the request.
@@ -5128,6 +5218,32 @@ babelHelpers;
 		}
 
 		/**
+   * @inheritDoc
+   */
+
+		RequestScreen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
+			var redirectPath = this.getRequestResponsePath();
+			if (redirectPath && redirectPath !== path) {
+				return redirectPath;
+			}
+			return path;
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		RequestScreen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
+			// If state is ours and navigate to post-without-redirect-get set
+			// history state to null, that way Senna will reload the page on
+			// popstate since it cannot predict post data.
+			if (state.senna && state.form && state.navigatePath === state.path) {
+				return null;
+			}
+			return state;
+		};
+
+		/**
    * Gets the http headers.
    * @return {?Object=}
    */
@@ -5143,6 +5259,21 @@ babelHelpers;
 
 		RequestScreen.prototype.getHttpMethod = function getHttpMethod() {
 			return this.httpMethod;
+		};
+
+		/**
+   * Gets request response path.
+   * @return {string=}
+   */
+
+		RequestScreen.prototype.getRequestResponsePath = function getRequestResponsePath() {
+			var request = this.getRequest();
+			if (request) {
+				var link = globals.document.createElement('a');
+				link.href = request.responseURL;
+				return link.pathname + link.search + link.hash;
+			}
+			return null;
 		};
 
 		/**
@@ -5175,17 +5306,26 @@ babelHelpers;
 				return CancellablePromise.resolve(cache);
 			}
 
+			var body = null;
+			var httpMethod = this.httpMethod;
+
+			if (globals.capturedFormElement) {
+				body = new FormData(globals.capturedFormElement);
+				httpMethod = RequestScreen.POST;
+			}
+
 			var headers = new MultiMap();
 
 			Object.keys(this.httpHeaders).forEach(function (header) {
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
 
-			return Ajax.request(path, this.httpMethod, null, headers, null, this.timeout).then(function (xhr) {
+			return Ajax.request(path, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
-				if (_this2.isCacheable()) {
+				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
 				}
+				_this2.setRequest(xhr);
 				return xhr.responseText;
 			});
 		};
@@ -5205,7 +5345,7 @@ babelHelpers;
    */
 
 		RequestScreen.prototype.setHttpMethod = function setHttpMethod(httpMethod) {
-			this.httpMethod = httpMethod;
+			this.httpMethod = httpMethod.toLowerCase();
 		};
 
 		/**
@@ -5229,7 +5369,24 @@ babelHelpers;
 		return RequestScreen;
 	})(Screen);
 
+	/**
+  * Holds value for method get.
+  * @type {string}
+  * @default 'get'
+  * @static
+  */
+
 	RequestScreen.prototype.registerMetalComponent && RequestScreen.prototype.registerMetalComponent(RequestScreen, 'RequestScreen')
+	RequestScreen.GET = 'get';
+
+	/**
+  * Holds value for method post.
+  * @type {string}
+  * @default 'post'
+  * @static
+  */
+	RequestScreen.POST = 'post';
+
 	this.senna.RequestScreen = RequestScreen;
 }).call(this);
 'use strict';
