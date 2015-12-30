@@ -85,7 +85,7 @@ class RequestScreen extends Screen {
 	getRequestResponsePath() {
 		var request = this.getRequest();
 		if (request) {
-			var link = document.createElement('a');
+			var link = globals.document.createElement('a');
 			link.href = request.responseURL;
 			return link.pathname + link.search + link.hash;
 		}
