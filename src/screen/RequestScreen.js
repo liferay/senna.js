@@ -63,6 +63,15 @@ class RequestScreen extends Screen {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	beforeUpdateHistoryPath(path) {
+		var redirectPath = this.getRequestResponsePath();
+		if (redirectPath && redirectPath !== path) {
+			return redirectPath;
+		}
+		return path;
+	}
 	 * Gets the http headers.
 	 * @return {?Object=}
 	 */

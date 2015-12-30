@@ -47,6 +47,13 @@ describe('RequestScreen', function() {
 		assert.strictEqual(0, screen.getTimeout());
 	});
 
+	it('should screen beforeUpdateHistoryPath returns response path if different from navigate path', function() {
+		var screen = new RequestScreen();
+		sinon.stub(screen, 'getRequestResponsePath', function() {
+			return '/redirect';
+		});
+		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
+	});
 	it('should send request to an url', function(done) {
 		var screen = new RequestScreen();
 		screen.load('/url').then(function() {
