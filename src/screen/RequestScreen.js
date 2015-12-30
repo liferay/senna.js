@@ -103,6 +103,7 @@ class RequestScreen extends Screen {
 			return CancellablePromise.resolve(cache);
 		}
 
+		var httpMethod = this.httpMethod;
 		var headers = new MultiMap();
 
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
@@ -111,7 +112,7 @@ class RequestScreen extends Screen {
 			.request(path, this.httpMethod, null, headers, null, this.timeout)
 			.then(xhr => {
 				this.setRequest(xhr);
-				if (this.isCacheable()) {
+				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
 					this.addCache(xhr.responseText);
 				}
 				return xhr.responseText;
