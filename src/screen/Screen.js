@@ -54,6 +54,24 @@ class Screen extends Cacheable {
 	}
 
 	/**
+	 * Gives the Screen a chance format the path before history update.
+	 * @path {!string} path Navigation path.
+	 * @return {!string} Navigation path to use on history.
+	 */
+	beforeUpdateHistoryPath(path) {
+		return path;
+	}
+
+	/**
+	 * Gives the Screen a chance format the state before history update.
+	 * @path {!object} state History state.
+	 * @return {!object} History state to use on history.
+	 */
+	beforeUpdateHistoryState(state) {
+		return state;
+	}
+
+	/**
 	 * Allows a screen to do any cleanup necessary after it has been
 	 * deactivated, for example cancelling outstanding requests or stopping
 	 * timers. Lifecycle.

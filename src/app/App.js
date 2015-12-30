@@ -729,7 +729,17 @@ class App extends EventEmitter {
 		if (!core.isString(title)) {
 			title = this.getDefaultTitle();
 		}
-		this.updateHistory_(title, path, opt_replaceHistory);
+		var historyState = {
+			path: nextScreen.beforeUpdateHistoryPath(path),
+			senna: true,
+			scrollTop: 0,
+			scrollLeft: 0
+		};
+		if (opt_replaceHistory) {
+			historyState.scrollTop = this.popstateScrollTop;
+			historyState.scrollLeft = this.popstateScrollLeft;
+		}
+		this.updateHistory_(title, historyState.path, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 	}
 
 	/**
@@ -868,27 +878,18 @@ class App extends EventEmitter {
 
 	/**
 	 * Updates or replace browser history.
-	 * @param {!string} path Path containing the querystring part.
 	 * @param {?string} title Document title.
+	 * @param {!string} path Path containing the querystring part.
+	 * @param {!object} state
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 * @protected
 	 */
-	updateHistory_(title, path, opt_replaceHistory) {
-		var historyParams = {
-			path: path,
-			senna: true,
-			scrollTop: 0,
-			scrollLeft: 0
-		};
-
+	updateHistory_(title, path, state, opt_replaceHistory) {
 		if (opt_replaceHistory) {
-			historyParams.scrollTop = this.popstateScrollTop;
-			historyParams.scrollLeft = this.popstateScrollLeft;
-			globals.window.history.replaceState(historyParams, title, path);
+			globals.window.history.replaceState(state, title, path);
 		} else {
-			globals.window.history.pushState(historyParams, title, path);
+			globals.window.history.pushState(state, title, path);
 		}
-
 		globals.document.title = title;
 	}
 
