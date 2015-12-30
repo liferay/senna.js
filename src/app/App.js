@@ -565,20 +565,12 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Intercepts document clicks and test link elements in order to decide
-	 * whether Surface app can navigate.
-	 * @param {!Event} event Event facade
-	 * @protected
+	 * Maybe navigate to link element.
+	 * @param {Element} link Link element that holds navigation information.
+	 * @param {Event} event Dom event that initiated the navigation.
 	 */
-	onDocClickDelegate_(event) {
-		if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-			console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
-			return;
-		}
-
-		var link = event.delegateTarget;
+	maybeNavigateToLinkElement_(link, event) {
 		var path = link.pathname + link.search + link.hash;
-		var navigateFailed = false;
 
 		if (!this.isLinkSameOrigin_(link.hostname)) {
 			console.log('Offsite link clicked');
@@ -593,6 +585,7 @@ class App extends EventEmitter {
 			return;
 		}
 
+		var navigateFailed = false;
 		try {
 			this.navigate(path);
 		} catch (err) {
@@ -606,6 +599,18 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Intercepts document clicks and test link elements in order to decide
+	 * whether Surface app can navigate.
+	 * @param {!Event} event Event facade
+	 * @protected
+	 */
+	onDocClickDelegate_(event) {
+		if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
+			console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
+			return;
+		}
+		this.maybeNavigateToLinkElement_(event.delegateTarget, event);
+	}
 	 * Listens to the window's load event in order to avoid issues with some browsers
 	 * that trigger popstate calls on the first load. For more information see
 	 * http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome.
