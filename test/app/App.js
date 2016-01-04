@@ -1,6 +1,7 @@
 'use strict';
 
 import dom from 'bower:metal/src/dom/dom';
+import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 import globals from '../../src/globals/globals';
 import App from '../../src/app/App';
 import Route from '../../src/route/Route';
@@ -9,6 +10,20 @@ import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
 
 describe('App', function() {
+
+	beforeEach(function() {
+		this.xhr = sinon.useFakeXMLHttpRequest();
+
+		var requests = this.requests = [];
+
+		this.xhr.onCreate = function(xhr) {
+			requests.push(xhr);
+		};
+	});
+
+	afterEach(function() {
+		this.xhr.restore();
+	});
 
 	it('should add route', function() {
 		var app = new App();
@@ -751,7 +766,7 @@ describe('App', function() {
 		StubScreen1.prototype.beforeDeactivate = sinon.spy();
 		StubScreen1.prototype.deactivate = sinon.spy();
 		StubScreen1.prototype.flip = sinon.spy();
-		StubScreen1.prototype.load = sinon.spy();
+		StubScreen1.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
 		StubScreen1.prototype.disposeInternal = sinon.spy();
 		class StubScreen2 extends Screen {
 		}
@@ -759,7 +774,7 @@ describe('App', function() {
 		StubScreen2.prototype.beforeDeactivate = sinon.spy();
 		StubScreen2.prototype.deactivate = sinon.spy();
 		StubScreen2.prototype.flip = sinon.spy();
-		StubScreen2.prototype.load = sinon.spy();
+		StubScreen2.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
 		var app = new App();
 		app.addRoutes(new Route('/path1', StubScreen1));
 		app.addRoutes(new Route('/path2', StubScreen2));
@@ -911,6 +926,36 @@ describe('App', function() {
 			app.dispose();
 			done();
 		});
+	});
+
+	it('should cancel nested promises on canceled navigate', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', HtmlScreen));
+		app.navigate('/path')
+			.then(function() {
+				assert.fail();
+			})
+			.catch(() => {
+				assert.ok(this.requests[0].aborted);
+				app.dispose();
+				done();
+			})
+			.cancel();
+	});
+
+	it('should cancel nested promises on canceled prefetch', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', HtmlScreen));
+		app.prefetch('/path')
+			.then(function() {
+				assert.fail();
+			})
+			.catch(() => {
+				assert.ok(this.requests[0].aborted);
+				app.dispose();
+				done();
+			})
+			.cancel();
 	});
 
 });

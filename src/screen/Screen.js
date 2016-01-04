@@ -141,12 +141,13 @@ class Screen extends Cacheable {
 	 * to <code>Screen.load</code> with all information you
 	 * need to fulfill the surfaces. Lifecycle.
 	 * @param {!string=} path The requested path.
-	 * @return {?string|CancellablePromise=} This can return a string representing the
+	 * @return {!CancellablePromise} This can return a string representing the
 	 *     contents of the surfaces or a promise, which will pause the navigation
 	 *     until it is resolved. This is useful for loading async content.
 	 */
 	load() {
 		console.log('Screen [' + this + '] load');
+		return CancellablePromise.resolve();
 	}
 
 	/**

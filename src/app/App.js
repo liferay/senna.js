@@ -332,8 +332,7 @@ class App extends EventEmitter {
 
 		var nextScreen = this.createScreenInstance(path, route);
 
-		this.pendingNavigate = CancellablePromise.resolve()
-			.then(() => nextScreen.load(path))
+		this.pendingNavigate = nextScreen.load(path)
 			.then(() => {
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
@@ -759,8 +758,7 @@ class App extends EventEmitter {
 
 		var nextScreen = this.createScreenInstance(path, route);
 
-		return CancellablePromise.resolve()
-			.then(() => nextScreen.load(path))
+		return nextScreen.load(path)
 			.then(() => this.screens[path] = nextScreen)
 			.catch((reason) => {
 				this.removeScreen_(path, nextScreen);

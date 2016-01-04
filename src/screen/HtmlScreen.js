@@ -76,7 +76,7 @@ class HtmlScreen extends RequestScreen {
 			.then(content => this.allocateVirtualDocumentForContent(content))
 			.then(() => this.resolveTitleFromVirtualDocument())
 			.then(() => this.maybeSetBodyIdInVirtualDocument())
-			.thenCatch(err => {
+			.catch(err => {
 				throw err;
 			});
 	}
