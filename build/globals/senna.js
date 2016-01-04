@@ -3242,13 +3242,14 @@ babelHelpers;
    * to <code>Screen.load</code> with all information you
    * need to fulfill the surfaces. Lifecycle.
    * @param {!string=} path The requested path.
-   * @return {?string|CancellablePromise=} This can return a string representing the
+   * @return {!CancellablePromise} This can return a string representing the
    *     contents of the surfaces or a promise, which will pause the navigation
    *     until it is resolved. This is useful for loading async content.
    */
 
 		Screen.prototype.load = function load() {
 			console.log('Screen [' + this + '] load');
+			return CancellablePromise.resolve();
 		};
 
 		/**
@@ -4096,9 +4097,7 @@ babelHelpers;
 
 			var nextScreen = this.createScreenInstance(path, route);
 
-			this.pendingNavigate = CancellablePromise.resolve().then(function () {
-				return nextScreen.load(path);
-			}).then(function () {
+			this.pendingNavigate = nextScreen.load(path).then(function () {
 				if (_this5.activeScreen) {
 					_this5.activeScreen.deactivate();
 				}
@@ -4553,9 +4552,7 @@ babelHelpers;
 
 			var nextScreen = this.createScreenInstance(path, route);
 
-			return CancellablePromise.resolve().then(function () {
-				return nextScreen.load(path);
-			}).then(function () {
+			return nextScreen.load(path).then(function () {
 				return _this8.screens[path] = nextScreen;
 			}).catch(function (reason) {
 				_this8.removeScreen_(path, nextScreen);
@@ -5483,7 +5480,7 @@ babelHelpers;
 				return _this2.resolveTitleFromVirtualDocument();
 			}).then(function () {
 				return _this2.maybeSetBodyIdInVirtualDocument();
-			}).thenCatch(function (err) {
+			}).catch(function (err) {
 				throw err;
 			});
 		};
