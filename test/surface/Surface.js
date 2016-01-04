@@ -190,6 +190,15 @@ describe('Surface', function() {
 			exitDocumentSurfaceElement('surfaceId');
 		});
 
+		it('should transition deferred be cancellable', function(done) {
+			var surface = new Surface('surfaceId');
+			var transitionFn = function() {
+				return CancellablePromise.resolve();
+			};
+			surface.setTransitionFn(transitionFn);
+			surface.transition(null, null).catch(() => done()).cancel();
+		});
+
 		it('should evaluate scripts when adding screen content to surface', function() {
 			enterDocumentSurfaceElement('surfaceId');
 			var surface = new Surface('surfaceId');
