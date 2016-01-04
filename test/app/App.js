@@ -187,11 +187,22 @@ describe('App', function() {
 
 	it('should clear screen cache', function() {
 		var app = new App();
-		var screen = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
-		app.screens['/path'] = screen;
+		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
 		app.clearScreensCache();
 		assert.strictEqual(0, Object.keys(app.screens).length);
 		app.dispose();
+	});
+
+	it('should clear all screen caches on app dispose', function() {
+		var app = new App();
+		var screen1 = app.createScreenInstance('/path1', new Route('/path1', HtmlScreen));
+		var screen2 = app.createScreenInstance('/path2', new Route('/path2', HtmlScreen));
+		app.activePath = '/path1';
+		app.activeScreen = screen1;
+		app.screens['/path1'] = screen1;
+		app.screens['/path2'] = screen2;
+		app.dispose();
+		assert.strictEqual(0, Object.keys(app.screens).length);
 	});
 
 	it('should clear screen cache and remove surfaces', function() {
@@ -199,8 +210,7 @@ describe('App', function() {
 		var surface = new Surface('surfaceId');
 		surface.remove = sinon.stub();
 		app.addSurfaces(surface);
-		var screen = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
-		app.screens['/path'] = screen;
+		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
 		app.clearScreensCache();
 		assert.strictEqual(1, surface.remove.callCount);
 		app.dispose();
@@ -208,8 +218,7 @@ describe('App', function() {
 
 	it('should not clear screen cache for activePath', function() {
 		var app = new App();
-		var screen = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
-		app.screens['/path'] = screen;
+		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
 		app.activePath = '/path';
 		app.clearScreensCache();
 		assert.strictEqual(1, Object.keys(app.screens).length);

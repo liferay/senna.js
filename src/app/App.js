@@ -294,6 +294,7 @@ class App extends EventEmitter {
 		if (this.activeScreen) {
 			this.removeScreen_(this.activePath, this.activeScreen);
 		}
+		this.clearScreensCache();
 		this.formEventHandler_.removeListener();
 		this.linkEventHandler_.removeListener();
 		this.appEventHandlers_.removeAllListeners();
