@@ -932,9 +932,7 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path', HtmlScreen));
 		app.navigate('/path')
-			.then(function() {
-				assert.fail();
-			})
+			.then(() => assert.fail())
 			.catch(() => {
 				assert.ok(this.requests[0].aborted);
 				app.dispose();
@@ -947,9 +945,7 @@ describe('App', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path', HtmlScreen));
 		app.prefetch('/path')
-			.then(function() {
-				assert.fail();
-			})
+			.then(() => assert.fail())
 			.catch(() => {
 				assert.ok(this.requests[0].aborted);
 				app.dispose();

@@ -332,7 +332,7 @@ class App extends EventEmitter {
 
 		var nextScreen = this.createScreenInstance(path, route);
 
-		this.pendingNavigate = nextScreen.load(path)
+		return nextScreen.load(path)
 			.then(() => {
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
@@ -347,8 +347,6 @@ class App extends EventEmitter {
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
-
-		return this.pendingNavigate;
 	}
 
 	/**
@@ -369,7 +367,6 @@ class App extends EventEmitter {
 		this.activePath = path;
 		this.activeScreen = nextScreen;
 		this.screens[path] = nextScreen;
-		this.pendingNavigate = null;
 		globals.capturedFormElement = null;
 		console.log('Navigation done');
 	}
@@ -463,7 +460,6 @@ class App extends EventEmitter {
 	handleNavigateError_(path, nextScreen, err) {
 		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 		this.removeScreen_(path, nextScreen);
-		this.pendingNavigate = null;
 	}
 
 	/**
@@ -562,8 +558,6 @@ class App extends EventEmitter {
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	navigate(path, opt_replaceHistory) {
-		this.stopPendingNavigate_();
-
 		if (!this.isHtml5HistorySupported()) {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 		}
@@ -728,10 +722,11 @@ class App extends EventEmitter {
 
 		dom.addClasses(documentElement, this.loadingCssClass);
 
+		this.stopPendingNavigate_();
+
 		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
 			.catch((err) => {
 				endPayload.error = err;
-				this.stopPendingNavigate_();
 				throw err;
 			})
 			.thenAlways(() => {
