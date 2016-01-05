@@ -185,6 +185,50 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should create different screen instance navigate when not cacheable', function(done) {
+		class NoCacheScreen extends Screen {
+			constructor() {
+				super();
+				this.cacheable = false;
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path1', NoCacheScreen));
+		app.addRoutes(new Route('/path2', NoCacheScreen));
+		app.navigate('/path1').then(() => {
+			var screenFirstNavigate = app.screens['/path1'];
+			app.navigate('/path2').then(() => {
+				app.navigate('/path1').then(() => {
+					assert.notStrictEqual(screenFirstNavigate, app.screens['/path1']);
+					app.dispose();
+					done();
+				});
+			});
+		});
+	});
+
+	it('should use same screen instance navigate when is cacheable', function(done) {
+		class CacheScreen extends Screen {
+			constructor() {
+				super();
+				this.cacheable = true;
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path1', CacheScreen));
+		app.addRoutes(new Route('/path2', CacheScreen));
+		app.navigate('/path1').then(() => {
+			var screenFirstNavigate = app.screens['/path1'];
+			app.navigate('/path2').then(() => {
+				app.navigate('/path1').then(() => {
+					assert.strictEqual(screenFirstNavigate, app.screens['/path1']);
+					app.dispose();
+					done();
+				});
+			});
+		});
+	});
+
 	it('should clear screen cache', function() {
 		var app = new App();
 		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));

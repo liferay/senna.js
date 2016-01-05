@@ -357,12 +357,10 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	finalizeNavigate_(path, nextScreen) {
-		var activeScreen = this.activeScreen;
-
 		nextScreen.activate();
 
-		if (activeScreen && !activeScreen.isCacheable()) {
-			this.removeScreen_(this.activePath, activeScreen);
+		if (this.activeScreen && !this.activeScreen.isCacheable()) {
+			this.removeScreen_(this.activePath, this.activeScreen);
 		}
 
 		this.activePath = path;
