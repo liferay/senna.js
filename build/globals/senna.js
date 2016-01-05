@@ -207,6 +207,16 @@ babelHelpers;
 	Cacheable.prototype.registerMetalComponent && Cacheable.prototype.registerMetalComponent(Cacheable, 'Cacheable')
 	this.senna.Cacheable = Cacheable;
 }).call(this);
+"use strict";
+
+(function () {
+	var globals = {
+		document: document,
+		window: window
+	};
+
+	this.senna.globals = globals;
+}).call(this);
 'use strict';
 
 /**
@@ -2982,16 +2992,6 @@ babelHelpers;
   this.sennaNamed.Promise.CancellablePromise = CancellablePromise;
   this.senna.Promise = CancellablePromise;
 }).call(this);
-"use strict";
-
-(function () {
-	var globals = {
-		document: document,
-		window: window
-	};
-
-	this.senna.globals = globals;
-}).call(this);
 'use strict';
 
 (function () {
@@ -3631,8 +3631,7 @@ babelHelpers;
 		/**
    * Shows screen content from a surface.
    * @param {String} screenId The screen id to show.
-   * @return {?CancellablePromise=} If returns a promise pauses the navigation until it
-   *     is resolved.
+   * @return {CancellablePromise} Pauses the navigation until it is resolved.
    */
 
 		Surface.prototype.show = function show(screenId) {
@@ -4055,6 +4054,7 @@ babelHelpers;
 			if (this.activeScreen) {
 				this.removeScreen_(this.activePath, this.activeScreen);
 			}
+			this.clearScreensCache();
 			this.formEventHandler_.removeListener();
 			this.linkEventHandler_.removeListener();
 			this.appEventHandlers_.removeAllListeners();
@@ -4122,12 +4122,10 @@ babelHelpers;
    */
 
 		App.prototype.finalizeNavigate_ = function finalizeNavigate_(path, nextScreen) {
-			var activeScreen = this.activeScreen;
-
 			nextScreen.activate();
 
-			if (activeScreen && !activeScreen.isCacheable()) {
-				this.removeScreen_(this.activePath, activeScreen);
+			if (this.activeScreen && !this.activeScreen.isCacheable()) {
+				this.removeScreen_(this.activePath, this.activeScreen);
 			}
 
 			this.activePath = path;
@@ -4550,7 +4548,7 @@ babelHelpers;
 			return nextScreen.load(path).then(function () {
 				return _this8.screens[path] = nextScreen;
 			}).catch(function (reason) {
-				_this8.removeScreen_(path, nextScreen);
+				_this8.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
 		};
@@ -5470,13 +5468,9 @@ babelHelpers;
 			var _this2 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				return _this2.allocateVirtualDocumentForContent(content);
-			}).then(function () {
-				return _this2.resolveTitleFromVirtualDocument();
-			}).then(function () {
-				return _this2.maybeSetBodyIdInVirtualDocument();
-			}).catch(function (err) {
-				throw err;
+				_this2.allocateVirtualDocumentForContent(content);
+				_this2.resolveTitleFromVirtualDocument();
+				_this2.maybeSetBodyIdInVirtualDocument();
 			});
 		};
 
