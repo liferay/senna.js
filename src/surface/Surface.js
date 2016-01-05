@@ -201,8 +201,7 @@ class Surface extends Disposable {
 	/**
 	 * Shows screen content from a surface.
 	 * @param {String} screenId The screen id to show.
-	 * @return {?CancellablePromise=} If returns a promise pauses the navigation until it
-	 *     is resolved.
+	 * @return {CancellablePromise} Pauses the navigation until it is resolved.
 	 */
 	show(screenId) {
 		var from = this.activeChild;
