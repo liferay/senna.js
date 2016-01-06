@@ -4476,6 +4476,8 @@ babelHelpers;
 				// after the load event occured, but not in the same event-loop cycle.
 				_this6.skipLoadPopstate = false;
 			}, 0);
+			// Try to reposition scroll to the hashed anchor when page loads.
+			this.maybeRepositionScrollToHashedAnchor();
 		};
 
 		/**
