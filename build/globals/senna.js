@@ -4144,18 +4144,12 @@ babelHelpers;
    */
 
 		App.prototype.findRoute = function findRoute(path) {
-			var basePath = this.basePath;
-
 			// Prevents navigation if it's a hash change on the same url.
-			var hashIndex = path.lastIndexOf('#');
-			if (hashIndex > -1) {
-				path = path.substr(0, hashIndex);
-				if (this.isPathCurrentBrowserPath(path)) {
-					return null;
-				}
+			if (path.lastIndexOf('#') > -1 && this.isPathCurrentBrowserPath(path)) {
+				return null;
 			}
 
-			path = path.substr(basePath.length);
+			path = this.maybeRemovePathHashbang(path).substr(this.basePath.length);
 
 			for (var i = 0; i < this.routes.length; i++) {
 				var route = this.routes[i];
@@ -4245,12 +4239,12 @@ babelHelpers;
 
 		/**
    * Checks if path is the same as the browser current path.
-   * @param  {string} path
+   * @param  {!string} path
    * @return {boolean}
    */
 
 		App.prototype.isPathCurrentBrowserPath = function isPathCurrentBrowserPath(path) {
-			return path === globals.window.location.pathname + globals.window.location.search;
+			return this.maybeRemovePathHashbang(path) === globals.window.location.pathname + globals.window.location.search;
 		};
 
 		/**
@@ -4330,6 +4324,55 @@ babelHelpers;
 		};
 
 		/**
+   * Maybe navigate to link element.
+   * @param {Element} link Link element that holds navigation information.
+   * @param {Event} event Dom event that initiated the navigation.
+   */
+
+		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(link, event) {
+			var path = link.pathname + link.search + link.hash;
+
+			if (!this.isLinkSameOrigin_(link.hostname)) {
+				console.log('Offsite link clicked');
+				return;
+			}
+			if (!this.isSameBasePath_(path)) {
+				console.log('Link clicked outside app\'s base path');
+				return;
+			}
+			if (!this.findRoute(path)) {
+				console.log('No route for ' + path);
+				return;
+			}
+
+			var navigateFailed = false;
+			try {
+				this.navigate(path);
+			} catch (err) {
+				// Do not prevent link navigation in case some synchronous error occurs
+				navigateFailed = true;
+			}
+
+			if (!navigateFailed) {
+				event.preventDefault();
+			}
+		};
+
+		/**
+   * Checks if path has hashbang, if so, removes it.
+   * @param  {!string} path
+   * @return {string} Path without hashbang.
+   */
+
+		App.prototype.maybeRemovePathHashbang = function maybeRemovePathHashbang(path) {
+			var hashIndex = path.lastIndexOf('#');
+			if (hashIndex > -1) {
+				path = path.substr(0, hashIndex);
+			}
+			return path;
+		};
+
+		/**
    * If supported by the browser, restores native scroll restoration to the
    * value captured by `maybeDisableNativeScrollRestoration`.
    */
@@ -4364,41 +4407,6 @@ babelHelpers;
 			});
 
 			return this.pendingNavigate;
-		};
-
-		/**
-   * Maybe navigate to link element.
-   * @param {Element} link Link element that holds navigation information.
-   * @param {Event} event Dom event that initiated the navigation.
-   */
-
-		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(link, event) {
-			var path = link.pathname + link.search + link.hash;
-
-			if (!this.isLinkSameOrigin_(link.hostname)) {
-				console.log('Offsite link clicked');
-				return;
-			}
-			if (!this.isSameBasePath_(path)) {
-				console.log('Link clicked outside app\'s base path');
-				return;
-			}
-			if (!this.findRoute(path)) {
-				console.log('No route for ' + path);
-				return;
-			}
-
-			var navigateFailed = false;
-			try {
-				this.navigate(path);
-			} catch (err) {
-				// Do not prevent link navigation in case some synchronous error occurs
-				navigateFailed = true;
-			}
-
-			if (!navigateFailed) {
-				event.preventDefault();
-			}
 		};
 
 		/**
@@ -4465,13 +4473,12 @@ babelHelpers;
 
 		App.prototype.onPopstate_ = function onPopstate_(event) {
 			var state = event.state;
-			console.log('onPopstate_', this.activePath, globals.window.location);
 
 			if (state === null) {
 				if (this.skipLoadPopstate) {
 					return;
 				}
-				if (!globals.window.location.hash || !this.isPathCurrentBrowserPath(this.activePath)) {
+				if (!globals.window.location.hash || this.activePath && !this.isPathCurrentBrowserPath(this.activePath)) {
 					this.reloadPage();
 					return;
 				}
