@@ -550,6 +550,40 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Maybe navigate to link element.
+	 * @param {Element} link Link element that holds navigation information.
+	 * @param {Event} event Dom event that initiated the navigation.
+	 */
+	maybeNavigateToLinkElement_(link, event) {
+		var path = link.pathname + link.search + link.hash;
+
+		if (!this.isLinkSameOrigin_(link.hostname)) {
+			console.log('Offsite link clicked');
+			return;
+		}
+		if (!this.isSameBasePath_(path)) {
+			console.log('Link clicked outside app\'s base path');
+			return;
+		}
+		if (!this.findRoute(path)) {
+			console.log('No route for ' + path);
+			return;
+		}
+
+		var navigateFailed = false;
+		try {
+			this.navigate(path);
+		} catch (err) {
+			// Do not prevent link navigation in case some synchronous error occurs
+			navigateFailed = true;
+		}
+
+		if (!navigateFailed) {
+			event.preventDefault();
+		}
+	}
+
+	/**
 	 * If supported by the browser, restores native scroll restoration to the
 	 * value captured by `maybeDisableNativeScrollRestoration`.
 	 */
@@ -582,40 +616,6 @@ class App extends EventEmitter {
 		});
 
 		return this.pendingNavigate;
-	}
-
-	/**
-	 * Maybe navigate to link element.
-	 * @param {Element} link Link element that holds navigation information.
-	 * @param {Event} event Dom event that initiated the navigation.
-	 */
-	maybeNavigateToLinkElement_(link, event) {
-		var path = link.pathname + link.search + link.hash;
-
-		if (!this.isLinkSameOrigin_(link.hostname)) {
-			console.log('Offsite link clicked');
-			return;
-		}
-		if (!this.isSameBasePath_(path)) {
-			console.log('Link clicked outside app\'s base path');
-			return;
-		}
-		if (!this.findRoute(path)) {
-			console.log('No route for ' + path);
-			return;
-		}
-
-		var navigateFailed = false;
-		try {
-			this.navigate(path);
-		} catch (err) {
-			// Do not prevent link navigation in case some synchronous error occurs
-			navigateFailed = true;
-		}
-
-		if (!navigateFailed) {
-			event.preventDefault();
-		}
 	}
 
 	/**
