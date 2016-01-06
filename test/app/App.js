@@ -378,6 +378,19 @@ describe('App', function() {
 		});
 	});
 
+	it('should navigate overwrite event.path on beforeNavigate custom event', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path1', Screen));
+		app.on('beforeNavigate', function(event) {
+			event.path = '/path1';
+		});
+		app.navigate('/path').then(() => {
+			assert.strictEqual('/path1', globals.window.location.pathname);
+			app.dispose();
+			done();
+		});
+	});
+
 	it('should cancel navigate', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));

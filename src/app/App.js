@@ -186,6 +186,7 @@ class App extends EventEmitter {
 		);
 
 		this.on('startNavigate', this.onStartNavigate_);
+		this.on('beforeNavigate', this.onBeforeNavigate_, true);
 
 		this.setLinkSelector(this.linkSelector);
 		this.setFormSelector(this.formSelector);
@@ -633,12 +634,25 @@ class App extends EventEmitter {
 			opt_replaceHistory = true;
 		}
 
-		this.emit('startNavigate', {
+		this.emit('beforeNavigate', {
 			path: path,
 			replaceHistory: !!opt_replaceHistory
 		});
 
 		return this.pendingNavigate;
+	}
+
+	/**
+	 * Befores navigation to a path.
+	 * @param {!Event} event Event facade containing <code>path</code> and
+	 *     <code>replaceHistory</code>.
+	 * @protected
+	 */
+	onBeforeNavigate_(event) {
+		this.emit('startNavigate', {
+			path: event.path,
+			replaceHistory: event.replaceHistory
+		});
 	}
 
 	/**
