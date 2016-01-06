@@ -676,7 +676,6 @@ class App extends EventEmitter {
 	 */
 	onPopstate_(event) {
 		var state = event.state;
-		console.log('onPopstate_', this.activePath, globals.window.location);
 
 		if (state === null) {
 			if (this.skipLoadPopstate) {
