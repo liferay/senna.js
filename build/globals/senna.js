@@ -3815,10 +3815,10 @@ babelHelpers;
 			/**
     * Holds the form selector to define forms that are routed.
     * @type {!string}
-    * @default form:not([data-senna-off])
+    * @default form[enctype="multipart/form-data"]:not([data-senna-off])
     * @protected
     */
-			_this.formSelector = 'form:not([data-senna-off])';
+			_this.formSelector = 'form[enctype="multipart/form-data"]:not([data-senna-off])';
 
 			/**
     * Holds the link selector to define links that are routed.
@@ -4150,7 +4150,7 @@ babelHelpers;
 			var hashIndex = path.lastIndexOf('#');
 			if (hashIndex > -1) {
 				path = path.substr(0, hashIndex);
-				if (path === globals.window.location.pathname + globals.window.location.search) {
+				if (this.isPathCurrentBrowserPath(path)) {
 					return null;
 				}
 			}
@@ -4241,6 +4241,16 @@ babelHelpers;
 
 		App.prototype.hasRoutes = function hasRoutes() {
 			return this.routes.length > 0;
+		};
+
+		/**
+   * Checks if path is the same as the browser current path.
+   * @param  {string} path
+   * @return {boolean}
+   */
+
+		App.prototype.isPathCurrentBrowserPath = function isPathCurrentBrowserPath(path) {
+			return path === globals.window.location.pathname + globals.window.location.search;
 		};
 
 		/**
@@ -4455,12 +4465,13 @@ babelHelpers;
 
 		App.prototype.onPopstate_ = function onPopstate_(event) {
 			var state = event.state;
+			console.log('onPopstate_', this.activePath, globals.window.location);
 
 			if (state === null) {
 				if (this.skipLoadPopstate) {
 					return;
 				}
-				if (!globals.window.location.hash) {
+				if (!globals.window.location.hash || !this.isPathCurrentBrowserPath(this.activePath)) {
 					this.reloadPage();
 					return;
 				}
