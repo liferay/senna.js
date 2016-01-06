@@ -748,6 +748,34 @@ describe('App', function() {
 		dom.triggerEvent(enterDocumentLinkElement('/path#hash2'), 'click');
 	});
 
+	it('should resposition scroll to hashed anchors on hash popstate', function(done) {
+		showPageScrollbar();
+		var link = enterDocumentLinkElement('/path');
+		link.style.position = 'absolute';
+		link.style.top = '1000px';
+		link.style.left = '1000px';
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.navigate('/path').then(() => {
+			globals.window.location.hash = 'link';
+			window.history.replaceState(null, null, null);
+			globals.window.location.hash = 'other';
+			window.history.replaceState(null, null, null);
+			dom.once(globals.window, 'popstate', () => {
+				dom.once(globals.window, 'popstate', () => {
+					assert.strictEqual(1000, window.pageXOffset);
+					assert.strictEqual(1000, window.pageYOffset);
+					app.dispose();
+					exitDocumentLinkElement();
+					hidePageScrollbar();
+					done();
+				});
+				globals.window.history.back();
+			});
+			globals.window.history.back();
+		});
+	});
+
 	it('should not reload page on navigate back to a routed page without history state and skipLoadPopstate is active', function(done) {
 		var app = new App();
 		app.reloadPage = sinon.stub();
