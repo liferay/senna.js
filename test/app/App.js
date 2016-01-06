@@ -734,6 +734,20 @@ describe('App', function() {
 		});
 	});
 
+	it('should not reload page on clicking links with same path containing different hashbang without history state', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.reloadPage = sinon.stub();
+		window.history.replaceState(null, null, '/path#hash1');
+		dom.once(globals.window, 'popstate', () => {
+			assert.strictEqual(0, app.reloadPage.callCount);
+			app.dispose();
+			exitDocumentLinkElement();
+			done();
+		});
+		dom.triggerEvent(enterDocumentLinkElement('/path#hash2'), 'click');
+	});
+
 	it('should not reload page on navigate back to a routed page without history state and skipLoadPopstate is active', function(done) {
 		var app = new App();
 		app.reloadPage = sinon.stub();

@@ -378,18 +378,12 @@ class App extends EventEmitter {
 	 *     path is the same as the current url and the path contains a fragment.
 	 */
 	findRoute(path) {
-		var basePath = this.basePath;
-
 		// Prevents navigation if it's a hash change on the same url.
-		var hashIndex = path.lastIndexOf('#');
-		if (hashIndex > -1) {
-			path = path.substr(0, hashIndex);
-			if (this.isPathCurrentBrowserPath(path)) {
-				return null;
-			}
+		if ((path.lastIndexOf('#') > -1) && this.isPathCurrentBrowserPath(path)) {
+			return null;
 		}
 
-		path = path.substr(basePath.length);
+		path = this.maybeRemovePathHashbang(path).substr(this.basePath.length);
 
 		for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];
@@ -471,11 +465,11 @@ class App extends EventEmitter {
 
 	/**
 	 * Checks if path is the same as the browser current path.
-	 * @param  {string} path
+	 * @param  {!string} path
 	 * @return {boolean}
 	 */
 	isPathCurrentBrowserPath(path) {
-		return path === globals.window.location.pathname + globals.window.location.search;
+		return this.maybeRemovePathHashbang(path) === globals.window.location.pathname + globals.window.location.search;
 	}
 
 	/**
@@ -584,6 +578,19 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Checks if path has hashbang, if so, removes it.
+	 * @param  {!string} path
+	 * @return {string} Path without hashbang.
+	 */
+	maybeRemovePathHashbang(path) {
+		var hashIndex = path.lastIndexOf('#');
+		if (hashIndex > -1) {
+			path = path.substr(0, hashIndex);
+		}
+		return path;
+	}
+
+	/**
 	 * If supported by the browser, restores native scroll restoration to the
 	 * value captured by `maybeDisableNativeScrollRestoration`.
 	 */
@@ -681,7 +688,7 @@ class App extends EventEmitter {
 			if (this.skipLoadPopstate) {
 				return;
 			}
-			if (!globals.window.location.hash || !this.isPathCurrentBrowserPath(this.activePath)) {
+			if (!globals.window.location.hash || this.activePath && !this.isPathCurrentBrowserPath(this.activePath)) {
 				this.reloadPage();
 				return;
 			}
