@@ -384,7 +384,7 @@ class App extends EventEmitter {
 		var hashIndex = path.lastIndexOf('#');
 		if (hashIndex > -1) {
 			path = path.substr(0, hashIndex);
-			if (path === globals.window.location.pathname + globals.window.location.search) {
+			if (this.isPathCurrentBrowserPath(path)) {
 				return null;
 			}
 		}
@@ -467,6 +467,15 @@ class App extends EventEmitter {
 	 */
 	hasRoutes() {
 		return this.routes.length > 0;
+	}
+
+	/**
+	 * Checks if path is the same as the browser current path.
+	 * @param  {string} path
+	 * @return {boolean}
+	 */
+	isPathCurrentBrowserPath(path) {
+		return path === globals.window.location.pathname + globals.window.location.search;
 	}
 
 	/**
@@ -667,12 +676,13 @@ class App extends EventEmitter {
 	 */
 	onPopstate_(event) {
 		var state = event.state;
+		console.log('onPopstate_', this.activePath, globals.window.location);
 
 		if (state === null) {
 			if (this.skipLoadPopstate) {
 				return;
 			}
-			if (!globals.window.location.hash) {
+			if (!globals.window.location.hash || !this.isPathCurrentBrowserPath(this.activePath)) {
 				this.reloadPage();
 				return;
 			}

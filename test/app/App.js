@@ -697,17 +697,35 @@ describe('App', function() {
 		});
 	});
 
-	it('should not reload page on navigate back to a routed page with hashbang without history state', function(done) {
+	it('should not reload page on navigate back to a routed page with same path containing hashbang without history state', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.reloadPage = sinon.stub();
+		app.navigate('/path').then(() => {
+			globals.window.location.hash = 'hash1';
+			window.history.replaceState(null, null, null);
+			app.navigate('/path').then(() => {
+				dom.once(globals.window, 'popstate', () => {
+					assert.strictEqual(0, app.reloadPage.callCount);
+					app.dispose();
+					done();
+				});
+				globals.window.history.back();
+			});
+		});
+	});
+
+	it('should reload page on navigate back to a routed page with different path containing hashbang without history state', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path1', Screen));
 		app.addRoutes(new Route('/path2', Screen));
 		app.reloadPage = sinon.stub();
 		app.navigate('/path1').then(() => {
-			globals.window.location.hash = 'hash';
+			globals.window.location.hash = 'hash1';
 			window.history.replaceState(null, null, null);
 			app.navigate('/path2').then(() => {
 				dom.once(globals.window, 'popstate', () => {
-					assert.strictEqual(0, app.reloadPage.callCount);
+					assert.strictEqual(1, app.reloadPage.callCount);
 					app.dispose();
 					done();
 				});
