@@ -303,7 +303,7 @@ describe('App', function() {
 
 	it('should get form selector', function() {
 		var app = new App();
-		assert.strictEqual('form:not([data-senna-off])', app.getFormSelector());
+		assert.strictEqual('form[enctype="multipart/form-data"]:not([data-senna-off])', app.getFormSelector());
 		app.setFormSelector('');
 		assert.strictEqual('', app.getFormSelector());
 		app.dispose();
@@ -1015,7 +1015,7 @@ function enterDocumentLinkElement(href) {
 }
 
 function enterDocumentFormElement(action, method) {
-	dom.enterDocument('<form id="form" action="' + action + '" method="' + method + '"></form>');
+	dom.enterDocument('<form id="form" action="' + action + '" method="' + method + '" enctype="multipart/form-data"></form>');
 	return document.getElementById('form');
 }
 

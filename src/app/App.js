@@ -63,10 +63,10 @@ class App extends EventEmitter {
 		/**
 		 * Holds the form selector to define forms that are routed.
 		 * @type {!string}
-		 * @default form:not([data-senna-off])
+		 * @default form[enctype="multipart/form-data"]:not([data-senna-off])
 		 * @protected
 		 */
-		this.formSelector = 'form:not([data-senna-off])';
+		this.formSelector = 'form[enctype="multipart/form-data"]:not([data-senna-off])';
 
 		/**
 		 * Holds the link selector to define links that are routed.
