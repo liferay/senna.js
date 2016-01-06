@@ -597,9 +597,12 @@ class App extends EventEmitter {
 	 * Maybe reposition scroll to hashed anchor.
 	 */
 	maybeRepositionScrollToHashedAnchor() {
-		var anchorElement = globals.document.querySelector(globals.window.location.hash);
-		if (anchorElement) {
-			globals.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+		var hash = globals.window.location.hash;
+		if (hash) {
+			var anchorElement = globals.document.getElementById(hash.substring(1));
+			if (anchorElement) {
+				globals.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+			}
 		}
 	}
 
