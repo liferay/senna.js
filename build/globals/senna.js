@@ -4244,7 +4244,10 @@ babelHelpers;
    */
 
 		App.prototype.isPathCurrentBrowserPath = function isPathCurrentBrowserPath(path) {
-			return this.maybeRemovePathHashbang(path) === globals.window.location.pathname + globals.window.location.search;
+			if (path) {
+				return this.maybeRemovePathHashbang(path) === globals.window.location.pathname + globals.window.location.search;
+			}
+			return false;
 		};
 
 		/**
@@ -4373,6 +4376,17 @@ babelHelpers;
 		};
 
 		/**
+   * Maybe reposition scroll to hashed anchor.
+   */
+
+		App.prototype.maybeRepositionScrollToHashedAnchor = function maybeRepositionScrollToHashedAnchor() {
+			var anchorElement = globals.document.querySelector(globals.window.location.hash);
+			if (anchorElement) {
+				globals.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+			}
+		};
+
+		/**
    * If supported by the browser, restores native scroll restoration to the
    * value captured by `maybeDisableNativeScrollRestoration`.
    */
@@ -4472,19 +4486,31 @@ babelHelpers;
    */
 
 		App.prototype.onPopstate_ = function onPopstate_(event) {
-			var state = event.state;
-
-			if (state === null) {
-				if (this.skipLoadPopstate) {
-					return;
-				}
-				if (!globals.window.location.hash || this.activePath && !this.isPathCurrentBrowserPath(this.activePath)) {
-					this.reloadPage();
-					return;
-				}
+			if (this.skipLoadPopstate) {
+				return;
 			}
 
-			if (state && state.senna) {
+			var state = event.state;
+
+			if (!state) {
+				if (globals.window.location.hash) {
+					// If senna is on an active path and a hash popstate happens to
+					// a different url, reload the browser. This behavior doesn't
+					// require senna to route hashed links and is closer to native
+					// browser behavior.
+					if (this.activePath && !this.isPathCurrentBrowserPath(this.activePath)) {
+						this.reloadPage();
+					}
+					// Always try to reposition scroll to the hashed anchor when
+					// hash popstate happens.
+					this.maybeRepositionScrollToHashedAnchor();
+				} else {
+					this.reloadPage();
+				}
+				return;
+			}
+
+			if (state.senna) {
 				console.log('History navigation to [' + state.path + ']');
 				this.popstateScrollTop = state.scrollTop;
 				this.popstateScrollLeft = state.scrollLeft;
