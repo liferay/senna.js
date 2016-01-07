@@ -3934,6 +3934,7 @@ babelHelpers;
 			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', _this.onScroll_.bind(_this)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
+			_this.on('beforeNavigate', _this.onBeforeNavigate_, true);
 
 			_this.setLinkSelector(_this.linkSelector);
 			_this.setFormSelector(_this.formSelector);
@@ -4418,12 +4419,26 @@ babelHelpers;
 				opt_replaceHistory = true;
 			}
 
-			this.emit('startNavigate', {
+			this.emit('beforeNavigate', {
 				path: path,
 				replaceHistory: !!opt_replaceHistory
 			});
 
 			return this.pendingNavigate;
+		};
+
+		/**
+   * Befores navigation to a path.
+   * @param {!Event} event Event facade containing <code>path</code> and
+   *     <code>replaceHistory</code>.
+   * @protected
+   */
+
+		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
+			this.emit('startNavigate', {
+				path: event.path,
+				replaceHistory: event.replaceHistory
+			});
 		};
 
 		/**
