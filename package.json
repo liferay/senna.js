@@ -22,7 +22,7 @@
     "gulp": "^3.8.11",
     "gulp-connect": "^2.3.1",
     "gulp-header": "^1.7.1",
-    "gulp-metal": "^0.7.4",
+    "gulp-metal": "^0.8.3",
     "isparta": "^4.0.0",
     "karma": "^0.13.9",
     "karma-babel-preprocessor": "^6.0.1",
