@@ -9,9 +9,10 @@
 this.senna = this.senna || {};
 this.sennaNamed = this.sennaNamed || {};
 var babelHelpers = {};
-
-babelHelpers.typeof = function (obj) {
-  return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj;
+babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
 };
 
 babelHelpers.classCallCheck = function (instance, Constructor) {
@@ -53,7 +54,7 @@ babelHelpers;
  */
 
 (function () {
-	var core = (function () {
+	var core = function () {
 		function core() {
 			babelHelpers.classCallCheck(this, core);
 		}
@@ -282,7 +283,7 @@ babelHelpers;
 		core.nullFunction = function nullFunction() {};
 
 		return core;
-	})();
+	}();
 
 	/**
   * Unique id property prefix.
@@ -306,7 +307,7 @@ babelHelpers;
 (function () {
 	var core = this.senna.core;
 
-	var array = (function () {
+	var array = function () {
 		function array() {
 			babelHelpers.classCallCheck(this, array);
 		}
@@ -409,7 +410,7 @@ babelHelpers;
 		};
 
 		return array;
-	})();
+	}();
 
 	this.senna.array = array;
 }).call(this);
@@ -565,7 +566,7 @@ babelHelpers;
 		// synchronous postMessage implementation.
 		if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
 			/** @constructor */
-			Channel = function () {
+			Channel = function Channel() {
 				// Make an empty, invisible iframe.
 				var iframe = document.createElement('iframe');
 				iframe.style.display = 'none';
@@ -578,14 +579,14 @@ babelHelpers;
 				doc.close();
 				var message = 'callImmediate' + Math.random();
 				var origin = win.location.protocol + '//' + win.location.host;
-				var onmessage = (function (e) {
+				var onmessage = function (e) {
 					// Validate origin and message to make sure that this message was
 					// intended for us.
 					if (e.origin !== origin && e.data !== message) {
 						return;
 					}
 					this.port1.onmessage();
-				}).bind(this);
+				}.bind(this);
 				win.addEventListener('message', onmessage, false);
 				this.port1 = {};
 				this.port2 = {
@@ -655,7 +656,7 @@ babelHelpers;
 (function () {
 	var core = this.senna.core;
 
-	var object = (function () {
+	var object = function () {
 		function object() {
 			babelHelpers.classCallCheck(this, object);
 		}
@@ -718,7 +719,7 @@ babelHelpers;
 		};
 
 		return object;
-	})();
+	}();
 
 	this.senna.object = object;
 }).call(this);
@@ -733,7 +734,7 @@ babelHelpers;
  */
 
 (function () {
-	var Disposable = (function () {
+	var Disposable = function () {
 		function Disposable() {
 			babelHelpers.classCallCheck(this, Disposable);
 
@@ -774,7 +775,7 @@ babelHelpers;
 		};
 
 		return Disposable;
-	})();
+	}();
 
 	this.senna.Disposable = Disposable;
 }).call(this);
@@ -796,7 +797,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventHandle = (function (_Disposable) {
+	var EventHandle = function (_Disposable) {
 		babelHelpers.inherits(EventHandle, _Disposable);
 
 		function EventHandle(emitter, event, listener) {
@@ -850,7 +851,7 @@ babelHelpers;
 		};
 
 		return EventHandle;
-	})(Disposable);
+	}(Disposable);
 
 	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
 	this.senna.EventHandle = EventHandle;
@@ -866,7 +867,7 @@ babelHelpers;
   * @extends {EventHandle}
   */
 
-	var DomEventHandle = (function (_EventHandle) {
+	var DomEventHandle = function (_EventHandle) {
 		babelHelpers.inherits(DomEventHandle, _EventHandle);
 
 		/**
@@ -897,7 +898,7 @@ babelHelpers;
 		};
 
 		return DomEventHandle;
-	})(EventHandle);
+	}(EventHandle);
 
 	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
 	this.senna.DomEventHandle = DomEventHandle;
@@ -909,7 +910,7 @@ babelHelpers;
 	var object = this.senna.object;
 	var DomEventHandle = this.senna.DomEventHandle;
 
-	var dom = (function () {
+	var dom = function () {
 		function dom() {
 			babelHelpers.classCallCheck(this, dom);
 		}
@@ -1492,7 +1493,7 @@ babelHelpers;
 		};
 
 		return dom;
-	})();
+	}();
 
 	var elementsByTag = {};
 	dom.customEvents = {};
@@ -1513,7 +1514,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventEmitter = (function (_Disposable) {
+	var EventEmitter = function (_Disposable) {
 		babelHelpers.inherits(EventEmitter, _Disposable);
 
 		function EventEmitter() {
@@ -1880,7 +1881,7 @@ babelHelpers;
 		};
 
 		return EventEmitter;
-	})(Disposable);
+	}(Disposable);
 
 	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	this.senna.EventEmitter = EventEmitter;
@@ -1897,7 +1898,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var EventHandler = (function (_Disposable) {
+	var EventHandler = function (_Disposable) {
 		babelHelpers.inherits(EventHandler, _Disposable);
 
 		function EventHandler() {
@@ -1950,7 +1951,7 @@ babelHelpers;
 		};
 
 		return EventHandler;
-	})(Disposable);
+	}(Disposable);
 
 	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
 	this.senna.EventHandler = EventHandler;
@@ -2852,7 +2853,7 @@ babelHelpers;
    * @extends {Error}
    * @final
    */
-  CancellablePromise.CancellationError = (function (_Error) {
+  CancellablePromise.CancellationError = function (_Error) {
     babelHelpers.inherits(_class, _Error);
 
     function _class(opt_message) {
@@ -2867,7 +2868,7 @@ babelHelpers;
     }
 
     return _class;
-  })(Error);
+  }(Error);
 
   /** @override */
   CancellablePromise.CancellationError.prototype.name = 'cancel';
@@ -2891,7 +2892,7 @@ babelHelpers;
 (function () {
 	var core = this.senna.core;
 
-	var Route = (function () {
+	var Route = function () {
 
 		/**
    * Route class.
@@ -2968,7 +2969,7 @@ babelHelpers;
 		};
 
 		return Route;
-	})();
+	}();
 
 	this.senna.Route = Route;
 }).call(this);
@@ -2977,7 +2978,7 @@ babelHelpers;
 (function () {
 	var Disposable = this.senna.Disposable;
 
-	var Cacheable = (function (_Disposable) {
+	var Cacheable = function (_Disposable) {
 		babelHelpers.inherits(Cacheable, _Disposable);
 
 		/**
@@ -3073,7 +3074,7 @@ babelHelpers;
 		};
 
 		return Cacheable;
-	})(Disposable);
+	}(Disposable);
 
 	Cacheable.prototype.registerMetalComponent && Cacheable.prototype.registerMetalComponent(Cacheable, 'Cacheable')
 	this.senna.Cacheable = Cacheable;
@@ -3085,7 +3086,7 @@ babelHelpers;
 	var Cacheable = this.senna.Cacheable;
 	var CancellablePromise = this.senna.Promise;
 
-	var Screen = (function (_Cacheable) {
+	var Screen = function (_Cacheable) {
 		babelHelpers.inherits(Screen, _Cacheable);
 
 		/**
@@ -3290,7 +3291,7 @@ babelHelpers;
 		};
 
 		return Screen;
-	})(Cacheable);
+	}(Cacheable);
 
 	/**
   * @param {*} object
@@ -3314,7 +3315,7 @@ babelHelpers;
   * Utility functions for running javascript code in the global scope.
   */
 
-	var globalEval = (function () {
+	var globalEval = function () {
 		function globalEval() {
 			babelHelpers.classCallCheck(this, globalEval);
 		}
@@ -3408,7 +3409,7 @@ babelHelpers;
 		};
 
 		return globalEval;
-	})();
+	}();
 
 	this.senna.globalEval = globalEval;
 }).call(this);
@@ -3422,7 +3423,7 @@ babelHelpers;
 	var Disposable = this.senna.Disposable;
 	var CancellablePromise = this.senna.Promise;
 
-	var Surface = (function (_Disposable) {
+	var Surface = function (_Disposable) {
 		babelHelpers.inherits(Surface, _Disposable);
 
 		/**
@@ -3682,7 +3683,7 @@ babelHelpers;
 		};
 
 		return Surface;
-	})(Disposable);
+	}(Disposable);
 
 	/**
     * Holds the default surface name. Elements on the page must contain a child
@@ -3759,7 +3760,7 @@ babelHelpers;
 	var Screen = this.senna.Screen;
 	var Surface = this.senna.Surface;
 
-	var App = (function (_EventEmitter) {
+	var App = function (_EventEmitter) {
 		babelHelpers.inherits(App, _EventEmitter);
 
 		/**
@@ -4831,7 +4832,7 @@ babelHelpers;
 		};
 
 		return App;
-	})(EventEmitter);
+	}(EventEmitter);
 
 	App.prototype.registerMetalComponent && App.prototype.registerMetalComponent(App, 'App')
 	this.senna.App = App;
@@ -4855,7 +4856,7 @@ babelHelpers;
 	var core = this.senna.core;
 	var Promise = this.sennaNamed.Promise.CancellablePromise;
 
-	var Ajax = (function () {
+	var Ajax = function () {
 		function Ajax() {
 			babelHelpers.classCallCheck(this, Ajax);
 		}
@@ -5031,7 +5032,7 @@ babelHelpers;
 		};
 
 		return Ajax;
-	})();
+	}();
 
 	this.senna.Ajax = Ajax;
 }).call(this);
@@ -5046,7 +5047,7 @@ babelHelpers;
   * @extends {Disposable}
   */
 
-	var MultiMap = (function (_Disposable) {
+	var MultiMap = function (_Disposable) {
 		babelHelpers.inherits(MultiMap, _Disposable);
 
 		function MultiMap() {
@@ -5194,7 +5195,7 @@ babelHelpers;
 		};
 
 		return MultiMap;
-	})(Disposable);
+	}(Disposable);
 
 	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
 	this.senna.MultiMap = MultiMap;
@@ -5209,7 +5210,7 @@ babelHelpers;
 	var globals = this.senna.globals;
 	var Screen = this.senna.Screen;
 
-	var RequestScreen = (function (_Screen) {
+	var RequestScreen = function (_Screen) {
 		babelHelpers.inherits(RequestScreen, _Screen);
 
 		/**
@@ -5421,7 +5422,7 @@ babelHelpers;
 		};
 
 		return RequestScreen;
-	})(Screen);
+	}(Screen);
 
 	/**
   * Holds value for method get.
@@ -5451,7 +5452,7 @@ babelHelpers;
 	var Surface = this.senna.Surface;
 	var dataAttributes = this.senna.dataAttributes;
 
-	var HtmlScreen = (function (_RequestScreen) {
+	var HtmlScreen = function (_RequestScreen) {
 		babelHelpers.inherits(HtmlScreen, _RequestScreen);
 
 		/**
@@ -5579,7 +5580,7 @@ babelHelpers;
 		};
 
 		return HtmlScreen;
-	})(RequestScreen);
+	}(RequestScreen);
 
 	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
 	this.senna.HtmlScreen = HtmlScreen;
@@ -5596,7 +5597,7 @@ babelHelpers;
 	var HtmlScreen = this.senna.HtmlScreen;
 	var Route = this.senna.Route;
 
-	var AppDataAttributeHandler = (function (_Disposable) {
+	var AppDataAttributeHandler = function (_Disposable) {
 		babelHelpers.inherits(AppDataAttributeHandler, _Disposable);
 
 		/**
@@ -5858,7 +5859,7 @@ babelHelpers;
 		};
 
 		return AppDataAttributeHandler;
-	})(Disposable);
+	}(Disposable);
 
 	AppDataAttributeHandler.prototype.registerMetalComponent && AppDataAttributeHandler.prototype.registerMetalComponent(AppDataAttributeHandler, 'AppDataAttributeHandler')
 	this.senna.AppDataAttributeHandler = AppDataAttributeHandler;
