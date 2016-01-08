@@ -5,14 +5,14 @@
 
 .senna-loading .senna-loading-bar {
   animation: shift-rightwards 1s ease-in-out infinite;
-  animation-delay: .25s;
+  animation-delay: .4s;
   display: block; }
 
 .senna-loading-bar {
   transform: translateX(100%);
   background: #48e79a;
   display: none;
-  height: 3px;
+  height: 2px;
   left: 0;
   position: fixed;
   right: 0;
