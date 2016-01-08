@@ -7,20 +7,20 @@
 
 .senna-loading .senna-loading-bar {
   animation: shift-rightwards 1s ease-in-out infinite;
-  animation-delay: .4s;
+  animation-delay: .25s;
   display: block
 }
 
 .senna-loading-bar {
   transform: translateX(100%);
-  background: #2fa4f5;
+  background: #48e79a;
   display: none;
-  height: 2px;
+  height: 3px;
   left: 0;
   position: fixed;
   right: 0;
   top: 0;
-  z-index: 1000
+  z-index: 10000
 }
 
 @keyframes shift-rightwards {
