@@ -13,7 +13,7 @@
   <form action="/post" method="post" enctype="multipart/form-data">
     <input type="text" name="name" placeholder="Type your name"><br>
     <input type="text" name="email" placeholder="Type your email"><br>
-    <button>Submit</button>
+    <button name="cmd" value="submit">Submit</button>
   </form>
 
   <div id="result1" data-senna-surface>
@@ -21,7 +21,7 @@
   </div>
 
   <h1>Post Redirect Get</h1>
-  <form action="/post-get" method="post">
+  <form action="/post-get" method="post" enctype="multipart/form-data">
     <input type="text" name="name" placeholder="Type your name"><br>
     <input type="text" name="email" placeholder="Type your email"><br>
     <button>Submit</button>
