@@ -161,7 +161,6 @@ class RequestScreen extends Screen {
 				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
 					this.addCache(xhr.responseText);
 				}
-				this.setRequest(xhr);
 				return xhr.responseText;
 			});
 	}
