@@ -5388,7 +5388,9 @@ babelHelpers;
 			return Ajax.request(path, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
 				if (!_this2.isValidResponseStatusCode(xhr.status)) {
-					throw new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
+					var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
+					error.responseError = true;
+					throw error;
 				}
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
