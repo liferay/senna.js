@@ -270,8 +270,9 @@ describe('App', function() {
 	});
 
 	it('should get default title', function() {
+		globals.document.title = 'default';
 		var app = new App();
-		assert.strictEqual('', app.getDefaultTitle());
+		assert.strictEqual('default', app.getDefaultTitle());
 		app.setDefaultTitle('title');
 		assert.strictEqual('title', app.getDefaultTitle());
 		app.dispose();

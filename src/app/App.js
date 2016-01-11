@@ -58,7 +58,7 @@ class App extends EventEmitter {
 		 * @default null
 		 * @protected
 		 */
-		this.defaultTitle = '';
+		this.defaultTitle = globals.document.title;
 
 		/**
 		 * Holds the form selector to define forms that are routed.
