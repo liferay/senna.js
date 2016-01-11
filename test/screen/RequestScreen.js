@@ -84,6 +84,11 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
+	it('should request fail for invalid status code response', function(done) {
+		new RequestScreen().load('/url').catch(() => done());
+		this.requests[0].respond(404);
+	});
+
 	it('should load response content from cache', function(done) {
 		var screen = new RequestScreen();
 		var cache = {};

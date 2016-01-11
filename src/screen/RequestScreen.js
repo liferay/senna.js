@@ -134,6 +134,15 @@ class RequestScreen extends Screen {
 	}
 
 	/**
+	 * Checks if response succeeded. Any status code 2xx or 3xx is considered
+	 * valid.
+	 * @param {number} statusCode
+	 */
+	isValidResponseStatusCode(statusCode) {
+		return statusCode >= 200 && statusCode <= 399;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	load(path) {
@@ -158,6 +167,11 @@ class RequestScreen extends Screen {
 			.request(path, httpMethod, body, headers, null, this.timeout)
 			.then(xhr => {
 				this.setRequest(xhr);
+				if (!this.isValidResponseStatusCode(xhr.status)) {
+					throw new Error('Invalid response status code. ' +
+						'To customize which status codes are valid, ' +
+						'overwrite `screen.isValidResponseStatusCode` method.');
+				}
 				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
 					this.addCache(xhr.responseText);
 				}
