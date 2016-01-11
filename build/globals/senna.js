@@ -3811,7 +3811,7 @@ babelHelpers;
     * @default null
     * @protected
     */
-			_this.defaultTitle = '';
+			_this.defaultTitle = globals.document.title;
 
 			/**
     * Holds the form selector to define forms that are routed.
