@@ -5350,6 +5350,16 @@ babelHelpers;
 		};
 
 		/**
+   * Checks if response succeeded. Any status code 2xx or 3xx is considered
+   * valid.
+   * @param {number} statusCode
+   */
+
+		RequestScreen.prototype.isValidResponseStatusCode = function isValidResponseStatusCode(statusCode) {
+			return statusCode >= 200 && statusCode <= 399;
+		};
+
+		/**
    * @inheritDoc
    */
 
@@ -5377,10 +5387,12 @@ babelHelpers;
 
 			return Ajax.request(path, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
+				if (!_this2.isValidResponseStatusCode(xhr.status)) {
+					throw new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
+				}
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
 				}
-				_this2.setRequest(xhr);
 				return xhr.responseText;
 			});
 		};
