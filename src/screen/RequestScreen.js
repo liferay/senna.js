@@ -168,9 +168,11 @@ class RequestScreen extends Screen {
 			.then(xhr => {
 				this.setRequest(xhr);
 				if (!this.isValidResponseStatusCode(xhr.status)) {
-					throw new Error('Invalid response status code. ' +
+					var error = new Error('Invalid response status code. ' +
 						'To customize which status codes are valid, ' +
 						'overwrite `screen.isValidResponseStatusCode` method.');
+					error.responseError = true;
+					throw error;
 				}
 				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
 					this.addCache(xhr.responseText);

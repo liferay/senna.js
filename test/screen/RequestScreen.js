@@ -85,7 +85,10 @@ describe('RequestScreen', function() {
 	});
 
 	it('should request fail for invalid status code response', function(done) {
-		new RequestScreen().load('/url').catch(() => done());
+		new RequestScreen().load('/url').catch((error) => {
+			assert.ok(error.responseError);
+			done();
+		});
 		this.requests[0].respond(404);
 	});
 
