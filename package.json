@@ -18,7 +18,7 @@
   ],
   "devDependencies": {
     "babel-preset-metal": "^1.0.3",
-    "chai": "^2.3.0",
+    "chai": "^3.4.1",
     "gulp": "^3.8.11",
     "gulp-connect": "^2.3.1",
     "gulp-header": "^1.7.1",
@@ -36,7 +36,7 @@
     "karma-safari-launcher": "^0.1.1",
     "karma-sauce-launcher": "^0.3.0",
     "karma-sinon": "^1.0.4",
-    "karma-source-map-support": "1.0.0",
+    "karma-source-map-support": "^1.1.0",
     "mocha": "^2.2.5",
     "run-sequence": "^1.1.5",
     "sinon": "^1.14.1"
