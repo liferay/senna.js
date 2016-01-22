@@ -77,6 +77,7 @@ class HtmlScreen extends RequestScreen {
 				this.allocateVirtualDocumentForContent(content);
 				this.resolveTitleFromVirtualDocument();
 				this.maybeSetBodyIdInVirtualDocument();
+				return content;
 			});
 	}
 

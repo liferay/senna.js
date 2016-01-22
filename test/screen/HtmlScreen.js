@@ -26,6 +26,15 @@ describe('HtmlScreen', function() {
 		assert.strictEqual('div.title', screen.getTitleSelector());
 	});
 
+	it('should returns loaded content', function(done) {
+		var screen = new HtmlScreen();
+		screen.load('/url').then((content) => {
+			assert.strictEqual('content', content);
+			done();
+		});
+		this.requests[0].respond(200, null, 'content');
+	});
+
 	it('should set title from response content', function(done) {
 		var screen = new HtmlScreen();
 		screen.load('/url').then(() => {
