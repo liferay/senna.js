@@ -5550,6 +5550,7 @@ babelHelpers;
 				_this2.allocateVirtualDocumentForContent(content);
 				_this2.resolveTitleFromVirtualDocument();
 				_this2.maybeSetBodyIdInVirtualDocument();
+				return content;
 			});
 		};
 
