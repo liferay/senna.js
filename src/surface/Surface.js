@@ -3,7 +3,6 @@
 import globals from '../globals/globals';
 import core from 'bower:metal/src/core';
 import dom from 'bower:metal/src/dom/dom';
-import globalEval from 'bower:metal/src/eval/globalEval';
 import Disposable from 'bower:metal/src/disposable/Disposable';
 import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 
@@ -76,11 +75,9 @@ class Surface extends Disposable {
 	 * @param {!string} screenId The screen id the content belongs too.
 	 * @param {?string|Element=} opt_content The string content or element to
 	 *     add be added as surface content.
-	 * @param {boolean} opt_runScriptsInElement If true, run scripts inside
-	 *     <code>opt_content</code>.
 	 * @return {Element}
 	 */
-	addContent(screenId, opt_content, opt_runScriptsInElement) {
+	addContent(screenId, opt_content) {
 		var child = this.defaultChild;
 
 		if (core.isDefAndNotNull(opt_content)) {
@@ -94,9 +91,6 @@ class Surface extends Disposable {
 
 		if (element && child) {
 			dom.append(element, child);
-			if (opt_runScriptsInElement) {
-				globalEval.runScriptsInElement(child);
-			}
 		}
 
 		return child;
@@ -176,7 +170,7 @@ class Surface extends Disposable {
 			while (element.firstChild) {
 				fragment.appendChild(element.firstChild);
 			}
-			this.defaultChild = this.addContent(Surface.DEFAULT, fragment, false);
+			this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
 			this.transition(null, this.defaultChild);
 		}
 	}

@@ -854,7 +854,7 @@ class App extends EventEmitter {
 	prepareNavigateSurfaces_(nextScreen, surfaces) {
 		Object.keys(surfaces).forEach((id) => {
 			var surfaceContent = nextScreen.getSurfaceContent(id);
-			surfaces[id].addContent(nextScreen.getId(), surfaceContent, true);
+			surfaces[id].addContent(nextScreen.getId(), surfaceContent);
 			console.log('Screen [' + nextScreen.getId() + '] add content to surface ' +
 				'[' + surfaces[id] + '] [' + (core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 		});

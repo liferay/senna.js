@@ -198,14 +198,6 @@ describe('Surface', function() {
 			surface.setTransitionFn(transitionFn);
 			surface.transition(null, null).catch(() => done()).cancel();
 		});
-
-		it('should evaluate scripts when adding screen content to surface', function() {
-			enterDocumentSurfaceElement('surfaceId');
-			var surface = new Surface('surfaceId');
-			surface.addContent('screenId', '<script>window.sentinel=true;</script>', true);
-			assert.ok(window.sentinel);
-			exitDocumentSurfaceElement('surfaceId');
-		});
 	});
 
 });

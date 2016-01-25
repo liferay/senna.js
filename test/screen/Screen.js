@@ -1,5 +1,6 @@
 'use strict';
 
+import dom from 'bower:metal/src/dom/dom';
 import Screen from '../../src/screen/Screen';
 import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
@@ -88,4 +89,27 @@ describe('Screen', function() {
 		assert.ok(Screen.isImplementedBy(new Screen()));
 	});
 
+	it('should evaluate surface scripts after screen flip', function(done) {
+		enterDocumentSurfaceElement('surfaceId', '<script>window.sentinel=true;</script>');
+		var surface = new Surface('surfaceId');
+		var screen = new Screen();
+		assert.ok(!window.sentinel);
+		screen.flip({
+			surfaceId: surface
+		}).then(() => {
+			assert.ok(window.sentinel);
+			exitDocumentSurfaceElement('surfaceId');
+			done();
+		});
+	});
+
 });
+
+function enterDocumentSurfaceElement(surfaceId, opt_content) {
+	dom.enterDocument('<div id="' + surfaceId + '">' + (opt_content ? opt_content : '') + '</div>');
+	return document.getElementById(surfaceId);
+}
+
+function exitDocumentSurfaceElement(surfaceId) {
+	return dom.exitDocument(document.getElementById(surfaceId));
+}

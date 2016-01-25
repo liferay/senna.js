@@ -1,6 +1,7 @@
 'use strict';
 
 import core from 'bower:metal/src/core';
+import globalEval from 'bower:metal/src/eval/globalEval';
 import Cacheable from '../cacheable/Cacheable';
 import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
 
@@ -102,7 +103,14 @@ class Screen extends Cacheable {
 
 		var transitions = [];
 
-		Object.keys(surfaces).forEach(sId => transitions.push(surfaces[sId].show(this.id)));
+		Object.keys(surfaces).forEach(sId => {
+			var surface = surfaces[sId];
+			var deferred = surface.show(this.id);
+			transitions.push(deferred);
+			if (surface.activeChild) {
+				deferred.then(() => globalEval.runScriptsInElement(surface.activeChild));
+			}
+		});
 
 		return CancellablePromise.all(transitions);
 	}
