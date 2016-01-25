@@ -2976,6 +2976,113 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var dom = this.senna.dom;
+
+	/**
+  * Utility functions for running javascript code in the global scope.
+  */
+
+	var globalEval = function () {
+		function globalEval() {
+			babelHelpers.classCallCheck(this, globalEval);
+		}
+
+		/**
+   * Evaluates the given string in the global scope.
+   * @param {string} text
+   */
+
+		globalEval.run = function run(text) {
+			var script = document.createElement('script');
+			script.text = text;
+			document.head.appendChild(script).parentNode.removeChild(script);
+		};
+
+		/**
+   * Evaluates the given javascript file in the global scope.
+   * @param {string} src The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runFile = function runFile(src, opt_callback) {
+			var script = document.createElement('script');
+			script.src = src;
+
+			var callback = function callback() {
+				script.parentNode.removeChild(script);
+				opt_callback && opt_callback();
+			};
+			dom.on(script, 'load', callback);
+			dom.on(script, 'error', callback);
+			document.head.appendChild(script);
+		};
+
+		/**
+   * Evaluates the code referenced by the given script element.
+   * @param {!Element} script
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScript = function runScript(script, opt_callback) {
+			if (script.type && script.type !== 'text/javascript') {
+				opt_callback && opt_callback();
+				return;
+			}
+			if (script.parentNode) {
+				script.parentNode.removeChild(script);
+			}
+			if (script.src) {
+				globalEval.runFile(script.src, opt_callback);
+			} else {
+				globalEval.run(script.text);
+				opt_callback && opt_callback();
+			}
+		};
+
+		/**
+   * Evaluates any script tags present in the given element.
+   * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
+			var scripts = element.querySelectorAll('script');
+			if (scripts.length) {
+				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
+			} else if (opt_callback) {
+				opt_callback();
+			}
+		};
+
+		/**
+   * Runs the given scripts elements in the order that they appear.
+   * @param {!NodeList} scripts
+   * @param {number} index
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
+			globalEval.runScript(scripts.item(index), function () {
+				if (index < scripts.length - 1) {
+					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
+				} else if (opt_callback) {
+					opt_callback();
+				}
+			});
+		};
+
+		return globalEval;
+	}();
+
+	this.senna.globalEval = globalEval;
+}).call(this);
+'use strict';
+
+(function () {
 	var Disposable = this.senna.Disposable;
 
 	var Cacheable = function (_Disposable) {
@@ -3083,6 +3190,7 @@ babelHelpers;
 
 (function () {
 	var core = this.senna.core;
+	var globalEval = this.senna.globalEval;
 	var Cacheable = this.senna.Cacheable;
 	var CancellablePromise = this.senna.Promise;
 
@@ -3200,7 +3308,14 @@ babelHelpers;
 			var transitions = [];
 
 			Object.keys(surfaces).forEach(function (sId) {
-				return transitions.push(surfaces[sId].show(_this2.id));
+				var surface = surfaces[sId];
+				var deferred = surface.show(_this2.id);
+				transitions.push(deferred);
+				if (surface.activeChild) {
+					deferred.then(function () {
+						return globalEval.runScriptsInElement(surface.activeChild);
+					});
+				}
 			});
 
 			return CancellablePromise.all(transitions);
@@ -3309,117 +3424,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var dom = this.senna.dom;
-
-	/**
-  * Utility functions for running javascript code in the global scope.
-  */
-
-	var globalEval = function () {
-		function globalEval() {
-			babelHelpers.classCallCheck(this, globalEval);
-		}
-
-		/**
-   * Evaluates the given string in the global scope.
-   * @param {string} text
-   */
-
-		globalEval.run = function run(text) {
-			var script = document.createElement('script');
-			script.text = text;
-			document.head.appendChild(script).parentNode.removeChild(script);
-		};
-
-		/**
-   * Evaluates the given javascript file in the global scope.
-   * @param {string} src The file's path.
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runFile = function runFile(src, opt_callback) {
-			var script = document.createElement('script');
-			script.src = src;
-
-			var callback = function callback() {
-				script.parentNode.removeChild(script);
-				opt_callback && opt_callback();
-			};
-			dom.on(script, 'load', callback);
-			dom.on(script, 'error', callback);
-			document.head.appendChild(script);
-		};
-
-		/**
-   * Evaluates the code referenced by the given script element.
-   * @param {!Element} script
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runScript = function runScript(script, opt_callback) {
-			if (script.type && script.type !== 'text/javascript') {
-				opt_callback && opt_callback();
-				return;
-			}
-			if (script.parentNode) {
-				script.parentNode.removeChild(script);
-			}
-			if (script.src) {
-				globalEval.runFile(script.src, opt_callback);
-			} else {
-				globalEval.run(script.text);
-				opt_callback && opt_callback();
-			}
-		};
-
-		/**
-   * Evaluates any script tags present in the given element.
-   * @params {!Element} element
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
-			var scripts = element.querySelectorAll('script');
-			if (scripts.length) {
-				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
-			} else if (opt_callback) {
-				opt_callback();
-			}
-		};
-
-		/**
-   * Runs the given scripts elements in the order that they appear.
-   * @param {!NodeList} scripts
-   * @param {number} index
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
-			globalEval.runScript(scripts.item(index), function () {
-				if (index < scripts.length - 1) {
-					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
-				} else if (opt_callback) {
-					opt_callback();
-				}
-			});
-		};
-
-		return globalEval;
-	}();
-
-	this.senna.globalEval = globalEval;
-}).call(this);
-'use strict';
-
-(function () {
 	var globals = this.senna.globals;
 	var core = this.senna.core;
 	var dom = this.senna.dom;
-	var globalEval = this.senna.globalEval;
 	var Disposable = this.senna.Disposable;
 	var CancellablePromise = this.senna.Promise;
 
@@ -3497,12 +3504,10 @@ babelHelpers;
    * @param {!string} screenId The screen id the content belongs too.
    * @param {?string|Element=} opt_content The string content or element to
    *     add be added as surface content.
-   * @param {boolean} opt_runScriptsInElement If true, run scripts inside
-   *     <code>opt_content</code>.
    * @return {Element}
    */
 
-		Surface.prototype.addContent = function addContent(screenId, opt_content, opt_runScriptsInElement) {
+		Surface.prototype.addContent = function addContent(screenId, opt_content) {
 			var child = this.defaultChild;
 
 			if (core.isDefAndNotNull(opt_content)) {
@@ -3516,9 +3521,6 @@ babelHelpers;
 
 			if (element && child) {
 				dom.append(element, child);
-				if (opt_runScriptsInElement) {
-					globalEval.runScriptsInElement(child);
-				}
 			}
 
 			return child;
@@ -3605,7 +3607,7 @@ babelHelpers;
 				while (element.firstChild) {
 					fragment.appendChild(element.firstChild);
 				}
-				this.defaultChild = this.addContent(Surface.DEFAULT, fragment, false);
+				this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
 				this.transition(null, this.defaultChild);
 			}
 		};
@@ -4654,7 +4656,7 @@ babelHelpers;
 		App.prototype.prepareNavigateSurfaces_ = function prepareNavigateSurfaces_(nextScreen, surfaces) {
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id);
-				surfaces[id].addContent(nextScreen.getId(), surfaceContent, true);
+				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
 				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		};
