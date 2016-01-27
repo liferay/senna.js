@@ -1,12 +1,12 @@
 'use strict';
 
-import array from 'bower:metal/src/array/array';
-import async from 'bower:metal/src/async/async';
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
-import EventEmitter from 'bower:metal/src/events/EventEmitter';
-import EventHandler from 'bower:metal/src/events/EventHandler';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import array from 'metal/src/array/array';
+import async from 'metal/src/async/async';
+import core from 'metal/src/core';
+import dom from 'metal/src/dom/dom';
+import EventEmitter from 'metal/src/events/EventEmitter';
+import EventHandler from 'metal/src/events/EventHandler';
+import CancellablePromise from 'metal-promise/src/promise/Promise';
 import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';

@@ -1,10 +1,10 @@
 'use strict';
 
 import globals from '../globals/globals';
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
-import Disposable from 'bower:metal/src/disposable/Disposable';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import core from 'metal/src/core';
+import dom from 'metal/src/dom/dom';
+import Disposable from 'metal/src/disposable/Disposable';
+import CancellablePromise from 'metal-promise/src/promise/Promise';
 
 class Surface extends Disposable {
 
