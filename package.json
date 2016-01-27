@@ -9,6 +9,7 @@
     "npm": ">=3.0.0"
   },
   "files": [
+    "build",
     "src/**/*.js",
     "test/**/*.js"
   ],
