@@ -4,6 +4,14 @@
   "description": "A blazing-fast Single Page Application engine",
   "license": "BSD-3-Clause",
   "repository": "eduardolundgren/senna.js",
+  "engines": {
+    "node": ">=0.12.0",
+    "npm": ">=3.0.0"
+  },
+  "files": [
+    "src/**/*.js",
+    "test/**/*.js"
+  ],
   "author": {
     "name": "Eduardo Lundgren",
     "email": "edu@rdo.io",
@@ -16,28 +24,20 @@
     "page",
     "apps"
   ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "closure-templates": "20140422.0.0",
+    "metal": "metal/metal.js#master",
+    "metal-ajax": "metal/metal-ajax#master",
+    "metal-debounce": "metal/metal-debounce#master",
+    "metal-multimap": "metal/metal-multimap#master",
+    "metal-promise": "metal/metal-promise#master"
+  },
   "devDependencies": {
-    "babel-preset-metal": "^1.0.3",
-    "chai": "^3.4.1",
     "gulp": "^3.8.11",
     "gulp-connect": "^2.3.1",
     "gulp-header": "^1.7.1",
-    "gulp-metal": "^0.8.3",
-    "isparta": "^4.0.0",
-    "karma": "^0.13.9",
-    "karma-babel-preprocessor": "^6.0.1",
-    "karma-chai": "^0.1.0",
-    "karma-chrome-launcher": "^0.2.0",
-    "karma-commonjs": "0.0.13",
-    "karma-coverage": "^0.5.1",
-    "karma-firefox-launcher": "^0.1.7",
-    "karma-ievms": "^0.1.0",
-    "karma-mocha": "^0.2.0",
-    "karma-safari-launcher": "^0.1.1",
-    "karma-sauce-launcher": "^0.3.0",
-    "karma-sinon": "^1.0.4",
-    "karma-source-map-support": "^1.1.0",
-    "mocha": "^2.2.5",
+    "gulp-metal": "^0.9.0",
     "run-sequence": "^1.1.5",
     "sinon": "^1.14.1"
   }

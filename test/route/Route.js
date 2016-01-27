@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
+import core from 'metal/src/core';
 import Route from '../../src/route/Route';
 
 describe('Route', function() {

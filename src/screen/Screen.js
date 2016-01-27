@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import globalEval from 'bower:metal/src/eval/globalEval';
+import core from 'metal/src/core';
+import globalEval from 'metal/src/eval/globalEval';
 import Cacheable from '../cacheable/Cacheable';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'metal-promise/src/promise/Promise';
 
 class Screen extends Cacheable {
 

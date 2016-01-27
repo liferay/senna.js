@@ -24,13 +24,6 @@
     "bower_components",
     "test"
   ],
-  "dependencies": {
-    "metal": "metal/metal.js#master",
-    "metal-ajax": "metal/metal-ajax#master",
-    "metal-multimap": "metal/metal-multimap#master",
-    "metal-debounce": "metal/metal-debounce#master",
-    "metal-promise": "metal/metal-promise#master"
-  },
   "devDependencies": {
     "assert": "~0.1.0",
     "mocha": "~1.21.4",

@@ -1,6 +1,6 @@
 'use strict';
 
-import Disposable from 'bower:metal/src/disposable/Disposable';
+import Disposable from 'metal/src/disposable/Disposable';
 
 class Cacheable extends Disposable {
 

@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import dom from 'bower:metal/src/dom/dom';
+import core from 'metal/src/core';
+import dom from 'metal/src/dom/dom';
 import Surface from '../../src/surface/Surface';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import CancellablePromise from 'metal-promise/src/promise/Promise';
 
 describe('Surface', function() {
 

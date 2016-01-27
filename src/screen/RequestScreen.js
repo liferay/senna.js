@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'bower:metal/src/core';
-import Ajax from 'bower:metal-ajax/src/Ajax';
-import MultiMap from 'bower:metal-multimap/src/MultiMap';
-import CancellablePromise from 'bower:metal-promise/src/promise/Promise';
+import core from 'metal/src/core';
+import Ajax from 'metal-ajax/src/Ajax';
+import MultiMap from 'metal-multimap/src/MultiMap';
+import CancellablePromise from 'metal-promise/src/promise/Promise';
 import globals from '../globals/globals';
 import Screen from './Screen';
 
