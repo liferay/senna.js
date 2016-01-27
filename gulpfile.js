@@ -95,7 +95,7 @@ gulp.task('banner', function() {
 // Runner ----------------------------------------------------------------------
 
 gulp.task('default', function(done) {
-	runSequence('build', 'banner', done);
+	runSequence('clean', 'css', 'build:globals', 'build:amd', 'banner', done);
 });
 
 gulp.task('server', ['default'], function() {
