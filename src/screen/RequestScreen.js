@@ -1,9 +1,9 @@
 'use strict';
 
-import core from 'metal/src/core';
-import Ajax from 'metal-ajax/src/Ajax';
-import MultiMap from 'metal-multimap/src/MultiMap';
-import CancellablePromise from 'metal-promise/src/promise/Promise';
+import { core } from 'metal';
+import Ajax from 'metal-ajax';
+import MultiMap from 'metal-multimap';
+import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import Screen from './Screen';
 

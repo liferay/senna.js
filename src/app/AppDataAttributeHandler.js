@@ -1,8 +1,6 @@
 'use strict';
 
-import core from 'metal/src/core';
-import object from 'metal/src/object/object';
-import Disposable from 'metal/src/disposable/Disposable';
+import { core, object, Disposable } from 'metal';
 import dataAttributes from './dataAttributes';
 import globals from '../globals/globals';
 import App from './App';

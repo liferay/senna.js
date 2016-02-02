@@ -1,6 +1,6 @@
 'use strict';
 
-import core from 'metal/src/core';
+import { core } from 'metal';
 import Route from '../../src/route/Route';
 
 describe('Route', function() {

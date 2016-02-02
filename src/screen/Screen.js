@@ -1,9 +1,8 @@
 'use strict';
 
-import core from 'metal/src/core';
-import globalEval from 'metal/src/eval/globalEval';
+import { core, globalEval } from 'metal';
 import Cacheable from '../cacheable/Cacheable';
-import CancellablePromise from 'metal-promise/src/promise/Promise';
+import CancellablePromise from 'metal-promise';
 
 class Screen extends Cacheable {
 

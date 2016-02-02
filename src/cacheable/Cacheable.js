@@ -1,6 +1,6 @@
 'use strict';
 
-import Disposable from 'metal/src/disposable/Disposable';
+import { Disposable } from 'metal';
 
 class Cacheable extends Disposable {
 

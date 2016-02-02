@@ -1,7 +1,7 @@
 'use strict';
 
-import dom from 'metal/src/dom/dom';
-import CancellablePromise from 'metal-promise/src/promise/Promise';
+import { dom } from 'metal';
+import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
 import App from '../../src/app/App';
 import Route from '../../src/route/Route';

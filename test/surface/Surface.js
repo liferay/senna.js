@@ -1,9 +1,8 @@
 'use strict';
 
-import core from 'metal/src/core';
-import dom from 'metal/src/dom/dom';
+import { core, dom } from 'metal';
 import Surface from '../../src/surface/Surface';
-import CancellablePromise from 'metal-promise/src/promise/Promise';
+import CancellablePromise from 'metal-promise';
 
 describe('Surface', function() {
 

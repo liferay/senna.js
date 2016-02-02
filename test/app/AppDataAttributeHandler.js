@@ -1,6 +1,6 @@
 'use strict';
 
-import dom from 'metal/src/dom/dom';
+import { dom } from 'metal';
 import globals from '../../src/globals/globals';
 import AppDataAttributeHandler from '../../src/app/AppDataAttributeHandler';
 import Screen from '../../src/screen/Screen';

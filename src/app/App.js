@@ -1,12 +1,7 @@
 'use strict';
 
-import array from 'metal/src/array/array';
-import async from 'metal/src/async/async';
-import core from 'metal/src/core';
-import dom from 'metal/src/dom/dom';
-import EventEmitter from 'metal/src/events/EventEmitter';
-import EventHandler from 'metal/src/events/EventHandler';
-import CancellablePromise from 'metal-promise/src/promise/Promise';
+import { array, async, core, dom, EventEmitter, EventHandler } from 'metal';
+import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';
