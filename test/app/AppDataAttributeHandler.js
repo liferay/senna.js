@@ -12,11 +12,15 @@ describe('AppDataAttributeHandler', function() {
 		globals.window.senna = {
 			Screen: Screen
 		};
+
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
 	});
 
 	after(function() {
 		globals.document.body.removeAttribute('data-senna');
 		delete globals.window.senna;
+		console.log.restore();
 	});
 
 	it('should throw error when base element not specified', function() {

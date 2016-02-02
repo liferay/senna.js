@@ -6,6 +6,14 @@ import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'metal-promise';
 
 describe('Screen', function() {
+	before(function() {
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
+	});
+
+	after(function() {
+		console.log.restore();
+	});
 
 	it('should expose lifecycle activate', function() {
 		assert.doesNotThrow(function() {

@@ -19,10 +19,14 @@ describe('App', function() {
 		this.xhr.onCreate = function(xhr) {
 			requests.push(xhr);
 		};
+
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
 	});
 
 	afterEach(function() {
 		this.xhr.restore();
+		console.log.restore();
 	});
 
 	it('should add route', function() {
