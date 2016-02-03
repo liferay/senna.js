@@ -775,12 +775,13 @@ describe('App', function() {
 			globals.window.location.hash = 'other';
 			window.history.replaceState(null, null, null);
 			dom.once(globals.window, 'popstate', () => {
+				assert.strictEqual(1000, window.pageXOffset);
+				assert.strictEqual(1000, window.pageYOffset);
+				app.dispose();
+				exitDocumentLinkElement();
+				hidePageScrollbar();
+
 				dom.once(globals.window, 'popstate', () => {
-					assert.strictEqual(1000, window.pageXOffset);
-					assert.strictEqual(1000, window.pageYOffset);
-					app.dispose();
-					exitDocumentLinkElement();
-					hidePageScrollbar();
 					done();
 				});
 				globals.window.history.back();
