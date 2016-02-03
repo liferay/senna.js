@@ -9,7 +9,7 @@ import Screen from '../../src/screen/Screen';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
 
-describe('App Tests', function() {
+describe('App', function() {
 
 	beforeEach(function() {
 		this.xhr = sinon.useFakeXMLHttpRequest();
@@ -756,10 +756,9 @@ describe('App Tests', function() {
 		dom.once(globals.window, 'popstate', () => {
 			assert.strictEqual(0, app.reloadPage.callCount);
 			app.dispose();
-			exitDocumentLinkElement();
 			done();
 		});
-		dom.triggerEvent(enterDocumentLinkElement('/path#hash2'), 'click');
+		dom.triggerEvent(globals.window, 'popstate');
 	});
 
 	it('should resposition scroll to hashed anchors on hash popstate', function(done) {
