@@ -9,7 +9,7 @@ import Screen from '../../src/screen/Screen';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
 
-describe('App', function() {
+describe('App Tests', function() {
 
 	beforeEach(function() {
 		this.xhr = sinon.useFakeXMLHttpRequest();
@@ -427,22 +427,18 @@ describe('App', function() {
 	});
 
 	it('should add loading css class on navigate', function(done) {
-		var failIfNotContainsLoadingCssClass = function() {
-			if (!globals.document.documentElement.classList.contains(app.getLoadingCssClass())) {
-				assert.fail();
-			}
+		var containsLoadingCssClass = function() {
+			return globals.document.documentElement.classList.contains(app.getLoadingCssClass());
 		};
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
-		app.on('startNavigate', failIfNotContainsLoadingCssClass);
-		app.on('endNavigate', failIfNotContainsLoadingCssClass);
-		app.navigate('/path').then(() => {
-			if (globals.document.documentElement.classList.contains(app.getLoadingCssClass())) {
-				assert.fail();
-			}
+		app.on('startNavigate', () => assert.ok(containsLoadingCssClass()));
+		app.on('endNavigate', function() {
+			assert.ok(!containsLoadingCssClass());
 			app.dispose();
 			done();
 		});
+		app.navigate('/path').then(() => assert.ok(!containsLoadingCssClass()));
 	});
 
 	it('should not navigate to unrouted paths', function(done) {
