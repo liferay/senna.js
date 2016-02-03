@@ -1,8 +1,8 @@
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/core', 'metal/src/array/array', 'metal/src/disposable/Disposable', 'metal/src/events/EventHandle'], function (exports, _core, _array, _Disposable2, _EventHandle) {
+define(['exports', '../core', '../array/array', '../disposable/Disposable', '../events/EventHandle'], function (exports, _core, _array, _Disposable2, _EventHandle) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v1.0.0-alpha
+ * @version v1.0.0-alpha.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -45,7 +45,55 @@ babelHelpers.possibleConstructorReturn = function (self, call) {
   return call && (typeof call === "object" || typeof call === "function") ? call : self;
 };
 
+babelHelpers.slicedToArray = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
+
 babelHelpers;
+"use strict";
+
+(function () {
+	var globals = {
+		document: document,
+		window: window
+	};
+
+	this.senna.globals = globals;
+}).call(this);
 'use strict';
 
 /**
@@ -239,6 +287,16 @@ babelHelpers;
 		};
 
 		/**
+   * Returns true if value is a Promise.
+   * @param {*} val
+   * @return {Boolean}
+   */
+
+		core.isPromise = function isPromise(val) {
+			return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
+		};
+
+		/**
    * Returns true if value is a string.
    * @param {*} val
    * @return {Boolean}
@@ -291,7 +349,7 @@ babelHelpers;
   * @protected
   */
 
-	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
 	/**
   * Counter for unique id.
@@ -1503,6 +1561,113 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var dom = this.senna.dom;
+
+	/**
+  * Utility functions for running javascript code in the global scope.
+  */
+
+	var globalEval = function () {
+		function globalEval() {
+			babelHelpers.classCallCheck(this, globalEval);
+		}
+
+		/**
+   * Evaluates the given string in the global scope.
+   * @param {string} text
+   */
+
+		globalEval.run = function run(text) {
+			var script = document.createElement('script');
+			script.text = text;
+			document.head.appendChild(script).parentNode.removeChild(script);
+		};
+
+		/**
+   * Evaluates the given javascript file in the global scope.
+   * @param {string} src The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runFile = function runFile(src, opt_callback) {
+			var script = document.createElement('script');
+			script.src = src;
+
+			var callback = function callback() {
+				script.parentNode.removeChild(script);
+				opt_callback && opt_callback();
+			};
+			dom.on(script, 'load', callback);
+			dom.on(script, 'error', callback);
+			document.head.appendChild(script);
+		};
+
+		/**
+   * Evaluates the code referenced by the given script element.
+   * @param {!Element} script
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScript = function runScript(script, opt_callback) {
+			if (script.type && script.type !== 'text/javascript') {
+				opt_callback && opt_callback();
+				return;
+			}
+			if (script.parentNode) {
+				script.parentNode.removeChild(script);
+			}
+			if (script.src) {
+				globalEval.runFile(script.src, opt_callback);
+			} else {
+				globalEval.run(script.text);
+				opt_callback && opt_callback();
+			}
+		};
+
+		/**
+   * Evaluates any script tags present in the given element.
+   * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
+			var scripts = element.querySelectorAll('script');
+			if (scripts.length) {
+				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
+			} else if (opt_callback) {
+				opt_callback();
+			}
+		};
+
+		/**
+   * Runs the given scripts elements in the order that they appear.
+   * @param {!NodeList} scripts
+   * @param {number} index
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   */
+
+		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
+			globalEval.runScript(scripts.item(index), function () {
+				if (index < scripts.length - 1) {
+					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
+				} else if (opt_callback) {
+					opt_callback();
+				}
+			});
+		};
+
+		return globalEval;
+	}();
+
+	this.senna.globalEval = globalEval;
+}).call(this);
+'use strict';
+
+(function () {
 	var core = this.senna.core;
 	var array = this.senna.array;
 	var Disposable = this.senna.Disposable;
@@ -1889,6 +2054,149 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var core = this.senna.core;
+	var dom = this.senna.dom;
+	var Disposable = this.senna.Disposable;
+
+	/**
+  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
+  * instances together, emitting events from the first emitter through the
+  * second one. That means that listening to a supported event on the target
+  * emitter will mean listening to it on the origin emitter as well.
+  * @param {EventEmitter | Element} originEmitter Events originated on this emitter
+  *   will be fired for the target emitter's listeners as well. Can be either a real
+  *   EventEmitter instance or a DOM element.
+  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
+  *   will also be triggered when the event is fired by the origin emitter.
+  * @param {Object} opt_blacklist Optional blacklist of events that should not be
+  *   proxied.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventEmitterProxy = function (_Disposable) {
+		babelHelpers.inherits(EventEmitterProxy, _Disposable);
+
+		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
+			babelHelpers.classCallCheck(this, EventEmitterProxy);
+
+			/**
+    * Map of events that should not be proxied.
+    * @type {Object}
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.blacklist_ = opt_blacklist || {};
+
+			/**
+    * The origin emitter. This emitter's events will be proxied through the
+    * target emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.originEmitter_ = originEmitter;
+
+			/**
+    * Holds a map of events from the origin emitter that are already being proxied.
+    * @type {Object}
+    * @protected
+    */
+			_this.proxiedEvents_ = {};
+
+			/**
+    * The target emitter. This emitter will emit all events that come from
+    * the origin emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.targetEmitter_ = targetEmitter;
+
+			/**
+    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
+    * @type {Object}
+    * @protected
+    */
+			_this.whitelist_ = opt_whitelist;
+
+			_this.startProxy_();
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
+			var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
+			for (var event in this.proxiedEvents_) {
+				this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
+			}
+
+			this.proxiedEvents_ = null;
+			this.originEmitter_ = null;
+			this.targetEmitter_ = null;
+		};
+
+		/**
+   * Proxies the given event from the origin to the target emitter.
+   * @param {string} event
+   */
+
+		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
+			if (!this.shouldProxyEvent_(event)) {
+				return;
+			}
+
+			var self = this;
+			this.proxiedEvents_[event] = function () {
+				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
+				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
+			};
+
+			if (core.isElement(this.originEmitter_) || core.isDocument(this.originEmitter_)) {
+				dom.on(this.originEmitter_, event, this.proxiedEvents_[event]);
+			} else {
+				this.originEmitter_.on(event, this.proxiedEvents_[event]);
+			}
+		};
+
+		/**
+   * Checks if the given event should be proxied.
+   * @param {string} event
+   * @return {boolean}
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
+			if (this.whitelist_ && !this.whitelist_[event]) {
+				return false;
+			}
+			if (this.blacklist_[event]) {
+				return false;
+			}
+			return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || dom.supportsEvent(this.originEmitter_, event));
+		};
+
+		/**
+   * Starts proxying all events from the origin to the target emitter.
+   * @protected
+   */
+
+		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
+			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+		};
+
+		return EventEmitterProxy;
+	}(Disposable);
+
+	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
+	this.senna.EventEmitterProxy = EventEmitterProxy;
+}).call(this);
+'use strict';
+
+(function () {
 	var Disposable = this.senna.Disposable;
 
 	/**
@@ -1956,6 +2264,103 @@ babelHelpers;
 	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
 	this.senna.EventHandler = EventHandler;
 }).call(this);
+'use strict';
+
+(function () {
+	var string = function () {
+		function string() {
+			babelHelpers.classCallCheck(this, string);
+		}
+
+		/**
+   * Removes the breaking spaces from the left and right of the string and
+   * collapses the sequences of breaking spaces in the middle into single spaces.
+   * The original and the result strings render the same way in HTML.
+   * @param {string} str A string in which to collapse spaces.
+   * @return {string} Copy of the string with normalized breaking spaces.
+   */
+
+		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
+			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
+		};
+
+		/**
+  * Returns a string with at least 64-bits of randomness.
+  * @return {string} A random string, e.g. sn1s7vb4gcic.
+  */
+
+		string.getRandomString = function getRandomString() {
+			var x = 2147483648;
+			return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);
+		};
+
+		/**
+   * Calculates the hashcode for a string. The hashcode value is computed by
+   * the sum algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]. A nice
+   * property of using 31 prime is that the multiplication can be replaced by
+   * a shift and a subtraction for better performance: 31*i == (i<<5)-i.
+   * Modern VMs do this sort of optimization automatically.
+   * @param {String} val Target string.
+   * @return {Number} Returns the string hashcode.
+   */
+
+		string.hashCode = function hashCode(val) {
+			var hash = 0;
+			for (var i = 0, len = val.length; i < len; i++) {
+				hash = 31 * hash + val.charCodeAt(i);
+				hash %= 0x100000000;
+			}
+			return hash;
+		};
+
+		/**
+   * Replaces interval into the string with specified value, e.g.
+   * `replaceInterval("abcde", 1, 4, "")` returns "ae".
+   * @param {string} str The input string.
+   * @param {Number} start Start interval position to be replaced.
+   * @param {Number} end End interval position to be replaced.
+   * @param {string} value The value that replaces the specified interval.
+   * @return {string}
+   */
+
+		string.replaceInterval = function replaceInterval(str, start, end, value) {
+			return str.substring(0, start) + value + str.substring(end);
+		};
+
+		return string;
+	}();
+
+	this.senna.string = string;
+}).call(this);
+'use strict';
+
+(function () {
+  var core = this.senna.core;
+  var array = this.senna.array;
+  var async = this.senna.async;
+  var dom = this.senna.dom;
+  var globalEval = this.senna.globalEval;
+  var Disposable = this.senna.Disposable;
+  var EventEmitter = this.senna.EventEmitter;
+  var EventEmitterProxy = this.senna.EventEmitterProxy;
+  var EventHandle = this.senna.EventHandle;
+  var EventHandler = this.senna.EventHandler;
+  var object = this.senna.object;
+  var string = this.senna.string;
+  this.sennaNamed.index = {};
+  this.sennaNamed.index.core = core;
+  this.sennaNamed.index.array = array;
+  this.sennaNamed.index.async = async;
+  this.sennaNamed.index.dom = dom;
+  this.sennaNamed.index.globalEval = globalEval;
+  this.sennaNamed.index.Disposable = Disposable;
+  this.sennaNamed.index.EventEmitter = EventEmitter;
+  this.sennaNamed.index.EventEmitterProxy = EventEmitterProxy;
+  this.sennaNamed.index.EventHandle = EventHandle;
+  this.sennaNamed.index.EventHandler = EventHandler;
+  this.sennaNamed.index.object = object;
+  this.sennaNamed.index.string = string;
+}).call(this);
 /*!
  * Promises polyfill from Google's Closure Library.
  *
@@ -1969,8 +2374,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-  var core = this.senna.core;
-  var async = this.senna.async;
+  var core = this.sennaNamed.index.core;
+  var async = this.sennaNamed.index.async;
 
   /**
    * Provides a more strict interface for Thenables in terms of
@@ -2877,20 +3282,10 @@ babelHelpers;
   this.sennaNamed.Promise.CancellablePromise = CancellablePromise;
   this.senna.Promise = CancellablePromise;
 }).call(this);
-"use strict";
-
-(function () {
-	var globals = {
-		document: document,
-		window: window
-	};
-
-	this.senna.globals = globals;
-}).call(this);
 'use strict';
 
 (function () {
-	var core = this.senna.core;
+	var core = this.sennaNamed.index.core;
 
 	var Route = function () {
 
@@ -2976,114 +3371,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var dom = this.senna.dom;
-
-	/**
-  * Utility functions for running javascript code in the global scope.
-  */
-
-	var globalEval = function () {
-		function globalEval() {
-			babelHelpers.classCallCheck(this, globalEval);
-		}
-
-		/**
-   * Evaluates the given string in the global scope.
-   * @param {string} text
-   */
-
-		globalEval.run = function run(text) {
-			var script = document.createElement('script');
-			script.text = text;
-			document.head.appendChild(script).parentNode.removeChild(script);
-		};
-
-		/**
-   * Evaluates the given javascript file in the global scope.
-   * @param {string} src The file's path.
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runFile = function runFile(src, opt_callback) {
-			var script = document.createElement('script');
-			script.src = src;
-
-			var callback = function callback() {
-				script.parentNode.removeChild(script);
-				opt_callback && opt_callback();
-			};
-			dom.on(script, 'load', callback);
-			dom.on(script, 'error', callback);
-			document.head.appendChild(script);
-		};
-
-		/**
-   * Evaluates the code referenced by the given script element.
-   * @param {!Element} script
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runScript = function runScript(script, opt_callback) {
-			if (script.type && script.type !== 'text/javascript') {
-				opt_callback && opt_callback();
-				return;
-			}
-			if (script.parentNode) {
-				script.parentNode.removeChild(script);
-			}
-			if (script.src) {
-				globalEval.runFile(script.src, opt_callback);
-			} else {
-				globalEval.run(script.text);
-				opt_callback && opt_callback();
-			}
-		};
-
-		/**
-   * Evaluates any script tags present in the given element.
-   * @params {!Element} element
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
-			var scripts = element.querySelectorAll('script');
-			if (scripts.length) {
-				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
-			} else if (opt_callback) {
-				opt_callback();
-			}
-		};
-
-		/**
-   * Runs the given scripts elements in the order that they appear.
-   * @param {!NodeList} scripts
-   * @param {number} index
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the script has been run.
-   */
-
-		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
-			globalEval.runScript(scripts.item(index), function () {
-				if (index < scripts.length - 1) {
-					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
-				} else if (opt_callback) {
-					opt_callback();
-				}
-			});
-		};
-
-		return globalEval;
-	}();
-
-	this.senna.globalEval = globalEval;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.senna.Disposable;
+	var Disposable = this.sennaNamed.index.Disposable;
 
 	var Cacheable = function (_Disposable) {
 		babelHelpers.inherits(Cacheable, _Disposable);
@@ -3189,8 +3477,8 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.senna.core;
-	var globalEval = this.senna.globalEval;
+	var core = this.sennaNamed.index.core;
+	var globalEval = this.sennaNamed.index.globalEval;
 	var Cacheable = this.senna.Cacheable;
 	var CancellablePromise = this.senna.Promise;
 
@@ -3425,9 +3713,9 @@ babelHelpers;
 
 (function () {
 	var globals = this.senna.globals;
-	var core = this.senna.core;
-	var dom = this.senna.dom;
-	var Disposable = this.senna.Disposable;
+	var core = this.sennaNamed.index.core;
+	var dom = this.sennaNamed.index.dom;
+	var Disposable = this.sennaNamed.index.Disposable;
 	var CancellablePromise = this.senna.Promise;
 
 	var Surface = function (_Disposable) {
@@ -3749,18 +4037,722 @@ babelHelpers;
 }).call(this);
 'use strict';
 
+/**
+ * Parses the given uri string into an object.
+ * @param {*=} opt_uri Optional string URI to parse
+ */
+
 (function () {
-	var array = this.senna.array;
-	var async = this.senna.async;
-	var core = this.senna.core;
-	var dom = this.senna.dom;
-	var EventEmitter = this.senna.EventEmitter;
-	var EventHandler = this.senna.EventHandler;
+	function parseFromAnchor(opt_uri) {
+		var link = document.createElement('a');
+		link.href = opt_uri;
+		return {
+			hash: link.hash,
+			hostname: link.hostname,
+			password: link.password,
+			pathname: link.pathname[0] === '/' ? link.pathname : '/' + link.pathname,
+			port: link.port,
+			protocol: link.protocol,
+			search: link.search,
+			username: link.username
+		};
+	}
+
+	this.senna.parseFromAnchor = parseFromAnchor;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.sennaNamed.index.core;
+	var parseFromAnchor = this.senna.parseFromAnchor;
+
+	/**
+  * Parses the given uri string into an object. The URL function will be used
+  * when present, otherwise we'll fall back to the anchor node element.
+  * @param {*=} opt_uri Optional string URI to parse
+  */
+
+	function parse(opt_uri) {
+		if (core.isFunction(URL) && URL.length) {
+			return new URL(opt_uri);
+		} else {
+			return parseFromAnchor(opt_uri);
+		}
+	}
+
+	this.senna.parse = parse;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.sennaNamed.index.Disposable;
+
+	/**
+  * Case insensitive string Multimap implementation. Allows multiple values for
+  * the same key name.
+  * @extends {Disposable}
+  */
+
+	var MultiMap = function (_Disposable) {
+		babelHelpers.inherits(MultiMap, _Disposable);
+
+		function MultiMap() {
+			babelHelpers.classCallCheck(this, MultiMap);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.keys = {};
+			_this.values = {};
+			return _this;
+		}
+
+		/**
+   * Adds value to a key name.
+   * @param {string} name
+   * @param {*} value
+   * @chainable
+   */
+
+		MultiMap.prototype.add = function add(name, value) {
+			this.keys[name.toLowerCase()] = name;
+			this.values[name.toLowerCase()] = this.values[name.toLowerCase()] || [];
+			this.values[name.toLowerCase()].push(value);
+			return this;
+		};
+
+		/**
+   * Clears map names and values.
+   * @chainable
+   */
+
+		MultiMap.prototype.clear = function clear() {
+			this.keys = {};
+			this.values = {};
+			return this;
+		};
+
+		/**
+   * Checks if map contains a value to the key name.
+   * @param {string} name
+   * @return {boolean}
+   * @chainable
+   */
+
+		MultiMap.prototype.contains = function contains(name) {
+			return name.toLowerCase() in this.values;
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+		MultiMap.prototype.disposeInternal = function disposeInternal() {
+			this.values = null;
+		};
+
+		/**
+   * Gets the first added value from a key name.
+   * @param {string} name
+   * @return {*}
+   * @chainable
+   */
+
+		MultiMap.prototype.get = function get(name) {
+			var values = this.values[name.toLowerCase()];
+			if (values) {
+				return values[0];
+			}
+		};
+
+		/**
+   * Gets all values from a key name.
+   * @param {string} name
+   * @return {Array.<*>}
+   */
+
+		MultiMap.prototype.getAll = function getAll(name) {
+			return this.values[name.toLowerCase()];
+		};
+
+		/**
+   * Returns true if the map is empty, false otherwise.
+   * @return {boolean}
+   */
+
+		MultiMap.prototype.isEmpty = function isEmpty() {
+			return this.size() === 0;
+		};
+
+		/**
+   * Gets array of key names.
+   * @return {Array.<string>}
+   */
+
+		MultiMap.prototype.names = function names() {
+			var _this2 = this;
+
+			return Object.keys(this.values).map(function (key) {
+				return _this2.keys[key];
+			});
+		};
+
+		/**
+   * Removes all values from a key name.
+   * @param {string} name
+   * @chainable
+   */
+
+		MultiMap.prototype.remove = function remove(name) {
+			delete this.keys[name.toLowerCase()];
+			delete this.values[name.toLowerCase()];
+			return this;
+		};
+
+		/**
+   * Sets the value of a key name. Relevant to replace the current values with
+   * a new one.
+   * @param {string} name
+   * @param {*} value
+   * @chainable
+   */
+
+		MultiMap.prototype.set = function set(name, value) {
+			this.keys[name.toLowerCase()] = name;
+			this.values[name.toLowerCase()] = [value];
+			return this;
+		};
+
+		/**
+   * Gets the size of the map key names.
+   * @return {number}
+   */
+
+		MultiMap.prototype.size = function size() {
+			return this.names().length;
+		};
+
+		/**
+   * Returns the parsed values as a string.
+   * @return {string}
+   */
+
+		MultiMap.prototype.toString = function toString() {
+			return JSON.stringify(this.values);
+		};
+
+		return MultiMap;
+	}(Disposable);
+
+	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
+	this.senna.MultiMap = MultiMap;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.sennaNamed.index.core;
+	var string = this.sennaNamed.index.string;
+	var parse = this.senna.parse;
+	var MultiMap = this.senna.MultiMap;
+
+	var parseFn_ = parse;
+
+	var Uri = function () {
+
+		/**
+   * This class contains setters and getters for the parts of the URI.
+   * The following figure displays an example URIs and their component parts.
+   *
+   *                                  path
+   *	                             ┌───┴────┐
+   *	  abc://example.com:123/path/data?key=value#fragid1
+   *	  └┬┘   └────┬────┘ └┬┘           └───┬───┘ └──┬──┘
+   * protocol  hostname  port            search    hash
+   *          └──────┬───────┘
+   *                host
+   *
+   * @param {*=} opt_uri Optional string URI to parse
+   * @constructor
+   */
+
+		function Uri() {
+			var opt_uri = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+			babelHelpers.classCallCheck(this, Uri);
+
+			this.url = Uri.parse(this.maybeAddProtocolAndHostname_(opt_uri));
+		}
+
+		/**
+   * Adds parameters to uri from a <code>MultiMap</code> as source.
+   * @param {MultiMap} multimap The <code>MultiMap</code> containing the
+   *   parameters.
+   * @protected
+   * @chainable
+   */
+
+		Uri.prototype.addParametersFromMultiMap = function addParametersFromMultiMap(multimap) {
+			var _this = this;
+
+			multimap.names().forEach(function (name) {
+				multimap.getAll(name).forEach(function (value) {
+					_this.addParameterValue(name, value);
+				});
+			});
+			return this;
+		};
+
+		/**
+   * Adds the value of the named query parameters.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value. Will be explicitly casted to String.
+   * @chainable
+   */
+
+		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
+			this.ensureQueryInitialized_();
+			if (core.isDef(value)) {
+				value = String(value);
+			}
+			this.query.add(name, value);
+			return this;
+		};
+
+		/**
+   * Adds the values of the named query parameter.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value.
+   * @chainable
+   */
+
+		Uri.prototype.addParameterValues = function addParameterValues(name, values) {
+			var _this2 = this;
+
+			values.forEach(function (value) {
+				return _this2.addParameterValue(name, value);
+			});
+			return this;
+		};
+
+		/**
+   * Ensures query internal map is initialized and synced with initial value
+   * extracted from URI search part.
+   * @protected
+   */
+
+		Uri.prototype.ensureQueryInitialized_ = function ensureQueryInitialized_() {
+			var _this3 = this;
+
+			if (this.query) {
+				return;
+			}
+			this.query = new MultiMap();
+			var search = this.url.search;
+			if (search) {
+				search.substring(1).split('&').forEach(function (param) {
+					var _param$split = param.split('=');
+
+					var _param$split2 = babelHelpers.slicedToArray(_param$split, 2);
+
+					var key = _param$split2[0];
+					var value = _param$split2[1];
+
+					if (core.isDef(value)) {
+						value = decodeURIComponent(value);
+					}
+					_this3.addParameterValue(key, value);
+				});
+			}
+		};
+
+		/**
+   * Gets the hash part of uri.
+   * @return {string}
+   */
+
+		Uri.prototype.getHash = function getHash() {
+			return this.url.hash || '';
+		};
+
+		/**
+   * Gets the host part of uri. E.g. <code>[hostname]:[port]</code>.
+   * @return {string}
+   */
+
+		Uri.prototype.getHost = function getHost() {
+			var host = this.getHostname();
+			if (host) {
+				var port = this.getPort();
+				if (port && port !== '80') {
+					host += ':' + port;
+				}
+			}
+			return host;
+		};
+
+		/**
+   * Gets the hostname part of uri without protocol and port.
+   * @return {string}
+   */
+
+		Uri.prototype.getHostname = function getHostname() {
+			var hostname = this.url.hostname;
+			if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
+				return '';
+			}
+			return hostname;
+		};
+
+		/**
+   * Gets the origin part of uri. E.g. <code>http://[hostname]:[port]</code>.
+   * @return {string}
+   */
+
+		Uri.prototype.getOrigin = function getOrigin() {
+			var host = this.getHost();
+			if (host) {
+				return this.getProtocol() + '//' + host;
+			}
+			return '';
+		};
+
+		/**
+   * Returns the first value for a given parameter or undefined if the given
+   * parameter name does not appear in the query string.
+   * @param {string} paramName Unescaped parameter name.
+   * @return {string|undefined} The first value for a given parameter or
+   *   undefined if the given parameter name does not appear in the query
+   *   string.
+   */
+
+		Uri.prototype.getParameterValue = function getParameterValue(name) {
+			this.ensureQueryInitialized_();
+			return this.query.get(name);
+		};
+
+		/**
+   * Returns the value<b>s</b> for a given parameter as a list of decoded
+   * query parameter values.
+   * @param {string} name The parameter to get values for.
+   * @return {!Array<?>} The values for a given parameter as a list of decoded
+   *   query parameter values.
+   */
+
+		Uri.prototype.getParameterValues = function getParameterValues(name) {
+			this.ensureQueryInitialized_();
+			return this.query.getAll(name);
+		};
+
+		/**
+   * Returns the name<b>s</b> of the parameters.
+   * @return {!Array<string>} The names for the parameters as a list of
+   *   strings.
+   */
+
+		Uri.prototype.getParameterNames = function getParameterNames() {
+			this.ensureQueryInitialized_();
+			return this.query.names();
+		};
+
+		/**
+   * Gets the pathname part of uri.
+   * @return {string}
+   */
+
+		Uri.prototype.getPathname = function getPathname() {
+			return this.url.pathname;
+		};
+
+		/**
+   * Gets the port number part of uri as string.
+   * @return {string}
+   */
+
+		Uri.prototype.getPort = function getPort() {
+			return this.url.port;
+		};
+
+		/**
+   * Gets the protocol part of uri. E.g. <code>http:</code>.
+   * @return {string}
+   */
+
+		Uri.prototype.getProtocol = function getProtocol() {
+			return this.url.protocol;
+		};
+
+		/**
+   * Gets the search part of uri. Search value is retrieved from query
+   * parameters.
+   * @return {string}
+   */
+
+		Uri.prototype.getSearch = function getSearch() {
+			var _this4 = this;
+
+			var search = '';
+			var querystring = '';
+			this.getParameterNames().forEach(function (name) {
+				_this4.getParameterValues(name).forEach(function (value) {
+					querystring += name;
+					if (core.isDef(value)) {
+						querystring += '=' + encodeURIComponent(value);
+					}
+					querystring += '&';
+				});
+			});
+			querystring = querystring.slice(0, -1);
+			if (querystring) {
+				search += '?' + querystring;
+			}
+			return search;
+		};
+
+		/**
+   * Makes this URL unique by adding a random param to it. Useful for avoiding
+   * cache.
+   */
+
+		Uri.prototype.makeUnique = function makeUnique() {
+			this.setParameterValue(Uri.RANDOM_PARAM, string.getRandomString());
+			return this;
+		};
+
+		/**
+   * Maybe adds protocol and a hostname placeholder on a parial URI if needed.
+   * Relevent for compatibility with <code>URL</code> native object.
+   * @param {string=} opt_uri
+   * @return {string} URI with protocol and hostname placeholder.
+   */
+
+		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
+			var url = opt_uri;
+			if (opt_uri.indexOf('://') === -1) {
+				url = Uri.DEFAULT_PROTOCOL;
+				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
+					url += '//';
+				}
+
+				switch (opt_uri.charAt(0)) {
+					case '.':
+					case '?':
+					case '#':
+						url += Uri.HOSTNAME_PLACEHOLDER;
+						url += '/';
+						url += opt_uri;
+						break;
+					case '':
+					case '/':
+						if (opt_uri[1] !== '/') {
+							url += Uri.HOSTNAME_PLACEHOLDER;
+						}
+						url += opt_uri;
+						break;
+					default:
+						url += opt_uri;
+				}
+			}
+			return url;
+		};
+
+		/**
+   * Parses the given uri string into an object.
+   * @param {*=} opt_uri Optional string URI to parse
+   */
+
+		Uri.parse = function parse(opt_uri) {
+			return parseFn_(opt_uri);
+		};
+
+		/**
+   * Removes the named query parameter.
+   * @param {string} name The parameter to remove.
+   * @chainable
+   */
+
+		Uri.prototype.removeParameter = function removeParameter(name) {
+			this.ensureQueryInitialized_();
+			this.query.remove(name);
+			return this;
+		};
+
+		/**
+   * Sets the hash.
+   * @param {string} hash
+   * @chainable
+   */
+
+		Uri.prototype.setHash = function setHash(hash) {
+			this.url.hash = hash;
+			return this;
+		};
+
+		/**
+   * Sets the hostname.
+   * @param {string} hostname
+   * @chainable
+   */
+
+		Uri.prototype.setHostname = function setHostname(hostname) {
+			this.url.hostname = hostname;
+			return this;
+		};
+
+		/**
+   * Sets the value of the named query parameters, clearing previous values
+   * for that key.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value.
+   * @chainable
+   */
+
+		Uri.prototype.setParameterValue = function setParameterValue(name, value) {
+			this.removeParameter(name);
+			this.addParameterValue(name, value);
+			return this;
+		};
+
+		/**
+   * Sets the values of the named query parameters, clearing previous values
+   * for that key.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value.
+   * @chainable
+   */
+
+		Uri.prototype.setParameterValues = function setParameterValues(name, values) {
+			var _this5 = this;
+
+			this.removeParameter(name);
+			values.forEach(function (value) {
+				return _this5.addParameterValue(name, value);
+			});
+			return this;
+		};
+
+		/**
+   * Sets the pathname.
+   * @param {string} pathname
+   * @chainable
+   */
+
+		Uri.prototype.setPathname = function setPathname(pathname) {
+			this.url.pathname = pathname;
+			return this;
+		};
+
+		/**
+   * Sets the port number.
+   * @param {*} port Port number.
+   * @chainable
+   */
+
+		Uri.prototype.setPort = function setPort(port) {
+			this.url.port = port;
+			return this;
+		};
+
+		/**
+   * Sets the function that will be used for parsing the original string uri
+   * into an object.
+   * @param {!function()} parseFn
+   */
+
+		Uri.setParseFn = function setParseFn(parseFn) {
+			parseFn_ = parseFn;
+		};
+
+		/**
+   * Sets the protocol. If missing <code>http:</code> is used as default.
+   * @param {string} protocol
+   * @chainable
+   */
+
+		Uri.prototype.setProtocol = function setProtocol(protocol) {
+			this.url.protocol = protocol;
+			if (this.url.protocol[this.url.protocol.length - 1] !== ':') {
+				this.url.protocol += ':';
+			}
+			return this;
+		};
+
+		/**
+   * @return {string} The string form of the url.
+   * @override
+   */
+
+		Uri.prototype.toString = function toString() {
+			var href = '';
+			var host = this.getHost();
+			if (host) {
+				href += this.getProtocol() + '//';
+			}
+			href += host + this.getPathname() + this.getSearch() + this.getHash();
+			return href;
+		};
+
+		/**
+   * Joins the given paths.
+   * @param {string} basePath
+   * @param {...string} ...paths Any number of paths to be joined with the base url.
+   * @static
+   */
+
+		Uri.joinPaths = function joinPaths(basePath) {
+			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				paths[_key - 1] = arguments[_key];
+			}
+
+			if (basePath.charAt(basePath.length - 1) === '/') {
+				basePath = basePath.substring(0, basePath.length - 1);
+			}
+			paths = paths.map(function (path) {
+				return path.charAt(0) === '/' ? path.substring(1) : path;
+			});
+			return [basePath].concat(paths).join('/').replace(/\/$/, '');
+		};
+
+		return Uri;
+	}();
+
+	/**
+  * Default protocol value.
+  * @type {string}
+  * @default http:
+  * @static
+  */
+
+	Uri.DEFAULT_PROTOCOL = 'http:';
+
+	/**
+  * Hostname placeholder. Relevant to internal usage only.
+  * @type {string}
+  * @static
+  */
+	Uri.HOSTNAME_PLACEHOLDER = 'hostname' + Date.now();
+
+	/**
+  * Name used by the param generated by `makeUnique`.
+  * @type {string}
+  * @static
+  */
+	Uri.RANDOM_PARAM = 'zx';
+
+	this.senna.Uri = Uri;
+}).call(this);
+'use strict';
+
+(function () {
+	var array = this.sennaNamed.index.array;
+	var async = this.sennaNamed.index.async;
+	var core = this.sennaNamed.index.core;
+	var dom = this.sennaNamed.index.dom;
+	var EventEmitter = this.sennaNamed.index.EventEmitter;
+	var EventHandler = this.sennaNamed.index.EventHandler;
 	var CancellablePromise = this.senna.Promise;
 	var globals = this.senna.globals;
 	var Route = this.senna.Route;
 	var Screen = this.senna.Screen;
 	var Surface = this.senna.Surface;
+	var Uri = this.senna.Uri;
 
 	var App = function (_EventEmitter) {
 		babelHelpers.inherits(App, _EventEmitter);
@@ -4332,24 +5324,25 @@ babelHelpers;
 
 		/**
    * Maybe navigate to link element.
-   * @param {Element} link Link element that holds navigation information.
+   * @param {Uri} uri Information about the link's href uri.
    * @param {Event} event Dom event that initiated the navigation.
+   * @return {boolean} Returns true if navigate, false otherwise.
    */
 
-		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(link, event) {
-			var path = link.pathname + link.search + link.hash;
+		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(uri, event) {
+			var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
-			if (!this.isLinkSameOrigin_(link.hostname)) {
+			if (!this.isLinkSameOrigin_(uri.getHostname())) {
 				console.log('Offsite link clicked');
-				return;
+				return false;
 			}
 			if (!this.isSameBasePath_(path)) {
 				console.log('Link clicked outside app\'s base path');
-				return;
+				return false;
 			}
 			if (!this.findRoute(path)) {
 				console.log('No route for ' + path);
-				return;
+				return false;
 			}
 
 			var navigateFailed = false;
@@ -4363,6 +5356,8 @@ babelHelpers;
 			if (!navigateFailed) {
 				event.preventDefault();
 			}
+
+			return true;
 		};
 
 		/**
@@ -4456,7 +5451,7 @@ babelHelpers;
 				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 				return;
 			}
-			this.maybeNavigateToLinkElement_(event.delegateTarget, event);
+			this.maybeNavigateToLinkElement_(new Uri(event.delegateTarget.href), event);
 		};
 
 		/**
@@ -4468,14 +5463,13 @@ babelHelpers;
 
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
 			var form = event.delegateTarget;
-			var link = globals.document.createElement('a');
-			link.href = form.action;
 			if (form.method === 'get') {
 				console.log('GET method not supported');
 				return;
 			}
-			globals.capturedFormElement = form;
-			this.maybeNavigateToLinkElement_(link, event);
+			if (this.maybeNavigateToLinkElement_(new Uri(form.action), event)) {
+				globals.capturedFormElement = form;
+			}
 		};
 
 		/**
@@ -4855,57 +5849,14 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.senna.core;
+	var core = this.sennaNamed.index.core;
+	var Uri = this.senna.Uri;
 	var Promise = this.sennaNamed.Promise.CancellablePromise;
 
 	var Ajax = function () {
 		function Ajax() {
 			babelHelpers.classCallCheck(this, Ajax);
 		}
-
-		/**
-   * Adds parameters into the url querystring.
-   * @param {string} url
-   * @param {MultiMap} opt_params
-   * @return {string} Url containting parameters as querystring.
-   * @protected
-   */
-
-		Ajax.addParametersToUrlQueryString = function addParametersToUrlQueryString(url, opt_params) {
-			var querystring = '';
-			opt_params.names().forEach(function (name) {
-				opt_params.getAll(name).forEach(function (value) {
-					querystring += name + '=' + encodeURIComponent(value) + '&';
-				});
-			});
-			querystring = querystring.slice(0, -1);
-			if (querystring) {
-				url += url.indexOf('?') > -1 ? '&' : '?';
-				url += querystring;
-			}
-
-			return url;
-		};
-
-		/**
-   * Joins the given paths.
-   * @param {string} basePath
-   * @param {...string} ...paths Any number of paths to be joined with the base url.
-   */
-
-		Ajax.joinPaths = function joinPaths(basePath) {
-			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-				paths[_key - 1] = arguments[_key];
-			}
-
-			if (basePath.charAt(basePath.length - 1) === '/') {
-				basePath = basePath.substring(0, basePath.length - 1);
-			}
-			paths = paths.map(function (path) {
-				return path.charAt(0) === '/' ? path.substring(1) : path;
-			});
-			return [basePath].concat(paths).join('/').replace(/\/$/, '');
-		};
 
 		/**
    * XmlHttpRequest's getAllResponseHeaders() method returns a string of
@@ -4935,43 +5886,6 @@ babelHelpers;
 				}
 			}
 			return headers;
-		};
-
-		/**
-   * Parses the url separating the domain and port from the path.
-   * @param {string} url
-   * @return {array} Array containing the url domain and path.
-   * @protected
-   */
-
-		Ajax.parseUrl = function parseUrl(url) {
-			var base;
-			var path;
-			var qs;
-
-			var domainAt = url.indexOf('//');
-			if (domainAt > -1) {
-				url = url.substring(domainAt + 2);
-			}
-
-			var pathAt = url.indexOf('/');
-			if (pathAt === -1) {
-				url += '/';
-				pathAt = url.length - 1;
-			}
-
-			base = url.substring(0, pathAt);
-			path = url.substring(pathAt);
-
-			var qsAt = path.indexOf('?');
-			if (qsAt > -1) {
-				qs = path.substring(qsAt, path.length);
-				path = path.substring(0, qsAt);
-			} else {
-				qs = '';
-			}
-
-			return [base, path, qs];
 		};
 
 		/**
@@ -5011,7 +5925,7 @@ babelHelpers;
 			});
 
 			if (opt_params) {
-				url = Ajax.addParametersToUrlQueryString(url, opt_params);
+				url = new Uri(url).addParametersFromMultiMap(opt_params).toString();
 			}
 
 			request.open(method, url, !opt_sync);
@@ -5041,171 +5955,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var Disposable = this.senna.Disposable;
-
-	/**
-  * Case insensitive string Multimap implementation. Allows multiple values for
-  * the same key name.
-  * @extends {Disposable}
-  */
-
-	var MultiMap = function (_Disposable) {
-		babelHelpers.inherits(MultiMap, _Disposable);
-
-		function MultiMap() {
-			babelHelpers.classCallCheck(this, MultiMap);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.keys = {};
-			_this.values = {};
-			return _this;
-		}
-
-		/**
-   * Adds value to a key name.
-   * @param {string} name
-   * @param {*} value
-   * @chainable
-   */
-
-		MultiMap.prototype.add = function add(name, value) {
-			this.keys[name.toLowerCase()] = name;
-			this.values[name.toLowerCase()] = this.values[name.toLowerCase()] || [];
-			this.values[name.toLowerCase()].push(value);
-			return this;
-		};
-
-		/**
-   * Clears map names and values.
-   * @chainable
-   */
-
-		MultiMap.prototype.clear = function clear() {
-			this.keys = {};
-			this.values = {};
-			return this;
-		};
-
-		/**
-   * Checks if map contains a value to the key name.
-   * @param {string} name
-   * @return {boolean}
-   * @chainable
-   */
-
-		MultiMap.prototype.contains = function contains(name) {
-			return name.toLowerCase() in this.values;
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-		MultiMap.prototype.disposeInternal = function disposeInternal() {
-			this.values = null;
-		};
-
-		/**
-   * Gets the first added value from a key name.
-   * @param {string} name
-   * @return {*}
-   * @chainable
-   */
-
-		MultiMap.prototype.get = function get(name) {
-			var values = this.values[name.toLowerCase()];
-			if (values) {
-				return values[0];
-			}
-		};
-
-		/**
-   * Gets all values from a key name.
-   * @param {string} name
-   * @return {Array.<*>}
-   */
-
-		MultiMap.prototype.getAll = function getAll(name) {
-			return this.values[name.toLowerCase()];
-		};
-
-		/**
-   * Returns true if the map is empty, false otherwise.
-   * @return {boolean}
-   */
-
-		MultiMap.prototype.isEmpty = function isEmpty() {
-			return this.size() === 0;
-		};
-
-		/**
-   * Gets array of key names.
-   * @return {Array.<string>}
-   */
-
-		MultiMap.prototype.names = function names() {
-			var _this2 = this;
-
-			return Object.keys(this.values).map(function (key) {
-				return _this2.keys[key];
-			});
-		};
-
-		/**
-   * Removes all values from a key name.
-   * @param {string} name
-   * @chainable
-   */
-
-		MultiMap.prototype.remove = function remove(name) {
-			delete this.keys[name.toLowerCase()];
-			delete this.values[name.toLowerCase()];
-			return this;
-		};
-
-		/**
-   * Sets the value of a key name. Relevant to replace the current values with
-   * a new one.
-   * @param {string} name
-   * @param {*} value
-   * @chainable
-   */
-
-		MultiMap.prototype.set = function set(name, value) {
-			this.keys[name.toLowerCase()] = name;
-			this.values[name.toLowerCase()] = [value];
-			return this;
-		};
-
-		/**
-   * Gets the size of the map key names.
-   * @return {number}
-   */
-
-		MultiMap.prototype.size = function size() {
-			return this.names().length;
-		};
-
-		/**
-   * Returns the parsed values as a string.
-   * @return {string}
-   */
-
-		MultiMap.prototype.toString = function toString() {
-			return JSON.stringify(this.values);
-		};
-
-		return MultiMap;
-	}(Disposable);
-
-	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
-	this.senna.MultiMap = MultiMap;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.senna.core;
+	var core = this.sennaNamed.index.core;
 	var Ajax = this.senna.Ajax;
 	var MultiMap = this.senna.MultiMap;
 	var CancellablePromise = this.senna.Promise;
@@ -5605,9 +6355,9 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.senna.core;
-	var object = this.senna.object;
-	var Disposable = this.senna.Disposable;
+	var core = this.sennaNamed.index.core;
+	var object = this.sennaNamed.index.object;
+	var Disposable = this.sennaNamed.index.Disposable;
 	var dataAttributes = this.senna.dataAttributes;
 	var globals = this.senna.globals;
 	var App = this.senna.App;

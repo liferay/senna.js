@@ -1,19 +1,14 @@
-'use strict';
-
-/**
- * A collection of core utility functions.
- * @const
- */
-
 define(['exports'], function (exports) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _typeof = typeof Symbol === "function" && _typeof(Symbol.iterator) === "symbol" ? function (obj) {
-		return typeof obj === 'undefined' ? 'undefined' : _typeof(obj);
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+		return typeof obj;
 	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj === 'undefined' ? 'undefined' : _typeof(obj);
+		return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
 	};
 
 	function _classCallCheck(instance, Constructor) {
@@ -104,6 +99,10 @@ define(['exports'], function (exports) {
 			return type === 'object' && val !== null || type === 'function';
 		};
 
+		core.isPromise = function isPromise(val) {
+			return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && typeof val.then === 'function';
+		};
+
 		core.isString = function isString(val) {
 			return typeof val === 'string';
 		};
@@ -130,7 +129,7 @@ define(['exports'], function (exports) {
 		return core;
 	}();
 
-	core.UID_PROPERTY = 'core_' + Date.now() % 1e9 + '' + (Math.random() * 1e9 >>> 0);
+	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 	core.uniqueIdCounter_ = 1;
 	exports.default = core;
 });

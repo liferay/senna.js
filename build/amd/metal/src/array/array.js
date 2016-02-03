@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../core'], function (exports, _core) {
+	'use strict';
 
-define(['exports', 'metal/src/core'], function (exports, _core) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

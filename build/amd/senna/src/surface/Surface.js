@@ -1,19 +1,13 @@
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'senna/src/globals/globals', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/disposable/Disposable', 'metal-promise/src/promise/Promise'], function (exports, _globals, _core, _dom, _Disposable2, _Promise) {
+define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/promise/Promise'], function (exports, _globals, _index, _Promise) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
 	var _globals2 = _interopRequireDefault(_globals);
-
-	var _core2 = _interopRequireDefault(_core);
-
-	var _dom2 = _interopRequireDefault(_dom);
-
-	var _Disposable3 = _interopRequireDefault(_Disposable2);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -81,17 +75,17 @@ define(['exports', 'senna/src/globals/globals', 'metal/src/core', 'metal/src/dom
 		Surface.prototype.addContent = function addContent(screenId, opt_content) {
 			var child = this.defaultChild;
 
-			if (_core2.default.isDefAndNotNull(opt_content)) {
+			if (_index.core.isDefAndNotNull(opt_content)) {
 				child = this.createChild(screenId);
 
-				_dom2.default.append(child, opt_content);
+				_index.dom.append(child, opt_content);
 			}
 
 			this.transition(child, null);
 			var element = this.getElement();
 
 			if (element && child) {
-				_dom2.default.append(element, child);
+				_index.dom.append(element, child);
 			}
 
 			return child;
@@ -163,7 +157,7 @@ define(['exports', 'senna/src/globals/globals', 'metal/src/core', 'metal/src/dom
 			this.activeChild = to;
 			return this.transition(from, to).thenAlways(function () {
 				if (from && from !== to) {
-					_dom2.default.exitDocument(from);
+					_index.dom.exitDocument(from);
 				}
 			});
 		};
@@ -172,7 +166,7 @@ define(['exports', 'senna/src/globals/globals', 'metal/src/core', 'metal/src/dom
 			var child = this.getChild(screenId);
 
 			if (child) {
-				_dom2.default.exitDocument(child);
+				_index.dom.exitDocument(child);
 			}
 		};
 
@@ -186,7 +180,7 @@ define(['exports', 'senna/src/globals/globals', 'metal/src/core', 'metal/src/dom
 		};
 
 		return Surface;
-	}(_Disposable3.default);
+	}(_index.Disposable);
 
 	Surface.prototype.registerMetalComponent && Surface.prototype.registerMetalComponent(Surface, 'Surface')
 	Surface.DEFAULT = 'default';

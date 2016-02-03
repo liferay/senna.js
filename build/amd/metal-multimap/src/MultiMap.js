@@ -1,19 +1,11 @@
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/disposable/Disposable'], function (exports, _Disposable2) {
+define(['exports', 'metal/src/index'], function (exports, _index) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _Disposable3 = _interopRequireDefault(_Disposable2);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -124,7 +116,7 @@ define(['exports', 'metal/src/disposable/Disposable'], function (exports, _Dispo
 		};
 
 		return MultiMap;
-	}(_Disposable3.default);
+	}(_index.Disposable);
 
 	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
 	exports.default = MultiMap;

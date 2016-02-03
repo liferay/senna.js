@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../core', '../object/object', '../events/DomEventHandle'], function (exports, _core, _object, _DomEventHandle) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal/src/object/object', 'metal/src/events/DomEventHandle'], function (exports, _core, _object, _DomEventHandle) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

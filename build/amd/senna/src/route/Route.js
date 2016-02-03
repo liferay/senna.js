@@ -1,17 +1,9 @@
-'use strict';
+define(['exports', 'metal/src/index'], function (exports, _index) {
+	'use strict';
 
-define(['exports', 'metal/src/core'], function (exports, _core) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _core2 = _interopRequireDefault(_core);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -23,11 +15,11 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		function Route(path, handler) {
 			_classCallCheck(this, Route);
 
-			if (!_core2.default.isDefAndNotNull(path)) {
+			if (!_index.core.isDefAndNotNull(path)) {
 				throw new Error('Route path not specified.');
 			}
 
-			if (!_core2.default.isFunction(handler)) {
+			if (!_index.core.isFunction(handler)) {
 				throw new Error('Route handler is not a function.');
 			}
 
@@ -46,11 +38,11 @@ define(['exports', 'metal/src/core'], function (exports, _core) {
 		Route.prototype.matchesPath = function matchesPath(value) {
 			var path = this.path;
 
-			if (_core2.default.isString(path)) {
+			if (_index.core.isString(path)) {
 				return value === path;
 			}
 
-			if (_core2.default.isFunction(path)) {
+			if (_index.core.isFunction(path)) {
 				return path(value);
 			}
 

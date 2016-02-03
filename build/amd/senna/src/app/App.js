@@ -1,23 +1,11 @@
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/core', 'metal/src/dom/dom', 'metal/src/events/EventEmitter', 'metal/src/events/EventHandler', 'metal-promise/src/promise/Promise', 'senna/src/globals/globals', 'senna/src/route/Route', 'senna/src/screen/Screen', 'senna/src/surface/Surface'], function (exports, _array, _async, _core, _dom, _EventEmitter2, _EventHandler, _Promise, _globals, _Route, _Screen, _Surface) {
+define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri'], function (exports, _index, _Promise, _globals, _Route, _Screen, _Surface, _Uri) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _array2 = _interopRequireDefault(_array);
-
-	var _async2 = _interopRequireDefault(_async);
-
-	var _core2 = _interopRequireDefault(_core);
-
-	var _dom2 = _interopRequireDefault(_dom);
-
-	var _EventEmitter3 = _interopRequireDefault(_EventEmitter2);
-
-	var _EventHandler2 = _interopRequireDefault(_EventHandler);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -28,6 +16,8 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 	var _Screen2 = _interopRequireDefault(_Screen);
 
 	var _Surface2 = _interopRequireDefault(_Surface);
+
+	var _Uri2 = _interopRequireDefault(_Uri);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -91,9 +81,9 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			_this.skipLoadPopstate = false;
 			_this.surfaces = {};
 			_this.updateScrollPosition = true;
-			_this.appEventHandlers_ = new _EventHandler2.default();
+			_this.appEventHandlers_ = new _index.EventHandler();
 
-			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(_index.dom.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _index.dom.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _index.dom.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 
@@ -131,7 +121,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			}
 
 			surfaces.forEach(function (surface) {
-				if (_core2.default.isString(surface)) {
+				if (_index.core.isString(surface)) {
 					surface = new _Surface2.default(surface);
 				}
 
@@ -339,7 +329,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 				}
 			};
 
-			_async2.default.nextTick(switchScrollPositionRace);
+			_index.async.nextTick(switchScrollPositionRace);
 
 			_globals2.default.document.addEventListener('scroll', switchScrollPositionRace, false);
 		};
@@ -351,22 +341,22 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			}
 		};
 
-		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(link, event) {
-			var path = link.pathname + link.search + link.hash;
+		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(uri, event) {
+			var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
-			if (!this.isLinkSameOrigin_(link.hostname)) {
+			if (!this.isLinkSameOrigin_(uri.getHostname())) {
 				console.log('Offsite link clicked');
-				return;
+				return false;
 			}
 
 			if (!this.isSameBasePath_(path)) {
 				console.log('Link clicked outside app\'s base path');
-				return;
+				return false;
 			}
 
 			if (!this.findRoute(path)) {
 				console.log('No route for ' + path);
-				return;
+				return false;
 			}
 
 			var navigateFailed = false;
@@ -380,6 +370,8 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			if (!navigateFailed) {
 				event.preventDefault();
 			}
+
+			return true;
 		};
 
 		App.prototype.maybeRemovePathHashbang = function maybeRemovePathHashbang(path) {
@@ -439,23 +431,20 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 				return;
 			}
 
-			this.maybeNavigateToLinkElement_(event.delegateTarget, event);
+			this.maybeNavigateToLinkElement_(new _Uri2.default(event.delegateTarget.href), event);
 		};
 
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
 			var form = event.delegateTarget;
-
-			var link = _globals2.default.document.createElement('a');
-
-			link.href = form.action;
 
 			if (form.method === 'get') {
 				console.log('GET method not supported');
 				return;
 			}
 
-			_globals2.default.capturedFormElement = form;
-			this.maybeNavigateToLinkElement_(link, event);
+			if (this.maybeNavigateToLinkElement_(new _Uri2.default(form.action), event)) {
+				_globals2.default.capturedFormElement = form;
+			}
 		};
 
 		App.prototype.onLoad_ = function onLoad_() {
@@ -522,7 +511,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 
 			var documentElement = _globals2.default.document.documentElement;
 
-			_dom2.default.addClasses(documentElement, this.loadingCssClass);
+			_index.dom.addClasses(documentElement, this.loadingCssClass);
 
 			this.stopPendingNavigate_();
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
@@ -531,7 +520,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			}).thenAlways(function () {
 				endPayload.path = event.path;
 
-				_dom2.default.removeClasses(documentElement, _this7.loadingCssClass);
+				_index.dom.removeClasses(documentElement, _this7.loadingCssClass);
 
 				_this7.maybeRestoreNativeScrollRestoration();
 
@@ -564,12 +553,12 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 		App.prototype.prepareNavigateHistory_ = function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 			var title = nextScreen.getTitle();
 
-			if (!_core2.default.isString(title)) {
+			if (!_index.core.isString(title)) {
 				title = this.getDefaultTitle();
 			}
 
 			var historyState = {
-				form: _core2.default.isDefAndNotNull(_globals2.default.capturedFormElement),
+				form: _index.core.isDefAndNotNull(_globals2.default.capturedFormElement),
 				navigatePath: path,
 				path: nextScreen.beforeUpdateHistoryPath(path),
 				senna: true,
@@ -589,7 +578,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id);
 				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (_core2.default.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (_index.core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		};
 
@@ -598,7 +587,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 		};
 
 		App.prototype.removeRoute = function removeRoute(route) {
-			return _array2.default.remove(this.routes, route);
+			return _index.array.remove(this.routes, route);
 		};
 
 		App.prototype.removeScreen_ = function removeScreen_(path, screen) {
@@ -637,7 +626,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 				this.formEventHandler_.removeListener();
 			}
 
-			this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+			this.formEventHandler_ = _index.dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
 		};
 
 		App.prototype.setLinkSelector = function setLinkSelector(linkSelector) {
@@ -647,7 +636,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 				this.linkEventHandler_.removeListener();
 			}
 
-			this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
+			this.linkEventHandler_ = _index.dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
 		};
 
 		App.prototype.setLoadingCssClass = function setLoadingCssClass(loadingCssClass) {
@@ -684,7 +673,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 			};
 
 			return new _Promise2.default(function (resolve) {
-				return sync() & _async2.default.nextTick(function () {
+				return sync() & _index.async.nextTick(function () {
 					return sync() & resolve();
 				});
 			});
@@ -701,7 +690,7 @@ define(['exports', 'metal/src/array/array', 'metal/src/async/async', 'metal/src/
 		};
 
 		return App;
-	}(_EventEmitter3.default);
+	}(_index.EventEmitter);
 
 	App.prototype.registerMetalComponent && App.prototype.registerMetalComponent(App, 'App')
 	exports.default = App;

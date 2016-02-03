@@ -1,8 +1,8 @@
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'senna/src/globals/globals', 'senna/src/screen/RequestScreen', 'senna/src/surface/Surface', 'senna/src/app/dataAttributes'], function (exports, _globals, _RequestScreen2, _Surface, _dataAttributes) {
+define(['exports', '../globals/globals', './RequestScreen', '../surface/Surface', '../app/dataAttributes'], function (exports, _globals, _RequestScreen2, _Surface, _dataAttributes) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

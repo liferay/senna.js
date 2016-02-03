@@ -1,11 +1,11 @@
-'use strict';
+define(['exports', 'metal/src/index', 'metal-uri/src/Uri', 'metal-promise/src/promise/Promise'], function (exports, _index, _Uri, _Promise) {
+	'use strict';
 
-define(['exports', 'metal/src/core', 'metal-promise/src/promise/Promise'], function (exports, _core, _Promise) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _core2 = _interopRequireDefault(_core);
+	var _Uri2 = _interopRequireDefault(_Uri);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -23,38 +23,6 @@ define(['exports', 'metal/src/core', 'metal-promise/src/promise/Promise'], funct
 		function Ajax() {
 			_classCallCheck(this, Ajax);
 		}
-
-		Ajax.addParametersToUrlQueryString = function addParametersToUrlQueryString(url, opt_params) {
-			var querystring = '';
-			opt_params.names().forEach(function (name) {
-				opt_params.getAll(name).forEach(function (value) {
-					querystring += name + '=' + encodeURIComponent(value) + '&';
-				});
-			});
-			querystring = querystring.slice(0, -1);
-
-			if (querystring) {
-				url += url.indexOf('?') > -1 ? '&' : '?';
-				url += querystring;
-			}
-
-			return url;
-		};
-
-		Ajax.joinPaths = function joinPaths(basePath) {
-			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-				paths[_key - 1] = arguments[_key];
-			}
-
-			if (basePath.charAt(basePath.length - 1) === '/') {
-				basePath = basePath.substring(0, basePath.length - 1);
-			}
-
-			paths = paths.map(function (path) {
-				return path.charAt(0) === '/' ? path.substring(1) : path;
-			});
-			return [basePath].concat(paths).join('/').replace(/\/$/, '');
-		};
 
 		Ajax.parseResponseHeaders = function parseResponseHeaders(allHeaders) {
 			var headers = [];
@@ -79,37 +47,6 @@ define(['exports', 'metal/src/core', 'metal-promise/src/promise/Promise'], funct
 			}
 
 			return headers;
-		};
-
-		Ajax.parseUrl = function parseUrl(url) {
-			var base;
-			var path;
-			var qs;
-			var domainAt = url.indexOf('//');
-
-			if (domainAt > -1) {
-				url = url.substring(domainAt + 2);
-			}
-
-			var pathAt = url.indexOf('/');
-
-			if (pathAt === -1) {
-				url += '/';
-				pathAt = url.length - 1;
-			}
-
-			base = url.substring(0, pathAt);
-			path = url.substring(pathAt);
-			var qsAt = path.indexOf('?');
-
-			if (qsAt > -1) {
-				qs = path.substring(qsAt, path.length);
-				path = path.substring(0, qsAt);
-			} else {
-				qs = '';
-			}
-
-			return [base, path, qs];
 		};
 
 		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync) {
@@ -137,7 +74,7 @@ define(['exports', 'metal/src/core', 'metal-promise/src/promise/Promise'], funct
 			});
 
 			if (opt_params) {
-				url = Ajax.addParametersToUrlQueryString(url, opt_params);
+				url = new _Uri2.default(url).addParametersFromMultiMap(opt_params).toString();
 			}
 
 			request.open(method, url, !opt_sync);
@@ -148,9 +85,9 @@ define(['exports', 'metal/src/core', 'metal-promise/src/promise/Promise'], funct
 				});
 			}
 
-			request.send(_core2.default.isDef(body) ? body : null);
+			request.send(_index.core.isDef(body) ? body : null);
 
-			if (_core2.default.isDefAndNotNull(opt_timeout)) {
+			if (_index.core.isDefAndNotNull(opt_timeout)) {
 				var timeout = setTimeout(function () {
 					promise.cancel('Request timeout');
 				}, opt_timeout);

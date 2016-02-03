@@ -1,15 +1,11 @@
-'use strict';
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/core', 'metal/src/eval/globalEval', 'senna/src/cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _core, _globalEval, _Cacheable2, _Promise) {
+define(['exports', 'metal/src/index', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _index, _Cacheable2, _Promise) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _core2 = _interopRequireDefault(_core);
-
-	var _globalEval2 = _interopRequireDefault(_globalEval);
 
 	var _Cacheable3 = _interopRequireDefault(_Cacheable2);
 
@@ -59,7 +55,7 @@ define(['exports', 'metal/src/core', 'metal/src/eval/globalEval', 'senna/src/cac
 
 			var _this = _possibleConstructorReturn(this, _Cacheable.call(this));
 
-			_this.id = _this.makeId_(_core2.default.getUid());
+			_this.id = _this.makeId_(_index.core.getUid());
 			_this.title = null;
 			return _this;
 		}
@@ -102,7 +98,7 @@ define(['exports', 'metal/src/core', 'metal/src/eval/globalEval', 'senna/src/cac
 
 				if (surface.activeChild) {
 					deferred.then(function () {
-						return _globalEval2.default.runScriptsInElement(surface.activeChild);
+						return _index.globalEval.runScriptsInElement(surface.activeChild);
 					});
 				}
 			});

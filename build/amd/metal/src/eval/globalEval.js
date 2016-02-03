@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../dom/dom'], function (exports, _dom) {
+	'use strict';
 
-define(['exports', 'metal/src/dom/dom'], function (exports, _dom) {
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

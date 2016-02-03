@@ -1,11 +1,6 @@
-/*!
- * Polyfill from Google's Closure Library.
- * Copyright 2013 The Closure Library Authors. All Rights Reserved.
- */
-
-'use strict';
-
 define(['exports'], function (exports) {
+	'use strict';
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});

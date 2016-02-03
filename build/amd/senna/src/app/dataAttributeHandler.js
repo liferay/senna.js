@@ -1,6 +1,6 @@
-'use strict';
+define(['exports', '../globals/globals', './AppDataAttributeHandler'], function (exports, _globals, _AppDataAttributeHandler) {
+  'use strict';
 
-define(['exports', 'senna/src/globals/globals', 'senna/src/app/AppDataAttributeHandler'], function (exports, _globals, _AppDataAttributeHandler) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
