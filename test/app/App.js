@@ -903,6 +903,27 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should not capture form if navigate fails when submitting forms', function() {
+		var form = enterDocumentFormElement('/path', 'post');
+		var app = new App();
+		dom.on(form, 'submit', preventDefault);
+		dom.triggerEvent(form, 'submit');
+		assert.strictEqual(null, globals.capturedFormElement);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
+	it('should capture form if navigate when submitting forms', function() {
+		var form = enterDocumentFormElement('/path', 'post');
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		dom.on(form, 'submit', preventDefault);
+		dom.triggerEvent(form, 'submit');
+		assert.ok(globals.capturedFormElement);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
 	it('should skipLoadPopstate before page is loaded', function(done) {
 		var app = new App();
 		app.onLoad_(); // Simulate

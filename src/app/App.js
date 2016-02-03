@@ -547,21 +547,22 @@ class App extends EventEmitter {
 	 * Maybe navigate to link element.
 	 * @param {Uri} uri Information about the link's href uri.
 	 * @param {Event} event Dom event that initiated the navigation.
+	 * @return {boolean} Returns true if navigate, false otherwise.
 	 */
 	maybeNavigateToLinkElement_(uri, event) {
 		var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
 		if (!this.isLinkSameOrigin_(uri.getHostname())) {
 			console.log('Offsite link clicked');
-			return;
+			return false;
 		}
 		if (!this.isSameBasePath_(path)) {
 			console.log('Link clicked outside app\'s base path');
-			return;
+			return false;
 		}
 		if (!this.findRoute(path)) {
 			console.log('No route for ' + path);
-			return;
+			return false;
 		}
 
 		var navigateFailed = false;
@@ -575,6 +576,8 @@ class App extends EventEmitter {
 		if (!navigateFailed) {
 			event.preventDefault();
 		}
+
+		return true;
 	}
 
 	/**
@@ -677,8 +680,9 @@ class App extends EventEmitter {
 			console.log('GET method not supported');
 			return;
 		}
-		globals.capturedFormElement = form;
-		this.maybeNavigateToLinkElement_(new Uri(form.action), event);
+		if (this.maybeNavigateToLinkElement_(new Uri(form.action), event)) {
+			globals.capturedFormElement = form;
+		}
 	}
 
 	/**
