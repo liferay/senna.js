@@ -545,11 +545,12 @@ class App extends EventEmitter {
 
 	/**
 	 * Maybe navigate to link element.
-	 * @param {Uri} uri Information about the link's href uri.
+	 * @param {string} href Information about the link's href.
 	 * @param {Event} event Dom event that initiated the navigation.
 	 * @return {boolean} Returns true if navigate, false otherwise.
 	 */
-	maybeNavigateToLinkElement_(uri, event) {
+	maybeNavigateToLinkElement_(href, event) {
+		var uri = new Uri(href);
 		var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
 		if (!this.isLinkSameOrigin_(uri.getHostname())) {
@@ -665,7 +666,7 @@ class App extends EventEmitter {
 			console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 			return;
 		}
-		this.maybeNavigateToLinkElement_(new Uri(event.delegateTarget.href), event);
+		this.maybeNavigateToLinkElement_(event.delegateTarget.href, event);
 	}
 
 	/**
@@ -680,7 +681,7 @@ class App extends EventEmitter {
 			console.log('GET method not supported');
 			return;
 		}
-		if (this.maybeNavigateToLinkElement_(new Uri(form.action), event)) {
+		if (this.maybeNavigateToLinkElement_(form.action, event)) {
 			globals.capturedFormElement = form;
 		}
 	}
