@@ -341,7 +341,8 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			}
 		};
 
-		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(uri, event) {
+		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(href, event) {
+			var uri = new _Uri2.default(href);
 			var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
 			if (!this.isLinkSameOrigin_(uri.getHostname())) {
@@ -431,7 +432,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				return;
 			}
 
-			this.maybeNavigateToLinkElement_(new _Uri2.default(event.delegateTarget.href), event);
+			this.maybeNavigateToLinkElement_(event.delegateTarget.href, event);
 		};
 
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
@@ -442,7 +443,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				return;
 			}
 
-			if (this.maybeNavigateToLinkElement_(new _Uri2.default(form.action), event)) {
+			if (this.maybeNavigateToLinkElement_(form.action, event)) {
 				_globals2.default.capturedFormElement = form;
 			}
 		};
