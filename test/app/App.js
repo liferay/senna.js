@@ -10,6 +10,9 @@ import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
 
 describe('App', function() {
+	before(function(done) {
+		detectCanScrollIFrame(done);
+	});
 
 	beforeEach(function() {
 		this.xhr = sinon.useFakeXMLHttpRequest();
@@ -454,6 +457,11 @@ describe('App', function() {
 	});
 
 	it('should store scroll position on page scroll', function(done) {
+		if (!canScrollIFrame_) {
+			done();
+			return;
+		}
+
 		showPageScrollbar();
 		var app = new App();
 		setTimeout(function() {
@@ -482,6 +490,11 @@ describe('App', function() {
 	});
 
 	it('should update scroll position on navigate', function(done) {
+		if (!canScrollIFrame_) {
+			done();
+			return;
+		}
+
 		showPageScrollbar();
 		var app = new App();
 		app.addRoutes(new Route('/path1', Screen));
@@ -501,6 +514,11 @@ describe('App', function() {
 	});
 
 	it('should not update scroll position on navigate if updateScrollPosition is disabled', function(done) {
+		if (!canScrollIFrame_) {
+			done();
+			return;
+		}
+
 		showPageScrollbar();
 		var app = new App();
 		app.setUpdateScrollPosition(false);
@@ -521,6 +539,11 @@ describe('App', function() {
 	});
 
 	it('should restore scroll position on navigate back', function(done) {
+		if (!canScrollIFrame_) {
+			done();
+			return;
+		}
+
 		showPageScrollbar();
 		var app = new App();
 		app.addRoutes(new Route('/path1', Screen));
@@ -762,6 +785,11 @@ describe('App', function() {
 	});
 
 	it('should resposition scroll to hashed anchors on hash popstate', function(done) {
+		if (!canScrollIFrame_) {
+			done();
+			return;
+		}
+
 		showPageScrollbar();
 		var link = enterDocumentLinkElement('/path');
 		link.style.position = 'absolute';
@@ -1082,6 +1110,23 @@ describe('App', function() {
 	});
 
 });
+
+var canScrollIFrame_ = false;
+/**
+ * Checks if the current browser allows scrolling iframes. Mobile Safari doesn't
+ * allow it, so we have to skip any tests that require window scrolling, since
+ * these tests all run inside an iframe.
+ */
+function detectCanScrollIFrame(done) {
+	showPageScrollbar();
+	dom.once(document, 'scroll', () => {canScrollIFrame_ = true;});
+	window.scrollTo(100, 100);
+	setTimeout(function() {
+		console.debug('canScrollIFrame_', canScrollIFrame_);
+		hidePageScrollbar();
+		done();
+	}, 1000);
+}
 
 function enterDocumentLinkElement(href) {
 	dom.enterDocument('<a id="link" href="' + href + '">link</a>');
