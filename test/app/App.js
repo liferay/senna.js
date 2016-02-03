@@ -1122,7 +1122,6 @@ function detectCanScrollIFrame(done) {
 	dom.once(document, 'scroll', () => {canScrollIFrame_ = true;});
 	window.scrollTo(100, 100);
 	setTimeout(function() {
-		console.debug('canScrollIFrame_', canScrollIFrame_);
 		hidePageScrollbar();
 		done();
 	}, 1000);
