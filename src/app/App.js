@@ -6,6 +6,7 @@ import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';
 import Surface from '../surface/Surface';
+import Uri from 'metal-uri';
 
 class App extends EventEmitter {
 
@@ -544,13 +545,13 @@ class App extends EventEmitter {
 
 	/**
 	 * Maybe navigate to link element.
-	 * @param {Element} link Link element that holds navigation information.
+	 * @param {Uri} uri Information about the link's href uri.
 	 * @param {Event} event Dom event that initiated the navigation.
 	 */
-	maybeNavigateToLinkElement_(link, event) {
-		var path = link.pathname + link.search + link.hash;
+	maybeNavigateToLinkElement_(uri, event) {
+		var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
-		if (!this.isLinkSameOrigin_(link.hostname)) {
+		if (!this.isLinkSameOrigin_(uri.getHostname())) {
 			console.log('Offsite link clicked');
 			return;
 		}
@@ -661,7 +662,7 @@ class App extends EventEmitter {
 			console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 			return;
 		}
-		this.maybeNavigateToLinkElement_(event.delegateTarget, event);
+		this.maybeNavigateToLinkElement_(new Uri(event.delegateTarget.href), event);
 	}
 
 	/**
@@ -672,14 +673,12 @@ class App extends EventEmitter {
 	 */
 	onDocSubmitDelegate_(event) {
 		var form = event.delegateTarget;
-		var link = globals.document.createElement('a');
-		link.href = form.action;
 		if (form.method === 'get') {
 			console.log('GET method not supported');
 			return;
 		}
 		globals.capturedFormElement = form;
-		this.maybeNavigateToLinkElement_(link, event);
+		this.maybeNavigateToLinkElement_(new Uri(form.action), event);
 	}
 
 	/**

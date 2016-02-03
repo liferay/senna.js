@@ -32,7 +32,8 @@
     "metal-ajax": "metal/metal-ajax#master",
     "metal-debounce": "metal/metal-debounce#master",
     "metal-multimap": "metal/metal-multimap#master",
-    "metal-promise": "metal/metal-promise#master"
+    "metal-promise": "metal/metal-promise#master",
+    "metal-uri": "github:metal/metal-uri#master"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
