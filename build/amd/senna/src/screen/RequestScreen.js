@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen'], function (exports, _index, _Ajax, _MultiMap, _Promise, _globals, _Screen2) {
+define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri'], function (exports, _index, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -16,6 +16,8 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	var _globals2 = _interopRequireDefault(_globals);
 
 	var _Screen3 = _interopRequireDefault(_Screen2);
+
+	var _Uri2 = _interopRequireDefault(_Uri);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -102,10 +104,8 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			var request = this.getRequest();
 
 			if (request) {
-				var link = _globals2.default.document.createElement('a');
-
-				link.href = request.responseURL;
-				return link.pathname + link.search + link.hash;
+				var uri = new _Uri2.default(request.responseURL);
+				return uri.getPathname() + uri.getSearch() + uri.getHash();
 			}
 
 			return null;

@@ -227,7 +227,7 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
 			var url = opt_uri;
 
-			if (opt_uri.indexOf('://') === -1) {
+			if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
 				url = Uri.DEFAULT_PROTOCOL;
 
 				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {

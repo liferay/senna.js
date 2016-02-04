@@ -4525,7 +4525,9 @@ babelHelpers;
 
 		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
 			var url = opt_uri;
-			if (opt_uri.indexOf('://') === -1) {
+			if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
+				// jshint ignore:line
+
 				url = Uri.DEFAULT_PROTOCOL;
 				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
 					url += '//';
@@ -5962,6 +5964,7 @@ babelHelpers;
 	var CancellablePromise = this.senna.Promise;
 	var globals = this.senna.globals;
 	var Screen = this.senna.Screen;
+	var Uri = this.senna.Uri;
 
 	var RequestScreen = function (_Screen) {
 		babelHelpers.inherits(RequestScreen, _Screen);
@@ -6077,9 +6080,8 @@ babelHelpers;
 		RequestScreen.prototype.getRequestResponsePath = function getRequestResponsePath() {
 			var request = this.getRequest();
 			if (request) {
-				var link = globals.document.createElement('a');
-				link.href = request.responseURL;
-				return link.pathname + link.search + link.hash;
+				var uri = new Uri(request.responseURL);
+				return uri.getPathname() + uri.getSearch() + uri.getHash();
 			}
 			return null;
 		};
