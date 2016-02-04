@@ -122,6 +122,13 @@ class App extends EventEmitter {
 		this.popstateScrollTop = 0;
 
 		/**
+		 * Holds the redirect path containing the query parameters.
+		 * @type {?string}
+		 * @protected
+		 */
+		this.redirectPath = null;
+
+		/**
 		 * Holds the screen routes configuration.
 		 * @type {?Array}
 		 * @default []
@@ -721,11 +728,11 @@ class App extends EventEmitter {
 
 		if (!state) {
 			if (globals.window.location.hash) {
-				// If senna is on an active path and a hash popstate happens to
-				// a different url, reload the browser. This behavior doesn't
+				// If senna is on an redirect path and a hash popstate happens
+				// to a different url, reload the browser. This behavior doesn't
 				// require senna to route hashed links and is closer to native
 				// browser behavior.
-				if (this.activePath && !this.isPathCurrentBrowserPath(this.activePath)) {
+				if (this.redirectPath && !this.isPathCurrentBrowserPath(this.redirectPath)) {
 					this.reloadPage();
 				}
 				// Always try to reposition scroll to the hashed anchor when
@@ -830,10 +837,11 @@ class App extends EventEmitter {
 		if (!core.isString(title)) {
 			title = this.getDefaultTitle();
 		}
+		var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 		var historyState = {
 			form: core.isDefAndNotNull(globals.capturedFormElement),
-			navigatePath: path,
-			path: nextScreen.beforeUpdateHistoryPath(path),
+			redirectPath: redirectPath,
+			path: path,
 			senna: true,
 			scrollTop: 0,
 			scrollLeft: 0
@@ -842,7 +850,8 @@ class App extends EventEmitter {
 			historyState.scrollTop = this.popstateScrollTop;
 			historyState.scrollLeft = this.popstateScrollLeft;
 		}
-		this.updateHistory_(title, historyState.path, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+		this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+		this.redirectPath = redirectPath;
 	}
 
 	/**

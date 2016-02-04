@@ -82,7 +82,7 @@ class RequestScreen extends Screen {
 		// If state is ours and navigate to post-without-redirect-get set
 		// history state to null, that way Senna will reload the page on
 		// popstate since it cannot predict post data.
-		if (state.senna && state.form && state.navigatePath === state.path) {
+		if (state.senna && state.form && state.redirectPath === state.path) {
 			return null;
 		}
 		return state;

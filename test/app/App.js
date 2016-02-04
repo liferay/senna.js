@@ -339,7 +339,7 @@ describe('App', function() {
 		app.navigate('/path').then(() => {
 			assert.deepEqual({
 				form: false,
-				navigatePath: '/path',
+				redirectPath: '/path',
 				path: '/path',
 				senna: true,
 				scrollTop: 0,
@@ -926,6 +926,21 @@ describe('App', function() {
 		app.on('beforeNavigate', (event) => assert.ok(event.form));
 		exitDocumentFormElement();
 		app.dispose();
+	});
+
+	it('should set redirect path if history path was redirected', function(done) {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/redirect';
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path', RedirectScreen));
+		app.navigate('/path').then(() => {
+			assert.strictEqual('/redirect', app.redirectPath);
+			app.dispose();
+			done();
+		});
 	});
 
 	it('should skipLoadPopstate before page is loaded', function(done) {

@@ -63,7 +63,7 @@ describe('RequestScreen', function() {
 		assert.strictEqual(null, screen.beforeUpdateHistoryState({
 			senna: true,
 			form: true,
-			navigatePath: '/post',
+			redirectPath: '/post',
 			path: '/post'
 		}));
 	});
