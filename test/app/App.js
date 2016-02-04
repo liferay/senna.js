@@ -938,6 +938,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path', RedirectScreen));
 		app.navigate('/path').then(() => {
 			assert.strictEqual('/redirect', app.redirectPath);
+			assert.strictEqual('/path', app.activePath);
 			app.dispose();
 			done();
 		});
