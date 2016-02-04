@@ -85,7 +85,7 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		};
 
 		RequestScreen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
-			if (state.senna && state.form && state.navigatePath === state.path) {
+			if (state.senna && state.form && state.redirectPath === state.path) {
 				return null;
 			}
 

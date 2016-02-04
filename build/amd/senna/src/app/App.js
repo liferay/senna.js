@@ -75,6 +75,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			_this.pendingNavigate = null;
 			_this.popstateScrollLeft = 0;
 			_this.popstateScrollTop = 0;
+			_this.redirectPath = null;
 			_this.routes = [];
 			_this.screens = {};
 			_this.scrollHandle = null;
@@ -467,7 +468,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 
 			if (!state) {
 				if (_globals2.default.window.location.hash) {
-					if (this.activePath && !this.isPathCurrentBrowserPath(this.activePath)) {
+					if (this.redirectPath && !this.isPathCurrentBrowserPath(this.redirectPath)) {
 						this.reloadPage();
 					}
 
@@ -558,10 +559,11 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				title = this.getDefaultTitle();
 			}
 
+			var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 			var historyState = {
 				form: _index.core.isDefAndNotNull(_globals2.default.capturedFormElement),
-				navigatePath: path,
-				path: nextScreen.beforeUpdateHistoryPath(path),
+				redirectPath: redirectPath,
+				path: path,
 				senna: true,
 				scrollTop: 0,
 				scrollLeft: 0
@@ -572,7 +574,8 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				historyState.scrollLeft = this.popstateScrollLeft;
 			}
 
-			this.updateHistory_(title, historyState.path, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+			this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+			this.redirectPath = redirectPath;
 		};
 
 		App.prototype.prepareNavigateSurfaces_ = function prepareNavigateSurfaces_(nextScreen, surfaces) {
