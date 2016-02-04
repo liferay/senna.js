@@ -908,7 +908,9 @@ describe('App', function() {
 		var app = new App();
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.strictEqual(null, globals.capturedFormElement);
+		assert.ok(!globals.capturedFormElement);
+		app.on('beforeNavigate', () => assert.ok(!globals.capturedFormElement));
+		app.on('beforeNavigate', (event) => assert.ok(!event.form));
 		exitDocumentFormElement();
 		app.dispose();
 	});
@@ -920,6 +922,8 @@ describe('App', function() {
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(globals.capturedFormElement);
+		app.on('beforeNavigate', () => assert.ok(globals.capturedFormElement));
+		app.on('beforeNavigate', (event) => assert.ok(event.form));
 		exitDocumentFormElement();
 		app.dispose();
 	});

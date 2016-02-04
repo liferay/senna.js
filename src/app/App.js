@@ -544,27 +544,28 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Maybe navigate to link element.
+	 * Maybe navigate to a path.
 	 * @param {string} href Information about the link's href.
 	 * @param {Event} event Dom event that initiated the navigation.
-	 * @return {boolean} Returns true if navigate, false otherwise.
 	 */
-	maybeNavigateToLinkElement_(href, event) {
+	maybeNavigate_(href, event) {
 		var uri = new Uri(href);
 		var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
 		if (!this.isLinkSameOrigin_(uri.getHostname())) {
 			console.log('Offsite link clicked');
-			return false;
+			return;
 		}
 		if (!this.isSameBasePath_(path)) {
 			console.log('Link clicked outside app\'s base path');
-			return false;
+			return;
 		}
 		if (!this.findRoute(path)) {
 			console.log('No route for ' + path);
-			return false;
+			return;
 		}
+
+		globals.capturedFormElement = event.capturedFormElement;
 
 		var navigateFailed = false;
 		try {
@@ -666,7 +667,7 @@ class App extends EventEmitter {
 			console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 			return;
 		}
-		this.maybeNavigateToLinkElement_(event.delegateTarget.href, event);
+		this.maybeNavigate_(event.delegateTarget.href, event);
 	}
 
 	/**
@@ -681,9 +682,8 @@ class App extends EventEmitter {
 			console.log('GET method not supported');
 			return;
 		}
-		if (this.maybeNavigateToLinkElement_(form.action, event)) {
-			globals.capturedFormElement = form;
-		}
+		event.capturedFormElement = form;
+		this.maybeNavigate_(form.action, event);
 	}
 
 	/**
