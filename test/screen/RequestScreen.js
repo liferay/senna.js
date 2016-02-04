@@ -50,8 +50,10 @@ describe('RequestScreen', function() {
 
 	it('should screen beforeUpdateHistoryPath returns response path if different from navigate path', function() {
 		var screen = new RequestScreen();
-		sinon.stub(screen, 'getRequestResponsePath', function() {
-			return '/redirect';
+		sinon.stub(screen, 'getRequest', function() {
+			return {
+				responseURL: '/redirect'
+			};
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
