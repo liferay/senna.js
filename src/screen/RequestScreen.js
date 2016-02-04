@@ -6,6 +6,7 @@ import MultiMap from 'metal-multimap';
 import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import Screen from './Screen';
+import Uri from 'metal-uri';
 
 class RequestScreen extends Screen {
 
@@ -110,9 +111,8 @@ class RequestScreen extends Screen {
 	getRequestResponsePath() {
 		var request = this.getRequest();
 		if (request) {
-			var link = globals.document.createElement('a');
-			link.href = request.responseURL;
-			return link.pathname + link.search + link.hash;
+			var uri = new Uri(request.responseURL);
+			return uri.getPathname() + uri.getSearch() + uri.getHash();
 		}
 		return null;
 	}
