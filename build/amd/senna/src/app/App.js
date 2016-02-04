@@ -341,25 +341,26 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			}
 		};
 
-		App.prototype.maybeNavigateToLinkElement_ = function maybeNavigateToLinkElement_(href, event) {
+		App.prototype.maybeNavigate_ = function maybeNavigate_(href, event) {
 			var uri = new _Uri2.default(href);
 			var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
 			if (!this.isLinkSameOrigin_(uri.getHostname())) {
 				console.log('Offsite link clicked');
-				return false;
+				return;
 			}
 
 			if (!this.isSameBasePath_(path)) {
 				console.log('Link clicked outside app\'s base path');
-				return false;
+				return;
 			}
 
 			if (!this.findRoute(path)) {
 				console.log('No route for ' + path);
-				return false;
+				return;
 			}
 
+			_globals2.default.capturedFormElement = event.capturedFormElement;
 			var navigateFailed = false;
 
 			try {
@@ -432,7 +433,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				return;
 			}
 
-			this.maybeNavigateToLinkElement_(event.delegateTarget.href, event);
+			this.maybeNavigate_(event.delegateTarget.href, event);
 		};
 
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
@@ -443,9 +444,8 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				return;
 			}
 
-			if (this.maybeNavigateToLinkElement_(form.action, event)) {
-				_globals2.default.capturedFormElement = form;
-			}
+			event.capturedFormElement = form;
+			this.maybeNavigate_(form.action, event);
 		};
 
 		App.prototype.onLoad_ = function onLoad_() {
