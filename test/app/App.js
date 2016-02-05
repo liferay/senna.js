@@ -1,6 +1,6 @@
 'use strict';
 
-import { dom } from 'metal';
+import { dom } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
 import App from '../../src/app/App';
