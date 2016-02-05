@@ -219,6 +219,11 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 			return search;
 		};
 
+		Uri.prototype.hasParameter = function hasParameter(name) {
+			this.ensureQueryInitialized_();
+			return this.query.contains(name);
+		};
+
 		Uri.prototype.makeUnique = function makeUnique() {
 			this.setParameterValue(Uri.RANDOM_PARAM, _index.string.getRandomString());
 			return this;
@@ -267,6 +272,11 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 		Uri.prototype.removeParameter = function removeParameter(name) {
 			this.ensureQueryInitialized_();
 			this.query.remove(name);
+			return this;
+		};
+
+		Uri.prototype.removeUnique = function removeUnique() {
+			this.removeParameter(Uri.RANDOM_PARAM);
 			return this;
 		};
 

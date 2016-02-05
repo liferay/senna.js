@@ -4507,6 +4507,17 @@ babelHelpers;
 		};
 
 		/**
+   * Checks if uri contains the parameter.
+   * @param {string} name
+   * @return {boolean}
+   */
+
+		Uri.prototype.hasParameter = function hasParameter(name) {
+			this.ensureQueryInitialized_();
+			return this.query.contains(name);
+		};
+
+		/**
    * Makes this URL unique by adding a random param to it. Useful for avoiding
    * cache.
    */
@@ -4573,6 +4584,16 @@ babelHelpers;
 		Uri.prototype.removeParameter = function removeParameter(name) {
 			this.ensureQueryInitialized_();
 			this.query.remove(name);
+			return this;
+		};
+
+		/**
+   * Removes uniqueness parameter of the uri.
+   * @chainable
+   */
+
+		Uri.prototype.removeUnique = function removeUnique() {
+			this.removeParameter(Uri.RANDOM_PARAM);
 			return this;
 		};
 
@@ -5966,6 +5987,135 @@ babelHelpers;
 }).call(this);
 'use strict';
 
+/**
+ * Metal.js browser user agent detection. It's extremely recommended the usage
+ * of feature checking over browser user agent sniffing. Unfortunately, in some
+ * situations feature checking can be slow or even impossible, therefore use
+ * this utility with caution.
+ * @see <a href="http://www.useragentstring.com/">User agent strings</a>.
+ */
+
+(function () {
+	var UA = function () {
+		function UA() {
+			babelHelpers.classCallCheck(this, UA);
+		}
+
+		/**
+   * Gets the native userAgent string from navigator if it exists. If
+   * navigator or navigator.userAgent string is missing, returns an empty
+   * string.
+   * @return {string}
+   * @private
+   * @static
+   */
+
+		UA.getNativeUserAgent = function getNativeUserAgent() {
+			var navigator = UA.globals.window.navigator;
+			if (navigator) {
+				var userAgent = navigator.userAgent;
+				if (userAgent) {
+					return userAgent;
+				}
+			}
+			return '';
+		};
+
+		/**
+   * Whether the user agent contains the given string, ignoring case.
+   * @param {string} str
+   * @return {boolean}
+   * @private
+   * @static
+  */
+
+		UA.matchUserAgent = function matchUserAgent(str) {
+			return UA.userAgent.indexOf(str) !== -1;
+		};
+
+		/**
+   * Tests the user agent.
+   * @param {string} userAgent The user agent string.
+   * @static
+   */
+
+		UA.testUserAgent = function testUserAgent(userAgent) {
+			/**
+    * Holds the user agent value extracted from browser native user agent.
+    * @type {string}
+    * @static
+    */
+			UA.userAgent = userAgent;
+
+			/**
+    * Whether the user's browser is Opera.
+    * @type {boolean}
+    * @static
+    */
+			UA.isOpera = UA.matchUserAgent('Opera') || UA.matchUserAgent('OPR');
+
+			/**
+    * Whether the user's browser is IE.
+    * @type {boolean}
+    * @static
+    */
+			UA.isIe = UA.matchUserAgent('Trident') || UA.matchUserAgent('MSIE');
+
+			/**
+    * Whether the user's browser is Edge.
+    * @type {boolean}
+    * @static
+    */
+			UA.isEdge = UA.matchUserAgent('Edge');
+
+			/**
+    * Whether the user's browser is IE or Edge.
+    * @type {boolean}
+    * @static
+    */
+			UA.isIeOrEdge = UA.isIe || UA.isEdge;
+
+			/**
+    * Whether the user's browser is Chrome.
+    * @type {boolean}
+    * @static
+    */
+			UA.isChrome = (UA.matchUserAgent('Chrome') || UA.matchUserAgent('CriOS')) && !UA.isOpera && !UA.isEdge;
+
+			/**
+    * Whether the user's browser is Safari.
+    * @type {boolean}
+    * @static
+    */
+			UA.isSafari = UA.matchUserAgent('Safari') && !(UA.isChrome || UA.isOpera || UA.isEdge);
+
+			/**
+    * Whether the user's browser is Firefox.
+    * @type {boolean}
+    * @static
+    */
+			UA.isFirefox = UA.matchUserAgent('Firefox');
+		};
+
+		return UA;
+	}();
+
+	/**
+  * Exposes global references.
+  * @type {object}
+  * @static
+  */
+
+	UA.globals = {
+		window: window
+	};
+
+	UA.testUserAgent(UA.getNativeUserAgent());
+
+	this.senna.UA = UA;
+}).call(this);
+'use strict';
+
 (function () {
 	var core = this.sennaNamed.index.core;
 	var Ajax = this.senna.Ajax;
@@ -5974,6 +6124,7 @@ babelHelpers;
 	var globals = this.senna.globals;
 	var Screen = this.senna.Screen;
 	var Uri = this.senna.Uri;
+	var UA = this.senna.UA;
 
 	var RequestScreen = function (_Screen) {
 		babelHelpers.inherits(RequestScreen, _Screen);
@@ -6038,6 +6189,20 @@ babelHelpers;
 		}
 
 		/**
+   * Asserts that response status code is valid.
+   * @param {number} status
+   * @protected
+   */
+
+		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
+			if (!this.isValidResponseStatusCode(status)) {
+				var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
+				error.responseError = true;
+				throw error;
+			}
+		};
+
+		/**
    * @inheritDoc
    */
 
@@ -6061,6 +6226,22 @@ babelHelpers;
 				return null;
 			}
 			return state;
+		};
+
+		/**
+   * Formats load path before invoking ajax call.
+   * @param {string} path
+   * @return {string} Formatted path;
+   * @protected
+   */
+
+		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
+			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+				var uri = new Uri(path);
+				uri.makeUnique();
+				return uri.toString();
+			}
+			return path;
 		};
 
 		/**
@@ -6144,18 +6325,13 @@ babelHelpers;
 			}
 
 			var headers = new MultiMap();
-
 			Object.keys(this.httpHeaders).forEach(function (header) {
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
 
-			return Ajax.request(path, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+			return Ajax.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
-				if (!_this2.isValidResponseStatusCode(xhr.status)) {
-					var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
-					error.responseError = true;
-					throw error;
-				}
+				_this2.assertValidResponseStatusCode(xhr.status);
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
 				}

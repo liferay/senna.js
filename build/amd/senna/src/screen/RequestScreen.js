@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri'], function (exports, _index, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri) {
+define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _index, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri, _UA) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -18,6 +18,8 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	var _Screen3 = _interopRequireDefault(_Screen2);
 
 	var _Uri2 = _interopRequireDefault(_Uri);
+
+	var _UA2 = _interopRequireDefault(_UA);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -74,6 +76,14 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			return _this;
 		}
 
+		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
+			if (!this.isValidResponseStatusCode(status)) {
+				var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
+				error.responseError = true;
+				throw error;
+			}
+		};
+
 		RequestScreen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
 			var redirectPath = this.getRequestResponsePath();
 
@@ -90,6 +100,16 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			}
 
 			return state;
+		};
+
+		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
+			if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+				var uri = new _Uri2.default(path);
+				uri.makeUnique();
+				return uri.toString();
+			}
+
+			return path;
 		};
 
 		RequestScreen.prototype.getHttpHeaders = function getHttpHeaders() {
@@ -144,14 +164,10 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			Object.keys(this.httpHeaders).forEach(function (header) {
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
-			return _Ajax2.default.request(path, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+			return _Ajax2.default.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
 
-				if (!_this2.isValidResponseStatusCode(xhr.status)) {
-					var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
-					error.responseError = true;
-					throw error;
-				}
+				_this2.assertValidResponseStatusCode(xhr.status);
 
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
