@@ -33,7 +33,8 @@
     "metal-debounce": "metal/metal-debounce#master",
     "metal-multimap": "metal/metal-multimap#master",
     "metal-promise": "metal/metal-promise#master",
-    "metal-uri": "github:metal/metal-uri#master"
+    "metal-uri": "github:metal/metal-uri#master",
+    "metal-useragent": "github:metal/metal-useragent#master"
   },
   "devDependencies": {
     "gulp": "^3.8.11",

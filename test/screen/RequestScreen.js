@@ -2,6 +2,7 @@
 
 import globals from '../../src/globals/globals';
 import RequestScreen from '../../src/screen/RequestScreen';
+import UA from 'metal-useragent';
 
 describe('RequestScreen', function() {
 
@@ -13,6 +14,8 @@ describe('RequestScreen', function() {
 		this.xhr.onCreate = function(xhr) {
 			requests.push(xhr);
 		};
+
+		UA.testUserAgent(UA.getNativeUserAgent());
 	});
 
 	afterEach(function() {
@@ -139,6 +142,28 @@ describe('RequestScreen', function() {
 			assert.strictEqual(RequestScreen.POST, screen.getRequest().method);
 			assert.ok(screen.getRequest().requestBody instanceof FormData);
 			globals.capturedFormElement = null;
+			done();
+		});
+		this.requests[0].respond(200);
+	});
+
+	it('should not cache get requests on ie browsers', function(done) {
+		UA.testUserAgent('MSIE'); // Simulates ie user agent
+		var url = '/url';
+		var screen = new RequestScreen();
+		screen.load(url).then(function() {
+			assert.notStrictEqual(url, screen.getRequest().url);
+			done();
+		});
+		this.requests[0].respond(200);
+	});
+
+	it('should not cache get requests on edge browsers', function(done) {
+		UA.testUserAgent('Edge'); // Simulates edge user agent
+		var url = '/url';
+		var screen = new RequestScreen();
+		screen.load(url).then(function() {
+			assert.notStrictEqual(url, screen.getRequest().url);
 			done();
 		});
 		this.requests[0].respond(200);

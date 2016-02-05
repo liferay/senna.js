@@ -7,6 +7,7 @@ import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import Screen from './Screen';
 import Uri from 'metal-uri';
+import UA from 'metal-useragent';
 
 class RequestScreen extends Screen {
 
@@ -65,6 +66,21 @@ class RequestScreen extends Screen {
 	}
 
 	/**
+	 * Asserts that response status code is valid.
+	 * @param {number} status
+	 * @protected
+	 */
+	assertValidResponseStatusCode(status) {
+		if (!this.isValidResponseStatusCode(status)) {
+			var error = new Error('Invalid response status code. ' +
+				'To customize which status codes are valid, ' +
+				'overwrite `screen.isValidResponseStatusCode` method.');
+			error.responseError = true;
+			throw error;
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	beforeUpdateHistoryPath(path) {
@@ -86,6 +102,21 @@ class RequestScreen extends Screen {
 			return null;
 		}
 		return state;
+	}
+
+	/**
+	 * Formats load path before invoking ajax call.
+	 * @param {string} path
+	 * @return {string} Formatted path;
+	 * @protected
+	 */
+	formatLoadPath(path) {
+		if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+			var uri = new Uri(path);
+			uri.makeUnique();
+			return uri.toString();
+		}
+		return path;
 	}
 
 	/**
@@ -160,20 +191,13 @@ class RequestScreen extends Screen {
 		}
 
 		var headers = new MultiMap();
-
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 
 		return Ajax
-			.request(path, httpMethod, body, headers, null, this.timeout)
+			.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout)
 			.then(xhr => {
 				this.setRequest(xhr);
-				if (!this.isValidResponseStatusCode(xhr.status)) {
-					var error = new Error('Invalid response status code. ' +
-						'To customize which status codes are valid, ' +
-						'overwrite `screen.isValidResponseStatusCode` method.');
-					error.responseError = true;
-					throw error;
-				}
+				this.assertValidResponseStatusCode(xhr.status);
 				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
 					this.addCache(xhr.responseText);
 				}
