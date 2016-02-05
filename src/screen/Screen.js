@@ -1,6 +1,7 @@
 'use strict';
 
-import { core, globalEval } from 'metal';
+import { core } from 'metal';
+import { globalEval } from 'metal-dom';
 import Cacheable from '../cacheable/Cacheable';
 import CancellablePromise from 'metal-promise';
 

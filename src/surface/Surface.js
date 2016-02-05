@@ -1,7 +1,8 @@
 'use strict';
 
 import globals from '../globals/globals';
-import { core, dom, Disposable } from 'metal';
+import { core, Disposable } from 'metal';
+import dom from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 
 class Surface extends Disposable {

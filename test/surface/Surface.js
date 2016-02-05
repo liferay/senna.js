@@ -1,6 +1,7 @@
 'use strict';
 
-import { core, dom } from 'metal';
+import { core } from 'metal';
+import dom from 'metal-dom';
 import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'metal-promise';
 

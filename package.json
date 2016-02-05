@@ -8,6 +8,7 @@
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
   },
+  "main": "src/app/App.js",
   "files": [
     "build",
     "src/**/*.js",
@@ -31,6 +32,8 @@
     "metal": "metal/metal.js#master",
     "metal-ajax": "metal/metal-ajax#master",
     "metal-debounce": "metal/metal-debounce#master",
+    "metal-dom": "github:metal/metal-dom#master",
+    "metal-events": "github:metal/metal-events#master",
     "metal-multimap": "metal/metal-multimap#master",
     "metal-promise": "metal/metal-promise#master",
     "metal-uri": "github:metal/metal-uri#master",

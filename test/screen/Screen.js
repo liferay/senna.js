@@ -1,6 +1,6 @@
 'use strict';
 
-import { dom } from 'metal';
+import dom from 'metal-dom';
 import Screen from '../../src/screen/Screen';
 import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'metal-promise';
