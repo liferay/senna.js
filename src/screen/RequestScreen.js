@@ -84,7 +84,7 @@ class RequestScreen extends Screen {
 	 * @inheritDoc
 	 */
 	beforeUpdateHistoryPath(path) {
-		var redirectPath = this.getRequestResponsePath();
+		var redirectPath = this.getRequestPath();
 		if (redirectPath && redirectPath !== path) {
 			return redirectPath;
 		}
@@ -136,10 +136,10 @@ class RequestScreen extends Screen {
 	}
 
 	/**
-	 * Gets request response path.
+	 * Gets request path.
 	 * @return {string=}
 	 */
-	getRequestResponsePath() {
+	getRequestPath() {
 		var request = this.getRequest();
 		if (request) {
 			var uri = new Uri(request.responseURL);

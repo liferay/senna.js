@@ -71,9 +71,9 @@ describe('RequestScreen', function() {
 		}));
 	});
 
-	it('should request response path return null if no requests were made', function() {
+	it('should request path return null if no requests were made', function() {
 		var screen = new RequestScreen();
-		assert.strictEqual(null, screen.getRequestResponsePath());
+		assert.strictEqual(null, screen.getRequestPath());
 	});
 
 	it('should send request to an url', function(done) {
