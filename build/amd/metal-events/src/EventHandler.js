@@ -1,19 +1,11 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../events/EventHandle'], function (exports, _EventHandle2) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _EventHandle3 = _interopRequireDefault(_EventHandle2);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -45,26 +37,40 @@ define(['exports', '../events/EventHandle'], function (exports, _EventHandle2) {
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var DomEventHandle = function (_EventHandle) {
-		_inherits(DomEventHandle, _EventHandle);
+	var EventHandler = function (_Disposable) {
+		_inherits(EventHandler, _Disposable);
 
-		function DomEventHandle(emitter, event, listener, opt_capture) {
-			_classCallCheck(this, DomEventHandle);
+		function EventHandler() {
+			_classCallCheck(this, EventHandler);
 
-			var _this = _possibleConstructorReturn(this, _EventHandle.call(this, emitter, event, listener));
+			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
-			_this.capture_ = opt_capture;
+			_this.eventHandles_ = [];
 			return _this;
 		}
 
-		DomEventHandle.prototype.removeListener = function removeListener() {
-			this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
+		EventHandler.prototype.add = function add() {
+			for (var i = 0; i < arguments.length; i++) {
+				this.eventHandles_.push(arguments[i]);
+			}
 		};
 
-		return DomEventHandle;
-	}(_EventHandle3.default);
+		EventHandler.prototype.disposeInternal = function disposeInternal() {
+			this.eventHandles_ = null;
+		};
 
-	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
-	exports.default = DomEventHandle;
+		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
+			for (var i = 0; i < this.eventHandles_.length; i++) {
+				this.eventHandles_[i].removeListener();
+			}
+
+			this.eventHandles_ = [];
+		};
+
+		return EventHandler;
+	}(_metal.Disposable);
+
+	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
+	exports.default = EventHandler;
 });
-//# sourceMappingURL=DomEventHandle.js.map
+//# sourceMappingURL=EventHandler.js.map

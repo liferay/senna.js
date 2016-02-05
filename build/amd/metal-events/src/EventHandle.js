@@ -1,19 +1,11 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../disposable/Disposable'], function (exports, _Disposable2) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _Disposable3 = _interopRequireDefault(_Disposable2);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -45,40 +37,36 @@ define(['exports', '../disposable/Disposable'], function (exports, _Disposable2)
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var EventHandler = function (_Disposable) {
-		_inherits(EventHandler, _Disposable);
+	var EventHandle = function (_Disposable) {
+		_inherits(EventHandle, _Disposable);
 
-		function EventHandler() {
-			_classCallCheck(this, EventHandler);
+		function EventHandle(emitter, event, listener) {
+			_classCallCheck(this, EventHandle);
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
-			_this.eventHandles_ = [];
+			_this.emitter_ = emitter;
+			_this.event_ = event;
+			_this.listener_ = listener;
 			return _this;
 		}
 
-		EventHandler.prototype.add = function add() {
-			for (var i = 0; i < arguments.length; i++) {
-				this.eventHandles_.push(arguments[i]);
+		EventHandle.prototype.disposeInternal = function disposeInternal() {
+			this.removeListener();
+			this.emitter_ = null;
+			this.listener_ = null;
+		};
+
+		EventHandle.prototype.removeListener = function removeListener() {
+			if (!this.emitter_.isDisposed()) {
+				this.emitter_.removeListener(this.event_, this.listener_);
 			}
 		};
 
-		EventHandler.prototype.disposeInternal = function disposeInternal() {
-			this.eventHandles_ = null;
-		};
+		return EventHandle;
+	}(_metal.Disposable);
 
-		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
-			for (var i = 0; i < this.eventHandles_.length; i++) {
-				this.eventHandles_[i].removeListener();
-			}
-
-			this.eventHandles_ = [];
-		};
-
-		return EventHandler;
-	}(_Disposable3.default);
-
-	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
-	exports.default = EventHandler;
+	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
+	exports.default = EventHandle;
 });
-//# sourceMappingURL=EventHandler.js.map
+//# sourceMappingURL=EventHandle.js.map

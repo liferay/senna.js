@@ -1,17 +1,11 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../core', '../array/array', '../disposable/Disposable', '../events/EventHandle'], function (exports, _core, _array, _Disposable2, _EventHandle) {
+define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _metal, _EventHandle) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _core2 = _interopRequireDefault(_core);
-
-	var _array2 = _interopRequireDefault(_array);
-
-	var _Disposable3 = _interopRequireDefault(_Disposable2);
 
 	var _EventHandle2 = _interopRequireDefault(_EventHandle);
 
@@ -101,7 +95,7 @@ define(['exports', '../core', '../array/array', '../disposable/Disposable', '../
 		};
 
 		EventEmitter.prototype.emit = function emit(event) {
-			var args = _array2.default.slice(arguments, 1);
+			var args = _metal.array.slice(arguments, 1);
 
 			var listeners = (this.events_[event] || []).concat();
 			var facade;
@@ -183,7 +177,7 @@ define(['exports', '../core', '../array/array', '../disposable/Disposable', '../
 		};
 
 		EventEmitter.prototype.normalizeEvents_ = function normalizeEvents_(events) {
-			return _core2.default.isString(events) ? [events] : events;
+			return _metal.core.isString(events) ? [events] : events;
 		};
 
 		EventEmitter.prototype.off = function off(events, listener) {
@@ -243,13 +237,13 @@ define(['exports', '../core', '../array/array', '../disposable/Disposable', '../
 		};
 
 		EventEmitter.prototype.validateListener_ = function validateListener_(listener) {
-			if (!_core2.default.isFunction(listener)) {
+			if (!_metal.core.isFunction(listener)) {
 				throw new TypeError('Listener must be a function');
 			}
 		};
 
 		return EventEmitter;
-	}(_Disposable3.default);
+	}(_metal.Disposable);
 
 	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	exports.default = EventEmitter;

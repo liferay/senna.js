@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _index, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri, _UA) {
+define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri, _UA) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -148,7 +148,7 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 
 			var cache = this.getCache();
 
-			if (_index.core.isDefAndNotNull(cache)) {
+			if (_metal.core.isDefAndNotNull(cache)) {
 				return _Promise2.default.resolve(cache);
 			}
 

@@ -1,19 +1,11 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../disposable/Disposable'], function (exports, _Disposable2) {
+define(['exports', 'metal-events/src/events'], function (exports, _events) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _Disposable3 = _interopRequireDefault(_Disposable2);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -45,36 +37,26 @@ define(['exports', '../disposable/Disposable'], function (exports, _Disposable2)
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
-	var EventHandle = function (_Disposable) {
-		_inherits(EventHandle, _Disposable);
+	var DomEventHandle = function (_EventHandle) {
+		_inherits(DomEventHandle, _EventHandle);
 
-		function EventHandle(emitter, event, listener) {
-			_classCallCheck(this, EventHandle);
+		function DomEventHandle(emitter, event, listener, opt_capture) {
+			_classCallCheck(this, DomEventHandle);
 
-			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
+			var _this = _possibleConstructorReturn(this, _EventHandle.call(this, emitter, event, listener));
 
-			_this.emitter_ = emitter;
-			_this.event_ = event;
-			_this.listener_ = listener;
+			_this.capture_ = opt_capture;
 			return _this;
 		}
 
-		EventHandle.prototype.disposeInternal = function disposeInternal() {
-			this.removeListener();
-			this.emitter_ = null;
-			this.listener_ = null;
+		DomEventHandle.prototype.removeListener = function removeListener() {
+			this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
 		};
 
-		EventHandle.prototype.removeListener = function removeListener() {
-			if (!this.emitter_.isDisposed()) {
-				this.emitter_.removeListener(this.event_, this.listener_);
-			}
-		};
+		return DomEventHandle;
+	}(_events.EventHandle);
 
-		return EventHandle;
-	}(_Disposable3.default);
-
-	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
-	exports.default = EventHandle;
+	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
+	exports.default = DomEventHandle;
 });
-//# sourceMappingURL=EventHandle.js.map
+//# sourceMappingURL=DomEventHandle.js.map

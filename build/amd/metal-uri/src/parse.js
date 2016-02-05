@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/index', './parseFromAnchor'], function (exports, _index, _parseFromAnchor) {
+define(['exports', 'metal/src/metal', './parseFromAnchor'], function (exports, _metal, _parseFromAnchor) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -14,7 +14,7 @@ define(['exports', 'metal/src/index', './parseFromAnchor'], function (exports, _
 	}
 
 	function parse(opt_uri) {
-		if (_index.core.isFunction(URL) && URL.length) {
+		if (_metal.core.isFunction(URL) && URL.length) {
 			return new URL(opt_uri);
 		} else {
 			return (0, _parseFromAnchor2.default)(opt_uri);

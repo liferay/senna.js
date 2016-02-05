@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _index, _Cacheable2, _Promise) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/index', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _metal, _index, _Cacheable2, _Promise) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -55,7 +55,7 @@ define(['exports', 'metal/src/index', '../cacheable/Cacheable', 'metal-promise/s
 
 			var _this = _possibleConstructorReturn(this, _Cacheable.call(this));
 
-			_this.id = _this.makeId_(_index.core.getUid());
+			_this.id = _this.makeId_(_metal.core.getUid());
 			_this.title = null;
 			return _this;
 		}

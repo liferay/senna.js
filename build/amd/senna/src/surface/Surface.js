@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/promise/Promise'], function (exports, _globals, _index, _Promise) {
+define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/promise/Promise'], function (exports, _globals, _metal, _index, _Promise) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -8,6 +8,8 @@ define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/p
 	});
 
 	var _globals2 = _interopRequireDefault(_globals);
+
+	var _index2 = _interopRequireDefault(_index);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -75,17 +77,17 @@ define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/p
 		Surface.prototype.addContent = function addContent(screenId, opt_content) {
 			var child = this.defaultChild;
 
-			if (_index.core.isDefAndNotNull(opt_content)) {
+			if (_metal.core.isDefAndNotNull(opt_content)) {
 				child = this.createChild(screenId);
 
-				_index.dom.append(child, opt_content);
+				_index2.default.append(child, opt_content);
 			}
 
 			this.transition(child, null);
 			var element = this.getElement();
 
 			if (element && child) {
-				_index.dom.append(element, child);
+				_index2.default.append(element, child);
 			}
 
 			return child;
@@ -157,7 +159,7 @@ define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/p
 			this.activeChild = to;
 			return this.transition(from, to).thenAlways(function () {
 				if (from && from !== to) {
-					_index.dom.exitDocument(from);
+					_index2.default.exitDocument(from);
 				}
 			});
 		};
@@ -166,7 +168,7 @@ define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/p
 			var child = this.getChild(screenId);
 
 			if (child) {
-				_index.dom.exitDocument(child);
+				_index2.default.exitDocument(child);
 			}
 		};
 
@@ -180,7 +182,7 @@ define(['exports', '../globals/globals', 'metal/src/index', 'metal-promise/src/p
 		};
 
 		return Surface;
-	}(_index.Disposable);
+	}(_metal.Disposable);
 
 	Surface.prototype.registerMetalComponent && Surface.prototype.registerMetalComponent(Surface, 'Surface')
 	Surface.DEFAULT = 'default';

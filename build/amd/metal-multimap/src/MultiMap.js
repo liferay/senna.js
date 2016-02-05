@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index'], function (exports, _index) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -116,7 +116,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
 		};
 
 		return MultiMap;
-	}(_index.Disposable);
+	}(_metal.Disposable);
 
 	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
 	exports.default = MultiMap;

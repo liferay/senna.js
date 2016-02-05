@@ -1,23 +1,11 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../core', '../dom/dom', '../disposable/Disposable'], function (exports, _core, _dom, _Disposable2) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _core2 = _interopRequireDefault(_core);
-
-	var _dom2 = _interopRequireDefault(_dom);
-
-	var _Disposable3 = _interopRequireDefault(_Disposable2);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -68,12 +56,12 @@ define(['exports', '../core', '../dom/dom', '../disposable/Disposable'], functio
 			return _this;
 		}
 
-		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
-			var removeFnName = this.originEmitter_.removeEventListener ? 'removeEventListener' : 'removeListener';
+		EventEmitterProxy.prototype.addListener_ = function addListener_(event) {
+			this.originEmitter_.on(event, this.proxiedEvents_[event]);
+		};
 
-			for (var event in this.proxiedEvents_) {
-				this.originEmitter_[removeFnName](event, this.proxiedEvents_[event]);
-			}
+		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
+			_metal.object.map(this.proxiedEvents_, this.removeListener_.bind(this));
 
 			this.proxiedEvents_ = null;
 			this.originEmitter_ = null;
@@ -92,11 +80,11 @@ define(['exports', '../core', '../dom/dom', '../disposable/Disposable'], functio
 				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
 			};
 
-			if (_core2.default.isElement(this.originEmitter_) || _core2.default.isDocument(this.originEmitter_)) {
-				_dom2.default.on(this.originEmitter_, event, this.proxiedEvents_[event]);
-			} else {
-				this.originEmitter_.on(event, this.proxiedEvents_[event]);
-			}
+			this.addListener_(event);
+		};
+
+		EventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
+			this.originEmitter_.removeListener(event, this.proxiedEvents_[event]);
 		};
 
 		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
@@ -108,7 +96,7 @@ define(['exports', '../core', '../dom/dom', '../disposable/Disposable'], functio
 				return false;
 			}
 
-			return !this.proxiedEvents_[event] && (!(this.originEmitter_.removeEventListener || this.originEmitter_.addEventListener) || _dom2.default.supportsEvent(this.originEmitter_, event));
+			return !this.proxiedEvents_[event];
 		};
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
@@ -116,7 +104,7 @@ define(['exports', '../core', '../dom/dom', '../disposable/Disposable'], functio
 		};
 
 		return EventEmitterProxy;
-	}(_Disposable3.default);
+	}(_metal.Disposable);
 
 	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
 	exports.default = EventEmitterProxy;

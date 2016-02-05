@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/index', 'metal-uri/src/Uri', 'metal-promise/src/promise/Promise'], function (exports, _index, _Uri, _Promise) {
+define(['exports', 'metal/src/metal', 'metal-uri/src/Uri', 'metal-promise/src/promise/Promise'], function (exports, _metal, _Uri, _Promise) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -85,9 +85,9 @@ define(['exports', 'metal/src/index', 'metal-uri/src/Uri', 'metal-promise/src/pr
 				});
 			}
 
-			request.send(_index.core.isDef(body) ? body : null);
+			request.send(_metal.core.isDef(body) ? body : null);
 
-			if (_index.core.isDefAndNotNull(opt_timeout)) {
+			if (_metal.core.isDefAndNotNull(opt_timeout)) {
 				var timeout = setTimeout(function () {
 					promise.cancel('Request timeout');
 				}, opt_timeout);

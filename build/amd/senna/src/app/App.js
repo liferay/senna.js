@@ -1,11 +1,13 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri'], function (exports, _index, _Promise, _globals, _Route, _Screen, _Surface, _Uri) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/promise/Promise', 'metal-events/src/events', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri'], function (exports, _metal, _index, _Promise, _events, _globals, _Route, _Screen, _Surface, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+
+	var _index2 = _interopRequireDefault(_index);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -82,9 +84,9 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			_this.skipLoadPopstate = false;
 			_this.surfaces = {};
 			_this.updateScrollPosition = true;
-			_this.appEventHandlers_ = new _index.EventHandler();
+			_this.appEventHandlers_ = new _events.EventHandler();
 
-			_this.appEventHandlers_.add(_index.dom.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _index.dom.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _index.dom.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(_index2.default.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _index2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _index2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 
@@ -122,7 +124,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			}
 
 			surfaces.forEach(function (surface) {
-				if (_index.core.isString(surface)) {
+				if (_metal.core.isString(surface)) {
 					surface = new _Surface2.default(surface);
 				}
 
@@ -330,7 +332,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				}
 			};
 
-			_index.async.nextTick(switchScrollPositionRace);
+			_metal.async.nextTick(switchScrollPositionRace);
 
 			_globals2.default.document.addEventListener('scroll', switchScrollPositionRace, false);
 		};
@@ -513,7 +515,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 
 			var documentElement = _globals2.default.document.documentElement;
 
-			_index.dom.addClasses(documentElement, this.loadingCssClass);
+			_index2.default.addClasses(documentElement, this.loadingCssClass);
 
 			this.stopPendingNavigate_();
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
@@ -522,7 +524,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			}).thenAlways(function () {
 				endPayload.path = event.path;
 
-				_index.dom.removeClasses(documentElement, _this7.loadingCssClass);
+				_index2.default.removeClasses(documentElement, _this7.loadingCssClass);
 
 				_this7.maybeRestoreNativeScrollRestoration();
 
@@ -555,13 +557,13 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 		App.prototype.prepareNavigateHistory_ = function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 			var title = nextScreen.getTitle();
 
-			if (!_index.core.isString(title)) {
+			if (!_metal.core.isString(title)) {
 				title = this.getDefaultTitle();
 			}
 
 			var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 			var historyState = {
-				form: _index.core.isDefAndNotNull(_globals2.default.capturedFormElement),
+				form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
 				redirectPath: redirectPath,
 				path: path,
 				senna: true,
@@ -582,7 +584,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id);
 				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (_index.core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (_metal.core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		};
 
@@ -591,7 +593,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 		};
 
 		App.prototype.removeRoute = function removeRoute(route) {
-			return _index.array.remove(this.routes, route);
+			return _metal.array.remove(this.routes, route);
 		};
 
 		App.prototype.removeScreen_ = function removeScreen_(path, screen) {
@@ -630,7 +632,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				this.formEventHandler_.removeListener();
 			}
 
-			this.formEventHandler_ = _index.dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+			this.formEventHandler_ = _index2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
 		};
 
 		App.prototype.setLinkSelector = function setLinkSelector(linkSelector) {
@@ -640,7 +642,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 				this.linkEventHandler_.removeListener();
 			}
 
-			this.linkEventHandler_ = _index.dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
+			this.linkEventHandler_ = _index2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
 		};
 
 		App.prototype.setLoadingCssClass = function setLoadingCssClass(loadingCssClass) {
@@ -677,7 +679,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 			};
 
 			return new _Promise2.default(function (resolve) {
-				return sync() & _index.async.nextTick(function () {
+				return sync() & _metal.async.nextTick(function () {
 					return sync() & resolve();
 				});
 			});
@@ -694,7 +696,7 @@ define(['exports', 'metal/src/index', 'metal-promise/src/promise/Promise', '../g
 		};
 
 		return App;
-	}(_index.EventEmitter);
+	}(_events.EventEmitter);
 
 	App.prototype.registerMetalComponent && App.prototype.registerMetalComponent(App, 'App')
 	exports.default = App;

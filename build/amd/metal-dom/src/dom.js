@@ -1,13 +1,9 @@
-define(['exports', '../core', '../object/object', '../events/DomEventHandle'], function (exports, _core, _object, _DomEventHandle) {
+define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _metal, _DomEventHandle) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _core2 = _interopRequireDefault(_core);
-
-	var _object2 = _interopRequireDefault(_object);
 
 	var _DomEventHandle2 = _interopRequireDefault(_DomEventHandle);
 
@@ -29,7 +25,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		}
 
 		dom.addClasses = function addClasses(element, classes) {
-			if (!_core2.default.isObject(element) || !_core2.default.isString(classes)) {
+			if (!_metal.core.isObject(element) || !_metal.core.isString(classes)) {
 				return;
 			}
 
@@ -65,7 +61,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		};
 
 		dom.append = function append(parent, child) {
-			if (_core2.default.isString(child)) {
+			if (_metal.core.isString(child)) {
 				child = dom.buildFragment(child);
 			}
 
@@ -96,7 +92,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		};
 
 		dom.contains = function contains(element1, element2) {
-			if (_core2.default.isDocument(element1)) {
+			if (_metal.core.isDocument(element1)) {
 				return element1.documentElement.contains(element2);
 			} else {
 				return element1.contains(element2);
@@ -130,7 +126,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 			var returnValue = true;
 
 			while (currentElement && !event.stopped) {
-				if (_core2.default.isString(selector) && dom.match(currentElement, selector)) {
+				if (_metal.core.isString(selector) && dom.match(currentElement, selector)) {
 					event.delegateTarget = currentElement;
 					returnValue &= callback(event);
 				}
@@ -211,7 +207,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		};
 
 		dom.on = function on(element, eventName, callback, opt_capture) {
-			if (_core2.default.isString(element)) {
+			if (_metal.core.isString(element)) {
 				return dom.delegate(document, eventName, element, callback);
 			}
 
@@ -247,7 +243,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		};
 
 		dom.removeClasses = function removeClasses(element, classes) {
-			if (!_core2.default.isObject(element) || !_core2.default.isString(classes)) {
+			if (!_metal.core.isObject(element) || !_metal.core.isString(classes)) {
 				return;
 			}
 
@@ -297,7 +293,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 				return true;
 			}
 
-			if (_core2.default.isString(element)) {
+			if (_metal.core.isString(element)) {
 				if (!elementsByTag[element]) {
 					elementsByTag[element] = document.createElement(element);
 				}
@@ -309,9 +305,9 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		};
 
 		dom.toElement = function toElement(selectorOrElement) {
-			if (_core2.default.isElement(selectorOrElement) || _core2.default.isDocument(selectorOrElement)) {
+			if (_metal.core.isElement(selectorOrElement) || _metal.core.isDocument(selectorOrElement)) {
 				return selectorOrElement;
-			} else if (_core2.default.isString(selectorOrElement)) {
+			} else if (_metal.core.isString(selectorOrElement)) {
 				if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
 					return document.getElementById(selectorOrElement.substr(1));
 				} else {
@@ -323,7 +319,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 		};
 
 		dom.toggleClasses = function toggleClasses(element, classes) {
-			if (!_core2.default.isObject(element) || !_core2.default.isString(classes)) {
+			if (!_metal.core.isObject(element) || !_metal.core.isString(classes)) {
 				return;
 			}
 
@@ -362,7 +358,7 @@ define(['exports', '../core', '../object/object', '../events/DomEventHandle'], f
 			var eventObj = document.createEvent('HTMLEvents');
 			eventObj.initEvent(eventName, true, true);
 
-			_object2.default.mixin(eventObj, opt_eventObj);
+			_metal.object.mixin(eventObj, opt_eventObj);
 
 			element.dispatchEvent(eventObj);
 		};

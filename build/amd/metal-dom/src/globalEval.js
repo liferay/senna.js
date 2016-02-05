@@ -1,4 +1,4 @@
-define(['exports', '../dom/dom'], function (exports, _dom) {
+define(['exports', './dom'], function (exports, _dom) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {

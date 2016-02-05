@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'], function (exports, _index, _parse, _MultiMap) {
+define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'], function (exports, _metal, _parse, _MultiMap) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -84,7 +84,7 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
 			this.ensureQueryInitialized_();
 
-			if (_index.core.isDef(value)) {
+			if (_metal.core.isDef(value)) {
 				value = String(value);
 			}
 
@@ -120,7 +120,7 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 					var key = _param$split2[0];
 					var value = _param$split2[1];
 
-					if (_index.core.isDef(value)) {
+					if (_metal.core.isDef(value)) {
 						value = decodeURIComponent(value);
 					}
 
@@ -182,6 +182,10 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 			return this.query.names();
 		};
 
+		Uri.getParseFn = function getParseFn() {
+			return parseFn_;
+		};
+
 		Uri.prototype.getPathname = function getPathname() {
 			return this.url.pathname;
 		};
@@ -203,7 +207,7 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 				_this4.getParameterValues(name).forEach(function (value) {
 					querystring += name;
 
-					if (_index.core.isDef(value)) {
+					if (_metal.core.isDef(value)) {
 						querystring += '=' + encodeURIComponent(value);
 					}
 
@@ -225,7 +229,7 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 		};
 
 		Uri.prototype.makeUnique = function makeUnique() {
-			this.setParameterValue(Uri.RANDOM_PARAM, _index.string.getRandomString());
+			this.setParameterValue(Uri.RANDOM_PARAM, _metal.string.getRandomString());
 			return this;
 		};
 
@@ -265,8 +269,18 @@ define(['exports', 'metal/src/index', './parse', 'metal-multimap/src/MultiMap'],
 			return url;
 		};
 
+		Uri.normalizeObject = function normalizeObject(parsed) {
+			var length = parsed.pathname ? parsed.pathname.length : 0;
+
+			if (length > 1 && parsed.pathname[length - 1] === '/') {
+				parsed.pathname = parsed.pathname.substr(0, length - 1);
+			}
+
+			return parsed;
+		};
+
 		Uri.parse = function parse(opt_uri) {
-			return parseFn_(opt_uri);
+			return Uri.normalizeObject(parseFn_(opt_uri));
 		};
 
 		Uri.prototype.removeParameter = function removeParameter(name) {

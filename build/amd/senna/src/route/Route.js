@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/index'], function (exports, _index) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -15,11 +15,11 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
 		function Route(path, handler) {
 			_classCallCheck(this, Route);
 
-			if (!_index.core.isDefAndNotNull(path)) {
+			if (!_metal.core.isDefAndNotNull(path)) {
 				throw new Error('Route path not specified.');
 			}
 
-			if (!_index.core.isFunction(handler)) {
+			if (!_metal.core.isFunction(handler)) {
 				throw new Error('Route handler is not a function.');
 			}
 
@@ -38,11 +38,11 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
 		Route.prototype.matchesPath = function matchesPath(value) {
 			var path = this.path;
 
-			if (_index.core.isString(path)) {
+			if (_metal.core.isString(path)) {
 				return value === path;
 			}
 
-			if (_index.core.isFunction(path)) {
+			if (_metal.core.isFunction(path)) {
 				return path(value);
 			}
 

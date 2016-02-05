@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/index'], function (exports, _index) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -187,7 +187,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
   };
 
   CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
-    return this.addChildPromise_(_index.core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, _index.core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+    return this.addChildPromise_(_metal.core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, _metal.core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
   };
 
   Thenable.addImplementation(CancellablePromise);
@@ -217,7 +217,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
 
   CancellablePromise.prototype.cancel = function (opt_message) {
     if (this.state_ === CancellablePromise.State_.PENDING) {
-      _index.async.run(function () {
+      _metal.async.run(function () {
         var err = new CancellablePromise.CancellationError(opt_message);
         err.IS_CANCELLATION_ERROR = true;
         this.cancelInternal_(err);
@@ -300,7 +300,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
         try {
           var result = onRejected.call(opt_context, reason);
 
-          if (!_index.core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
+          if (!_metal.core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
             reject(reason);
           } else {
             resolve(result);
@@ -346,11 +346,11 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
       this.state_ = CancellablePromise.State_.BLOCKED;
       x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
       return;
-    } else if (_index.core.isObject(x)) {
+    } else if (_metal.core.isObject(x)) {
       try {
         var then = x.then;
 
-        if (_index.core.isFunction(then)) {
+        if (_metal.core.isFunction(then)) {
           this.tryThen_(x, then);
           return;
         }
@@ -399,7 +399,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
     if (!this.executing_) {
       this.executing_ = true;
 
-      _index.async.run(this.executeCallbacks_, this);
+      _metal.async.run(this.executeCallbacks_, this);
     }
   };
 
@@ -448,7 +448,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
     } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
       promise.hadUnhandledRejection_ = true;
 
-      _index.async.run(function () {
+      _metal.async.run(function () {
         if (promise.hadUnhandledRejection_) {
           CancellablePromise.handleRejection_.call(null, reason);
         }
@@ -456,7 +456,7 @@ define(['exports', 'metal/src/index'], function (exports, _index) {
     }
   };
 
-  CancellablePromise.handleRejection_ = _index.async.throwException;
+  CancellablePromise.handleRejection_ = _metal.async.throwException;
 
   CancellablePromise.setUnhandledRejectionHandler = function (handler) {
     CancellablePromise.handleRejection_ = handler;
