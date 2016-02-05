@@ -85,7 +85,7 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		};
 
 		RequestScreen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
-			var redirectPath = this.getRequestResponsePath();
+			var redirectPath = this.getRequestPath();
 
 			if (redirectPath && redirectPath !== path) {
 				return redirectPath;
@@ -120,7 +120,7 @@ define(['exports', 'metal/src/index', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			return this.httpMethod;
 		};
 
-		RequestScreen.prototype.getRequestResponsePath = function getRequestResponsePath() {
+		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
 
 			if (request) {
