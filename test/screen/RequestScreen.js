@@ -77,6 +77,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should send request to an url', function(done) {
+		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
 		var screen = new RequestScreen();
 		screen.load('/url').then(function() {
 			assert.strictEqual('/url', screen.getRequest().url);
