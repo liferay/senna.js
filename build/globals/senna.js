@@ -5616,6 +5616,11 @@ babelHelpers;
 
 			globals.capturedFormElement = event.capturedFormElement;
 
+			if (event.defaultPrevented) {
+				console.log('Navigate prevented');
+				return;
+			}
+
 			var navigateFailed = false;
 			try {
 				this.navigate(path);
@@ -5627,8 +5632,6 @@ babelHelpers;
 			if (!navigateFailed) {
 				event.preventDefault();
 			}
-
-			return true;
 		};
 
 		/**

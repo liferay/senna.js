@@ -364,6 +364,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 			}
 
 			_globals2.default.capturedFormElement = event.capturedFormElement;
+
+			if (event.defaultPrevented) {
+				console.log('Navigate prevented');
+				return;
+			}
+
 			var navigateFailed = false;
 
 			try {
@@ -375,8 +381,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 			if (!navigateFailed) {
 				event.preventDefault();
 			}
-
-			return true;
 		};
 
 		App.prototype.maybeRemovePathHashbang = function maybeRemovePathHashbang(path) {
