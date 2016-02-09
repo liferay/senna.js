@@ -576,6 +576,11 @@ class App extends EventEmitter {
 
 		globals.capturedFormElement = event.capturedFormElement;
 
+		if (event.defaultPrevented) {
+			console.log('Navigate prevented');
+			return;
+		}
+
 		var navigateFailed = false;
 		try {
 			this.navigate(path);
@@ -587,8 +592,6 @@ class App extends EventEmitter {
 		if (!navigateFailed) {
 			event.preventDefault();
 		}
-
-		return true;
 	}
 
 	/**

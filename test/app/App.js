@@ -846,6 +846,32 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should not navigate when submitting routed forms if submit event was prevented', function() {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		var form = enterDocumentFormElement('/path', 'post');
+		dom.once(form, 'submit', function(event) {
+			event.preventDefault();
+		});
+		dom.triggerEvent(form, 'submit');
+		assert.ok(!app.pendingNavigate);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
+	it('should capture form element even when submit event was prevented', function() {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		var form = enterDocumentFormElement('/path', 'post');
+		dom.once(form, 'submit', function(event) {
+			event.preventDefault();
+		});
+		dom.triggerEvent(form, 'submit');
+		assert.ok(globals.capturedFormElement);
+		exitDocumentFormElement();
+		app.dispose();
+	});
+
 	it('should expose form reference in event data when submitting routed forms', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
