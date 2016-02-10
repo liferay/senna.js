@@ -990,6 +990,8 @@ describe('App', function() {
 		StubScreen1.prototype.flip = sinon.spy();
 		StubScreen1.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
 		StubScreen1.prototype.disposeInternal = sinon.spy();
+		StubScreen1.prototype.evaluateStyles = sinon.spy();
+		StubScreen1.prototype.evaluateScripts = sinon.spy();
 		class StubScreen2 extends Screen {
 		}
 		StubScreen2.prototype.activate = sinon.spy();
@@ -997,6 +999,8 @@ describe('App', function() {
 		StubScreen2.prototype.deactivate = sinon.spy();
 		StubScreen2.prototype.flip = sinon.spy();
 		StubScreen2.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
+		StubScreen2.prototype.evaluateStyles = sinon.spy();
+		StubScreen2.prototype.evaluateScripts = sinon.spy();
 		var app = new App();
 		app.addRoutes(new Route('/path1', StubScreen1));
 		app.addRoutes(new Route('/path2', StubScreen2));
@@ -1004,12 +1008,16 @@ describe('App', function() {
 			app.navigate('/path2').then(() => {
 				var lifecycleOrder = [
 					StubScreen1.prototype.load,
+					StubScreen1.prototype.evaluateStyles,
 					StubScreen1.prototype.flip,
+					StubScreen1.prototype.evaluateScripts,
 					StubScreen1.prototype.activate,
 					StubScreen1.prototype.beforeDeactivate,
 					StubScreen2.prototype.load,
 					StubScreen1.prototype.deactivate,
+					StubScreen2.prototype.evaluateStyles,
 					StubScreen2.prototype.flip,
+					StubScreen2.prototype.evaluateScripts,
 					StubScreen2.prototype.activate,
 					StubScreen1.prototype.disposeInternal
 				];

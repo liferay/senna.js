@@ -97,15 +97,28 @@ describe('Screen', function() {
 		assert.ok(Screen.isImplementedBy(new Screen()));
 	});
 
-	it('should evaluate surface scripts after screen flip', function(done) {
+	it('should evaluate surface scripts', function(done) {
 		enterDocumentSurfaceElement('surfaceId', '<script>window.sentinel=true;</script>');
 		var surface = new Surface('surfaceId');
 		var screen = new Screen();
 		assert.ok(!window.sentinel);
-		screen.flip({
+		screen.evaluateScripts({
 			surfaceId: surface
 		}).then(() => {
 			assert.ok(window.sentinel);
+			exitDocumentSurfaceElement('surfaceId');
+			done();
+		});
+	});
+
+	it('should evaluate surface styles', function(done) {
+		enterDocumentSurfaceElement('surfaceId', '<style>body{background-color:rgb(0, 255, 0);}</style>');
+		var surface = new Surface('surfaceId');
+		var screen = new Screen();
+		screen.evaluateStyles({
+			surfaceId: surface
+		}).then(() => {
+			assertComputedStyle('backgroundColor', 'rgb(0, 255, 0)');
 			exitDocumentSurfaceElement('surfaceId');
 			done();
 		});
@@ -120,4 +133,8 @@ function enterDocumentSurfaceElement(surfaceId, opt_content) {
 
 function exitDocumentSurfaceElement(surfaceId) {
 	return dom.exitDocument(document.getElementById(surfaceId));
+}
+
+function assertComputedStyle(property, value) {
+	assert.strictEqual(value, window.getComputedStyle(document.body, null)[property]);
 }

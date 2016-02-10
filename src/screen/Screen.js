@@ -1,7 +1,7 @@
 'use strict';
 
 import { core } from 'metal';
-import { globalEval } from 'metal-dom';
+import { globalEval, globalEvalStyles } from 'metal-dom';
 import Cacheable from '../cacheable/Cacheable';
 import CancellablePromise from 'metal-promise';
 
@@ -92,6 +92,42 @@ class Screen extends Cacheable {
 	}
 
 	/**
+	 * Allows a screen to evaluate scripts before the element is made visible.
+	 * Lifecycle.
+	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+	 * @return {?CancellablePromise=} This can return a promise, which will
+	 *     pause the navigation until it is resolved.
+	 */
+	evaluateScripts(surfaces) {
+		Object.keys(surfaces).forEach(sId => {
+			if (surfaces[sId].activeChild) {
+				globalEval.runScriptsInElement(surfaces[sId].activeChild);
+			}
+		});
+		// Do not wait for scripts evaluation.
+		return CancellablePromise.resolve();
+	}
+
+	/**
+	 * Allows a screen to evaluate styles before the element is made visible.
+	 * Lifecycle.
+	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+	 * @return {?CancellablePromise=} This can return a promise, which will
+	 *     pause the navigation until it is resolved.
+	 */
+	evaluateStyles(surfaces) {
+		var deferredStyles = [];
+		Object.keys(surfaces).forEach(sId => {
+			if (surfaces[sId].activeChild) {
+				deferredStyles.push(
+					new CancellablePromise((resolve) => globalEvalStyles.runStylesInElement(surfaces[sId].activeChild, resolve))
+				);
+			}
+		});
+		return CancellablePromise.all(deferredStyles);
+	}
+
+	/**
 	 * Allows a screen to perform any setup immediately before the element is
 	 * made visible. Lifecycle.
 	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
@@ -107,9 +143,6 @@ class Screen extends Cacheable {
 			var surface = surfaces[sId];
 			var deferred = surface.show(this.id);
 			transitions.push(deferred);
-			if (surface.activeChild) {
-				deferred.then(() => globalEval.runScriptsInElement(surface.activeChild));
-			}
 		});
 
 		return CancellablePromise.all(transitions);

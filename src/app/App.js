@@ -346,8 +346,10 @@ class App extends EventEmitter {
 				}
 				this.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
 				this.prepareNavigateSurfaces_(nextScreen, this.surfaces);
-				return nextScreen.flip(this.surfaces);
 			})
+			.then(() => nextScreen.evaluateStyles(this.surfaces))
+			.then(() => nextScreen.flip(this.surfaces))
+			.then(() => nextScreen.evaluateScripts(this.surfaces))
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.catch((reason) => {
