@@ -2591,7 +2591,6 @@ babelHelpers;
 
 		/**
    * Evaluates any style present in the given element.
-   * TODO: Evaluates running styles in parallel instead of in order.
    * @params {!Element} element
    * @param {function()=} opt_callback Optional function to be called
    *   when the style has been run.
@@ -5549,6 +5548,7 @@ babelHelpers;
 			this.activePath = path;
 			this.activeScreen = nextScreen;
 			this.screens[path] = nextScreen;
+			this.pendingNavigate = null;
 			globals.capturedFormElement = null;
 			console.log('Navigation done');
 		};

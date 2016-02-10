@@ -242,6 +242,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			this.activePath = path;
 			this.activeScreen = nextScreen;
 			this.screens[path] = nextScreen;
+			this.pendingNavigate = null;
 			_globals2.default.capturedFormElement = null;
 			console.log('Navigation done');
 		};
