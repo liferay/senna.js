@@ -7,17 +7,24 @@
 
   <!-- Including Senna -->
   <script src="../../build/globals/senna.js"></script>
+
+  <!-- Resources -->
+  <script src="permanent.js" data-senna-track="permanent"></script>
+  <link rel="stylesheet" href="permanent.css" data-senna-track="permanent">
+
+  <script src="index.js" data-senna-track="temporary"></script>
+  <link rel="stylesheet" href="index.css" data-senna-track="temporary">
 </head>
 <body data-senna data-senna-surface>
+  <div>
+     Default <a href="index.html">Index</a>
+  </div>
   <div>
       Default <a href="foo.html">Foo</a>
   </div>
   <div>
-     Default <a href="index.html">Bar</a>
-  </div>
-  <div>
      Default <a href="sub/page.html">Page</a>
   </div>
-  <script src="script.js"></script>
+  <script src="body.js"></script>
 </body>
 </html>

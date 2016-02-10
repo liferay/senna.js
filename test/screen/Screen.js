@@ -106,6 +106,7 @@ describe('Screen', function() {
 			surfaceId: surface
 		}).then(() => {
 			assert.ok(window.sentinel);
+			delete window.sentinel;
 			exitDocumentSurfaceElement('surfaceId');
 			done();
 		});
