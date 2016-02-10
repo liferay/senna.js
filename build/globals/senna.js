@@ -3809,7 +3809,6 @@ babelHelpers;
 (function () {
 	var core = this.sennaNamed.metal.core;
 	var globalEval = this.sennaNamed.dom.globalEval;
-	var globalEvalStyles = this.sennaNamed.dom.globalEvalStyles;
 	var Cacheable = this.senna.Cacheable;
 	var CancellablePromise = this.senna.Promise;
 
@@ -3925,7 +3924,6 @@ babelHelpers;
 					globalEval.runScriptsInElement(surfaces[sId].activeChild);
 				}
 			});
-			// Do not wait for scripts evaluation.
 			return CancellablePromise.resolve();
 		};
 
@@ -3937,16 +3935,8 @@ babelHelpers;
    *     pause the navigation until it is resolved.
    */
 
-		Screen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
-			var deferredStyles = [];
-			Object.keys(surfaces).forEach(function (sId) {
-				if (surfaces[sId].activeChild) {
-					deferredStyles.push(new CancellablePromise(function (resolve) {
-						return globalEvalStyles.runStylesInElement(surfaces[sId].activeChild, resolve);
-					}));
-				}
-			});
-			return CancellablePromise.all(deferredStyles);
+		Screen.prototype.evaluateStyles = function evaluateStyles() {
+			return CancellablePromise.resolve();
 		};
 
 		/**

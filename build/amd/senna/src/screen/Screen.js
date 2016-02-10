@@ -95,16 +95,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 			return _Promise2.default.resolve();
 		};
 
-		Screen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
-			var deferredStyles = [];
-			Object.keys(surfaces).forEach(function (sId) {
-				if (surfaces[sId].activeChild) {
-					deferredStyles.push(new _Promise2.default(function (resolve) {
-						return _dom.globalEvalStyles.runStylesInElement(surfaces[sId].activeChild, resolve);
-					}));
-				}
-			});
-			return _Promise2.default.all(deferredStyles);
+		Screen.prototype.evaluateStyles = function evaluateStyles() {
+			return _Promise2.default.resolve();
 		};
 
 		Screen.prototype.flip = function flip(surfaces) {
