@@ -111,7 +111,7 @@ describe('HtmlScreen', function() {
 		}).then(() => {
 			assert.ok(window.sentinel);
 			delete window.sentinel;
-			exitDocumentSurfaceElement('surfaceId');
+			exitDocumentElement('surfaceId');
 			done();
 		});
 	});
@@ -125,8 +125,7 @@ describe('HtmlScreen', function() {
 			surfaceId: surface
 		}).then(() => {
 			assertComputedStyle('backgroundColor', 'rgb(0, 255, 0)');
-			exitDocumentSurfaceElement('surfaceId');
-			dom.exitDocument(document.getElementById('temporaryStyle'));
+			exitDocumentElement('surfaceId');
 			done();
 		});
 	});
@@ -159,7 +158,7 @@ describe('HtmlScreen', function() {
 				screen.evaluateStyles({})
 					.then(() => {
 						assertComputedStyle('backgroundColor', 'rgb(255, 0, 0)');
-						dom.exitDocument(document.getElementById('temporaryStyle'));
+						exitDocumentElement('temporaryStyle');
 						done();
 					});
 			});
@@ -192,7 +191,7 @@ describe('HtmlScreen', function() {
 				screen.evaluateStyles({})
 					.then(() => {
 						assertComputedStyle('backgroundColor', 'rgb(0, 255, 0)');
-						dom.exitDocument(document.getElementById('permanentStyle'));
+						exitDocumentElement('permanentStyle');
 						done();
 					});
 			});
@@ -205,7 +204,7 @@ function enterDocumentSurfaceElement(surfaceId, opt_content) {
 	return document.getElementById(surfaceId);
 }
 
-function exitDocumentSurfaceElement(surfaceId) {
+function exitDocumentElement(surfaceId) {
 	return dom.exitDocument(document.getElementById(surfaceId));
 }
 

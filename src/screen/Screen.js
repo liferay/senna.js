@@ -1,7 +1,7 @@
 'use strict';
 
 import { core } from 'metal';
-import { globalEval, globalEvalStyles } from 'metal-dom';
+import { globalEval } from 'metal-dom';
 import Cacheable from '../cacheable/Cacheable';
 import CancellablePromise from 'metal-promise';
 
@@ -104,7 +104,6 @@ class Screen extends Cacheable {
 				globalEval.runScriptsInElement(surfaces[sId].activeChild);
 			}
 		});
-		// Do not wait for scripts evaluation.
 		return CancellablePromise.resolve();
 	}
 
@@ -115,16 +114,8 @@ class Screen extends Cacheable {
 	 * @return {?CancellablePromise=} This can return a promise, which will
 	 *     pause the navigation until it is resolved.
 	 */
-	evaluateStyles(surfaces) {
-		var deferredStyles = [];
-		Object.keys(surfaces).forEach(sId => {
-			if (surfaces[sId].activeChild) {
-				deferredStyles.push(
-					new CancellablePromise((resolve) => globalEvalStyles.runStylesInElement(surfaces[sId].activeChild, resolve))
-				);
-			}
-		});
-		return CancellablePromise.all(deferredStyles);
+	evaluateStyles() {
+		return CancellablePromise.resolve();
 	}
 
 	/**
