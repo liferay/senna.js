@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/promise/Promise'], function (exports, _globals, _metal, _index, _Promise) {
+define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise'], function (exports, _globals, _metal, _dom, _Promise) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -9,7 +9,7 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/index
 
 	var _globals2 = _interopRequireDefault(_globals);
 
-	var _index2 = _interopRequireDefault(_index);
+	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -80,14 +80,14 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/index
 			if (_metal.core.isDefAndNotNull(opt_content)) {
 				child = this.createChild(screenId);
 
-				_index2.default.append(child, opt_content);
+				_dom2.default.append(child, opt_content);
 			}
 
 			this.transition(child, null);
 			var element = this.getElement();
 
 			if (element && child) {
-				_index2.default.append(element, child);
+				_dom2.default.append(element, child);
 			}
 
 			return child;
@@ -159,7 +159,7 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/index
 			this.activeChild = to;
 			return this.transition(from, to).thenAlways(function () {
 				if (from && from !== to) {
-					_index2.default.exitDocument(from);
+					_dom2.default.exitDocument(from);
 				}
 			});
 		};
@@ -168,7 +168,7 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/index
 			var child = this.getChild(screenId);
 
 			if (child) {
-				_index2.default.exitDocument(child);
+				_dom2.default.exitDocument(child);
 			}
 		};
 

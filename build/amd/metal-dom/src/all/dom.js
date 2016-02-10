@@ -1,10 +1,10 @@
-define(['exports', './dom', './DomEventEmitterProxy', './DomEventHandle', './features', './globalEval', './events'], function (exports, _dom, _DomEventEmitterProxy, _DomEventHandle, _features, _globalEval) {
+define(['exports', '../dom', '../DomEventEmitterProxy', '../DomEventHandle', '../features', '../globalEval', '../globalEvalStyles', '../events'], function (exports, _dom, _DomEventEmitterProxy, _DomEventHandle, _features, _globalEval, _globalEvalStyles) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.globalEval = exports.features = exports.DomEventHandle = exports.DomEventEmitterProxy = exports.dom = undefined;
+  exports.globalEvalStyles = exports.globalEval = exports.features = exports.DomEventHandle = exports.DomEventEmitterProxy = exports.dom = undefined;
 
   var _dom2 = _interopRequireDefault(_dom);
 
@@ -15,6 +15,8 @@ define(['exports', './dom', './DomEventEmitterProxy', './DomEventHandle', './fea
   var _features2 = _interopRequireDefault(_features);
 
   var _globalEval2 = _interopRequireDefault(_globalEval);
+
+  var _globalEvalStyles2 = _interopRequireDefault(_globalEvalStyles);
 
   function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
@@ -28,5 +30,6 @@ define(['exports', './dom', './DomEventEmitterProxy', './DomEventHandle', './fea
   exports.DomEventHandle = _DomEventHandle2.default;
   exports.features = _features2.default;
   exports.globalEval = _globalEval2.default;
+  exports.globalEvalStyles = _globalEvalStyles2.default;
 });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=dom.js.map

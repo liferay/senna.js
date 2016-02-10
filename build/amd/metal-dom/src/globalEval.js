@@ -1,4 +1,4 @@
-define(['exports', './dom'], function (exports, _dom) {
+define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -28,6 +28,7 @@ define(['exports', './dom'], function (exports, _dom) {
 			var script = document.createElement('script');
 			script.text = text;
 			document.head.appendChild(script).parentNode.removeChild(script);
+			return script;
 		};
 
 		globalEval.runFile = function runFile(src, opt_callback) {
@@ -44,11 +45,17 @@ define(['exports', './dom'], function (exports, _dom) {
 			_dom2.default.on(script, 'error', callback);
 
 			document.head.appendChild(script);
+			return script;
 		};
 
 		globalEval.runScript = function runScript(script, opt_callback) {
-			if (script.type && script.type !== 'text/javascript') {
+			var callback = function callback() {
 				opt_callback && opt_callback();
+			};
+
+			if (script.type && script.type !== 'text/javascript') {
+				_metal.async.nextTick(callback);
+
 				return;
 			}
 
@@ -57,10 +64,11 @@ define(['exports', './dom'], function (exports, _dom) {
 			}
 
 			if (script.src) {
-				globalEval.runFile(script.src, opt_callback);
+				return globalEval.runFile(script.src, opt_callback);
 			} else {
-				globalEval.run(script.text);
-				opt_callback && opt_callback();
+				_metal.async.nextTick(callback);
+
+				return globalEval.run(script.text);
 			}
 		};
 
@@ -70,7 +78,7 @@ define(['exports', './dom'], function (exports, _dom) {
 			if (scripts.length) {
 				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
 			} else if (opt_callback) {
-				opt_callback();
+				_metal.async.nextTick(opt_callback);
 			}
 		};
 
@@ -79,7 +87,7 @@ define(['exports', './dom'], function (exports, _dom) {
 				if (index < scripts.length - 1) {
 					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
 				} else if (opt_callback) {
-					opt_callback();
+					_metal.async.nextTick(opt_callback);
 				}
 			});
 		};

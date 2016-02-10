@@ -1,6 +1,6 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/metal', 'metal-dom/src/index', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _metal, _index, _Cacheable2, _Promise) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _metal, _dom, _Cacheable2, _Promise) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -86,6 +86,27 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', '../cacheable/Cache
 			console.log('Screen [' + this + '] dispose');
 		};
 
+		Screen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
+			Object.keys(surfaces).forEach(function (sId) {
+				if (surfaces[sId].activeChild) {
+					_dom.globalEval.runScriptsInElement(surfaces[sId].activeChild);
+				}
+			});
+			return _Promise2.default.resolve();
+		};
+
+		Screen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
+			var deferredStyles = [];
+			Object.keys(surfaces).forEach(function (sId) {
+				if (surfaces[sId].activeChild) {
+					deferredStyles.push(new _Promise2.default(function (resolve) {
+						return _dom.globalEvalStyles.runStylesInElement(surfaces[sId].activeChild, resolve);
+					}));
+				}
+			});
+			return _Promise2.default.all(deferredStyles);
+		};
+
 		Screen.prototype.flip = function flip(surfaces) {
 			var _this2 = this;
 
@@ -95,12 +116,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', '../cacheable/Cache
 				var surface = surfaces[sId];
 				var deferred = surface.show(_this2.id);
 				transitions.push(deferred);
-
-				if (surface.activeChild) {
-					deferred.then(function () {
-						return _index.globalEval.runScriptsInElement(surface.activeChild);
-					});
-				}
 			});
 			return _Promise2.default.all(transitions);
 		};

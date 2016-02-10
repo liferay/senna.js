@@ -1,11 +1,13 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', '../globals/globals', './RequestScreen', '../surface/Surface', '../app/dataAttributes'], function (exports, _globals, _RequestScreen2, _Surface, _dataAttributes) {
+define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface', '../app/dataAttributes'], function (exports, _dom, _Promise, _globals, _RequestScreen2, _Surface, _dataAttributes) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+
+	var _Promise2 = _interopRequireDefault(_Promise);
 
 	var _globals2 = _interopRequireDefault(_globals);
 
@@ -77,6 +79,65 @@ define(['exports', '../globals/globals', './RequestScreen', '../surface/Surface'
 			this.virtualDocument.innerHTML = htmlString;
 		};
 
+		HtmlScreen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
+			var _this2 = this;
+
+			var evaluateTrackedScripts = this.evaluateTrackedResources_(_dom.globalEval.runScriptsInElement, HtmlScreen.selectors.scripts, HtmlScreen.selectors.scriptsTemporary, HtmlScreen.selectors.scriptsPermanent);
+			return evaluateTrackedScripts.then(function () {
+				return _RequestScreen.prototype.evaluateScripts.call(_this2, surfaces);
+			});
+		};
+
+		HtmlScreen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
+			var _this3 = this;
+
+			var evaluateTrackedStyles = this.evaluateTrackedResources_(_dom.globalEvalStyles.runStylesInElement, HtmlScreen.selectors.styles, HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent);
+			return evaluateTrackedStyles.then(function () {
+				return _RequestScreen.prototype.evaluateStyles.call(_this3, surfaces);
+			});
+		};
+
+		HtmlScreen.prototype.evaluateTrackedResources_ = function evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent) {
+			var _this4 = this;
+
+			var tracked = this.virtualQuerySelectorAll_(selector);
+			var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
+			var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
+			permanentsInDoc.forEach(function (resource) {
+				var resourceKey = _this4.getResourceKey_(resource);
+
+				if (resourceKey) {
+					HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
+				}
+			});
+
+			var frag = _dom.dom.buildFragment();
+
+			tracked.forEach(function (resource) {
+				var resourceKey = _this4.getResourceKey_(resource);
+
+				if (!HtmlScreen.permanentResourcesInDoc[resourceKey]) {
+					frag.appendChild(resource);
+				}
+
+				if (resourceKey && _dom.dom.match(resource, selectorPermanent)) {
+					HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
+				}
+			});
+			return new _Promise2.default(function (resolve) {
+				evaluatorFn(frag, function () {
+					temporariesInDoc.forEach(function (resource) {
+						return _dom.dom.exitDocument(resource);
+					});
+					resolve();
+				}, true);
+			});
+		};
+
+		HtmlScreen.prototype.getResourceKey_ = function getResourceKey_(resource) {
+			return resource.id || resource.href || resource.src || '';
+		};
+
 		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId) {
 			var surface = this.virtualDocument.querySelector('#' + surfaceId);
 
@@ -96,17 +157,25 @@ define(['exports', '../globals/globals', './RequestScreen', '../surface/Surface'
 		};
 
 		HtmlScreen.prototype.load = function load(path) {
-			var _this2 = this;
+			var _this5 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				_this2.allocateVirtualDocumentForContent(content);
+				_this5.allocateVirtualDocumentForContent(content);
 
-				_this2.resolveTitleFromVirtualDocument();
+				_this5.resolveTitleFromVirtualDocument();
 
-				_this2.maybeSetBodyIdInVirtualDocument();
+				_this5.maybeSetBodyIdInVirtualDocument();
 
 				return content;
 			});
+		};
+
+		HtmlScreen.prototype.virtualQuerySelectorAll_ = function virtualQuerySelectorAll_(selector) {
+			return Array.prototype.slice.call(this.virtualDocument.querySelectorAll(selector));
+		};
+
+		HtmlScreen.prototype.querySelectorAll_ = function querySelectorAll_(selector) {
+			return Array.prototype.slice.call(_globals2.default.document.querySelectorAll(selector));
 		};
 
 		HtmlScreen.prototype.releaseVirtualDocument = function releaseVirtualDocument() {
@@ -137,6 +206,15 @@ define(['exports', '../globals/globals', './RequestScreen', '../surface/Surface'
 	}(_RequestScreen3.default);
 
 	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
+	HtmlScreen.selectors = {
+		scripts: 'script[data-senna-track]',
+		scriptsPermanent: 'script[data-senna-track="permanent"]',
+		scriptsTemporary: 'script[data-senna-track="temporary"]',
+		styles: 'style[data-senna-track],link[data-senna-track]',
+		stylesPermanent: 'style[data-senna-track="permanent"],link[data-senna-track="permanent"]',
+		stylesTemporary: 'style[data-senna-track="temporary"],link[data-senna-track="temporary"]'
+	};
+	HtmlScreen.permanentResourcesInDoc = {};
 	exports.default = HtmlScreen;
 });
 //# sourceMappingURL=HtmlScreen.js.map

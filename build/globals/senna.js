@@ -2404,6 +2404,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var async = this.sennaNamed.metal.async;
 	var dom = this.senna.dom;
 
 	/**
@@ -2418,12 +2419,14 @@ babelHelpers;
 		/**
    * Evaluates the given string in the global scope.
    * @param {string} text
+   * @return {Element} script
    */
 
 		globalEval.run = function run(text) {
 			var script = document.createElement('script');
 			script.text = text;
 			document.head.appendChild(script).parentNode.removeChild(script);
+			return script;
 		};
 
 		/**
@@ -2431,6 +2434,7 @@ babelHelpers;
    * @param {string} src The file's path.
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @return {Element} script
    */
 
 		globalEval.runFile = function runFile(src, opt_callback) {
@@ -2444,6 +2448,8 @@ babelHelpers;
 			dom.on(script, 'load', callback);
 			dom.on(script, 'error', callback);
 			document.head.appendChild(script);
+
+			return script;
 		};
 
 		/**
@@ -2451,21 +2457,25 @@ babelHelpers;
    * @param {!Element} script
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @return {Element} script
    */
 
 		globalEval.runScript = function runScript(script, opt_callback) {
-			if (script.type && script.type !== 'text/javascript') {
+			var callback = function callback() {
 				opt_callback && opt_callback();
+			};
+			if (script.type && script.type !== 'text/javascript') {
+				async.nextTick(callback);
 				return;
 			}
 			if (script.parentNode) {
 				script.parentNode.removeChild(script);
 			}
 			if (script.src) {
-				globalEval.runFile(script.src, opt_callback);
+				return globalEval.runFile(script.src, opt_callback);
 			} else {
-				globalEval.run(script.text);
-				opt_callback && opt_callback();
+				async.nextTick(callback);
+				return globalEval.run(script.text);
 			}
 		};
 
@@ -2481,7 +2491,7 @@ babelHelpers;
 			if (scripts.length) {
 				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
 			} else if (opt_callback) {
-				opt_callback();
+				async.nextTick(opt_callback);
 			}
 		};
 
@@ -2498,7 +2508,7 @@ babelHelpers;
 				if (index < scripts.length - 1) {
 					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
 				} else if (opt_callback) {
-					opt_callback();
+					async.nextTick(opt_callback);
 				}
 			});
 		};
@@ -2507,6 +2517,108 @@ babelHelpers;
 	}();
 
 	this.senna.globalEval = globalEval;
+}).call(this);
+'use strict';
+
+(function () {
+	var async = this.sennaNamed.metal.async;
+	var dom = this.senna.dom;
+
+	/**
+  * Utility functions for running styles.
+  */
+
+	var globalEvalStyles = function () {
+		function globalEvalStyles() {
+			babelHelpers.classCallCheck(this, globalEvalStyles);
+		}
+
+		/**
+   * Evaluates the given style.
+   * @param {string} text
+   * @return {Element} style
+   */
+
+		globalEvalStyles.run = function run(text) {
+			var style = document.createElement('style');
+			style.innerHTML = text;
+			document.head.appendChild(style);
+			return style;
+		};
+
+		/**
+   * Evaluates the given style file.
+   * @param {string} href The file's path.
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the styles has been run.
+   * @return {Element} style
+   */
+
+		globalEvalStyles.runFile = function runFile(href, opt_callback) {
+			var link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = href;
+			globalEvalStyles.runStyle(link, opt_callback);
+			return link;
+		};
+
+		/**
+   * Evaluates the code referenced by the given style/link element.
+   * @param {!Element} style
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the script has been run.
+   *  @return {Element} style
+   */
+
+		globalEvalStyles.runStyle = function runStyle(style, opt_callback) {
+			var callback = function callback() {
+				opt_callback && opt_callback();
+			};
+			if (style.rel && style.rel !== 'stylesheet') {
+				async.nextTick(callback);
+				return;
+			}
+
+			if (style.tagName === 'STYLE') {
+				async.nextTick(callback);
+			} else {
+				dom.on(style, 'load', callback);
+				dom.on(style, 'error', callback);
+			}
+			document.head.appendChild(style);
+			return style;
+		};
+
+		/**
+   * Evaluates any style present in the given element.
+   * TODO: Evaluates running styles in parallel instead of in order.
+   * @params {!Element} element
+   * @param {function()=} opt_callback Optional function to be called
+   *   when the style has been run.
+   */
+
+		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback) {
+			var styles = element.querySelectorAll('style,link');
+			if (styles.length === 0 && opt_callback) {
+				async.nextTick(opt_callback);
+				return;
+			}
+
+			var loadCount = 0;
+			var callback = function callback() {
+				if (opt_callback && ++loadCount === styles.length) {
+					async.nextTick(opt_callback);
+				}
+			};
+			for (var i = 0; i < styles.length; i++) {
+				globalEvalStyles.runStyle(styles[i], callback);
+			}
+		};
+
+		return globalEvalStyles;
+	}();
+
+	this.senna.globalEvalStyles = globalEvalStyles;
 }).call(this);
 'use strict';
 
@@ -2560,13 +2672,15 @@ babelHelpers;
   var DomEventHandle = this.senna.DomEventHandle;
   var features = this.senna.features;
   var globalEval = this.senna.globalEval;
-  this.senna.index = dom;
-  this.sennaNamed.index = {};
-  this.sennaNamed.index.dom = dom;
-  this.sennaNamed.index.DomEventEmitterProxy = DomEventEmitterProxy;
-  this.sennaNamed.index.DomEventHandle = DomEventHandle;
-  this.sennaNamed.index.features = features;
-  this.sennaNamed.index.globalEval = globalEval;
+  var globalEvalStyles = this.senna.globalEvalStyles;
+  this.senna.dom = dom;
+  this.sennaNamed.dom = {};
+  this.sennaNamed.dom.dom = dom;
+  this.sennaNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
+  this.sennaNamed.dom.DomEventHandle = DomEventHandle;
+  this.sennaNamed.dom.features = features;
+  this.sennaNamed.dom.globalEval = globalEval;
+  this.sennaNamed.dom.globalEvalStyles = globalEvalStyles;
 }).call(this);
 /*!
  * Promises polyfill from Google's Closure Library.
@@ -3695,7 +3809,8 @@ babelHelpers;
 
 (function () {
 	var core = this.sennaNamed.metal.core;
-	var globalEval = this.sennaNamed.index.globalEval;
+	var globalEval = this.sennaNamed.dom.globalEval;
+	var globalEvalStyles = this.sennaNamed.dom.globalEvalStyles;
 	var Cacheable = this.senna.Cacheable;
 	var CancellablePromise = this.senna.Promise;
 
@@ -3798,6 +3913,44 @@ babelHelpers;
 		};
 
 		/**
+   * Allows a screen to evaluate scripts before the element is made visible.
+   * Lifecycle.
+   * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+   * @return {?CancellablePromise=} This can return a promise, which will
+   *     pause the navigation until it is resolved.
+   */
+
+		Screen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
+			Object.keys(surfaces).forEach(function (sId) {
+				if (surfaces[sId].activeChild) {
+					globalEval.runScriptsInElement(surfaces[sId].activeChild);
+				}
+			});
+			// Do not wait for scripts evaluation.
+			return CancellablePromise.resolve();
+		};
+
+		/**
+   * Allows a screen to evaluate styles before the element is made visible.
+   * Lifecycle.
+   * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+   * @return {?CancellablePromise=} This can return a promise, which will
+   *     pause the navigation until it is resolved.
+   */
+
+		Screen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
+			var deferredStyles = [];
+			Object.keys(surfaces).forEach(function (sId) {
+				if (surfaces[sId].activeChild) {
+					deferredStyles.push(new CancellablePromise(function (resolve) {
+						return globalEvalStyles.runStylesInElement(surfaces[sId].activeChild, resolve);
+					}));
+				}
+			});
+			return CancellablePromise.all(deferredStyles);
+		};
+
+		/**
    * Allows a screen to perform any setup immediately before the element is
    * made visible. Lifecycle.
    * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
@@ -3816,11 +3969,6 @@ babelHelpers;
 				var surface = surfaces[sId];
 				var deferred = surface.show(_this2.id);
 				transitions.push(deferred);
-				if (surface.activeChild) {
-					deferred.then(function () {
-						return globalEval.runScriptsInElement(surface.activeChild);
-					});
-				}
 			});
 
 			return CancellablePromise.all(transitions);
@@ -3932,7 +4080,7 @@ babelHelpers;
 	var globals = this.senna.globals;
 	var core = this.sennaNamed.metal.core;
 	var Disposable = this.sennaNamed.metal.Disposable;
-	var dom = this.senna.index;
+	var dom = this.senna.dom;
 	var CancellablePromise = this.senna.Promise;
 
 	var Surface = function (_Disposable) {
@@ -5006,7 +5154,7 @@ babelHelpers;
 	var array = this.sennaNamed.metal.array;
 	var async = this.sennaNamed.metal.async;
 	var core = this.sennaNamed.metal.core;
-	var dom = this.senna.index;
+	var dom = this.senna.dom;
 	var CancellablePromise = this.senna.Promise;
 	var EventEmitter = this.sennaNamed.events.EventEmitter;
 	var EventHandler = this.sennaNamed.events.EventHandler;
@@ -5368,7 +5516,12 @@ babelHelpers;
 				}
 				_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
 				_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces);
+			}).then(function () {
+				return nextScreen.evaluateStyles(_this5.surfaces);
+			}).then(function () {
 				return nextScreen.flip(_this5.surfaces);
+			}).then(function () {
+				return nextScreen.evaluateScripts(_this5.surfaces);
 			}).then(function () {
 				return _this5.syncScrollPositionSyncThenAsync_();
 			}).then(function () {
@@ -6643,6 +6796,10 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var dom = this.sennaNamed.dom.dom;
+	var globalEval = this.sennaNamed.dom.globalEval;
+	var globalEvalStyles = this.sennaNamed.dom.globalEvalStyles;
+	var CancellablePromise = this.senna.Promise;
 	var globals = this.senna.globals;
 	var RequestScreen = this.senna.RequestScreen;
 	var Surface = this.senna.Surface;
@@ -6698,6 +6855,98 @@ babelHelpers;
 		};
 
 		/**
+   * @Override
+   */
+
+		HtmlScreen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
+			var _this2 = this;
+
+			var evaluateTrackedScripts = this.evaluateTrackedResources_(globalEval.runScriptsInElement, HtmlScreen.selectors.scripts, HtmlScreen.selectors.scriptsTemporary, HtmlScreen.selectors.scriptsPermanent);
+
+			return evaluateTrackedScripts.then(function () {
+				return _RequestScreen.prototype.evaluateScripts.call(_this2, surfaces);
+			});
+		};
+
+		/**
+   * @Override
+   */
+
+		HtmlScreen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
+			var _this3 = this;
+
+			var evaluateTrackedStyles = this.evaluateTrackedResources_(globalEvalStyles.runStylesInElement, HtmlScreen.selectors.styles, HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent);
+
+			return evaluateTrackedStyles.then(function () {
+				return _RequestScreen.prototype.evaluateStyles.call(_this3, surfaces);
+			});
+		};
+
+		/**
+   * Evaluates tracked resources inside incoming fragment and remove existing
+   * temporary resources.
+   * @param {!function} evaluatorFn Function used to evaluate fragment
+   *     containing resources.
+   * @param {!string} selector Selector used to find resources to track.
+   * @param {!string} selectorTemporary Selector used to find temporary
+   *     resources to track.
+   * @param {!string} selectorPermanent Selector used to find permanent
+   *     resources to track.
+   * @return {CancellablePromise} Deferred that waits resources evaluation to
+   *     complete.
+   * @private
+   */
+
+		HtmlScreen.prototype.evaluateTrackedResources_ = function evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent) {
+			var _this4 = this;
+
+			var tracked = this.virtualQuerySelectorAll_(selector);
+			var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
+			var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
+
+			// Adds permanent resources in document to cache.
+			permanentsInDoc.forEach(function (resource) {
+				var resourceKey = _this4.getResourceKey_(resource);
+				if (resourceKey) {
+					HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
+				}
+			});
+
+			var frag = dom.buildFragment();
+			tracked.forEach(function (resource) {
+				var resourceKey = _this4.getResourceKey_(resource);
+				// Do not load permanent resources if already in document.
+				if (!HtmlScreen.permanentResourcesInDoc[resourceKey]) {
+					frag.appendChild(resource);
+				}
+				// If resource has key and is permanent add to cache.
+				if (resourceKey && dom.match(resource, selectorPermanent)) {
+					HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
+				}
+			});
+
+			return new CancellablePromise(function (resolve) {
+				evaluatorFn(frag, function () {
+					temporariesInDoc.forEach(function (resource) {
+						return dom.exitDocument(resource);
+					});
+					resolve();
+				}, true);
+			});
+		};
+
+		/**
+   * Extracts a key to identify the resource based on its attributes.
+   * @param {Element} resource
+   * @return {string} Extracted key based on resource attributes in order of
+   *     preference: id, href, src.
+   */
+
+		HtmlScreen.prototype.getResourceKey_ = function getResourceKey_(resource) {
+			return resource.id || resource.href || resource.src || '';
+		};
+
+		/**
    * @inheritDoc
    */
 
@@ -6726,14 +6975,34 @@ babelHelpers;
    */
 
 		HtmlScreen.prototype.load = function load(path) {
-			var _this2 = this;
+			var _this5 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				_this2.allocateVirtualDocumentForContent(content);
-				_this2.resolveTitleFromVirtualDocument();
-				_this2.maybeSetBodyIdInVirtualDocument();
+				_this5.allocateVirtualDocumentForContent(content);
+				_this5.resolveTitleFromVirtualDocument();
+				_this5.maybeSetBodyIdInVirtualDocument();
 				return content;
 			});
+		};
+
+		/**
+   * Queries elements from virtual document and returns an array of elements.
+   * @param {!string} selector
+   * @return {array.<Element>}
+   */
+
+		HtmlScreen.prototype.virtualQuerySelectorAll_ = function virtualQuerySelectorAll_(selector) {
+			return Array.prototype.slice.call(this.virtualDocument.querySelectorAll(selector));
+		};
+
+		/**
+   * Queries elements from document and returns an array of elements.
+   * @param {!string} selector
+   * @return {array.<Element>}
+   */
+
+		HtmlScreen.prototype.querySelectorAll_ = function querySelectorAll_(selector) {
+			return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
 		};
 
 		/**
@@ -6779,7 +7048,31 @@ babelHelpers;
 		return HtmlScreen;
 	}(RequestScreen);
 
+	/**
+  * Helper selectors for tracking resources.
+  * @type {object}
+  * @protected
+  * @static
+  */
+
 	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
+	HtmlScreen.selectors = {
+		scripts: 'script[data-senna-track]',
+		scriptsPermanent: 'script[data-senna-track="permanent"]',
+		scriptsTemporary: 'script[data-senna-track="temporary"]',
+		styles: 'style[data-senna-track],link[data-senna-track]',
+		stylesPermanent: 'style[data-senna-track="permanent"],link[data-senna-track="permanent"]',
+		stylesTemporary: 'style[data-senna-track="temporary"],link[data-senna-track="temporary"]'
+	};
+
+	/**
+  * Caches permanent resource keys.
+  * @type {object}
+  * @protected
+  * @static
+  */
+	HtmlScreen.permanentResourcesInDoc = {};
+
 	this.senna.HtmlScreen = HtmlScreen;
 }).call(this);
 'use strict';

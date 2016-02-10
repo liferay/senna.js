@@ -1,13 +1,13 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/promise/Promise', 'metal-events/src/events', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri'], function (exports, _metal, _index, _Promise, _events, _globals, _Route, _Screen, _Surface, _Uri) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-events/src/events', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri'], function (exports, _metal, _dom, _Promise, _events, _globals, _Route, _Screen, _Surface, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _index2 = _interopRequireDefault(_index);
+	var _dom2 = _interopRequireDefault(_dom);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -86,7 +86,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 			_this.updateScrollPosition = true;
 			_this.appEventHandlers_ = new _events.EventHandler();
 
-			_this.appEventHandlers_.add(_index2.default.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _index2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _index2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 
@@ -215,8 +215,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 				_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
 
 				_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces);
-
+			}).then(function () {
+				return nextScreen.evaluateStyles(_this5.surfaces);
+			}).then(function () {
 				return nextScreen.flip(_this5.surfaces);
+			}).then(function () {
+				return nextScreen.evaluateScripts(_this5.surfaces);
 			}).then(function () {
 				return _this5.syncScrollPositionSyncThenAsync_();
 			}).then(function () {
@@ -519,7 +523,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 
 			var documentElement = _globals2.default.document.documentElement;
 
-			_index2.default.addClasses(documentElement, this.loadingCssClass);
+			_dom2.default.addClasses(documentElement, this.loadingCssClass);
 
 			this.stopPendingNavigate_();
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
@@ -528,7 +532,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 			}).thenAlways(function () {
 				endPayload.path = event.path;
 
-				_index2.default.removeClasses(documentElement, _this7.loadingCssClass);
+				_dom2.default.removeClasses(documentElement, _this7.loadingCssClass);
 
 				_this7.maybeRestoreNativeScrollRestoration();
 
@@ -636,7 +640,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 				this.formEventHandler_.removeListener();
 			}
 
-			this.formEventHandler_ = _index2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+			this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
 		};
 
 		App.prototype.setLinkSelector = function setLinkSelector(linkSelector) {
@@ -646,7 +650,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/index', 'metal-promise/src/
 				this.linkEventHandler_.removeListener();
 			}
 
-			this.linkEventHandler_ = _index2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
+			this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
 		};
 
 		App.prototype.setLoadingCssClass = function setLoadingCssClass(loadingCssClass) {
