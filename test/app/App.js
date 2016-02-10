@@ -412,6 +412,17 @@ describe('App', function() {
 		}).cancel();
 	});
 
+	it('should clear pendingNavigate after navigate', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path', Screen));
+		app.navigate('/path').then(function() {
+			assert.ok(!app.pendingNavigate);
+			app.dispose();
+			done();
+		});
+		assert.ok(app.pendingNavigate);
+	});
+
 	it('should simulate refresh on navigate to the same path', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));

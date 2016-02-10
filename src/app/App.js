@@ -374,6 +374,7 @@ class App extends EventEmitter {
 		this.activePath = path;
 		this.activeScreen = nextScreen;
 		this.screens[path] = nextScreen;
+		this.pendingNavigate = null;
 		globals.capturedFormElement = null;
 		console.log('Navigation done');
 	}
