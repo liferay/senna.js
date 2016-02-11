@@ -24,19 +24,28 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			_classCallCheck(this, globalEval);
 		}
 
-		globalEval.run = function run(text) {
+		globalEval.run = function run(text, opt_appendFn) {
 			var script = document.createElement('script');
 			script.text = text;
-			document.head.appendChild(script).parentNode.removeChild(script);
+
+			if (opt_appendFn) {
+				opt_appendFn(script);
+			} else {
+				document.head.appendChild(script);
+			}
+
+			_dom2.default.exitDocument(script);
+
 			return script;
 		};
 
-		globalEval.runFile = function runFile(src, opt_callback) {
+		globalEval.runFile = function runFile(src, opt_callback, opt_appendFn) {
 			var script = document.createElement('script');
 			script.src = src;
 
 			var callback = function callback() {
-				script.parentNode.removeChild(script);
+				_dom2.default.exitDocument(script);
+
 				opt_callback && opt_callback();
 			};
 
@@ -44,11 +53,16 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 
 			_dom2.default.on(script, 'error', callback);
 
-			document.head.appendChild(script);
+			if (opt_appendFn) {
+				opt_appendFn(script);
+			} else {
+				document.head.appendChild(script);
+			}
+
 			return script;
 		};
 
-		globalEval.runScript = function runScript(script, opt_callback) {
+		globalEval.runScript = function runScript(script, opt_callback, opt_appendFn) {
 			var callback = function callback() {
 				opt_callback && opt_callback();
 			};
@@ -59,37 +73,35 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 				return;
 			}
 
-			if (script.parentNode) {
-				script.parentNode.removeChild(script);
-			}
+			_dom2.default.exitDocument(script);
 
 			if (script.src) {
-				return globalEval.runFile(script.src, opt_callback);
+				return globalEval.runFile(script.src, opt_callback, opt_appendFn);
 			} else {
 				_metal.async.nextTick(callback);
 
-				return globalEval.run(script.text);
+				return globalEval.run(script.text, opt_appendFn);
 			}
 		};
 
-		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback) {
+		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback, opt_appendFn) {
 			var scripts = element.querySelectorAll('script');
 
 			if (scripts.length) {
-				globalEval.runScriptsInOrder(scripts, 0, opt_callback);
+				globalEval.runScriptsInOrder(scripts, 0, opt_callback, opt_appendFn);
 			} else if (opt_callback) {
 				_metal.async.nextTick(opt_callback);
 			}
 		};
 
-		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback) {
+		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback, opt_appendFn) {
 			globalEval.runScript(scripts.item(index), function () {
 				if (index < scripts.length - 1) {
-					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback);
+					globalEval.runScriptsInOrder(scripts, index + 1, opt_callback, opt_appendFn);
 				} else if (opt_callback) {
 					_metal.async.nextTick(opt_callback);
 				}
-			});
+			}, opt_appendFn);
 		};
 
 		return globalEval;

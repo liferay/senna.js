@@ -24,10 +24,16 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			_classCallCheck(this, globalEvalStyles);
 		}
 
-		globalEvalStyles.run = function run(text) {
+		globalEvalStyles.run = function run(text, opt_appendFn) {
 			var style = document.createElement('style');
 			style.innerHTML = text;
-			document.head.appendChild(style);
+
+			if (opt_appendFn) {
+				opt_appendFn(style);
+			} else {
+				document.head.appendChild(style);
+			}
+
 			return style;
 		};
 

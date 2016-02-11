@@ -69,6 +69,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 			_RequestScreen.prototype.activate.call(this);
 
 			this.releaseVirtualDocument();
+			this.pendingStyles = null;
 		};
 
 		HtmlScreen.prototype.allocateVirtualDocumentForContent = function allocateVirtualDocumentForContent(htmlString) {
@@ -80,6 +81,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 		};
 
 		HtmlScreen.prototype.appendStyleIntoDocument_ = function appendStyleIntoDocument_(newStyle) {
+			var isTemporaryStyle = _dom.dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
+
+			if (isTemporaryStyle) {
+				this.pendingStyles.push(newStyle);
+			}
+
 			if (newStyle.id) {
 				var styleInDoc = _globals2.default.document.getElementById(newStyle.id);
 
@@ -90,6 +97,20 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 			}
 
 			_globals2.default.document.head.appendChild(newStyle);
+		};
+
+		HtmlScreen.prototype.disposeInternal = function disposeInternal() {
+			this.disposePendingStyles();
+
+			_RequestScreen.prototype.disposeInternal.call(this);
+		};
+
+		HtmlScreen.prototype.disposePendingStyles = function disposePendingStyles() {
+			if (this.pendingStyles) {
+				this.pendingStyles.forEach(function (style) {
+					return _dom.dom.exitDocument(style);
+				});
+			}
 		};
 
 		HtmlScreen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
@@ -104,13 +125,14 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 		HtmlScreen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
 			var _this3 = this;
 
-			var evaluateTrackedStyles = this.evaluateTrackedResources_(_dom.globalEvalStyles.runStylesInElement, HtmlScreen.selectors.styles, HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent);
+			this.pendingStyles = [];
+			var evaluateTrackedStyles = this.evaluateTrackedResources_(_dom.globalEvalStyles.runStylesInElement, HtmlScreen.selectors.styles, HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent, this.appendStyleIntoDocument_.bind(this));
 			return evaluateTrackedStyles.then(function () {
 				return _RequestScreen.prototype.evaluateStyles.call(_this3, surfaces);
 			});
 		};
 
-		HtmlScreen.prototype.evaluateTrackedResources_ = function evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent) {
+		HtmlScreen.prototype.evaluateTrackedResources_ = function evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent, opt_appendResourceFn) {
 			var _this4 = this;
 
 			var tracked = this.virtualQuerySelectorAll_(selector);
@@ -143,7 +165,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 						return _dom.dom.exitDocument(resource);
 					});
 					resolve();
-				}, _this4.appendStyleIntoDocument_);
+				}, opt_appendResourceFn);
 			});
 		};
 
