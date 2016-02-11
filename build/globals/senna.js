@@ -2551,14 +2551,16 @@ babelHelpers;
    * @param {string} href The file's path.
    * @param {function()=} opt_callback Optional function to be called
    *   when the styles has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    * @return {Element} style
    */
 
-		globalEvalStyles.runFile = function runFile(href, opt_callback) {
+		globalEvalStyles.runFile = function runFile(href, opt_callback, opt_appendFn) {
 			var link = document.createElement('link');
 			link.rel = 'stylesheet';
 			link.href = href;
-			globalEvalStyles.runStyle(link, opt_callback);
+			globalEvalStyles.runStyle(link, opt_callback, opt_appendFn);
 			return link;
 		};
 
@@ -2567,10 +2569,12 @@ babelHelpers;
    * @param {!Element} style
    * @param {function()=} opt_callback Optional function to be called
    *   when the script has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    *  @return {Element} style
    */
 
-		globalEvalStyles.runStyle = function runStyle(style, opt_callback) {
+		globalEvalStyles.runStyle = function runStyle(style, opt_callback, opt_appendFn) {
 			var callback = function callback() {
 				opt_callback && opt_callback();
 			};
@@ -2585,18 +2589,26 @@ babelHelpers;
 				dom.on(style, 'load', callback);
 				dom.on(style, 'error', callback);
 			}
-			document.head.appendChild(style);
+
+			if (opt_appendFn) {
+				opt_appendFn(style);
+			} else {
+				document.head.appendChild(style);
+			}
+
 			return style;
 		};
 
 		/**
    * Evaluates any style present in the given element.
    * @params {!Element} element
-   * @param {function()=} opt_callback Optional function to be called
-   *   when the style has been run.
+   * @param {function()=} opt_callback Optional function to be called when the
+   *   style has been run.
+   * @param {function()=} opt_appendFn Optional function to append the node
+   *   into document.
    */
 
-		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback) {
+		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback, opt_appendFn) {
 			var styles = element.querySelectorAll('style,link');
 			if (styles.length === 0 && opt_callback) {
 				async.nextTick(opt_callback);
@@ -2610,7 +2622,7 @@ babelHelpers;
 				}
 			};
 			for (var i = 0; i < styles.length; i++) {
-				globalEvalStyles.runStyle(styles[i], callback);
+				globalEvalStyles.runStyle(styles[i], callback, opt_appendFn);
 			}
 		};
 
@@ -6845,6 +6857,24 @@ babelHelpers;
 		};
 
 		/**
+   * Customizes logic to append styles into document. Relevant to when
+   * tracking a style by id make sure to re-positions the new style in the
+   * same dom order.
+   * @param {Element} newStyle
+   */
+
+		HtmlScreen.prototype.appendStyleIntoDocument_ = function appendStyleIntoDocument_(newStyle) {
+			if (newStyle.id) {
+				var styleInDoc = globals.document.getElementById(newStyle.id);
+				if (styleInDoc) {
+					styleInDoc.parentNode.insertBefore(newStyle, styleInDoc.nextSibling);
+					return;
+				}
+			}
+			globals.document.head.appendChild(newStyle);
+		};
+
+		/**
    * @Override
    */
 
@@ -6921,7 +6951,7 @@ babelHelpers;
 						return dom.exitDocument(resource);
 					});
 					resolve();
-				}, true);
+				}, _this4.appendStyleIntoDocument_);
 			});
 		};
 

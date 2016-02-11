@@ -79,6 +79,19 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 			this.virtualDocument.innerHTML = htmlString;
 		};
 
+		HtmlScreen.prototype.appendStyleIntoDocument_ = function appendStyleIntoDocument_(newStyle) {
+			if (newStyle.id) {
+				var styleInDoc = _globals2.default.document.getElementById(newStyle.id);
+
+				if (styleInDoc) {
+					styleInDoc.parentNode.insertBefore(newStyle, styleInDoc.nextSibling);
+					return;
+				}
+			}
+
+			_globals2.default.document.head.appendChild(newStyle);
+		};
+
 		HtmlScreen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
 			var _this2 = this;
 
@@ -130,7 +143,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 						return _dom.dom.exitDocument(resource);
 					});
 					resolve();
-				}, true);
+				}, _this4.appendStyleIntoDocument_);
 			});
 		};
 

@@ -31,15 +31,15 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			return style;
 		};
 
-		globalEvalStyles.runFile = function runFile(href, opt_callback) {
+		globalEvalStyles.runFile = function runFile(href, opt_callback, opt_appendFn) {
 			var link = document.createElement('link');
 			link.rel = 'stylesheet';
 			link.href = href;
-			globalEvalStyles.runStyle(link, opt_callback);
+			globalEvalStyles.runStyle(link, opt_callback, opt_appendFn);
 			return link;
 		};
 
-		globalEvalStyles.runStyle = function runStyle(style, opt_callback) {
+		globalEvalStyles.runStyle = function runStyle(style, opt_callback, opt_appendFn) {
 			var callback = function callback() {
 				opt_callback && opt_callback();
 			};
@@ -58,11 +58,16 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 				_dom2.default.on(style, 'error', callback);
 			}
 
-			document.head.appendChild(style);
+			if (opt_appendFn) {
+				opt_appendFn(style);
+			} else {
+				document.head.appendChild(style);
+			}
+
 			return style;
 		};
 
-		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback) {
+		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback, opt_appendFn) {
 			var styles = element.querySelectorAll('style,link');
 
 			if (styles.length === 0 && opt_callback) {
@@ -80,7 +85,7 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			};
 
 			for (var i = 0; i < styles.length; i++) {
-				globalEvalStyles.runStyle(styles[i], callback);
+				globalEvalStyles.runStyle(styles[i], callback, opt_appendFn);
 			}
 		};
 
