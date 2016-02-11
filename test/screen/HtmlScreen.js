@@ -169,12 +169,13 @@ describe('HtmlScreen', function() {
 		screen.allocateVirtualDocumentForContent('<style id="temporaryStyle" data-senna-track="temporary">body{background-color:rgb(0, 255, 0);}</style>');
 		screen.evaluateStyles({})
 			.then(() => {
-				document.head.appendChild(dom.buildFragment('<style>body{background-color:rgb(255, 255, 255);}</style>'));
+				document.head.appendChild(dom.buildFragment('<style id="mainStyle">body{background-color:rgb(255, 255, 255);}</style>'));
 				assertComputedStyle('backgroundColor', 'rgb(255, 255, 255)');
 				screen.allocateVirtualDocumentForContent('<style id="temporaryStyle" data-senna-track="temporary">body{background-color:rgb(255, 0, 0);}</style>');
 				screen.evaluateStyles({})
 					.then(() => {
 						assertComputedStyle('backgroundColor', 'rgb(255, 255, 255)');
+						exitDocumentElement('mainStyle');
 						exitDocumentElement('temporaryStyle');
 						done();
 					});
@@ -212,6 +213,32 @@ describe('HtmlScreen', function() {
 						done();
 					});
 			});
+	});
+
+	it('should remove from document tracked pending styles on screen dispose', function(done) {
+		var screen = new HtmlScreen();
+		document.head.appendChild(dom.buildFragment('<style id="mainStyle">body{background-color:rgb(255, 255, 255);}</style>'));
+		screen.allocateVirtualDocumentForContent('<style id="temporaryStyle" data-senna-track="temporary">body{background-color:rgb(0, 255, 0);}</style>');
+		screen.evaluateStyles({})
+			.then(() => {
+				assertComputedStyle('backgroundColor', 'rgb(255, 255, 255)');
+				exitDocumentElement('mainStyle');
+				done();
+			});
+		screen.dispose();
+	});
+
+	it('should clear pendingStyles after screen activates', function(done) {
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('<style id="temporaryStyle" data-senna-track="temporary"></style>');
+		screen.evaluateStyles({})
+			.then(() => {
+				assert.ok(!screen.pendingStyles);
+				exitDocumentElement('temporaryStyle');
+				done();
+			});
+		assert.ok(screen.pendingStyles);
+		screen.activate();
 	});
 
 });

@@ -34,6 +34,7 @@ class HtmlScreen extends RequestScreen {
 	activate() {
 		super.activate();
 		this.releaseVirtualDocument();
+		this.pendingStyles = null;
 	}
 
 	/**
@@ -55,6 +56,10 @@ class HtmlScreen extends RequestScreen {
 	 * @param {Element} newStyle
 	 */
 	appendStyleIntoDocument_(newStyle) {
+		var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
+		if (isTemporaryStyle) {
+			this.pendingStyles.push(newStyle);
+		}
 		if (newStyle.id) {
 			var styleInDoc = globals.document.getElementById(newStyle.id);
 			if (styleInDoc) {
@@ -63,6 +68,23 @@ class HtmlScreen extends RequestScreen {
 			}
 		}
 		globals.document.head.appendChild(newStyle);
+	}
+
+	/**
+	 * @Override
+	 */
+	disposeInternal() {
+		this.disposePendingStyles();
+		super.disposeInternal();
+	}
+
+	/**
+	 * Disposes pending styles if screen get disposed prior to its loading.
+	 */
+	disposePendingStyles() {
+		if (this.pendingStyles) {
+			this.pendingStyles.forEach((style) => dom.exitDocument(style));
+		}
 	}
 
 	/**
@@ -80,9 +102,11 @@ class HtmlScreen extends RequestScreen {
 	 * @Override
 	 */
 	evaluateStyles(surfaces) {
+		this.pendingStyles = [];
 		var evaluateTrackedStyles = this.evaluateTrackedResources_(
 			globalEvalStyles.runStylesInElement, HtmlScreen.selectors.styles,
-			HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent);
+			HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent,
+			this.appendStyleIntoDocument_.bind(this));
 
 		return evaluateTrackedStyles.then(() => super.evaluateStyles(surfaces));
 	}
@@ -90,18 +114,19 @@ class HtmlScreen extends RequestScreen {
 	/**
 	 * Evaluates tracked resources inside incoming fragment and remove existing
 	 * temporary resources.
-	 * @param {!function} evaluatorFn Function used to evaluate fragment
-	 *     containing resources.
+	 * @param {?function()} appendFn Function to append the node into document.
 	 * @param {!string} selector Selector used to find resources to track.
 	 * @param {!string} selectorTemporary Selector used to find temporary
 	 *     resources to track.
 	 * @param {!string} selectorPermanent Selector used to find permanent
 	 *     resources to track.
+	 * @param {!function} opt_appendResourceFn Optional function used to
+	 *     evaluate fragment containing resources.
 	 * @return {CancellablePromise} Deferred that waits resources evaluation to
 	 *     complete.
 	 * @private
 	 */
-	evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent) {
+	evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent, opt_appendResourceFn) {
 		var tracked = this.virtualQuerySelectorAll_(selector);
 		var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
 		var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
@@ -131,7 +156,7 @@ class HtmlScreen extends RequestScreen {
 			evaluatorFn(frag, () => {
 				temporariesInDoc.forEach((resource) => dom.exitDocument(resource));
 				resolve();
-			}, this.appendStyleIntoDocument_);
+			}, opt_appendResourceFn);
 		});
 	}
 
