@@ -164,6 +164,23 @@ describe('HtmlScreen', function() {
 			});
 	});
 
+	it('should append existing teporary styles with id in the same place as the reference', function(done) {
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('<style id="temporaryStyle" data-senna-track="temporary">body{background-color:rgb(0, 255, 0);}</style>');
+		screen.evaluateStyles({})
+			.then(() => {
+				document.head.appendChild(dom.buildFragment('<style>body{background-color:rgb(255, 255, 255);}</style>'));
+				assertComputedStyle('backgroundColor', 'rgb(255, 255, 255)');
+				screen.allocateVirtualDocumentForContent('<style id="temporaryStyle" data-senna-track="temporary">body{background-color:rgb(255, 0, 0);}</style>');
+				screen.evaluateStyles({})
+					.then(() => {
+						assertComputedStyle('backgroundColor', 'rgb(255, 255, 255)');
+						exitDocumentElement('temporaryStyle');
+						done();
+					});
+			});
+	});
+
 	it('should evaluate tracked permanent scripts only once', function(done) {
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<script id="permanentScriptKey" data-senna-track="permanent">window.sentinel=true;</script>');

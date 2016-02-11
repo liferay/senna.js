@@ -49,6 +49,23 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
+	 * Customizes logic to append styles into document. Relevant to when
+	 * tracking a style by id make sure to re-positions the new style in the
+	 * same dom order.
+	 * @param {Element} newStyle
+	 */
+	appendStyleIntoDocument_(newStyle) {
+		if (newStyle.id) {
+			var styleInDoc = globals.document.getElementById(newStyle.id);
+			if (styleInDoc) {
+				styleInDoc.parentNode.insertBefore(newStyle, styleInDoc.nextSibling);
+				return;
+			}
+		}
+		globals.document.head.appendChild(newStyle);
+	}
+
+	/**
 	 * @Override
 	 */
 	evaluateScripts(surfaces) {
@@ -114,7 +131,7 @@ class HtmlScreen extends RequestScreen {
 			evaluatorFn(frag, () => {
 				temporariesInDoc.forEach((resource) => dom.exitDocument(resource));
 				resolve();
-			}, true);
+			}, this.appendStyleIntoDocument_);
 		});
 	}
 
