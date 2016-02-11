@@ -4722,7 +4722,7 @@ babelHelpers;
 					var value = _param$split2[1];
 
 					if (core.isDef(value)) {
-						value = decodeURIComponent(value);
+						value = Uri.urlDecode(value);
 					}
 					_this3.addParameterValue(key, value);
 				});
@@ -5119,6 +5119,17 @@ babelHelpers;
 				return path.charAt(0) === '/' ? path.substring(1) : path;
 			});
 			return [basePath].concat(paths).join('/').replace(/\/$/, '');
+		};
+
+		/**
+   * URL-decodes the string. We need to specially handle '+'s because
+   * the javascript library doesn't convert them to spaces.
+   * @param {string} str The string to url decode.
+   * @return {string} The decoded {@code str}.
+   */
+
+		Uri.urlDecode = function urlDecode(str) {
+			return decodeURIComponent(str.replace(/\+/g, ' '));
 		};
 
 		return Uri;

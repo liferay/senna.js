@@ -121,7 +121,7 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 					var value = _param$split2[1];
 
 					if (_metal.core.isDef(value)) {
-						value = decodeURIComponent(value);
+						value = Uri.urlDecode(value);
 					}
 
 					_this3.addParameterValue(key, value);
@@ -369,6 +369,10 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 				return path.charAt(0) === '/' ? path.substring(1) : path;
 			});
 			return [basePath].concat(paths).join('/').replace(/\/$/, '');
+		};
+
+		Uri.urlDecode = function urlDecode(str) {
+			return decodeURIComponent(str.replace(/\+/g, ' '));
 		};
 
 		return Uri;
