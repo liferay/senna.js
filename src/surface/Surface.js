@@ -80,11 +80,15 @@ class Surface extends Disposable {
 		var child = this.defaultChild;
 
 		if (core.isDefAndNotNull(opt_content)) {
-			child = this.createChild(screenId);
+			child = this.getChild(screenId);
+			if (child) {
+				dom.removeChildren(child);
+			} else {
+				child = this.createChild(screenId);
+				this.transition(child, null);
+			}
 			dom.append(child, opt_content);
 		}
-
-		this.transition(child, null);
 
 		var element = this.getElement();
 

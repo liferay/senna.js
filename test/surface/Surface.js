@@ -158,6 +158,16 @@ describe('Surface', function() {
 			exitDocumentSurfaceElement('surfaceId');
 		});
 
+		it('should remove surface child content if already in document', function() {
+			var surfaceChild = enterDocumentSurfaceElement('surfaceId-screenId');
+			enterDocumentSurfaceElement('surfaceId').appendChild(surfaceChild);
+			surfaceChild.innerHTML = 'temp';
+			var surface = new Surface('surfaceId');
+			surface.addContent('screenId', 'content');
+			assert.strictEqual('content', surfaceChild.innerHTML);
+			exitDocumentSurfaceElement('surfaceId');
+		});
+
 		it('should be able to overwrite default transition', function() {
 			enterDocumentSurfaceElement('surfaceId');
 			var surface = new Surface('surfaceId');
