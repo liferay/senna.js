@@ -179,16 +179,14 @@ describe('App', function() {
 		app.dispose();
 	});
 
-	it('should create different screen instance and inherit same cache when simulating navigate refresh', function() {
+	it('should use same screen instance when simulating navigate refresh', function() {
 		var app = new App();
 		var route = new Route('/path', HtmlScreen);
 		var screen = app.createScreenInstance('/path', route);
-		screen.addCache('<h1>content</h1>');
 		app.screens['/path'] = screen;
 		app.activePath = '/path';
 		var screenRefresh = app.createScreenInstance('/path', route);
-		assert.notStrictEqual(screen, screenRefresh);
-		assert.strictEqual('<h1>content</h1>', screenRefresh.getCache());
+		assert.strictEqual(screen, screenRefresh);
 		app.dispose();
 	});
 

@@ -268,27 +268,20 @@ class App extends EventEmitter {
 	 * @return {Screen}
 	 */
 	createScreenInstance(path, route) {
-		var cachedScreen;
-		if (path === this.activePath) {
-			// When simulating page refresh the request lifecycle must be respected,
-			// hence create a new screen instance for the same path.
+		if (this.activePath && this.isPathCurrentBrowserPath(path)) {
 			console.log('Already at destination, refresh navigation');
-			cachedScreen = this.screens[path];
-			delete this.screens[path];
+			return this.activeScreen;
 		}
 		/* jshint newcap: false */
 		var screen = this.screens[path];
 		if (!screen) {
-			console.log('Create screen for [' + path + ']');
 			var handler = route.getHandler();
 			if (handler === Screen || Screen.isImplementedBy(handler.prototype)) {
 				screen = new handler();
 			} else {
 				screen = handler(route) || new Screen();
 			}
-			if (cachedScreen) {
-				screen.addCache(cachedScreen.getCache());
-			}
+			console.log('Create screen for [' + path + '] [' + screen + ']');
 		}
 		return screen;
 	}
