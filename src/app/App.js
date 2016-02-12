@@ -664,6 +664,13 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	onBeforeNavigate_(event) {
+		if (this.pendingNavigate) {
+			if (this.screens[event.path] === this.screens[this.pendingNavigate.path]) {
+				console.log('Waiting...');
+				return;
+			}
+		}
+
 		this.emit('startNavigate', {
 			path: event.path,
 			replaceHistory: event.replaceHistory
@@ -790,13 +797,6 @@ class App extends EventEmitter {
 		if (globals.capturedFormElement) {
 			event.form = globals.capturedFormElement;
 			endNavigatePayload.form = globals.capturedFormElement;
-		}
-
-		if (this.pendingNavigate) {
-			if (this.screens[path] === this.screens[this.pendingNavigate.path]) {
-				console.log('Waiting...');
-				return;
-			}
 		}
 
 		this.pendingNavigate = this.doNavigate_(path, event.replaceHistory)

@@ -441,6 +441,29 @@ describe('App', function() {
 		});
 	});
 
+	it('should only call beforeNavigate when waiting for pendingNavigate if navigate to same path', function(done) {
+		class CacheScreen extends Screen {
+			constructor() {
+				super();
+				this.cacheable = true;
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path', CacheScreen));
+		app.navigate('/path').then(() => {
+			app.navigate('/path');
+			var beforeNavigate = sinon.stub();
+			var startNavigate = sinon.stub();
+			app.on('beforeNavigate', beforeNavigate);
+			app.on('startNavigate', startNavigate);
+			app.navigate('/path');
+			assert.strictEqual(1, beforeNavigate.callCount);
+			assert.strictEqual(0, startNavigate.callCount);
+			app.dispose();
+			done();
+		});
+	});
+
 	it('should not wait for pendingNavigate if navigate to different path', function(done) {
 		class CacheScreen extends Screen {
 			constructor() {
