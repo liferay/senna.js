@@ -144,7 +144,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		};
 
 		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
-			if (this.activePath && this.isPathCurrentBrowserPath(path)) {
+			if (!this.pendingNavigate && path === this.activePath) {
 				console.log('Already at destination, refresh navigation');
 				return this.activeScreen;
 			}
