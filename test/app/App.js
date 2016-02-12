@@ -185,6 +185,7 @@ describe('App', function() {
 		var screen = app.createScreenInstance('/path', route);
 		app.screens['/path'] = screen;
 		app.activePath = '/path';
+		app.activeScreen = screen;
 		var screenRefresh = app.createScreenInstance('/path', route);
 		assert.strictEqual(screen, screenRefresh);
 		app.dispose();
@@ -413,7 +414,7 @@ describe('App', function() {
 	it('should clear pendingNavigate after navigate', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
-		app.navigate('/path').then(function() {
+		app.navigate('/path').then(() => {
 			assert.ok(!app.pendingNavigate);
 			app.dispose();
 			done();
@@ -439,6 +440,25 @@ describe('App', function() {
 			app.dispose();
 			done();
 		});
+	});
+
+	it('should navigate back when clicking browser back button', function(done) {
+		var app = new App();
+		app.addRoutes(new Route('/path1', Screen));
+		app.addRoutes(new Route('/path2', Screen));
+		app.navigate('/path1')
+			.then(() => app.navigate('/path2'))
+			.then(() => {
+				var activeScreen = app.activeScreen;
+				assert.strictEqual('/path2', globals.window.location.pathname);
+				app.once('endNavigate', () => {
+					assert.strictEqual('/path1', globals.window.location.pathname);
+					assert.notStrictEqual(activeScreen, app.activeScreen);
+					app.dispose();
+					done();
+				});
+				globals.window.history.back();
+			});
 	});
 
 	it('should only call beforeNavigate when waiting for pendingNavigate if navigate to same path', function(done) {

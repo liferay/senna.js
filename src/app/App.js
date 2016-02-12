@@ -268,7 +268,7 @@ class App extends EventEmitter {
 	 * @return {Screen}
 	 */
 	createScreenInstance(path, route) {
-		if (this.activePath && this.isPathCurrentBrowserPath(path)) {
+		if (!this.pendingNavigate && path === this.activePath) {
 			console.log('Already at destination, refresh navigation');
 			return this.activeScreen;
 		}
