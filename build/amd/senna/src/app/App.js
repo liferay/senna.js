@@ -433,6 +433,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		};
 
 		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
+			if (this.pendingNavigate) {
+				if (this.screens[event.path] === this.screens[this.pendingNavigate.path]) {
+					console.log('Waiting...');
+					return;
+				}
+			}
+
 			this.emit('startNavigate', {
 				path: event.path,
 				replaceHistory: event.replaceHistory
@@ -524,13 +531,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			if (_globals2.default.capturedFormElement) {
 				event.form = _globals2.default.capturedFormElement;
 				endNavigatePayload.form = _globals2.default.capturedFormElement;
-			}
-
-			if (this.pendingNavigate) {
-				if (this.screens[path] === this.screens[this.pendingNavigate.path]) {
-					console.log('Waiting...');
-					return;
-				}
 			}
 
 			this.pendingNavigate = this.doNavigate_(path, event.replaceHistory).catch(function (err) {
