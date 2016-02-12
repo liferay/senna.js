@@ -257,7 +257,7 @@ class App extends EventEmitter {
 	clearScreensCache() {
 		Object.keys(this.screens).forEach((path) => {
 			if (path !== this.activePath) {
-				this.removeScreen_(path, this.screens[path]);
+				this.removeScreen(path);
 			}
 		});
 	}
@@ -298,7 +298,7 @@ class App extends EventEmitter {
 	 */
 	disposeInternal() {
 		if (this.activeScreen) {
-			this.removeScreen_(this.activePath, this.activeScreen);
+			this.removeScreen(this.activePath);
 		}
 		this.clearScreensCache();
 		this.formEventHandler_.removeListener();
@@ -369,6 +369,7 @@ class App extends EventEmitter {
 
 		if (this.activeScreen && !this.activeScreen.isCacheable()) {
 			this.removeScreen_(this.activePath, this.activeScreen);
+				this.removeScreen(this.activePath);
 		}
 
 		this.activePath = path;
@@ -462,6 +463,7 @@ class App extends EventEmitter {
 	handleNavigateError_(path, nextScreen, err) {
 		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 		this.removeScreen_(path, nextScreen);
+			this.removeScreen(path);
 	}
 
 	/**
@@ -895,10 +897,9 @@ class App extends EventEmitter {
 	/**
 	 * Removes a screen.
 	 * @param {!string} path Path containing the querystring part.
-	 * @param {!Screen} screen
-	 * @protected
 	 */
-	removeScreen_(path, screen) {
+	removeScreen(path) {
+		var screen = this.screens[path];
 		Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].remove(screen.getId()));
 		screen.dispose();
 		delete this.screens[path];
