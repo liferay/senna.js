@@ -98,7 +98,7 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
-		 * Holds a deferred withe the current navigation.
+		 * Holds a deferred with the current navigation.
 		 * @type {?CancellablePromise}
 		 * @default null
 		 * @protected
