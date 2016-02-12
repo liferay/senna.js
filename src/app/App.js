@@ -330,6 +330,8 @@ class App extends EventEmitter {
 
 		console.log('Navigate to [' + path + ']');
 
+		this.stopPendingNavigate_();
+
 		var nextScreen = this.createScreenInstance(path, route);
 
 		return nextScreen.load(path)
@@ -361,8 +363,9 @@ class App extends EventEmitter {
 		nextScreen.activate();
 
 		if (this.activeScreen && !this.activeScreen.isCacheable()) {
-			this.removeScreen_(this.activePath, this.activeScreen);
+			if (this.activeScreen !== nextScreen) {
 				this.removeScreen(this.activePath);
+			}
 		}
 
 		this.activePath = path;
@@ -455,8 +458,9 @@ class App extends EventEmitter {
 	 */
 	handleNavigateError_(path, nextScreen, err) {
 		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
-		this.removeScreen_(path, nextScreen);
+		if (!this.isPathCurrentBrowserPath(path)) {
 			this.removeScreen(path);
+		}
 	}
 
 	/**
@@ -778,32 +782,37 @@ class App extends EventEmitter {
 	onStartNavigate_(event) {
 		this.maybeDisableNativeScrollRestoration();
 		this.captureScrollPositionFromScrollEvent = false;
+		dom.addClasses(globals.document.documentElement, this.loadingCssClass);
 
-		var endPayload = {};
+		var path = event.path;
+		var endNavigatePayload = {};
 
 		if (globals.capturedFormElement) {
 			event.form = globals.capturedFormElement;
-			endPayload.form = globals.capturedFormElement;
+			endNavigatePayload.form = globals.capturedFormElement;
 		}
 
-		var documentElement = globals.document.documentElement;
+		if (this.pendingNavigate) {
+			if (this.screens[path] === this.screens[this.pendingNavigate.path]) {
+				console.log('Waiting...');
+				return;
+			}
+		}
 
-		dom.addClasses(documentElement, this.loadingCssClass);
-
-		this.stopPendingNavigate_();
-
-		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
+		this.pendingNavigate = this.doNavigate_(path, event.replaceHistory)
 			.catch((err) => {
-				endPayload.error = err;
+				endNavigatePayload.error = err;
 				throw err;
 			})
 			.thenAlways(() => {
-				endPayload.path = event.path;
-				dom.removeClasses(documentElement, this.loadingCssClass);
+				endNavigatePayload.path = path;
+				dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
 				this.maybeRestoreNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = true;
-				this.emit('endNavigate', endPayload);
+				this.emit('endNavigate', endNavigatePayload);
 			});
+
+		this.pendingNavigate.path = path;
 	}
 
 	/**

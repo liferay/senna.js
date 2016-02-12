@@ -421,6 +421,49 @@ describe('App', function() {
 		assert.ok(app.pendingNavigate);
 	});
 
+	it('should wait for pendingNavigate if navigate to same path', function(done) {
+		class CacheScreen extends Screen {
+			constructor() {
+				super();
+				this.cacheable = true;
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path', CacheScreen));
+		app.navigate('/path').then(() => {
+			var pendingNavigate1 = app.navigate('/path');
+			var pendingNavigate2 = app.navigate('/path');
+			assert.ok(pendingNavigate1);
+			assert.ok(pendingNavigate2);
+			assert.strictEqual(pendingNavigate1, pendingNavigate2);
+			app.dispose();
+			done();
+		});
+	});
+
+	it('should not wait for pendingNavigate if navigate to different path', function(done) {
+		class CacheScreen extends Screen {
+			constructor() {
+				super();
+				this.cacheable = true;
+			}
+		}
+		var app = new App();
+		app.addRoutes(new Route('/path1', CacheScreen));
+		app.addRoutes(new Route('/path2', CacheScreen));
+		app.navigate('/path1')
+			.then(() => app.navigate('/path2'))
+			.then(() => {
+				var pendingNavigate1 = app.navigate('/path1');
+				var pendingNavigate2 = app.navigate('/path2');
+				assert.ok(pendingNavigate1);
+				assert.ok(pendingNavigate2);
+				assert.notStrictEqual(pendingNavigate1, pendingNavigate2);
+				app.dispose();
+				done();
+			});
+	});
+
 	it('should simulate refresh on navigate to the same path', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
