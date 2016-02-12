@@ -78,12 +78,18 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 			var child = this.defaultChild;
 
 			if (_metal.core.isDefAndNotNull(opt_content)) {
-				child = this.createChild(screenId);
+				child = this.getChild(screenId);
+
+				if (child) {
+					_dom2.default.removeChildren(child);
+				} else {
+					child = this.createChild(screenId);
+					this.transition(child, null);
+				}
 
 				_dom2.default.append(child, opt_content);
 			}
 
-			this.transition(child, null);
 			var element = this.getElement();
 
 			if (element && child) {

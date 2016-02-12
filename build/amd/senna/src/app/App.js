@@ -138,24 +138,20 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 			Object.keys(this.screens).forEach(function (path) {
 				if (path !== _this4.activePath) {
-					_this4.removeScreen_(path, _this4.screens[path]);
+					_this4.removeScreen(path);
 				}
 			});
 		};
 
 		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
-			var cachedScreen;
-
-			if (path === this.activePath) {
+			if (this.activePath && this.isPathCurrentBrowserPath(path)) {
 				console.log('Already at destination, refresh navigation');
-				cachedScreen = this.screens[path];
-				delete this.screens[path];
+				return this.activeScreen;
 			}
 
 			var screen = this.screens[path];
 
 			if (!screen) {
-				console.log('Create screen for [' + path + ']');
 				var handler = route.getHandler();
 
 				if (handler === _Screen2.default || _Screen2.default.isImplementedBy(handler.prototype)) {
@@ -164,9 +160,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					screen = handler(route) || new _Screen2.default();
 				}
 
-				if (cachedScreen) {
-					screen.addCache(cachedScreen.getCache());
-				}
+				console.log('Create screen for [' + path + '] [' + screen + ']');
 			}
 
 			return screen;
@@ -174,7 +168,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 		App.prototype.disposeInternal = function disposeInternal() {
 			if (this.activeScreen) {
-				this.removeScreen_(this.activePath, this.activeScreen);
+				this.removeScreen(this.activePath);
 			}
 
 			this.clearScreensCache();
@@ -206,6 +200,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			}
 
 			console.log('Navigate to [' + path + ']');
+			this.stopPendingNavigate_();
 			var nextScreen = this.createScreenInstance(path, route);
 			return nextScreen.load(path).then(function () {
 				if (_this5.activeScreen) {
@@ -236,7 +231,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			nextScreen.activate();
 
 			if (this.activeScreen && !this.activeScreen.isCacheable()) {
-				this.removeScreen_(this.activePath, this.activeScreen);
+				if (this.activeScreen !== nextScreen) {
+					this.removeScreen(this.activePath);
+				}
 			}
 
 			this.activePath = path;
@@ -291,7 +288,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
 			console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
-			this.removeScreen_(path, nextScreen);
+
+			if (!this.isPathCurrentBrowserPath(path)) {
+				this.removeScreen(path);
+			}
 		};
 
 		App.prototype.hasRoutes = function hasRoutes() {
@@ -515,32 +515,39 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 			this.maybeDisableNativeScrollRestoration();
 			this.captureScrollPositionFromScrollEvent = false;
-			var endPayload = {};
+
+			_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
+
+			var path = event.path;
+			var endNavigatePayload = {};
 
 			if (_globals2.default.capturedFormElement) {
 				event.form = _globals2.default.capturedFormElement;
-				endPayload.form = _globals2.default.capturedFormElement;
+				endNavigatePayload.form = _globals2.default.capturedFormElement;
 			}
 
-			var documentElement = _globals2.default.document.documentElement;
+			if (this.pendingNavigate) {
+				if (this.screens[path] === this.screens[this.pendingNavigate.path]) {
+					console.log('Waiting...');
+					return;
+				}
+			}
 
-			_dom2.default.addClasses(documentElement, this.loadingCssClass);
-
-			this.stopPendingNavigate_();
-			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
-				endPayload.error = err;
+			this.pendingNavigate = this.doNavigate_(path, event.replaceHistory).catch(function (err) {
+				endNavigatePayload.error = err;
 				throw err;
 			}).thenAlways(function () {
-				endPayload.path = event.path;
+				endNavigatePayload.path = path;
 
-				_dom2.default.removeClasses(documentElement, _this7.loadingCssClass);
+				_dom2.default.removeClasses(_globals2.default.document.documentElement, _this7.loadingCssClass);
 
 				_this7.maybeRestoreNativeScrollRestoration();
 
 				_this7.captureScrollPositionFromScrollEvent = true;
 
-				_this7.emit('endNavigate', endPayload);
+				_this7.emit('endNavigate', endNavigatePayload);
 			});
+			this.pendingNavigate.path = path;
 		};
 
 		App.prototype.prefetch = function prefetch(path) {
@@ -605,9 +612,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			return _metal.array.remove(this.routes, route);
 		};
 
-		App.prototype.removeScreen_ = function removeScreen_(path, screen) {
+		App.prototype.removeScreen = function removeScreen(path) {
 			var _this9 = this;
 
+			var screen = this.screens[path];
 			Object.keys(this.surfaces).forEach(function (surfaceId) {
 				return _this9.surfaces[surfaceId].remove(screen.getId());
 			});

@@ -4189,11 +4189,15 @@ babelHelpers;
 			var child = this.defaultChild;
 
 			if (core.isDefAndNotNull(opt_content)) {
-				child = this.createChild(screenId);
+				child = this.getChild(screenId);
+				if (child) {
+					dom.removeChildren(child);
+				} else {
+					child = this.createChild(screenId);
+					this.transition(child, null);
+				}
 				dom.append(child, opt_content);
 			}
-
-			this.transition(child, null);
 
 			var element = this.getElement();
 
@@ -5293,7 +5297,7 @@ babelHelpers;
 			_this.nativeScrollRestorationSupported = 'scrollRestoration' in globals.window.history;
 
 			/**
-    * Holds a deferred withe the current navigation.
+    * Holds a deferred with the current navigation.
     * @type {?CancellablePromise}
     * @default null
     * @protected
@@ -5458,7 +5462,7 @@ babelHelpers;
 
 			Object.keys(this.screens).forEach(function (path) {
 				if (path !== _this4.activePath) {
-					_this4.removeScreen_(path, _this4.screens[path]);
+					_this4.removeScreen(path);
 				}
 			});
 		};
@@ -5470,27 +5474,20 @@ babelHelpers;
    */
 
 		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
-			var cachedScreen;
-			if (path === this.activePath) {
-				// When simulating page refresh the request lifecycle must be respected,
-				// hence create a new screen instance for the same path.
+			if (this.activePath && this.isPathCurrentBrowserPath(path)) {
 				console.log('Already at destination, refresh navigation');
-				cachedScreen = this.screens[path];
-				delete this.screens[path];
+				return this.activeScreen;
 			}
 			/* jshint newcap: false */
 			var screen = this.screens[path];
 			if (!screen) {
-				console.log('Create screen for [' + path + ']');
 				var handler = route.getHandler();
 				if (handler === Screen || Screen.isImplementedBy(handler.prototype)) {
 					screen = new handler();
 				} else {
 					screen = handler(route) || new Screen();
 				}
-				if (cachedScreen) {
-					screen.addCache(cachedScreen.getCache());
-				}
+				console.log('Create screen for [' + path + '] [' + screen + ']');
 			}
 			return screen;
 		};
@@ -5501,7 +5498,7 @@ babelHelpers;
 
 		App.prototype.disposeInternal = function disposeInternal() {
 			if (this.activeScreen) {
-				this.removeScreen_(this.activePath, this.activeScreen);
+				this.removeScreen(this.activePath);
 			}
 			this.clearScreensCache();
 			this.formEventHandler_.removeListener();
@@ -5544,6 +5541,8 @@ babelHelpers;
 
 			console.log('Navigate to [' + path + ']');
 
+			this.stopPendingNavigate_();
+
 			var nextScreen = this.createScreenInstance(path, route);
 
 			return nextScreen.load(path).then(function () {
@@ -5579,7 +5578,9 @@ babelHelpers;
 			nextScreen.activate();
 
 			if (this.activeScreen && !this.activeScreen.isCacheable()) {
-				this.removeScreen_(this.activePath, this.activeScreen);
+				if (this.activeScreen !== nextScreen) {
+					this.removeScreen(this.activePath);
+				}
 			}
 
 			this.activePath = path;
@@ -5680,7 +5681,9 @@ babelHelpers;
 
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
 			console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
-			this.removeScreen_(path, nextScreen);
+			if (!this.isPathCurrentBrowserPath(path)) {
+				this.removeScreen(path);
+			}
 		};
 
 		/**
@@ -6025,30 +6028,35 @@ babelHelpers;
 
 			this.maybeDisableNativeScrollRestoration();
 			this.captureScrollPositionFromScrollEvent = false;
+			dom.addClasses(globals.document.documentElement, this.loadingCssClass);
 
-			var endPayload = {};
+			var path = event.path;
+			var endNavigatePayload = {};
 
 			if (globals.capturedFormElement) {
 				event.form = globals.capturedFormElement;
-				endPayload.form = globals.capturedFormElement;
+				endNavigatePayload.form = globals.capturedFormElement;
 			}
 
-			var documentElement = globals.document.documentElement;
+			if (this.pendingNavigate) {
+				if (this.screens[path] === this.screens[this.pendingNavigate.path]) {
+					console.log('Waiting...');
+					return;
+				}
+			}
 
-			dom.addClasses(documentElement, this.loadingCssClass);
-
-			this.stopPendingNavigate_();
-
-			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (err) {
-				endPayload.error = err;
+			this.pendingNavigate = this.doNavigate_(path, event.replaceHistory).catch(function (err) {
+				endNavigatePayload.error = err;
 				throw err;
 			}).thenAlways(function () {
-				endPayload.path = event.path;
-				dom.removeClasses(documentElement, _this7.loadingCssClass);
+				endNavigatePayload.path = path;
+				dom.removeClasses(globals.document.documentElement, _this7.loadingCssClass);
 				_this7.maybeRestoreNativeScrollRestoration();
 				_this7.captureScrollPositionFromScrollEvent = true;
-				_this7.emit('endNavigate', endPayload);
+				_this7.emit('endNavigate', endNavigatePayload);
 			});
+
+			this.pendingNavigate.path = path;
 		};
 
 		/**
@@ -6141,13 +6149,12 @@ babelHelpers;
 		/**
    * Removes a screen.
    * @param {!string} path Path containing the querystring part.
-   * @param {!Screen} screen
-   * @protected
    */
 
-		App.prototype.removeScreen_ = function removeScreen_(path, screen) {
+		App.prototype.removeScreen = function removeScreen(path) {
 			var _this9 = this;
 
+			var screen = this.screens[path];
 			Object.keys(this.surfaces).forEach(function (surfaceId) {
 				return _this9.surfaces[surfaceId].remove(screen.getId());
 			});
