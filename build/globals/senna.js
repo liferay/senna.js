@@ -5461,7 +5461,9 @@ babelHelpers;
 			var _this4 = this;
 
 			Object.keys(this.screens).forEach(function (path) {
-				if (path !== _this4.activePath) {
+				if (path === _this4.activePath) {
+					_this4.activeScreen.clearCache();
+				} else {
 					_this4.removeScreen(path);
 				}
 			});
