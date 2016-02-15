@@ -256,7 +256,9 @@ class App extends EventEmitter {
 	 */
 	clearScreensCache() {
 		Object.keys(this.screens).forEach((path) => {
-			if (path !== this.activePath) {
+			if (path === this.activePath) {
+				this.activeScreen.clearCache();
+			} else {
 				this.removeScreen(path);
 			}
 		});

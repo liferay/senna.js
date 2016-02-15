@@ -266,12 +266,14 @@ describe('App', function() {
 		app.dispose();
 	});
 
-	it('should not clear screen cache for activePath', function() {
+	it('should clear screen cache for activeScreen but not remove it', function() {
 		var app = new App();
 		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
 		app.activePath = '/path';
+		app.activeScreen = app.screens['/path'];
 		app.clearScreensCache();
 		assert.strictEqual(1, Object.keys(app.screens).length);
+		assert.strictEqual(null, app.activeScreen.getCache());
 		app.dispose();
 	});
 
