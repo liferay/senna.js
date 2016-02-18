@@ -3,6 +3,7 @@
 import { dom } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
+import utils from '../../src/utils/utils';
 import App from '../../src/app/App';
 import Route from '../../src/route/Route';
 import Screen from '../../src/screen/Screen';
@@ -291,12 +292,6 @@ describe('App', function() {
 		assert.strictEqual('', app.getBasePath());
 		app.setBasePath('/base');
 		assert.strictEqual('/base', app.getBasePath());
-		app.dispose();
-	});
-
-	it('should get path from url', function() {
-		var app = new App();
-		assert.strictEqual('/path?a=1#hash', app.getPath('http://localhost/path?a=1#hash'));
 		app.dispose();
 	});
 
@@ -691,14 +686,13 @@ describe('App', function() {
 	});
 
 	it('should dispatch navigate to current path', function(done) {
-		var currentPath = globals.window.location.pathname + globals.window.location.search + globals.window.location.hash;
 		globals.window.history.replaceState({}, '', '/path1?foo=1#hash');
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		app.on('endNavigate', function(payload) {
 			assert.strictEqual('/path1?foo=1#hash', payload.path);
 			app.dispose();
-			globals.window.history.replaceState({}, '', currentPath);
+			globals.window.history.replaceState({}, '', utils.getCurrentBrowserPath());
 			done();
 		});
 		app.dispatch();

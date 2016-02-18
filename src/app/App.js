@@ -4,6 +4,7 @@ import { array, async, core } from 'metal';
 import dom from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import { EventEmitter, EventHandler } from 'metal-events';
+import utils from '../utils/utils';
 import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';
@@ -248,7 +249,7 @@ class App extends EventEmitter {
 	 * @return {boolean}
 	 */
 	canNavigate(url) {
-		var path = this.getPath(url);
+		var path = utils.getUrlPath(url);
 		var uri = new Uri(url);
 
 		if (!this.isLinkSameOrigin_(uri.getHostname())) {
@@ -325,8 +326,7 @@ class App extends EventEmitter {
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	dispatch() {
-		var currentPath = globals.window.location.pathname + globals.window.location.search + globals.window.location.hash;
-		return this.navigate(currentPath, true);
+		return this.navigate(utils.getCurrentBrowserPath(), true);
 	}
 
 	/**
@@ -404,11 +404,11 @@ class App extends EventEmitter {
 	 */
 	findRoute(path) {
 		// Prevents navigation if it's a hash change on the same url.
-		if ((path.lastIndexOf('#') > -1) && this.isPathCurrentBrowserPath(path)) {
+		if ((path.lastIndexOf('#') > -1) && utils.isCurrentBrowserPath(path)) {
 			return null;
 		}
 
-		path = this.maybeRemovePathHashbang(path).substr(this.basePath.length);
+		path = utils.getUrlPathWithoutHash(path).substr(this.basePath.length);
 
 		for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];
@@ -461,16 +461,6 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Extracts the path from url.
-	 * @return {!string}
-	 */
-	getPath(url) {
-		var uri = new Uri(url);
-
-		return uri.getPathname() + uri.getSearch() + uri.getHash();
-	}
-
-	/**
 	 * Gets the update scroll position value.
 	 * @return {boolean}
 	 */
@@ -487,7 +477,7 @@ class App extends EventEmitter {
 	 */
 	handleNavigateError_(path, nextScreen, err) {
 		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
-		if (!this.isPathCurrentBrowserPath(path)) {
+		if (!utils.isCurrentBrowserPath(path)) {
 			this.removeScreen(path);
 		}
 	}
@@ -498,18 +488,6 @@ class App extends EventEmitter {
 	 */
 	hasRoutes() {
 		return this.routes.length > 0;
-	}
-
-	/**
-	 * Checks if path is the same as the browser current path.
-	 * @param  {!string} path
-	 * @return {boolean}
-	 */
-	isPathCurrentBrowserPath(path) {
-		if (path) {
-			return this.maybeRemovePathHashbang(path) === globals.window.location.pathname + globals.window.location.search;
-		}
-		return false;
 	}
 
 	/**
@@ -602,7 +580,7 @@ class App extends EventEmitter {
 
 		var navigateFailed = false;
 		try {
-			this.navigate(this.getPath(href));
+			this.navigate(utils.getUrlPath(href));
 		} catch (err) {
 			// Do not prevent link navigation in case some synchronous error occurs
 			navigateFailed = true;
@@ -611,19 +589,6 @@ class App extends EventEmitter {
 		if (!navigateFailed) {
 			event.preventDefault();
 		}
-	}
-
-	/**
-	 * Checks if path has hashbang, if so, removes it.
-	 * @param  {!string} path
-	 * @return {string} Path without hashbang.
-	 */
-	maybeRemovePathHashbang(path) {
-		var hashIndex = path.lastIndexOf('#');
-		if (hashIndex > -1) {
-			path = path.substr(0, hashIndex);
-		}
-		return path;
 	}
 
 	/**
@@ -763,7 +728,7 @@ class App extends EventEmitter {
 				// to a different url, reload the browser. This behavior doesn't
 				// require senna to route hashed links and is closer to native
 				// browser behavior.
-				if (this.redirectPath && !this.isPathCurrentBrowserPath(this.redirectPath)) {
+				if (this.redirectPath && !utils.isCurrentBrowserPath(this.redirectPath)) {
 					this.reloadPage();
 				}
 				// Always try to reposition scroll to the hashed anchor when

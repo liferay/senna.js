@@ -4,6 +4,7 @@ import { core } from 'metal';
 import Ajax from 'metal-ajax';
 import MultiMap from 'metal-multimap';
 import CancellablePromise from 'metal-promise';
+import utils from '../utils/utils';
 import globals from '../globals/globals';
 import Screen from './Screen';
 import Uri from 'metal-uri';
@@ -142,8 +143,7 @@ class RequestScreen extends Screen {
 	getRequestPath() {
 		var request = this.getRequest();
 		if (request) {
-			var uri = new Uri(request.responseURL);
-			return uri.getPathname() + uri.getSearch() + uri.getHash();
+			return utils.getUrlPath(request.responseURL);
 		}
 		return null;
 	}
