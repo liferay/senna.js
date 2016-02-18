@@ -51,6 +51,10 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 			return false;
 		};
 
+		utils.isHtml5HistorySupported = function isHtml5HistorySupported() {
+			return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
+		};
+
 		return utils;
 	}();
 

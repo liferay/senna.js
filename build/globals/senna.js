@@ -4592,6 +4592,7 @@ babelHelpers;
 		/**
    * Gets the current browser path including hashbang.
    * @return {!string}
+   * @static
    */
 
 		utils.getCurrentBrowserPath = function getCurrentBrowserPath() {
@@ -4601,6 +4602,7 @@ babelHelpers;
 		/**
    * Gets the current browser path excluding hashbang.
    * @return {!string}
+   * @static
    */
 
 
@@ -4611,6 +4613,7 @@ babelHelpers;
 		/**
    * Extracts the path part of an url.
    * @return {!string}
+   * @static
    */
 
 
@@ -4622,6 +4625,7 @@ babelHelpers;
 		/**
    * Extracts the path part of an url without hashbang.
    * @return {!string}
+   * @static
    */
 
 
@@ -4634,6 +4638,7 @@ babelHelpers;
    * Checks if url is in the same browser current url excluding the hashbang.
    * @param  {!string} url
    * @return {boolean}
+   * @static
    */
 
 
@@ -4642,6 +4647,17 @@ babelHelpers;
 				return utils.getUrlPathWithoutHash(url) === this.getCurrentBrowserPathWithoutHash();
 			}
 			return false;
+		};
+
+		/**
+   * Returns true if HTML5 History api is supported.
+   * @return {boolean}
+   * @static
+   */
+
+
+		utils.isHtml5HistorySupported = function isHtml5HistorySupported() {
+			return !!(globals.window.history && globals.window.history.pushState);
 		};
 
 		return utils;
@@ -6025,16 +6041,6 @@ babelHelpers;
 		};
 
 		/**
-   * Returns true if HTML5 History api is supported.
-   * @return {boolean}
-   */
-
-
-		App.prototype.isHtml5HistorySupported = function isHtml5HistorySupported() {
-			return globals.window.history && globals.window.history.pushState;
-		};
-
-		/**
    * Tests if hostname is an offsite link.
    * @param {!string} hostname Link hostname to compare with
    *     <code>globals.window.location.hostname</code>.
@@ -6173,7 +6179,7 @@ babelHelpers;
 
 
 		App.prototype.navigate = function navigate(path, opt_replaceHistory) {
-			if (!this.isHtml5HistorySupported()) {
+			if (!utils.isHtml5HistorySupported()) {
 				throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 			}
 

@@ -466,10 +466,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			return this.routes.length > 0;
 		};
 
-		App.prototype.isHtml5HistorySupported = function isHtml5HistorySupported() {
-			return _globals2.default.window.history && _globals2.default.window.history.pushState;
-		};
-
 		App.prototype.isLinkSameOrigin_ = function isLinkSameOrigin_(hostname) {
 			return hostname === _globals2.default.window.location.hostname;
 		};
@@ -552,7 +548,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		};
 
 		App.prototype.navigate = function navigate(path, opt_replaceHistory) {
-			if (!this.isHtml5HistorySupported()) {
+			if (!_utils2.default.isHtml5HistorySupported()) {
 				throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 			}
 
