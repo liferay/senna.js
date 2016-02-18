@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v1.0.0-alpha.3
+ * @version v1.0.0-alpha.4
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -122,6 +122,7 @@ babelHelpers;
    * TODO(*): Rethink superclass loop.
    */
 
+
 		core.collectSuperClassesProperty = function collectSuperClassesProperty(constructor, propertyName) {
 			var propertyValues = [constructor[propertyName]];
 			while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
@@ -138,6 +139,7 @@ babelHelpers;
    * @param {!function()} fn
    * @return {string}
    */
+
 
 		core.getFunctionName = function getFunctionName(fn) {
 			if (!fn.name) {
@@ -157,6 +159,7 @@ babelHelpers;
    * @throws {Error} when invoked to indicate the method should be overridden.
    */
 
+
 		core.getUid = function getUid(opt_object) {
 			if (opt_object) {
 				return opt_object[core.UID_PROPERTY] || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
@@ -170,6 +173,7 @@ babelHelpers;
    * @return {?} The first argument.
    */
 
+
 		core.identityFunction = function identityFunction(opt_returnValue) {
 			return opt_returnValue;
 		};
@@ -179,6 +183,7 @@ babelHelpers;
    * @param {?} val Variable to test.
    * @return {boolean} Whether variable is boolean.
    */
+
 
 		core.isBoolean = function isBoolean(val) {
 			return typeof val === 'boolean';
@@ -190,6 +195,7 @@ babelHelpers;
    * @return {boolean} Whether variable is defined.
    */
 
+
 		core.isDef = function isDef(val) {
 			return val !== undefined;
 		};
@@ -199,6 +205,7 @@ babelHelpers;
    * @param {*} val
    * @return {Boolean}
    */
+
 
 		core.isDefAndNotNull = function isDefAndNotNull(val) {
 			return core.isDef(val) && !core.isNull(val);
@@ -210,6 +217,7 @@ babelHelpers;
    * @return {Boolean}
    */
 
+
 		core.isDocument = function isDocument(val) {
 			return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 9;
 		};
@@ -219,6 +227,7 @@ babelHelpers;
    * @param {*} val
    * @return {Boolean}
    */
+
 
 		core.isElement = function isElement(val) {
 			return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
@@ -230,6 +239,7 @@ babelHelpers;
    * @return {boolean} Whether variable is a function.
    */
 
+
 		core.isFunction = function isFunction(val) {
 			return typeof val === 'function';
 		};
@@ -239,6 +249,7 @@ babelHelpers;
    * @param {*} val
    * @return {Boolean}
    */
+
 
 		core.isNull = function isNull(val) {
 			return val === null;
@@ -250,6 +261,7 @@ babelHelpers;
    * @return {boolean} Whether variable is a number.
    */
 
+
 		core.isNumber = function isNumber(val) {
 			return typeof val === 'number';
 		};
@@ -259,6 +271,7 @@ babelHelpers;
    * @param {*} val
    * @return {Boolean}
    */
+
 
 		core.isWindow = function isWindow(val) {
 			return val !== null && val === val.window;
@@ -271,6 +284,7 @@ babelHelpers;
    * @return {boolean} Whether variable is an object.
    */
 
+
 		core.isObject = function isObject(val) {
 			var type = typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val);
 			return type === 'object' && val !== null || type === 'function';
@@ -282,6 +296,7 @@ babelHelpers;
    * @return {Boolean}
    */
 
+
 		core.isPromise = function isPromise(val) {
 			return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
 		};
@@ -291,6 +306,7 @@ babelHelpers;
    * @param {*} val
    * @return {Boolean}
    */
+
 
 		core.isString = function isString(val) {
 			return typeof val === 'string';
@@ -308,6 +324,7 @@ babelHelpers;
    *   Should return the merged value to be stored on the current class.
    * @return {boolean} Returns true if merge happens, false otherwise.
    */
+
 
 		core.mergeSuperClassesProperty = function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
 			var mergedName = propertyName + '_MERGED';
@@ -328,6 +345,7 @@ babelHelpers;
    * @return {void} Nothing.
    */
 
+
 		core.nullFunction = function nullFunction() {};
 
 		return core;
@@ -338,6 +356,7 @@ babelHelpers;
   * @type {String}
   * @protected
   */
+
 
 	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
@@ -382,6 +401,7 @@ babelHelpers;
    * @return {*}
    */
 
+
 		array.firstDefinedValue = function firstDefinedValue(arr) {
 			for (var i = 0; i < arr.length; i++) {
 				if (arr[i] !== undefined) {
@@ -396,6 +416,7 @@ babelHelpers;
    * @param {Array.<*>} opt_output Optional output array.
    * @return {Array.<*>} Flat array.
    */
+
 
 		array.flatten = function flatten(arr, opt_output) {
 			var output = opt_output || [];
@@ -417,6 +438,7 @@ babelHelpers;
    * @template T
    */
 
+
 		array.remove = function remove(arr, obj) {
 			var i = arr.indexOf(obj);
 			var rv;
@@ -433,6 +455,7 @@ babelHelpers;
    * @return {boolean} True if an element was removed.
    */
 
+
 		array.removeAt = function removeAt(arr, i) {
 			return Array.prototype.splice.call(arr, i, 1).length === 1;
 		};
@@ -447,6 +470,7 @@ babelHelpers;
    *   start index will be included.
    * @return {!Array}
    */
+
 
 		array.slice = function slice(arr, start, opt_end) {
 			var sliced = [];
@@ -726,6 +750,7 @@ babelHelpers;
    * Disposes of this instance's object references. Calls `disposeInternal`.
    */
 
+
 		Disposable.prototype.dispose = function dispose() {
 			if (!this.disposed_) {
 				this.disposeInternal();
@@ -739,12 +764,14 @@ babelHelpers;
    * disposables).
    */
 
+
 		Disposable.prototype.disposeInternal = function disposeInternal() {};
 
 		/**
    * Checks if this instance has already been disposed.
    * @return {boolean}
    */
+
 
 		Disposable.prototype.isDisposed = function isDisposed() {
 			return this.disposed_;
@@ -791,6 +818,7 @@ babelHelpers;
    * @return {?} The value (object or primitive) or, if not found, null.
    */
 
+
 		object.getObjectByName = function getObjectByName(name, opt_obj) {
 			var parts = name.split('.');
 			var cur = opt_obj || window;
@@ -812,6 +840,7 @@ babelHelpers;
    * @param {!function(string, *)} fn
    * @return {!Object}
    */
+
 
 		object.map = function map(obj, fn) {
 			var mappedObj = {};
@@ -852,6 +881,7 @@ babelHelpers;
   * @return {string} A random string, e.g. sn1s7vb4gcic.
   */
 
+
 		string.getRandomString = function getRandomString() {
 			var x = 2147483648;
 			return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);
@@ -866,6 +896,7 @@ babelHelpers;
    * @param {String} val Target string.
    * @return {Number} Returns the string hashcode.
    */
+
 
 		string.hashCode = function hashCode(val) {
 			var hash = 0;
@@ -885,6 +916,7 @@ babelHelpers;
    * @param {string} value The value that replaces the specified interval.
    * @return {string}
    */
+
 
 		string.replaceInterval = function replaceInterval(str, start, end, value) {
 			return str.substring(0, start) + value + str.substring(end);
@@ -937,6 +969,7 @@ babelHelpers;
 		function EventHandle(emitter, event, listener) {
 			babelHelpers.classCallCheck(this, EventHandle);
 
+
 			/**
     * The EventEmitter instance that the event was subscribed to.
     * @type {EventEmitter}
@@ -968,6 +1001,7 @@ babelHelpers;
    * @override
    */
 
+
 		EventHandle.prototype.disposeInternal = function disposeInternal() {
 			this.removeListener();
 			this.emitter_ = null;
@@ -977,6 +1011,7 @@ babelHelpers;
 		/**
    * Removes the listener subscription from the emitter.
    */
+
 
 		EventHandle.prototype.removeListener = function removeListener() {
 			if (!this.emitter_.isDisposed()) {
@@ -1009,6 +1044,7 @@ babelHelpers;
 
 		function EventEmitter() {
 			babelHelpers.classCallCheck(this, EventEmitter);
+
 
 			/**
     * Holds event listeners scoped by event type.
@@ -1049,6 +1085,7 @@ babelHelpers;
    * @return {!EventHandle} Can be used to remove the listener.
    */
 
+
 		EventEmitter.prototype.addListener = function addListener(events, listener, opt_default) {
 			this.validateListener_(listener);
 
@@ -1072,6 +1109,7 @@ babelHelpers;
    *   listener, if there is any.
    * @protected
    */
+
 
 		EventEmitter.prototype.addSingleListener_ = function addSingleListener_(event, listener, opt_default, opt_origin) {
 			this.emit('newListener', event, listener);
@@ -1097,6 +1135,7 @@ babelHelpers;
    * @override
    */
 
+
 		EventEmitter.prototype.disposeInternal = function disposeInternal() {
 			this.events_ = [];
 		};
@@ -1107,6 +1146,7 @@ babelHelpers;
    * @param {*} opt_args [arg1], [arg2], [...]
    * @return {boolean} Returns true if event had listeners, false otherwise.
    */
+
 
 		EventEmitter.prototype.emit = function emit(event) {
 			var args = array.slice(arguments, 1);
@@ -1152,6 +1192,7 @@ babelHelpers;
    * @return {boolean}
    */
 
+
 		EventEmitter.prototype.getShouldUseFacade = function getShouldUseFacade() {
 			return this.shouldUseFacade_;
 		};
@@ -1161,6 +1202,7 @@ babelHelpers;
    * @param {string} event
    * @return {Array} Array of listeners.
    */
+
 
 		EventEmitter.prototype.listeners = function listeners(event) {
 			return (this.events_[event] || []).map(function (listener) {
@@ -1178,6 +1220,7 @@ babelHelpers;
    * @param {!Function} listener
    * @return {!EventHandle} Can be used to remove the listener.
    */
+
 
 		EventEmitter.prototype.many = function many(events, amount, listener) {
 			events = this.normalizeEvents_(events);
@@ -1198,6 +1241,7 @@ babelHelpers;
    * @param {!Function} listener
    * @protected
    */
+
 
 		EventEmitter.prototype.many_ = function many_(event, amount, listener) {
 			var self = this;
@@ -1225,6 +1269,7 @@ babelHelpers;
    * @protected
    */
 
+
 		EventEmitter.prototype.matchesListener_ = function matchesListener_(listenerObj, listener) {
 			return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
 		};
@@ -1235,6 +1280,7 @@ babelHelpers;
    * @return {!Array}
    * @protected
    */
+
 
 		EventEmitter.prototype.normalizeEvents_ = function normalizeEvents_(events) {
 			return core.isString(events) ? [events] : events;
@@ -1247,6 +1293,7 @@ babelHelpers;
    * @param {!Function} listener
    * @return {!Object} Returns emitter, so calls can be chained.
    */
+
 
 		EventEmitter.prototype.off = function off(events, listener) {
 			this.validateListener_(listener);
@@ -1267,6 +1314,7 @@ babelHelpers;
    * @return {!EventHandle} Can be used to remove the listener.
    */
 
+
 		EventEmitter.prototype.on = function on() {
 			return this.addListener.apply(this, arguments);
 		};
@@ -1279,6 +1327,7 @@ babelHelpers;
    * @return {!EventHandle} Can be used to remove the listener.
    */
 
+
 		EventEmitter.prototype.once = function once(events, listener) {
 			return this.many(events, 1, listener);
 		};
@@ -1290,6 +1339,7 @@ babelHelpers;
    * @param {(Array|string)=} opt_events
    * @return {!Object} Returns emitter, so calls can be chained.
    */
+
 
 		EventEmitter.prototype.removeAllListeners = function removeAllListeners(opt_events) {
 			if (opt_events) {
@@ -1311,6 +1361,7 @@ babelHelpers;
    * @protected
    */
 
+
 		EventEmitter.prototype.removeMatchingListenerObjs_ = function removeMatchingListenerObjs_(listenerObjs, listener) {
 			for (var i = listenerObjs.length - 1; i >= 0; i--) {
 				if (this.matchesListener_(listenerObjs[i], listener)) {
@@ -1327,6 +1378,7 @@ babelHelpers;
    * @return {!Object} Returns emitter, so calls can be chained.
    */
 
+
 		EventEmitter.prototype.removeListener = function removeListener() {
 			return this.off.apply(this, arguments);
 		};
@@ -1339,6 +1391,7 @@ babelHelpers;
    * @param {number} max The maximum number of listeners.
    * @return {!Object} Returns emitter, so calls can be chained.
    */
+
 
 		EventEmitter.prototype.setMaxListeners = function setMaxListeners(max) {
 			this.maxListeners_ = max;
@@ -1353,6 +1406,7 @@ babelHelpers;
    * @return {!Object} Returns emitter, so calls can be chained.
    */
 
+
 		EventEmitter.prototype.setShouldUseFacade = function setShouldUseFacade(shouldUseFacade) {
 			this.shouldUseFacade_ = shouldUseFacade;
 			return this;
@@ -1363,6 +1417,7 @@ babelHelpers;
    * @param  {*} listener
    * @protected
    */
+
 
 		EventEmitter.prototype.validateListener_ = function validateListener_(listener) {
 			if (!core.isFunction(listener)) {
@@ -1402,6 +1457,7 @@ babelHelpers;
 
 		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
 			babelHelpers.classCallCheck(this, EventEmitterProxy);
+
 
 			/**
     * Map of events that should not be proxied.
@@ -1453,6 +1509,7 @@ babelHelpers;
    * @protected
    */
 
+
 		EventEmitterProxy.prototype.addListener_ = function addListener_(event) {
 			this.originEmitter_.on(event, this.proxiedEvents_[event]);
 		};
@@ -1460,6 +1517,7 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
+
 
 		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
 			object.map(this.proxiedEvents_, this.removeListener_.bind(this));
@@ -1472,6 +1530,7 @@ babelHelpers;
    * Proxies the given event from the origin to the target emitter.
    * @param {string} event
    */
+
 
 		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
 			if (!this.shouldProxyEvent_(event)) {
@@ -1493,6 +1552,7 @@ babelHelpers;
    * @protected
    */
 
+
 		EventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
 			this.originEmitter_.removeListener(event, this.proxiedEvents_[event]);
 		};
@@ -1503,6 +1563,7 @@ babelHelpers;
    * @return {boolean}
    * @protected
    */
+
 
 		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
 			if (this.whitelist_ && !this.whitelist_[event]) {
@@ -1518,6 +1579,7 @@ babelHelpers;
    * Starts proxying all events from the origin to the target emitter.
    * @protected
    */
+
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
 			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
@@ -1547,6 +1609,7 @@ babelHelpers;
 		function EventHandler() {
 			babelHelpers.classCallCheck(this, EventHandler);
 
+
 			/**
     * An array that holds the added event handles, so the listeners can be
     * removed later.
@@ -1566,6 +1629,7 @@ babelHelpers;
    * @param {...(!EventHandle)} var_args
    */
 
+
 		EventHandler.prototype.add = function add() {
 			for (var i = 0; i < arguments.length; i++) {
 				this.eventHandles_.push(arguments[i]);
@@ -1577,6 +1641,7 @@ babelHelpers;
    * @override
    */
 
+
 		EventHandler.prototype.disposeInternal = function disposeInternal() {
 			this.eventHandles_ = null;
 		};
@@ -1584,6 +1649,7 @@ babelHelpers;
 		/**
    * Removes all listeners that have been added through the `add` method.
    */
+
 
 		EventHandler.prototype.removeAllListeners = function removeAllListeners() {
 			for (var i = 0; i < this.eventHandles_.length; i++) {
@@ -1650,6 +1716,7 @@ babelHelpers;
    * @inheritDoc
    */
 
+
 		DomEventHandle.prototype.removeListener = function removeListener() {
 			this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
 		};
@@ -1697,6 +1764,7 @@ babelHelpers;
    * @protected
    */
 
+
 		dom.addClassesWithNative_ = function addClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
 				element.classList.add(className);
@@ -1709,6 +1777,7 @@ babelHelpers;
    * @param {string} classes CSS classes to add.
    * @protected
    */
+
 
 		dom.addClassesWithoutNative_ = function addClassesWithoutNative_(element, classes) {
 			var elementClassName = ' ' + element.className + ' ';
@@ -1738,6 +1807,7 @@ babelHelpers;
    * @return {!Element} The appended child.
    */
 
+
 		dom.append = function append(parent, child) {
 			if (core.isString(child)) {
 				child = dom.buildFragment(child);
@@ -1759,6 +1829,7 @@ babelHelpers;
    * @return {!Element} The resulting document fragment.
    */
 
+
 		dom.buildFragment = function buildFragment(htmlString) {
 			var tempDiv = document.createElement('div');
 			tempDiv.innerHTML = '<br>' + htmlString;
@@ -1777,6 +1848,7 @@ babelHelpers;
    * @param {!Element} element2
    * @return {boolean}
    */
+
 
 		dom.contains = function contains(element1, element2) {
 			if (core.isDocument(element1)) {
@@ -1800,6 +1872,7 @@ babelHelpers;
    * @return {!DomEventHandle} Can be used to remove the listener.
    */
 
+
 		dom.delegate = function delegate(element, eventName, selector, callback) {
 			var customConfig = dom.customEvents[eventName];
 			if (customConfig && customConfig.delegate) {
@@ -1814,6 +1887,7 @@ babelHelpers;
    * @param {Element} node Element to remove children from.
    */
 
+
 		dom.enterDocument = function enterDocument(node) {
 			dom.append(document.body, node);
 		};
@@ -1822,6 +1896,7 @@ babelHelpers;
    * Removes node from document.
    * @param {Element} node Element to remove children from.
    */
+
 
 		dom.exitDocument = function exitDocument(node) {
 			if (node.parentNode) {
@@ -1840,6 +1915,7 @@ babelHelpers;
    * @return {boolean} False if at least one of the triggered callbacks returns
    *   false, or true otherwise.
    */
+
 
 		dom.handleDelegateEvent_ = function handleDelegateEvent_(selector, callback, event) {
 			dom.normalizeDelegateEvent_(event);
@@ -1869,6 +1945,7 @@ babelHelpers;
    * @return {boolean}
    */
 
+
 		dom.hasClass = function hasClass(element, className) {
 			if ('classList' in element) {
 				return dom.hasClassWithNative_(element, className);
@@ -1885,6 +1962,7 @@ babelHelpers;
    * @protected
    */
 
+
 		dom.hasClassWithNative_ = function hasClassWithNative_(element, className) {
 			return element.classList.contains(className);
 		};
@@ -1897,6 +1975,7 @@ babelHelpers;
    * @protected
    */
 
+
 		dom.hasClassWithoutNative_ = function hasClassWithoutNative_(element, className) {
 			return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0;
 		};
@@ -1906,6 +1985,7 @@ babelHelpers;
    * @param {!Element} element
    * @return {boolean}
    */
+
 
 		dom.isEmpty = function isEmpty(element) {
 			return element.childNodes.length === 0;
@@ -1917,6 +1997,7 @@ babelHelpers;
    * @param {string} selector
    * @return {boolean}
    */
+
 
 		dom.match = function match(element, selector) {
 			if (!element || element.nodeType !== 1) {
@@ -1941,6 +2022,7 @@ babelHelpers;
    * @protected
    */
 
+
 		dom.matchFallback_ = function matchFallback_(element, selector) {
 			var nodes = document.querySelectorAll(selector, element.parentNode);
 			for (var i = 0; i < nodes.length; ++i) {
@@ -1958,6 +2040,7 @@ babelHelpers;
    * @param {?string} selector
    */
 
+
 		dom.next = function next(element, selector) {
 			do {
 				element = element.nextSibling;
@@ -1972,6 +2055,7 @@ babelHelpers;
    * Normalizes the event payload for delegate listeners.
    * @param {!Event} event
    */
+
 
 		dom.normalizeDelegateEvent_ = function normalizeDelegateEvent_(event) {
 			event.stopPropagation = dom.stopPropagation_;
@@ -1991,6 +2075,7 @@ babelHelpers;
    *   during capture phase, instead of during the bubbling phase. Defaults to false.
    * @return {!DomEventHandle} Can be used to remove the listener.
    */
+
 
 		dom.on = function on(element, eventName, callback, opt_capture) {
 			if (core.isString(element)) {
@@ -2016,6 +2101,7 @@ babelHelpers;
    * @return {!DomEventHandle} Can be used to remove the listener.
    */
 
+
 		dom.once = function once(element, eventName, callback) {
 			var domEventHandle = this.on(element, eventName, function () {
 				domEventHandle.removeListener();
@@ -2031,6 +2117,7 @@ babelHelpers;
    *   should be handled.
    */
 
+
 		dom.registerCustomEvent = function registerCustomEvent(eventName, customConfig) {
 			dom.customEvents[eventName] = customConfig;
 		};
@@ -2039,6 +2126,7 @@ babelHelpers;
    * Removes all the child nodes on a DOM node.
    * @param {Element} node Element to remove children from.
    */
+
 
 		dom.removeChildren = function removeChildren(node) {
 			var child;
@@ -2052,6 +2140,7 @@ babelHelpers;
    * @param {!Element} element The element to remove CSS classes from.
    * @param {string} classes CSS classes to remove.
    */
+
 
 		dom.removeClasses = function removeClasses(element, classes) {
 			if (!core.isObject(element) || !core.isString(classes)) {
@@ -2072,6 +2161,7 @@ babelHelpers;
    * @protected
    */
 
+
 		dom.removeClassesWithNative_ = function removeClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
 				element.classList.remove(className);
@@ -2084,6 +2174,7 @@ babelHelpers;
    * @param {string} classes CSS classes to remove.
    * @protected
    */
+
 
 		dom.removeClassesWithoutNative_ = function removeClassesWithoutNative_(element, classes) {
 			var elementClassName = ' ' + element.className + ' ';
@@ -2103,6 +2194,7 @@ babelHelpers;
    * @param {Element} element2
    */
 
+
 		dom.replace = function replace(element1, element2) {
 			if (element1 && element2 && element1 !== element2 && element1.parentNode) {
 				element1.parentNode.insertBefore(element2, element1);
@@ -2115,6 +2207,7 @@ babelHelpers;
    * @protected
    */
 
+
 		dom.stopImmediatePropagation_ = function stopImmediatePropagation_() {
 			this.stopped = true;
 			Event.prototype.stopImmediatePropagation.call(this);
@@ -2124,6 +2217,7 @@ babelHelpers;
    * The function that replaces `stopPropagation` for events.
    * @protected
    */
+
 
 		dom.stopPropagation_ = function stopPropagation_() {
 			this.stopped = true;
@@ -2136,6 +2230,7 @@ babelHelpers;
    * @param {string} eventName The name of the event to check.
    * @return {boolean}
    */
+
 
 		dom.supportsEvent = function supportsEvent(element, eventName) {
 			if (dom.customEvents[eventName]) {
@@ -2159,6 +2254,7 @@ babelHelpers;
    * @return {Element} The converted element, or null if none was found.
    */
 
+
 		dom.toElement = function toElement(selectorOrElement) {
 			if (core.isElement(selectorOrElement) || core.isDocument(selectorOrElement)) {
 				return selectorOrElement;
@@ -2180,6 +2276,7 @@ babelHelpers;
    * @param {string} classes The classes which have to added or removed from the element.
    */
 
+
 		dom.toggleClasses = function toggleClasses(element, classes) {
 			if (!core.isObject(element) || !core.isString(classes)) {
 				return;
@@ -2200,6 +2297,7 @@ babelHelpers;
    * @param {string} classes The classes which have to added or removed from the element.
    */
 
+
 		dom.toggleClassesWithNative_ = function toggleClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
 				element.classList.toggle(className);
@@ -2213,6 +2311,7 @@ babelHelpers;
    * @param {!Element} element The element which classes will be toggled.
    * @param {string} classes The classes which have to added or removed from the element.
    */
+
 
 		dom.toggleClassesWithoutNative_ = function toggleClassesWithoutNative_(element, classes) {
 			var elementClassName = ' ' + element.className + ' ';
@@ -2241,6 +2340,7 @@ babelHelpers;
    * @param {Object=} opt_eventObj An object with data that should be on the
    *   triggered event's payload.
    */
+
 
 		dom.triggerEvent = function triggerEvent(element, eventName, opt_eventObj) {
 			var eventObj = document.createEvent('HTMLEvents');
@@ -2299,6 +2399,7 @@ babelHelpers;
    * @override
    */
 
+
 		DomEventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
 			if (this.originEmitter_.removeEventListener) {
 				this.originEmitter_.removeEventListener(event, this.proxiedEvents_[event]);
@@ -2314,6 +2415,7 @@ babelHelpers;
    * @protected
    * @override
    */
+
 
 		DomEventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
 			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || dom.supportsEvent(this.originEmitter_, event));
@@ -2363,6 +2465,7 @@ babelHelpers;
    * @return {string} Browser event name.
    */
 
+
 		features.checkAnimationEventName_ = function checkAnimationEventName_(type) {
 			var prefixes = ['Webkit', 'MS', 'O', ''];
 			var typeTitleCase = string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
@@ -2381,6 +2484,7 @@ babelHelpers;
    * the current browser.
    * @return {boolean}
    */
+
 
 		features.checkAttrOrderChange = function checkAttrOrderChange() {
 			if (features.attrOrderChange_ === undefined) {
@@ -2446,6 +2550,7 @@ babelHelpers;
    * @return {Element} script
    */
 
+
 		globalEval.runFile = function runFile(src, opt_callback, opt_appendFn) {
 			var script = document.createElement('script');
 			script.src = src;
@@ -2476,6 +2581,7 @@ babelHelpers;
    * @return {Element} script
    */
 
+
 		globalEval.runScript = function runScript(script, opt_callback, opt_appendFn) {
 			var callback = function callback() {
 				opt_callback && opt_callback();
@@ -2502,6 +2608,7 @@ babelHelpers;
    *   into document.
    */
 
+
 		globalEval.runScriptsInElement = function runScriptsInElement(element, opt_callback, opt_appendFn) {
 			var scripts = element.querySelectorAll('script');
 			if (scripts.length) {
@@ -2520,6 +2627,7 @@ babelHelpers;
    * @param {function()=} opt_appendFn Optional function to append the node
    *   into document.
    */
+
 
 		globalEval.runScriptsInOrder = function runScriptsInOrder(scripts, index, opt_callback, opt_appendFn) {
 			globalEval.runScript(scripts.item(index), function () {
@@ -2580,6 +2688,7 @@ babelHelpers;
    * @return {Element} style
    */
 
+
 		globalEvalStyles.runFile = function runFile(href, opt_callback, opt_appendFn) {
 			var link = document.createElement('link');
 			link.rel = 'stylesheet';
@@ -2597,6 +2706,7 @@ babelHelpers;
    *   into document.
    *  @return {Element} style
    */
+
 
 		globalEvalStyles.runStyle = function runStyle(style, opt_callback, opt_appendFn) {
 			var callback = function callback() {
@@ -2632,6 +2742,7 @@ babelHelpers;
    *   into document.
    */
 
+
 		globalEvalStyles.runStylesInElement = function runStylesInElement(element, opt_callback, opt_appendFn) {
 			var styles = element.querySelectorAll('style,link');
 			if (styles.length === 0 && opt_callback) {
@@ -2660,6 +2771,7 @@ babelHelpers;
 (function () {
 	var dom = this.senna.dom;
 	var features = this.senna.features;
+
 
 	var mouseEventMap = {
 		mouseenter: 'mouseover',
@@ -3693,6 +3805,7 @@ babelHelpers;
    * @return {!Function}
    */
 
+
 		Route.prototype.getHandler = function getHandler() {
 			return this.handler;
 		};
@@ -3701,6 +3814,7 @@ babelHelpers;
    * Gets the route path.
    * @return {!string|RegExp|Function}
    */
+
 
 		Route.prototype.getPath = function getPath() {
 			return this.path;
@@ -3712,6 +3826,7 @@ babelHelpers;
    *     part.
    * @return {Boolean} Returns true if matches any route.
    */
+
 
 		Route.prototype.matchesPath = function matchesPath(value) {
 			var path = this.path;
@@ -3742,6 +3857,7 @@ babelHelpers;
 	var Cacheable = function (_Disposable) {
 		babelHelpers.inherits(Cacheable, _Disposable);
 
+
 		/**
    * Abstract class for defining cacheable behavior.
    * @constructor
@@ -3749,6 +3865,7 @@ babelHelpers;
 
 		function Cacheable() {
 			babelHelpers.classCallCheck(this, Cacheable);
+
 
 			/**
     * Holds the cached data.
@@ -3777,6 +3894,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Cacheable.prototype.addCache = function addCache(content) {
 			if (this.cacheable) {
 				this.cache = content;
@@ -3789,6 +3907,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Cacheable.prototype.clearCache = function clearCache() {
 			this.cache = null;
 			return this;
@@ -3798,6 +3917,7 @@ babelHelpers;
    * Disposes of this instance's object references.
    * @override
    */
+
 
 		Cacheable.prototype.disposeInternal = function disposeInternal() {
 			this.clearCache();
@@ -3809,6 +3929,7 @@ babelHelpers;
    * @protected
    */
 
+
 		Cacheable.prototype.getCache = function getCache() {
 			return this.cache;
 		};
@@ -3818,6 +3939,7 @@ babelHelpers;
    * @return {boolean} Returns true when class is cacheable, false otherwise.
    */
 
+
 		Cacheable.prototype.isCacheable = function isCacheable() {
 			return this.cacheable;
 		};
@@ -3826,6 +3948,7 @@ babelHelpers;
    * Sets whether the class is cacheable.
    * @param {boolean} cacheable
    */
+
 
 		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
 			if (!cacheable) {
@@ -3851,6 +3974,7 @@ babelHelpers;
 	var Screen = function (_Cacheable) {
 		babelHelpers.inherits(Screen, _Cacheable);
 
+
 		/**
    * Screen class is a special type of route handler that provides helper
    * utilities that adds lifecycle and methods to provide content to each
@@ -3861,6 +3985,7 @@ babelHelpers;
 
 		function Screen() {
 			babelHelpers.classCallCheck(this, Screen);
+
 
 			/**
     * Holds the screen id.
@@ -3888,6 +4013,7 @@ babelHelpers;
    * that requires its DOM to be visible. Lifecycle.
    */
 
+
 		Screen.prototype.activate = function activate() {
 			console.log('Screen [' + this + '] activate');
 		};
@@ -3901,6 +4027,7 @@ babelHelpers;
    *     next nagivation interrupted.
    */
 
+
 		Screen.prototype.beforeDeactivate = function beforeDeactivate() {
 			console.log('Screen [' + this + '] beforeDeactivate');
 		};
@@ -3910,6 +4037,7 @@ babelHelpers;
    * @path {!string} path Navigation path.
    * @return {!string} Navigation path to use on history.
    */
+
 
 		Screen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
 			return path;
@@ -3921,6 +4049,7 @@ babelHelpers;
    * @return {!object} History state to use on history.
    */
 
+
 		Screen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
 			return state;
 		};
@@ -3931,6 +4060,7 @@ babelHelpers;
    * timers. Lifecycle.
    */
 
+
 		Screen.prototype.deactivate = function deactivate() {
 			console.log('Screen [' + this + '] deactivate');
 		};
@@ -3940,6 +4070,7 @@ babelHelpers;
    * non-cacheable view) or when the App is itself disposed for whatever
    * reason. Lifecycle.
    */
+
 
 		Screen.prototype.disposeInternal = function disposeInternal() {
 			_Cacheable.prototype.disposeInternal.call(this);
@@ -3953,6 +4084,7 @@ babelHelpers;
    * @return {?CancellablePromise=} This can return a promise, which will
    *     pause the navigation until it is resolved.
    */
+
 
 		Screen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
 			Object.keys(surfaces).forEach(function (sId) {
@@ -3971,6 +4103,7 @@ babelHelpers;
    *     pause the navigation until it is resolved.
    */
 
+
 		Screen.prototype.evaluateStyles = function evaluateStyles() {
 			return CancellablePromise.resolve();
 		};
@@ -3982,6 +4115,7 @@ babelHelpers;
    * @return {?CancellablePromise=} This can return a promise, which will pause the
    *     navigation until it is resolved.
    */
+
 
 		Screen.prototype.flip = function flip(surfaces) {
 			var _this2 = this;
@@ -4004,6 +4138,7 @@ babelHelpers;
    * @return {string}
    */
 
+
 		Screen.prototype.getId = function getId() {
 			return this.id;
 		};
@@ -4018,6 +4153,7 @@ babelHelpers;
    *     content is restored.
    */
 
+
 		Screen.prototype.getSurfaceContent = function getSurfaceContent() {
 			console.log('Screen [' + this + '] getSurfaceContent');
 		};
@@ -4026,6 +4162,7 @@ babelHelpers;
    * Gets the screen title.
    * @return {?string=}
    */
+
 
 		Screen.prototype.getTitle = function getTitle() {
 			return this.title;
@@ -4041,6 +4178,7 @@ babelHelpers;
    *     until it is resolved. This is useful for loading async content.
    */
 
+
 		Screen.prototype.load = function load() {
 			console.log('Screen [' + this + '] load');
 			return CancellablePromise.resolve();
@@ -4053,6 +4191,7 @@ babelHelpers;
    * @private
    */
 
+
 		Screen.prototype.makeId_ = function makeId_(id) {
 			return 'screen_' + id;
 		};
@@ -4061,6 +4200,7 @@ babelHelpers;
    * Sets the screen id.
    * @param {!string} id
    */
+
 
 		Screen.prototype.setId = function setId(id) {
 			this.id = id;
@@ -4071,6 +4211,7 @@ babelHelpers;
    * @param {?string=} title
    */
 
+
 		Screen.prototype.setTitle = function setTitle(title) {
 			this.title = title;
 		};
@@ -4078,6 +4219,7 @@ babelHelpers;
 		/**
    * @return {string}
    */
+
 
 		Screen.prototype.toString = function toString() {
 			return this.id;
@@ -4091,6 +4233,7 @@ babelHelpers;
   * @return {boolean} Whether a given instance implements
   * <code>Screen</code>.
   */
+
 
 	Screen.prototype.registerMetalComponent && Screen.prototype.registerMetalComponent(Screen, 'Screen')
 	Screen.isImplementedBy = function (object) {
@@ -4110,6 +4253,7 @@ babelHelpers;
 
 	var Surface = function (_Disposable) {
 		babelHelpers.inherits(Surface, _Disposable);
+
 
 		/**
    * Surface class representing the references to elements on the page that
@@ -4185,6 +4329,7 @@ babelHelpers;
    * @return {Element}
    */
 
+
 		Surface.prototype.addContent = function addContent(screenId, opt_content) {
 			var child = this.defaultChild;
 
@@ -4214,6 +4359,7 @@ babelHelpers;
    * @return {Element}
    */
 
+
 		Surface.prototype.createChild = function createChild(screenId) {
 			var child = globals.document.createElement('div');
 			child.setAttribute('id', this.makeId_(screenId));
@@ -4226,6 +4372,7 @@ babelHelpers;
    * @return {?Element}
    */
 
+
 		Surface.prototype.getChild = function getChild(screenId) {
 			return globals.document.getElementById(this.makeId_(screenId));
 		};
@@ -4236,6 +4383,7 @@ babelHelpers;
    * <code>this.element</code> will be used.
    * @return {?Element} The current surface element.
    */
+
 
 		Surface.prototype.getElement = function getElement() {
 			if (this.element) {
@@ -4250,6 +4398,7 @@ babelHelpers;
    * @return {String}
    */
 
+
 		Surface.prototype.getId = function getId() {
 			return this.id;
 		};
@@ -4259,6 +4408,7 @@ babelHelpers;
    * See <code>Surface.defaultTransition</code>.
    * @return {?Function=} The transition function.
    */
+
 
 		Surface.prototype.getTransitionFn = function getTransitionFn() {
 			return this.transitionFn;
@@ -4271,6 +4421,7 @@ babelHelpers;
    * @private
    */
 
+
 		Surface.prototype.makeId_ = function makeId_(screenId) {
 			return this.id + '-' + screenId;
 		};
@@ -4281,6 +4432,7 @@ babelHelpers;
    * <code>surfaceId-default</code> element inside surface, only contents
    * inside the default child will be replaced by navigation.
    */
+
 
 		Surface.prototype.maybeWrapContentAsDefault_ = function maybeWrapContentAsDefault_() {
 			var element = this.getElement();
@@ -4299,6 +4451,7 @@ babelHelpers;
    * @param {!string} id
    */
 
+
 		Surface.prototype.setId = function setId(id) {
 			this.id = id;
 		};
@@ -4309,6 +4462,7 @@ babelHelpers;
    * @param {?Function=} transitionFn The transition function.
    */
 
+
 		Surface.prototype.setTransitionFn = function setTransitionFn(transitionFn) {
 			this.transitionFn = transitionFn;
 		};
@@ -4318,6 +4472,7 @@ babelHelpers;
    * @param {String} screenId The screen id to show.
    * @return {CancellablePromise} Pauses the navigation until it is resolved.
    */
+
 
 		Surface.prototype.show = function show(screenId) {
 			var from = this.activeChild;
@@ -4338,6 +4493,7 @@ babelHelpers;
    * @param {!string} screenId The screen id to remove.
    */
 
+
 		Surface.prototype.remove = function remove(screenId) {
 			var child = this.getChild(screenId);
 			if (child) {
@@ -4348,6 +4504,7 @@ babelHelpers;
 		/**
    * @return {String}
    */
+
 
 		Surface.prototype.toString = function toString() {
 			return this.id;
@@ -4360,6 +4517,7 @@ babelHelpers;
    * @return {?CancellablePromise=} This can return a promise, which will pause the
    *     navigation until it is resolved.
    */
+
 
 		Surface.prototype.transition = function transition(from, to) {
 			var transitionFn = this.transitionFn || Surface.defaultTransition;
@@ -4388,6 +4546,7 @@ babelHelpers;
     * @default default
     * @static
     */
+
 
 	Surface.prototype.registerMetalComponent && Surface.prototype.registerMetalComponent(Surface, 'Surface')
 	Surface.DEFAULT = 'default';
@@ -4482,6 +4641,12 @@ babelHelpers;
 	var Disposable = this.sennaNamed.metal.Disposable;
 
 	/**
+  * A cached reference to the create function.
+  */
+
+	var create = Object.create;
+
+	/**
   * Case insensitive string Multimap implementation. Allows multiple values for
   * the same key name.
   * @extends {Disposable}
@@ -4495,8 +4660,8 @@ babelHelpers;
 
 			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
 
-			_this.keys = {};
-			_this.values = {};
+			_this.keys = create(null);
+			_this.values = create(null);
 			return _this;
 		}
 
@@ -4506,6 +4671,7 @@ babelHelpers;
    * @param {*} value
    * @chainable
    */
+
 
 		MultiMap.prototype.add = function add(name, value) {
 			this.keys[name.toLowerCase()] = name;
@@ -4519,9 +4685,10 @@ babelHelpers;
    * @chainable
    */
 
+
 		MultiMap.prototype.clear = function clear() {
-			this.keys = {};
-			this.values = {};
+			this.keys = create(null);
+			this.values = create(null);
 			return this;
 		};
 
@@ -4532,6 +4699,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		MultiMap.prototype.contains = function contains(name) {
 			return name.toLowerCase() in this.values;
 		};
@@ -4539,6 +4707,7 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
+
 
 		MultiMap.prototype.disposeInternal = function disposeInternal() {
 			this.values = null;
@@ -4550,6 +4719,7 @@ babelHelpers;
    * @return {*}
    * @chainable
    */
+
 
 		MultiMap.prototype.get = function get(name) {
 			var values = this.values[name.toLowerCase()];
@@ -4564,6 +4734,7 @@ babelHelpers;
    * @return {Array.<*>}
    */
 
+
 		MultiMap.prototype.getAll = function getAll(name) {
 			return this.values[name.toLowerCase()];
 		};
@@ -4573,6 +4744,7 @@ babelHelpers;
    * @return {boolean}
    */
 
+
 		MultiMap.prototype.isEmpty = function isEmpty() {
 			return this.size() === 0;
 		};
@@ -4581,6 +4753,7 @@ babelHelpers;
    * Gets array of key names.
    * @return {Array.<string>}
    */
+
 
 		MultiMap.prototype.names = function names() {
 			var _this2 = this;
@@ -4596,6 +4769,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		MultiMap.prototype.remove = function remove(name) {
 			delete this.keys[name.toLowerCase()];
 			delete this.values[name.toLowerCase()];
@@ -4610,6 +4784,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		MultiMap.prototype.set = function set(name, value) {
 			this.keys[name.toLowerCase()] = name;
 			this.values[name.toLowerCase()] = [value];
@@ -4621,6 +4796,7 @@ babelHelpers;
    * @return {number}
    */
 
+
 		MultiMap.prototype.size = function size() {
 			return this.names().length;
 		};
@@ -4629,6 +4805,7 @@ babelHelpers;
    * Returns the parsed values as a string.
    * @return {string}
    */
+
 
 		MultiMap.prototype.toString = function toString() {
 			return JSON.stringify(this.values);
@@ -4647,6 +4824,7 @@ babelHelpers;
 	var string = this.sennaNamed.metal.string;
 	var parse = this.senna.parse;
 	var MultiMap = this.senna.MultiMap;
+
 
 	var parseFn_ = parse;
 
@@ -4683,6 +4861,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.addParametersFromMultiMap = function addParametersFromMultiMap(multimap) {
 			var _this = this;
 
@@ -4701,6 +4880,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
 			this.ensureQueryInitialized_();
 			if (core.isDef(value)) {
@@ -4717,6 +4897,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.addParameterValues = function addParameterValues(name, values) {
 			var _this2 = this;
 
@@ -4731,6 +4912,7 @@ babelHelpers;
    * extracted from URI search part.
    * @protected
    */
+
 
 		Uri.prototype.ensureQueryInitialized_ = function ensureQueryInitialized_() {
 			var _this3 = this;
@@ -4762,6 +4944,7 @@ babelHelpers;
    * @return {string}
    */
 
+
 		Uri.prototype.getHash = function getHash() {
 			return this.url.hash || '';
 		};
@@ -4770,6 +4953,7 @@ babelHelpers;
    * Gets the host part of uri. E.g. <code>[hostname]:[port]</code>.
    * @return {string}
    */
+
 
 		Uri.prototype.getHost = function getHost() {
 			var host = this.getHostname();
@@ -4787,6 +4971,7 @@ babelHelpers;
    * @return {string}
    */
 
+
 		Uri.prototype.getHostname = function getHostname() {
 			var hostname = this.url.hostname;
 			if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
@@ -4799,6 +4984,7 @@ babelHelpers;
    * Gets the origin part of uri. E.g. <code>http://[hostname]:[port]</code>.
    * @return {string}
    */
+
 
 		Uri.prototype.getOrigin = function getOrigin() {
 			var host = this.getHost();
@@ -4817,6 +5003,7 @@ babelHelpers;
    *   string.
    */
 
+
 		Uri.prototype.getParameterValue = function getParameterValue(name) {
 			this.ensureQueryInitialized_();
 			return this.query.get(name);
@@ -4830,6 +5017,7 @@ babelHelpers;
    *   query parameter values.
    */
 
+
 		Uri.prototype.getParameterValues = function getParameterValues(name) {
 			this.ensureQueryInitialized_();
 			return this.query.getAll(name);
@@ -4841,6 +5029,7 @@ babelHelpers;
    *   strings.
    */
 
+
 		Uri.prototype.getParameterNames = function getParameterNames() {
 			this.ensureQueryInitialized_();
 			return this.query.names();
@@ -4851,6 +5040,7 @@ babelHelpers;
    * @return {!function()}
    */
 
+
 		Uri.getParseFn = function getParseFn() {
 			return parseFn_;
 		};
@@ -4859,6 +5049,7 @@ babelHelpers;
    * Gets the pathname part of uri.
    * @return {string}
    */
+
 
 		Uri.prototype.getPathname = function getPathname() {
 			return this.url.pathname;
@@ -4869,6 +5060,7 @@ babelHelpers;
    * @return {string}
    */
 
+
 		Uri.prototype.getPort = function getPort() {
 			return this.url.port;
 		};
@@ -4877,6 +5069,7 @@ babelHelpers;
    * Gets the protocol part of uri. E.g. <code>http:</code>.
    * @return {string}
    */
+
 
 		Uri.prototype.getProtocol = function getProtocol() {
 			return this.url.protocol;
@@ -4887,6 +5080,7 @@ babelHelpers;
    * parameters.
    * @return {string}
    */
+
 
 		Uri.prototype.getSearch = function getSearch() {
 			var _this4 = this;
@@ -4915,6 +5109,7 @@ babelHelpers;
    * @return {boolean}
    */
 
+
 		Uri.prototype.hasParameter = function hasParameter(name) {
 			this.ensureQueryInitialized_();
 			return this.query.contains(name);
@@ -4924,6 +5119,7 @@ babelHelpers;
    * Makes this URL unique by adding a random param to it. Useful for avoiding
    * cache.
    */
+
 
 		Uri.prototype.makeUnique = function makeUnique() {
 			this.setParameterValue(Uri.RANDOM_PARAM, string.getRandomString());
@@ -4936,6 +5132,7 @@ babelHelpers;
    * @param {string=} opt_uri
    * @return {string} URI with protocol and hostname placeholder.
    */
+
 
 		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
 			var url = opt_uri;
@@ -4974,6 +5171,7 @@ babelHelpers;
    * @param {!Object}
    */
 
+
 		Uri.normalizeObject = function normalizeObject(parsed) {
 			var length = parsed.pathname ? parsed.pathname.length : 0;
 			if (length > 1 && parsed.pathname[length - 1] === '/') {
@@ -4987,6 +5185,7 @@ babelHelpers;
    * @param {*=} opt_uri Optional string URI to parse
    */
 
+
 		Uri.parse = function parse(opt_uri) {
 			return Uri.normalizeObject(parseFn_(opt_uri));
 		};
@@ -4996,6 +5195,7 @@ babelHelpers;
    * @param {string} name The parameter to remove.
    * @chainable
    */
+
 
 		Uri.prototype.removeParameter = function removeParameter(name) {
 			this.ensureQueryInitialized_();
@@ -5008,6 +5208,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.removeUnique = function removeUnique() {
 			this.removeParameter(Uri.RANDOM_PARAM);
 			return this;
@@ -5019,6 +5220,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.setHash = function setHash(hash) {
 			this.url.hash = hash;
 			return this;
@@ -5029,6 +5231,7 @@ babelHelpers;
    * @param {string} hostname
    * @chainable
    */
+
 
 		Uri.prototype.setHostname = function setHostname(hostname) {
 			this.url.hostname = hostname;
@@ -5043,6 +5246,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.setParameterValue = function setParameterValue(name, value) {
 			this.removeParameter(name);
 			this.addParameterValue(name, value);
@@ -5056,6 +5260,7 @@ babelHelpers;
    * @param {*} value The new value.
    * @chainable
    */
+
 
 		Uri.prototype.setParameterValues = function setParameterValues(name, values) {
 			var _this5 = this;
@@ -5073,6 +5278,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		Uri.prototype.setPathname = function setPathname(pathname) {
 			this.url.pathname = pathname;
 			return this;
@@ -5083,6 +5289,7 @@ babelHelpers;
    * @param {*} port Port number.
    * @chainable
    */
+
 
 		Uri.prototype.setPort = function setPort(port) {
 			this.url.port = port;
@@ -5095,6 +5302,7 @@ babelHelpers;
    * @param {!function()} parseFn
    */
 
+
 		Uri.setParseFn = function setParseFn(parseFn) {
 			parseFn_ = parseFn;
 		};
@@ -5104,6 +5312,7 @@ babelHelpers;
    * @param {string} protocol
    * @chainable
    */
+
 
 		Uri.prototype.setProtocol = function setProtocol(protocol) {
 			this.url.protocol = protocol;
@@ -5117,6 +5326,7 @@ babelHelpers;
    * @return {string} The string form of the url.
    * @override
    */
+
 
 		Uri.prototype.toString = function toString() {
 			var href = '';
@@ -5134,6 +5344,7 @@ babelHelpers;
    * @param {...string} ...paths Any number of paths to be joined with the base url.
    * @static
    */
+
 
 		Uri.joinPaths = function joinPaths(basePath) {
 			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -5156,6 +5367,7 @@ babelHelpers;
    * @return {string} The decoded {@code str}.
    */
 
+
 		Uri.urlDecode = function urlDecode(str) {
 			return decodeURIComponent(str.replace(/\+/g, ' '));
 		};
@@ -5169,6 +5381,7 @@ babelHelpers;
   * @default http:
   * @static
   */
+
 
 	Uri.DEFAULT_PROTOCOL = 'http:';
 
@@ -5207,6 +5420,7 @@ babelHelpers;
 	var App = function (_EventEmitter) {
 		babelHelpers.inherits(App, _EventEmitter);
 
+
 		/**
    * App class that handle routes and screens lifecycle.
    * @constructor
@@ -5215,6 +5429,7 @@ babelHelpers;
 
 		function App() {
 			babelHelpers.classCallCheck(this, App);
+
 
 			/**
     * Holds the active screen.
@@ -5405,6 +5620,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		App.prototype.addRoutes = function addRoutes(routes) {
 			var _this2 = this;
 
@@ -5429,6 +5645,7 @@ babelHelpers;
    * @chainable
    */
 
+
 		App.prototype.addSurfaces = function addSurfaces(surfaces) {
 			var _this3 = this;
 
@@ -5445,9 +5662,37 @@ babelHelpers;
 		};
 
 		/**
+   * Returns if can navigate to path.
+   * @param {!string} url
+   * @return {boolean}
+   */
+
+
+		App.prototype.canNavigate = function canNavigate(url) {
+			var path = this.getPath(url);
+			var uri = new Uri(url);
+
+			if (!this.isLinkSameOrigin_(uri.getHostname())) {
+				console.log('Offsite link clicked');
+				return false;
+			}
+			if (!this.isSameBasePath_(path)) {
+				console.log('Link clicked outside app\'s base path');
+				return false;
+			}
+			if (!this.findRoute(path)) {
+				console.log('No route for ' + path);
+				return false;
+			}
+
+			return true;
+		};
+
+		/**
    * Clear screens cache.
    * @chainable
    */
+
 
 		App.prototype.clearScreensCache = function clearScreensCache() {
 			var _this4 = this;
@@ -5466,6 +5711,7 @@ babelHelpers;
    * @param {!string} path Path containing the querystring part.
    * @return {Screen}
    */
+
 
 		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
 			if (!this.pendingNavigate && path === this.activePath) {
@@ -5490,6 +5736,7 @@ babelHelpers;
    * @inheritDoc
    */
 
+
 		App.prototype.disposeInternal = function disposeInternal() {
 			if (this.activeScreen) {
 				this.removeScreen(this.activePath);
@@ -5507,6 +5754,7 @@ babelHelpers;
    * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
 
+
 		App.prototype.dispatch = function dispatch() {
 			var currentPath = globals.window.location.pathname + globals.window.location.search + globals.window.location.hash;
 			return this.navigate(currentPath, true);
@@ -5518,6 +5766,7 @@ babelHelpers;
    * @param {boolean=} opt_replaceHistory Replaces browser history.
    * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
+
 
 		App.prototype.doNavigate_ = function doNavigate_(path, opt_replaceHistory) {
 			var _this5 = this;
@@ -5568,6 +5817,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.finalizeNavigate_ = function finalizeNavigate_(path, nextScreen) {
 			nextScreen.activate();
 
@@ -5593,6 +5843,7 @@ babelHelpers;
    *     path is the same as the current url and the path contains a fragment.
    */
 
+
 		App.prototype.findRoute = function findRoute(path) {
 			// Prevents navigation if it's a hash change on the same url.
 			if (path.lastIndexOf('#') > -1 && this.isPathCurrentBrowserPath(path)) {
@@ -5616,6 +5867,7 @@ babelHelpers;
    * @return {!string}
    */
 
+
 		App.prototype.getBasePath = function getBasePath() {
 			return this.basePath;
 		};
@@ -5624,6 +5876,7 @@ babelHelpers;
    * Gets the default page title.
    * @return {string} defaultTitle
    */
+
 
 		App.prototype.getDefaultTitle = function getDefaultTitle() {
 			return this.defaultTitle;
@@ -5634,6 +5887,7 @@ babelHelpers;
    * @return {!string}
    */
 
+
 		App.prototype.getFormSelector = function getFormSelector() {
 			return this.formSelector;
 		};
@@ -5642,6 +5896,7 @@ babelHelpers;
    * Gets the link selector.
    * @return {!string}
    */
+
 
 		App.prototype.getLinkSelector = function getLinkSelector() {
 			return this.linkSelector;
@@ -5652,14 +5907,28 @@ babelHelpers;
    * @return {!string}
    */
 
+
 		App.prototype.getLoadingCssClass = function getLoadingCssClass() {
 			return this.loadingCssClass;
+		};
+
+		/**
+   * Extracts the path from url.
+   * @return {!string}
+   */
+
+
+		App.prototype.getPath = function getPath(url) {
+			var uri = new Uri(url);
+
+			return uri.getPathname() + uri.getSearch() + uri.getHash();
 		};
 
 		/**
    * Gets the update scroll position value.
    * @return {boolean}
    */
+
 
 		App.prototype.getUpdateScrollPosition = function getUpdateScrollPosition() {
 			return this.updateScrollPosition;
@@ -5673,6 +5942,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
 			console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 			if (!this.isPathCurrentBrowserPath(path)) {
@@ -5685,6 +5955,7 @@ babelHelpers;
    * @return {boolean}
    */
 
+
 		App.prototype.hasRoutes = function hasRoutes() {
 			return this.routes.length > 0;
 		};
@@ -5694,6 +5965,7 @@ babelHelpers;
    * @param  {!string} path
    * @return {boolean}
    */
+
 
 		App.prototype.isPathCurrentBrowserPath = function isPathCurrentBrowserPath(path) {
 			if (path) {
@@ -5707,6 +5979,7 @@ babelHelpers;
    * @return {boolean}
    */
 
+
 		App.prototype.isHtml5HistorySupported = function isHtml5HistorySupported() {
 			return globals.window.history && globals.window.history.pushState;
 		};
@@ -5719,6 +5992,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.isLinkSameOrigin_ = function isLinkSameOrigin_(hostname) {
 			return hostname === globals.window.location.hostname;
 		};
@@ -5730,6 +6004,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.isSameBasePath_ = function isSameBasePath_(path) {
 			return path.indexOf(this.basePath) === 0;
 		};
@@ -5740,6 +6015,7 @@ babelHelpers;
    * navigation lifecycle scroll is repositioned.
    * @protected
    */
+
 
 		App.prototype.lockHistoryScrollPosition_ = function lockHistoryScrollPosition_() {
 			var state = globals.window.history.state;
@@ -5771,6 +6047,7 @@ babelHelpers;
    * stores current value.
    */
 
+
 		App.prototype.maybeDisableNativeScrollRestoration = function maybeDisableNativeScrollRestoration() {
 			if (this.nativeScrollRestorationSupported) {
 				this.nativeScrollRestoration_ = globals.window.history.scrollRestoration;
@@ -5784,20 +6061,9 @@ babelHelpers;
    * @param {Event} event Dom event that initiated the navigation.
    */
 
-		App.prototype.maybeNavigate_ = function maybeNavigate_(href, event) {
-			var uri = new Uri(href);
-			var path = uri.getPathname() + uri.getSearch() + uri.getHash();
 
-			if (!this.isLinkSameOrigin_(uri.getHostname())) {
-				console.log('Offsite link clicked');
-				return;
-			}
-			if (!this.isSameBasePath_(path)) {
-				console.log('Link clicked outside app\'s base path');
-				return;
-			}
-			if (!this.findRoute(path)) {
-				console.log('No route for ' + path);
+		App.prototype.maybeNavigate_ = function maybeNavigate_(href, event) {
+			if (!this.canNavigate(href)) {
 				return;
 			}
 
@@ -5810,7 +6076,7 @@ babelHelpers;
 
 			var navigateFailed = false;
 			try {
-				this.navigate(path);
+				this.navigate(this.getPath(href));
 			} catch (err) {
 				// Do not prevent link navigation in case some synchronous error occurs
 				navigateFailed = true;
@@ -5827,6 +6093,7 @@ babelHelpers;
    * @return {string} Path without hashbang.
    */
 
+
 		App.prototype.maybeRemovePathHashbang = function maybeRemovePathHashbang(path) {
 			var hashIndex = path.lastIndexOf('#');
 			if (hashIndex > -1) {
@@ -5838,6 +6105,7 @@ babelHelpers;
 		/**
    * Maybe reposition scroll to hashed anchor.
    */
+
 
 		App.prototype.maybeRepositionScrollToHashedAnchor = function maybeRepositionScrollToHashedAnchor() {
 			var hash = globals.window.location.hash;
@@ -5854,6 +6122,7 @@ babelHelpers;
    * value captured by `maybeDisableNativeScrollRestoration`.
    */
 
+
 		App.prototype.maybeRestoreNativeScrollRestoration = function maybeRestoreNativeScrollRestoration() {
 			if (this.nativeScrollRestorationSupported && this.nativeScrollRestoration_) {
 				globals.window.history.scrollRestoration = this.nativeScrollRestoration_;
@@ -5866,6 +6135,7 @@ babelHelpers;
    * @param {boolean=} opt_replaceHistory Replaces browser history.
    * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
+
 
 		App.prototype.navigate = function navigate(path, opt_replaceHistory) {
 			if (!this.isHtml5HistorySupported()) {
@@ -5893,6 +6163,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
 			if (this.pendingNavigate) {
 				if (this.screens[event.path] === this.screens[this.pendingNavigate.path]) {
@@ -5914,6 +6185,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
 			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
 				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
@@ -5928,6 +6200,7 @@ babelHelpers;
    * @param {!Event} event Event facade
    * @protected
    */
+
 
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
 			var form = event.delegateTarget;
@@ -5945,6 +6218,7 @@ babelHelpers;
    * http://stackoverflow.com/questions/6421769/popstate-on-pages-load-in-chrome.
    * @protected
    */
+
 
 		App.prototype.onLoad_ = function onLoad_() {
 			var _this6 = this;
@@ -5968,6 +6242,7 @@ babelHelpers;
    * @param {!Event} event Event facade
    * @protected
    */
+
 
 		App.prototype.onPopstate_ = function onPopstate_(event) {
 			if (this.skipLoadPopstate) {
@@ -6011,6 +6286,7 @@ babelHelpers;
    * @protected
    */
 
+
 		App.prototype.onScroll_ = function onScroll_() {
 			if (this.captureScrollPositionFromScrollEvent) {
 				this.saveHistoryCurrentPageScrollPosition_();
@@ -6023,6 +6299,7 @@ babelHelpers;
    *     <code>replaceHistory</code>.
    * @protected
    */
+
 
 		App.prototype.onStartNavigate_ = function onStartNavigate_(event) {
 			var _this7 = this;
@@ -6059,6 +6336,7 @@ babelHelpers;
    * @return {CancellablePromise} Returns a pending request cancellable promise.
    */
 
+
 		App.prototype.prefetch = function prefetch(path) {
 			var _this8 = this;
 
@@ -6085,6 +6363,7 @@ babelHelpers;
    * @param {!Screen} nextScreen
    * @param {boolean=} opt_replaceHistory Replaces browser history.
    */
+
 
 		App.prototype.prepareNavigateHistory_ = function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 			var title = nextScreen.getTitle();
@@ -6114,6 +6393,7 @@ babelHelpers;
    * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
    */
 
+
 		App.prototype.prepareNavigateSurfaces_ = function prepareNavigateSurfaces_(nextScreen, surfaces) {
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id);
@@ -6126,6 +6406,7 @@ babelHelpers;
    * Reloads the page by performing `window.location.reload()`.
    */
 
+
 		App.prototype.reloadPage = function reloadPage() {
 			globals.window.location.reload();
 		};
@@ -6136,6 +6417,7 @@ babelHelpers;
    * @return {boolean} True if an element was removed.
    */
 
+
 		App.prototype.removeRoute = function removeRoute(route) {
 			return array.remove(this.routes, route);
 		};
@@ -6144,6 +6426,7 @@ babelHelpers;
    * Removes a screen.
    * @param {!string} path Path containing the querystring part.
    */
+
 
 		App.prototype.removeScreen = function removeScreen(path) {
 			var _this9 = this;
@@ -6160,6 +6443,7 @@ babelHelpers;
    * Saves scroll position from page offset into history state.
    */
 
+
 		App.prototype.saveHistoryCurrentPageScrollPosition_ = function saveHistoryCurrentPageScrollPosition_() {
 			var state = globals.window.history.state;
 			if (state && state.senna) {
@@ -6174,6 +6458,7 @@ babelHelpers;
    * @param {!string} path
    */
 
+
 		App.prototype.setBasePath = function setBasePath(basePath) {
 			this.basePath = basePath;
 		};
@@ -6183,6 +6468,7 @@ babelHelpers;
    * @param {string} defaultTitle
    */
 
+
 		App.prototype.setDefaultTitle = function setDefaultTitle(defaultTitle) {
 			this.defaultTitle = defaultTitle;
 		};
@@ -6191,6 +6477,7 @@ babelHelpers;
    * Sets the form selector.
    * @param {!string} formSelector
    */
+
 
 		App.prototype.setFormSelector = function setFormSelector(formSelector) {
 			this.formSelector = formSelector;
@@ -6205,6 +6492,7 @@ babelHelpers;
    * @param {!string} linkSelector
    */
 
+
 		App.prototype.setLinkSelector = function setLinkSelector(linkSelector) {
 			this.linkSelector = linkSelector;
 			if (this.linkEventHandler_) {
@@ -6218,6 +6506,7 @@ babelHelpers;
    * @param {!string} loadingCssClass
    */
 
+
 		App.prototype.setLoadingCssClass = function setLoadingCssClass(loadingCssClass) {
 			this.loadingCssClass = loadingCssClass;
 		};
@@ -6227,6 +6516,7 @@ babelHelpers;
    * @param {boolean} updateScrollPosition
    */
 
+
 		App.prototype.setUpdateScrollPosition = function setUpdateScrollPosition(updateScrollPosition) {
 			this.updateScrollPosition = updateScrollPosition;
 		};
@@ -6235,6 +6525,7 @@ babelHelpers;
    * Cancels pending navigate with <code>Cancel pending navigation</code> error.
    * @protected
    */
+
 
 		App.prototype.stopPendingNavigate_ = function stopPendingNavigate_() {
 			if (this.pendingNavigate) {
@@ -6250,6 +6541,7 @@ babelHelpers;
    * @protected
    * @return {?CancellablePromise=}
    */
+
 
 		App.prototype.syncScrollPositionSyncThenAsync_ = function syncScrollPositionSyncThenAsync_() {
 			var _this10 = this;
@@ -6283,6 +6575,7 @@ babelHelpers;
    * @param {boolean=} opt_replaceHistory Replaces browser history.
    * @protected
    */
+
 
 		App.prototype.updateHistory_ = function updateHistory_(title, path, state, opt_replaceHistory) {
 			if (opt_replaceHistory) {
@@ -6366,6 +6659,7 @@ babelHelpers;
    * @return {Promise} Deferred ajax request.
    * @protected
    */
+
 
 		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync) {
 			var request = new XMLHttpRequest();
@@ -6462,6 +6756,7 @@ babelHelpers;
    * @static
   */
 
+
 		UA.matchUserAgent = function matchUserAgent(str) {
 			return UA.userAgent.indexOf(str) !== -1;
 		};
@@ -6471,6 +6766,7 @@ babelHelpers;
    * @param {string} userAgent The user agent string.
    * @static
    */
+
 
 		UA.testUserAgent = function testUserAgent(userAgent) {
 			/**
@@ -6539,6 +6835,7 @@ babelHelpers;
   * @static
   */
 
+
 	UA.globals = {
 		window: window
 	};
@@ -6562,6 +6859,7 @@ babelHelpers;
 	var RequestScreen = function (_Screen) {
 		babelHelpers.inherits(RequestScreen, _Screen);
 
+
 		/**
    * Request screen abstract class to perform io operations on descendant
    * screens.
@@ -6571,6 +6869,7 @@ babelHelpers;
 
 		function RequestScreen() {
 			babelHelpers.classCallCheck(this, RequestScreen);
+
 
 			/**
     * @inheritDoc
@@ -6627,6 +6926,7 @@ babelHelpers;
    * @protected
    */
 
+
 		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
 			if (!this.isValidResponseStatusCode(status)) {
 				var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
@@ -6639,6 +6939,7 @@ babelHelpers;
    * @inheritDoc
    */
 
+
 		RequestScreen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
 			var redirectPath = this.getRequestPath();
 			if (redirectPath && redirectPath !== path) {
@@ -6650,6 +6951,7 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
+
 
 		RequestScreen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
 			// If state is ours and navigate to post-without-redirect-get set
@@ -6668,6 +6970,7 @@ babelHelpers;
    * @protected
    */
 
+
 		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
 			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
 				var uri = new Uri(path);
@@ -6682,6 +6985,7 @@ babelHelpers;
    * @return {?Object=}
    */
 
+
 		RequestScreen.prototype.getHttpHeaders = function getHttpHeaders() {
 			return this.httpHeaders;
 		};
@@ -6691,6 +6995,7 @@ babelHelpers;
    * @return {!string}
    */
 
+
 		RequestScreen.prototype.getHttpMethod = function getHttpMethod() {
 			return this.httpMethod;
 		};
@@ -6699,6 +7004,7 @@ babelHelpers;
    * Gets request path.
    * @return {string=}
    */
+
 
 		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
@@ -6714,6 +7020,7 @@ babelHelpers;
    * @return {?Object}
    */
 
+
 		RequestScreen.prototype.getRequest = function getRequest() {
 			return this.request;
 		};
@@ -6722,6 +7029,7 @@ babelHelpers;
    * Gets the request timeout.
    * @return {!number}
    */
+
 
 		RequestScreen.prototype.getTimeout = function getTimeout() {
 			return this.timeout;
@@ -6733,6 +7041,7 @@ babelHelpers;
    * @param {number} statusCode
    */
 
+
 		RequestScreen.prototype.isValidResponseStatusCode = function isValidResponseStatusCode(statusCode) {
 			return statusCode >= 200 && statusCode <= 399;
 		};
@@ -6740,6 +7049,7 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
+
 
 		RequestScreen.prototype.load = function load(path) {
 			var _this2 = this;
@@ -6777,6 +7087,7 @@ babelHelpers;
    * @param {?Object=} httpHeaders
    */
 
+
 		RequestScreen.prototype.setHttpHeaders = function setHttpHeaders(httpHeaders) {
 			this.httpHeaders = httpHeaders;
 		};
@@ -6785,6 +7096,7 @@ babelHelpers;
    * Sets the http method.
    * @param {!string} httpMethod
    */
+
 
 		RequestScreen.prototype.setHttpMethod = function setHttpMethod(httpMethod) {
 			this.httpMethod = httpMethod.toLowerCase();
@@ -6795,6 +7107,7 @@ babelHelpers;
    * @param {?Object} request
    */
 
+
 		RequestScreen.prototype.setRequest = function setRequest(request) {
 			this.request = request;
 		};
@@ -6803,6 +7116,7 @@ babelHelpers;
    * Sets the request timeout in milliseconds.
    * @param {!number} timeout
    */
+
 
 		RequestScreen.prototype.setTimeout = function setTimeout(timeout) {
 			this.timeout = timeout;
@@ -6817,6 +7131,7 @@ babelHelpers;
   * @default 'get'
   * @static
   */
+
 
 	RequestScreen.prototype.registerMetalComponent && RequestScreen.prototype.registerMetalComponent(RequestScreen, 'RequestScreen')
 	RequestScreen.GET = 'get';
@@ -6846,6 +7161,7 @@ babelHelpers;
 	var HtmlScreen = function (_RequestScreen) {
 		babelHelpers.inherits(HtmlScreen, _RequestScreen);
 
+
 		/**
    * Screen class that perform a request and extracts surface contents from
    * the response content.
@@ -6855,6 +7171,7 @@ babelHelpers;
 
 		function HtmlScreen() {
 			babelHelpers.classCallCheck(this, HtmlScreen);
+
 
 			/**
     * Holds the title selector. Relevant to extract the <code><title></code>
@@ -6874,6 +7191,7 @@ babelHelpers;
    * @inheritDoc
    */
 
+
 		HtmlScreen.prototype.activate = function activate() {
 			_RequestScreen.prototype.activate.call(this);
 			this.releaseVirtualDocument();
@@ -6885,6 +7203,7 @@ babelHelpers;
    * can be accessed by <code>this.virtualDocument</code>.
    * @param {!string} htmlString
    */
+
 
 		HtmlScreen.prototype.allocateVirtualDocumentForContent = function allocateVirtualDocumentForContent(htmlString) {
 			if (!this.virtualDocument) {
@@ -6899,6 +7218,7 @@ babelHelpers;
    * same dom order.
    * @param {Element} newStyle
    */
+
 
 		HtmlScreen.prototype.appendStyleIntoDocument_ = function appendStyleIntoDocument_(newStyle) {
 			var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
@@ -6919,6 +7239,7 @@ babelHelpers;
    * @Override
    */
 
+
 		HtmlScreen.prototype.disposeInternal = function disposeInternal() {
 			this.disposePendingStyles();
 			_RequestScreen.prototype.disposeInternal.call(this);
@@ -6927,6 +7248,7 @@ babelHelpers;
 		/**
    * Disposes pending styles if screen get disposed prior to its loading.
    */
+
 
 		HtmlScreen.prototype.disposePendingStyles = function disposePendingStyles() {
 			if (this.pendingStyles) {
@@ -6939,6 +7261,7 @@ babelHelpers;
 		/**
    * @Override
    */
+
 
 		HtmlScreen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
 			var _this2 = this;
@@ -6953,6 +7276,7 @@ babelHelpers;
 		/**
    * @Override
    */
+
 
 		HtmlScreen.prototype.evaluateStyles = function evaluateStyles(surfaces) {
 			var _this3 = this;
@@ -6980,6 +7304,7 @@ babelHelpers;
    *     complete.
    * @private
    */
+
 
 		HtmlScreen.prototype.evaluateTrackedResources_ = function evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent, opt_appendResourceFn) {
 			var _this4 = this;
@@ -7026,6 +7351,7 @@ babelHelpers;
    *     preference: id, href, src.
    */
 
+
 		HtmlScreen.prototype.getResourceKey_ = function getResourceKey_(resource) {
 			return resource.id || resource.href || resource.src || '';
 		};
@@ -7033,6 +7359,7 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
+
 
 		HtmlScreen.prototype.getSurfaceContent = function getSurfaceContent(surfaceId) {
 			var surface = this.virtualDocument.querySelector('#' + surfaceId);
@@ -7050,6 +7377,7 @@ babelHelpers;
    * @return {!string}
    */
 
+
 		HtmlScreen.prototype.getTitleSelector = function getTitleSelector() {
 			return this.titleSelector;
 		};
@@ -7057,6 +7385,7 @@ babelHelpers;
 		/**
    * @inheritDoc
    */
+
 
 		HtmlScreen.prototype.load = function load(path) {
 			var _this5 = this;
@@ -7075,6 +7404,7 @@ babelHelpers;
    * @return {array.<Element>}
    */
 
+
 		HtmlScreen.prototype.virtualQuerySelectorAll_ = function virtualQuerySelectorAll_(selector) {
 			return Array.prototype.slice.call(this.virtualDocument.querySelectorAll(selector));
 		};
@@ -7085,6 +7415,7 @@ babelHelpers;
    * @return {array.<Element>}
    */
 
+
 		HtmlScreen.prototype.querySelectorAll_ = function querySelectorAll_(selector) {
 			return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
 		};
@@ -7093,6 +7424,7 @@ babelHelpers;
    * Releases virtual document allocated for content.
    */
 
+
 		HtmlScreen.prototype.releaseVirtualDocument = function releaseVirtualDocument() {
 			this.virtualDocument = null;
 		};
@@ -7100,6 +7432,7 @@ babelHelpers;
 		/**
    * Resolves title from allocated virtual document.
    */
+
 
 		HtmlScreen.prototype.resolveTitleFromVirtualDocument = function resolveTitleFromVirtualDocument() {
 			var title = this.virtualDocument.querySelector(this.titleSelector);
@@ -7113,6 +7446,7 @@ babelHelpers;
    * @param {!string} titleSelector
    */
 
+
 		HtmlScreen.prototype.setTitleSelector = function setTitleSelector(titleSelector) {
 			this.titleSelector = titleSelector;
 		};
@@ -7121,6 +7455,7 @@ babelHelpers;
    * If body is used as surface forces the requested documents to have same id
    * of the initial page.
    */
+
 
 		HtmlScreen.prototype.maybeSetBodyIdInVirtualDocument = function maybeSetBodyIdInVirtualDocument() {
 			var bodySurface = this.virtualDocument.querySelector('body[' + dataAttributes.surface + ']');
@@ -7138,6 +7473,7 @@ babelHelpers;
   * @protected
   * @static
   */
+
 
 	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
 	HtmlScreen.selectors = {
@@ -7174,6 +7510,7 @@ babelHelpers;
 	var AppDataAttributeHandler = function (_Disposable) {
 		babelHelpers.inherits(AppDataAttributeHandler, _Disposable);
 
+
 		/**
    * Initilizes App, register surfaces and routes from data attributes.
    * @constructor
@@ -7181,6 +7518,7 @@ babelHelpers;
 
 		function AppDataAttributeHandler() {
 			babelHelpers.classCallCheck(this, AppDataAttributeHandler);
+
 
 			/**
     * Holds the app reference initialized by data attributes.
@@ -7206,6 +7544,7 @@ babelHelpers;
 		/**
    * Inits application based on information scanned from document.
    */
+
 
 		AppDataAttributeHandler.prototype.handle = function handle() {
 			if (!core.isElement(this.baseElement)) {
@@ -7238,6 +7577,7 @@ babelHelpers;
    * @override
    */
 
+
 		AppDataAttributeHandler.prototype.disposeInternal = function disposeInternal() {
 			if (this.app) {
 				this.app.dispose();
@@ -7249,6 +7589,7 @@ babelHelpers;
    * @return {App}
    */
 
+
 		AppDataAttributeHandler.prototype.getApp = function getApp() {
 			return this.app;
 		};
@@ -7258,6 +7599,7 @@ babelHelpers;
    * @return {Element} baseElement
    */
 
+
 		AppDataAttributeHandler.prototype.getBaseElement = function getBaseElement() {
 			return this.baseElement;
 		};
@@ -7265,6 +7607,7 @@ babelHelpers;
 		/**
    * Maybe adds app routes from link elements that are `senna-route`.
    */
+
 
 		AppDataAttributeHandler.prototype.maybeAddRoutes_ = function maybeAddRoutes_() {
 			var _this2 = this;
@@ -7283,6 +7626,7 @@ babelHelpers;
    * Maybe adds app surfaces by scanning `data-senna-surface` data attribute.
    */
 
+
 		AppDataAttributeHandler.prototype.maybeAddSurfaces_ = function maybeAddSurfaces_() {
 			var _this3 = this;
 
@@ -7297,6 +7641,7 @@ babelHelpers;
    * Dispatches app navigation to the current path when initializes.
    */
 
+
 		AppDataAttributeHandler.prototype.maybeDispatch_ = function maybeDispatch_() {
 			if (this.baseElement.hasAttribute(dataAttributes.dispatch)) {
 				this.app.dispatch();
@@ -7309,6 +7654,7 @@ babelHelpers;
    * @param {Element} link
    */
 
+
 		AppDataAttributeHandler.prototype.maybeParseLinkRoute_ = function maybeParseLinkRoute_(link) {
 			var route = new Route(this.maybeParseLinkRoutePath_(link), this.maybeParseLinkRouteHandler_(link));
 			this.app.addRoutes(route);
@@ -7320,6 +7666,7 @@ babelHelpers;
    * @param {Element} link
    * @return {?string}
    */
+
 
 		AppDataAttributeHandler.prototype.maybeParseLinkRouteHandler_ = function maybeParseLinkRouteHandler_(link) {
 			var handler = link.getAttribute('type');
@@ -7335,6 +7682,7 @@ babelHelpers;
    * @return {?string}
    */
 
+
 		AppDataAttributeHandler.prototype.maybeParseLinkRoutePath_ = function maybeParseLinkRoutePath_(link) {
 			var path = link.getAttribute('href');
 			if (core.isDefAndNotNull(path)) {
@@ -7349,6 +7697,7 @@ babelHelpers;
    * Maybe sets app base path from `data-senna-base-path` data attribute.
    */
 
+
 		AppDataAttributeHandler.prototype.maybeSetBasePath_ = function maybeSetBasePath_() {
 			var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
 			if (core.isDefAndNotNull(basePath)) {
@@ -7361,6 +7710,7 @@ babelHelpers;
    * Maybe sets app link selector from `data-senna-link-selector` data
    * attribute.
    */
+
 
 		AppDataAttributeHandler.prototype.maybeSetLinkSelector_ = function maybeSetLinkSelector_() {
 			var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
@@ -7375,6 +7725,7 @@ babelHelpers;
    * data attribute.
    */
 
+
 		AppDataAttributeHandler.prototype.maybeSetLoadingCssClass_ = function maybeSetLoadingCssClass_() {
 			var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
 			if (core.isDefAndNotNull(loadingCssClass)) {
@@ -7387,6 +7738,7 @@ babelHelpers;
    * Maybe sets app update scroll position from
    * `data-senna-update-scroll-position` data attribute.
    */
+
 
 		AppDataAttributeHandler.prototype.maybeSetUpdateScrollPosition_ = function maybeSetUpdateScrollPosition_() {
 			var updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
@@ -7406,6 +7758,7 @@ babelHelpers;
    * @return {array.<Element>}
    */
 
+
 		AppDataAttributeHandler.prototype.querySelectorAllAsArray_ = function querySelectorAllAsArray_(selector) {
 			return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
 		};
@@ -7417,6 +7770,7 @@ babelHelpers;
    * @param {Element} element
    */
 
+
 		AppDataAttributeHandler.prototype.updateElementIdIfSpecialSurface_ = function updateElementIdIfSpecialSurface_(element) {
 			if (!element.id && element === globals.document.body) {
 				element.id = 'senna_surface_' + core.getUid();
@@ -7427,6 +7781,7 @@ babelHelpers;
    * Sets the base element.
    * @param {Element} baseElement
    */
+
 
 		AppDataAttributeHandler.prototype.setBaseElement = function setBaseElement(baseElement) {
 			this.baseElement = baseElement;

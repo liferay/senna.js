@@ -1,10 +1,14 @@
 define(['exports'], function (exports) {
 	'use strict';
 
+	/**
+  * Parses the given uri string into an object.
+  * @param {*=} opt_uri Optional string URI to parse
+  */
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
 	function parseFromAnchor(opt_uri) {
 		var link = document.createElement('a');
 		link.href = opt_uri;

@@ -31,23 +31,18 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 					transition: features.checkAnimationEventName_('transition')
 				};
 			}
-
 			return features.animationEventName_;
 		};
 
 		features.checkAnimationEventName_ = function checkAnimationEventName_(type) {
 			var prefixes = ['Webkit', 'MS', 'O', ''];
-
 			var typeTitleCase = _metal.string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
-
 			var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
-
 			for (var i = 0; i < prefixes.length; i++) {
 				if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
 					return prefixes[i].toLowerCase() + suffixes[i];
 				}
 			}
-
 			return type + 'end';
 		};
 
@@ -55,12 +50,9 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 			if (features.attrOrderChange_ === undefined) {
 				var originalContent = '<div data-component="" data-ref=""></div>';
 				var element = document.createElement('div');
-
 				_dom2.default.append(element, originalContent);
-
 				features.attrOrderChange_ = originalContent !== element.innerHTML;
 			}
-
 			return features.attrOrderChange_;
 		};
 
@@ -70,6 +62,7 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 	features.animationElement_ = document.createElement('div');
 	features.animationEventName_ = undefined;
 	features.attrOrderChange_ = undefined;
+
 	exports.default = features;
 });
 //# sourceMappingURL=features.js.map

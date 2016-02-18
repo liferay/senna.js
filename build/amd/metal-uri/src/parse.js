@@ -13,6 +13,11 @@ define(['exports', 'metal/src/metal', './parseFromAnchor'], function (exports, _
 		};
 	}
 
+	/**
+  * Parses the given uri string into an object. The URL function will be used
+  * when present, otherwise we'll fall back to the anchor node element.
+  * @param {*=} opt_uri Optional string URI to parse
+  */
 	function parse(opt_uri) {
 		if (_metal.core.isFunction(URL) && URL.length) {
 			return new URL(opt_uri);

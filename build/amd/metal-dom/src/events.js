@@ -23,7 +23,6 @@ define(['./dom', './features'], function (_dom, _features) {
 			handler: function handler(callback, event) {
 				var related = event.relatedTarget;
 				var target = event.delegateTarget;
-
 				if (!related || related !== target && !target.contains(related)) {
 					event.customType = eventName;
 					return callback(event);
@@ -32,13 +31,13 @@ define(['./dom', './features'], function (_dom, _features) {
 			originalEvent: mouseEventMap[eventName]
 		});
 	});
+
 	var animationEventMap = {
 		animation: 'animationend',
 		transition: 'transitionend'
 	};
 	Object.keys(animationEventMap).forEach(function (eventType) {
 		var eventName = animationEventMap[eventType];
-
 		_dom2.default.registerCustomEvent(eventName, {
 			event: true,
 			delegate: true,

@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', './App', '../screen/HtmlScreen', '../route/Route'], function (exports, _metal, _dataAttributes, _globals, _App, _HtmlScreen, _Route) {
 	'use strict';
 
@@ -34,7 +32,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -56,15 +54,38 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 	var AppDataAttributeHandler = function (_Disposable) {
 		_inherits(AppDataAttributeHandler, _Disposable);
 
+		/**
+   * Initilizes App, register surfaces and routes from data attributes.
+   * @constructor
+   */
+
 		function AppDataAttributeHandler() {
 			_classCallCheck(this, AppDataAttributeHandler);
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
+			/**
+    * Holds the app reference initialized by data attributes.
+    * @type {App}
+    * @default null
+    */
 			_this.app = null;
+
+			/**
+    * Holds the base element to search initialization data attributes. This
+    * element is the container used to enable initialization based on the
+    * presence of `data-senna` attribute.
+    * @type {Element}
+    * @default null
+    */
 			_this.baseElement = null;
 			return _this;
 		}
+
+		/**
+   * Inits application based on information scanned from document.
+   */
+
 
 		AppDataAttributeHandler.prototype.handle = function handle() {
 			if (!_metal.core.isElement(this.baseElement)) {
@@ -81,6 +102,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 			}
 
 			console.log('Senna initialized from data attribute.');
+
 			this.app = new _App2.default();
 			this.maybeAddRoutes_();
 			this.maybeAddSurfaces_();
@@ -112,7 +134,6 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 			this.querySelectorAllAsArray_(routesSelector).forEach(function (link) {
 				return _this2.maybeParseLinkRoute_(link);
 			});
-
 			if (!this.app.hasRoutes()) {
 				this.app.addRoutes(new _Route2.default(/.*/, _HtmlScreen2.default));
 				console.log('Senna can\'t find route elements, adding default.');
@@ -125,7 +146,6 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 			var surfacesSelector = '[' + _dataAttributes2.default.surface + ']';
 			this.querySelectorAllAsArray_(surfacesSelector).forEach(function (surfaceElement) {
 				_this3.updateElementIdIfSpecialSurface_(surfaceElement);
-
 				_this3.app.addSurfaces(surfaceElement.id);
 			});
 		};
@@ -144,29 +164,24 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 
 		AppDataAttributeHandler.prototype.maybeParseLinkRouteHandler_ = function maybeParseLinkRouteHandler_(link) {
 			var handler = link.getAttribute('type');
-
 			if (_metal.core.isDefAndNotNull(handler)) {
 				handler = _metal.object.getObjectByName(handler);
 			}
-
 			return handler;
 		};
 
 		AppDataAttributeHandler.prototype.maybeParseLinkRoutePath_ = function maybeParseLinkRoutePath_(link) {
 			var path = link.getAttribute('href');
-
 			if (_metal.core.isDefAndNotNull(path)) {
 				if (path.indexOf('regex:') === 0) {
 					path = new RegExp(path.substring(6));
 				}
 			}
-
 			return path;
 		};
 
 		AppDataAttributeHandler.prototype.maybeSetBasePath_ = function maybeSetBasePath_() {
 			var basePath = this.baseElement.getAttribute(_dataAttributes2.default.basePath);
-
 			if (_metal.core.isDefAndNotNull(basePath)) {
 				this.app.setBasePath(basePath);
 				console.log('Senna scanned base path ' + basePath);
@@ -175,7 +190,6 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 
 		AppDataAttributeHandler.prototype.maybeSetLinkSelector_ = function maybeSetLinkSelector_() {
 			var linkSelector = this.baseElement.getAttribute(_dataAttributes2.default.linkSelector);
-
 			if (_metal.core.isDefAndNotNull(linkSelector)) {
 				this.app.setLinkSelector(linkSelector);
 				console.log('Senna scanned link selector ' + linkSelector);
@@ -184,7 +198,6 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 
 		AppDataAttributeHandler.prototype.maybeSetLoadingCssClass_ = function maybeSetLoadingCssClass_() {
 			var loadingCssClass = this.baseElement.getAttribute(_dataAttributes2.default.loadingCssClass);
-
 			if (_metal.core.isDefAndNotNull(loadingCssClass)) {
 				this.app.setLoadingCssClass(loadingCssClass);
 				console.log('Senna scanned loading css class ' + loadingCssClass);
@@ -193,14 +206,12 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 
 		AppDataAttributeHandler.prototype.maybeSetUpdateScrollPosition_ = function maybeSetUpdateScrollPosition_() {
 			var updateScrollPosition = this.baseElement.getAttribute(_dataAttributes2.default.updateScrollPosition);
-
 			if (_metal.core.isDefAndNotNull(updateScrollPosition)) {
 				if (updateScrollPosition === 'false') {
 					this.app.setUpdateScrollPosition(false);
 				} else {
 					this.app.setUpdateScrollPosition(true);
 				}
-
 				console.log('Senna scanned update scroll position ' + updateScrollPosition);
 			}
 		};

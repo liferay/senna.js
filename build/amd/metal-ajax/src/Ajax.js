@@ -26,16 +26,12 @@ define(['exports', 'metal/src/metal', 'metal-uri/src/Uri', 'metal-promise/src/pr
 
 		Ajax.parseResponseHeaders = function parseResponseHeaders(allHeaders) {
 			var headers = [];
-
 			if (!allHeaders) {
 				return headers;
 			}
-
 			var pairs = allHeaders.split('\r\n');
-
 			for (var i = 0; i < pairs.length; i++) {
 				var index = pairs[i].indexOf(': ');
-
 				if (index > 0) {
 					var name = pairs[i].substring(0, index);
 					var value = pairs[i].substring(index + 2);
@@ -45,22 +41,20 @@ define(['exports', 'metal/src/metal', 'metal-uri/src/Uri', 'metal-promise/src/pr
 					});
 				}
 			}
-
 			return headers;
 		};
 
 		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync) {
 			var request = new XMLHttpRequest();
+
 			var promise = new _Promise.CancellablePromise(function (resolve, reject) {
 				request.onload = function () {
 					if (request.aborted) {
 						request.onerror();
 						return;
 					}
-
 					resolve(request);
 				};
-
 				request.onerror = function () {
 					var error = new Error('Request error');
 					error.request = request;

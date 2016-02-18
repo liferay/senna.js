@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri, _UA) {
 	'use strict';
 
@@ -38,7 +36,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -60,21 +58,70 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	var RequestScreen = function (_Screen) {
 		_inherits(RequestScreen, _Screen);
 
+		/**
+   * Request screen abstract class to perform io operations on descendant
+   * screens.
+   * @constructor
+   * @extends {Screen}
+   */
+
 		function RequestScreen() {
 			_classCallCheck(this, RequestScreen);
 
 			var _this = _possibleConstructorReturn(this, _Screen.call(this));
 
+			/**
+    * @inheritDoc
+    * @default true
+    */
 			_this.cacheable = true;
+
+			/**
+    * Holds default http headers to set on request.
+    * @type {?Object=}
+    * @default {
+    *   'X-PJAX': 'true',
+    *   'X-Requested-With': 'XMLHttpRequest'
+    * }
+    * @protected
+    */
 			_this.httpHeaders = {
 				'X-PJAX': 'true',
 				'X-Requested-With': 'XMLHttpRequest'
 			};
+
+			/**
+    * Holds default http method to perform the request.
+    * @type {!string}
+    * @default RequestScreen.GET
+    * @protected
+    */
 			_this.httpMethod = RequestScreen.GET;
+
+			/**
+    * Holds the XHR object responsible for the request.
+    * @type {XMLHttpRequest}
+    * @default null
+    * @protected
+    */
 			_this.request = null;
+
+			/**
+    * Holds the request timeout in milliseconds.
+    * @type {!number}
+    * @default 30000
+    * @protected
+    */
 			_this.timeout = 30000;
 			return _this;
 		}
+
+		/**
+   * Asserts that response status code is valid.
+   * @param {number} status
+   * @protected
+   */
+
 
 		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
 			if (!this.isValidResponseStatusCode(status)) {
@@ -86,19 +133,19 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 
 		RequestScreen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
 			var redirectPath = this.getRequestPath();
-
 			if (redirectPath && redirectPath !== path) {
 				return redirectPath;
 			}
-
 			return path;
 		};
 
 		RequestScreen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
+			// If state is ours and navigate to post-without-redirect-get set
+			// history state to null, that way Senna will reload the page on
+			// popstate since it cannot predict post data.
 			if (state.senna && state.form && state.redirectPath === state.path) {
 				return null;
 			}
-
 			return state;
 		};
 
@@ -108,7 +155,6 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 				uri.makeUnique();
 				return uri.toString();
 			}
-
 			return path;
 		};
 
@@ -122,12 +168,10 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 
 		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
-
 			if (request) {
 				var uri = new _Uri2.default(request.responseURL);
 				return uri.getPathname() + uri.getSearch() + uri.getHash();
 			}
-
 			return null;
 		};
 
@@ -147,7 +191,6 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			var _this2 = this;
 
 			var cache = this.getCache();
-
 			if (_metal.core.isDefAndNotNull(cache)) {
 				return _Promise2.default.resolve(cache);
 			}
@@ -164,15 +207,13 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			Object.keys(this.httpHeaders).forEach(function (header) {
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
+
 			return _Ajax2.default.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
-
 				_this2.assertValidResponseStatusCode(xhr.status);
-
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
 				}
-
 				return xhr.responseText;
 			});
 		};
@@ -197,8 +238,24 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	}(_Screen3.default);
 
 	RequestScreen.prototype.registerMetalComponent && RequestScreen.prototype.registerMetalComponent(RequestScreen, 'RequestScreen')
+
+
+	/**
+  * Holds value for method get.
+  * @type {string}
+  * @default 'get'
+  * @static
+  */
 	RequestScreen.GET = 'get';
+
+	/**
+  * Holds value for method post.
+  * @type {string}
+  * @default 'post'
+  * @static
+  */
 	RequestScreen.POST = 'post';
+
 	exports.default = RequestScreen;
 });
 //# sourceMappingURL=RequestScreen.js.map

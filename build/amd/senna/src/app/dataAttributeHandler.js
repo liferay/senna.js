@@ -15,6 +15,10 @@ define(['exports', '../globals/globals', './AppDataAttributeHandler'], function 
     };
   }
 
+  /**
+   * Data attribute handler.
+   * @type {AppDataAttributeHandler}
+   */
   var dataAttributeHandler = new _AppDataAttributeHandler2.default();
 
   _globals2.default.document.addEventListener('DOMContentLoaded', function () {

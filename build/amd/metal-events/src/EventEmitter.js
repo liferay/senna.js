@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _metal, _EventHandle) {
 	'use strict';
 
@@ -26,7 +24,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -53,16 +51,47 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
+			/**
+    * Holds event listeners scoped by event type.
+    * @type {!Object<string, !Array<!function()>>}
+    * @protected
+    */
 			_this.events_ = [];
+
+			/**
+    * The maximum number of listeners allowed for each event type. If the number
+    * becomes higher than the max, a warning will be issued.
+    * @type {number}
+    * @protected
+    */
 			_this.maxListeners_ = 10;
+
+			/**
+    * Configuration option which determines if an event facade should be sent
+    * as a param of listeners when emitting events. If set to true, the facade
+    * will be passed as the first argument of the listener.
+    * @type {boolean}
+    * @protected
+    */
 			_this.shouldUseFacade_ = false;
 			return _this;
 		}
 
+		/**
+   * Adds a listener to the end of the listeners array for the specified events.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @param {boolean} opt_default Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+
 		EventEmitter.prototype.addListener = function addListener(events, listener, opt_default) {
 			this.validateListener_(listener);
-			events = this.normalizeEvents_(events);
 
+			events = this.normalizeEvents_(events);
 			for (var i = 0; i < events.length; i++) {
 				this.addSingleListener_(events[i], listener, opt_default);
 			}
@@ -76,14 +105,13 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 			if (!this.events_[event]) {
 				this.events_[event] = [];
 			}
-
 			this.events_[event].push({
 				default: opt_default,
 				fn: listener,
 				origin: opt_origin
 			});
-			var listeners = this.events_[event];
 
+			var listeners = this.events_[event];
 			if (listeners.length > this.maxListeners_ && !listeners.warned) {
 				console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
 				listeners.warned = true;
@@ -96,10 +124,9 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 		EventEmitter.prototype.emit = function emit(event) {
 			var args = _metal.array.slice(arguments, 1);
-
 			var listeners = (this.events_[event] || []).concat();
-			var facade;
 
+			var facade;
 			if (this.getShouldUseFacade()) {
 				facade = {
 					preventDefault: function preventDefault() {
@@ -112,7 +139,6 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 			}
 
 			var defaultListeners = [];
-
 			for (var i = 0; i < listeners.length; i++) {
 				if (listeners[i].default) {
 					defaultListeners.push(listeners[i]);
@@ -120,7 +146,6 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 					listeners[i].fn.apply(this, args);
 				}
 			}
-
 			if (!facade || !facade.preventedDefault) {
 				for (var j = 0; j < defaultListeners.length; j++) {
 					defaultListeners[j].fn.apply(this, args);
@@ -146,7 +171,6 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 		EventEmitter.prototype.many = function many(events, amount, listener) {
 			events = this.normalizeEvents_(events);
-
 			for (var i = 0; i < events.length; i++) {
 				this.many_(events[i], amount, listener);
 			}
@@ -165,7 +189,6 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 				if (--amount === 0) {
 					self.removeListener(event, handlerInternal);
 				}
-
 				listener.apply(self, arguments);
 			}
 
@@ -182,8 +205,8 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 		EventEmitter.prototype.off = function off(events, listener) {
 			this.validateListener_(listener);
-			events = this.normalizeEvents_(events);
 
+			events = this.normalizeEvents_(events);
 			for (var i = 0; i < events.length; i++) {
 				var listenerObjs = this.events_[events[i]] || [];
 				this.removeMatchingListenerObjs_(listenerObjs, listener);
@@ -203,14 +226,12 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		EventEmitter.prototype.removeAllListeners = function removeAllListeners(opt_events) {
 			if (opt_events) {
 				var events = this.normalizeEvents_(opt_events);
-
 				for (var i = 0; i < events.length; i++) {
 					this.events_[events[i]] = null;
 				}
 			} else {
 				this.events_ = {};
 			}
-
 			return this;
 		};
 

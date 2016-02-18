@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
@@ -18,7 +16,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -45,11 +43,34 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
+			/**
+    * The EventEmitter instance that the event was subscribed to.
+    * @type {EventEmitter}
+    * @protected
+    */
 			_this.emitter_ = emitter;
+
+			/**
+    * The name of the event that was subscribed to.
+    * @type {string}
+    * @protected
+    */
 			_this.event_ = event;
+
+			/**
+    * The listener subscribed to the event.
+    * @type {Function}
+    * @protected
+    */
 			_this.listener_ = listener;
 			return _this;
 		}
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
 
 		EventHandle.prototype.disposeInternal = function disposeInternal() {
 			this.removeListener();

@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
@@ -18,7 +16,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -37,6 +35,17 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
+	/**
+  * A cached reference to the create function.
+  */
+	var create = Object.create;
+
+	/**
+  * Case insensitive string Multimap implementation. Allows multiple values for
+  * the same key name.
+  * @extends {Disposable}
+  */
+
 	var MultiMap = function (_Disposable) {
 		_inherits(MultiMap, _Disposable);
 
@@ -45,10 +54,18 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
-			_this.keys = {};
-			_this.values = {};
+			_this.keys = create(null);
+			_this.values = create(null);
 			return _this;
 		}
+
+		/**
+   * Adds value to a key name.
+   * @param {string} name
+   * @param {*} value
+   * @chainable
+   */
+
 
 		MultiMap.prototype.add = function add(name, value) {
 			this.keys[name.toLowerCase()] = name;
@@ -58,8 +75,8 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		};
 
 		MultiMap.prototype.clear = function clear() {
-			this.keys = {};
-			this.values = {};
+			this.keys = create(null);
+			this.values = create(null);
 			return this;
 		};
 
@@ -73,7 +90,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 		MultiMap.prototype.get = function get(name) {
 			var values = this.values[name.toLowerCase()];
-
 			if (values) {
 				return values[0];
 			}

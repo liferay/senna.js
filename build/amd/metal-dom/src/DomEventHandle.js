@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal-events/src/events'], function (exports, _events) {
 	'use strict';
 
@@ -18,7 +16,7 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -40,6 +38,16 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 	var DomEventHandle = function (_EventHandle) {
 		_inherits(DomEventHandle, _EventHandle);
 
+		/**
+   * The constructor for `DomEventHandle`.
+   * @param {!EventEmitter} emitter Emitter the event was subscribed to.
+   * @param {string} event The name of the event that was subscribed to.
+   * @param {!Function} listener The listener subscribed to the event.
+   * @param {boolean} opt_capture Flag indicating if listener should be triggered
+   *   during capture phase, instead of during the bubbling phase. Defaults to false.
+   * @constructor
+   */
+
 		function DomEventHandle(emitter, event, listener, opt_capture) {
 			_classCallCheck(this, DomEventHandle);
 
@@ -48,6 +56,11 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 			_this.capture_ = opt_capture;
 			return _this;
 		}
+
+		/**
+   * @inheritDoc
+   */
+
 
 		DomEventHandle.prototype.removeListener = function removeListener() {
 			this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);

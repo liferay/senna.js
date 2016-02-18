@@ -62,6 +62,23 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 	var parseFn_ = _parse2.default;
 
 	var Uri = function () {
+
+		/**
+   * This class contains setters and getters for the parts of the URI.
+   * The following figure displays an example URIs and their component parts.
+   *
+   *                                  path
+   *	                             ┌───┴────┐
+   *	  abc://example.com:123/path/data?key=value#fragid1
+   *	  └┬┘   └────┬────┘ └┬┘           └───┬───┘ └──┬──┘
+   * protocol  hostname  port            search    hash
+   *          └──────┬───────┘
+   *                host
+   *
+   * @param {*=} opt_uri Optional string URI to parse
+   * @constructor
+   */
+
 		function Uri() {
 			var opt_uri = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
@@ -69,6 +86,15 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 
 			this.url = Uri.parse(this.maybeAddProtocolAndHostname_(opt_uri));
 		}
+
+		/**
+   * Adds parameters to uri from a <code>MultiMap</code> as source.
+   * @param {MultiMap} multimap The <code>MultiMap</code> containing the
+   *   parameters.
+   * @protected
+   * @chainable
+   */
+
 
 		Uri.prototype.addParametersFromMultiMap = function addParametersFromMultiMap(multimap) {
 			var _this = this;
@@ -83,11 +109,9 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 
 		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
 			this.ensureQueryInitialized_();
-
 			if (_metal.core.isDef(value)) {
 				value = String(value);
 			}
-
 			this.query.add(name, value);
 			return this;
 		};
@@ -107,10 +131,8 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 			if (this.query) {
 				return;
 			}
-
 			this.query = new _MultiMap2.default();
 			var search = this.url.search;
-
 			if (search) {
 				search.substring(1).split('&').forEach(function (param) {
 					var _param$split = param.split('=');
@@ -123,7 +145,6 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 					if (_metal.core.isDef(value)) {
 						value = Uri.urlDecode(value);
 					}
-
 					_this3.addParameterValue(key, value);
 				});
 			}
@@ -135,35 +156,28 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 
 		Uri.prototype.getHost = function getHost() {
 			var host = this.getHostname();
-
 			if (host) {
 				var port = this.getPort();
-
 				if (port && port !== '80') {
 					host += ':' + port;
 				}
 			}
-
 			return host;
 		};
 
 		Uri.prototype.getHostname = function getHostname() {
 			var hostname = this.url.hostname;
-
 			if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
 				return '';
 			}
-
 			return hostname;
 		};
 
 		Uri.prototype.getOrigin = function getOrigin() {
 			var host = this.getHost();
-
 			if (host) {
 				return this.getProtocol() + '//' + host;
 			}
-
 			return '';
 		};
 
@@ -206,20 +220,16 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 			this.getParameterNames().forEach(function (name) {
 				_this4.getParameterValues(name).forEach(function (value) {
 					querystring += name;
-
 					if (_metal.core.isDef(value)) {
 						querystring += '=' + encodeURIComponent(value);
 					}
-
 					querystring += '&';
 				});
 			});
 			querystring = querystring.slice(0, -1);
-
 			if (querystring) {
 				search += '?' + querystring;
 			}
-
 			return search;
 		};
 
@@ -235,10 +245,10 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 
 		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
 			var url = opt_uri;
-
 			if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
-				url = Uri.DEFAULT_PROTOCOL;
+				// jshint ignore:line
 
+				url = Uri.DEFAULT_PROTOCOL;
 				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
 					url += '//';
 				}
@@ -251,31 +261,25 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 						url += '/';
 						url += opt_uri;
 						break;
-
 					case '':
 					case '/':
 						if (opt_uri[1] !== '/') {
 							url += Uri.HOSTNAME_PLACEHOLDER;
 						}
-
 						url += opt_uri;
 						break;
-
 					default:
 						url += opt_uri;
 				}
 			}
-
 			return url;
 		};
 
 		Uri.normalizeObject = function normalizeObject(parsed) {
 			var length = parsed.pathname ? parsed.pathname.length : 0;
-
 			if (length > 1 && parsed.pathname[length - 1] === '/') {
 				parsed.pathname = parsed.pathname.substr(0, length - 1);
 			}
-
 			return parsed;
 		};
 
@@ -336,22 +340,18 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 
 		Uri.prototype.setProtocol = function setProtocol(protocol) {
 			this.url.protocol = protocol;
-
 			if (this.url.protocol[this.url.protocol.length - 1] !== ':') {
 				this.url.protocol += ':';
 			}
-
 			return this;
 		};
 
 		Uri.prototype.toString = function toString() {
 			var href = '';
 			var host = this.getHost();
-
 			if (host) {
 				href += this.getProtocol() + '//';
 			}
-
 			href += host + this.getPathname() + this.getSearch() + this.getHash();
 			return href;
 		};
@@ -364,7 +364,6 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 			if (basePath.charAt(basePath.length - 1) === '/') {
 				basePath = basePath.substring(0, basePath.length - 1);
 			}
-
 			paths = paths.map(function (path) {
 				return path.charAt(0) === '/' ? path.substring(1) : path;
 			});
@@ -378,9 +377,28 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 		return Uri;
 	}();
 
+	/**
+  * Default protocol value.
+  * @type {string}
+  * @default http:
+  * @static
+  */
 	Uri.DEFAULT_PROTOCOL = 'http:';
+
+	/**
+  * Hostname placeholder. Relevant to internal usage only.
+  * @type {string}
+  * @static
+  */
 	Uri.HOSTNAME_PLACEHOLDER = 'hostname' + Date.now();
+
+	/**
+  * Name used by the param generated by `makeUnique`.
+  * @type {string}
+  * @static
+  */
 	Uri.RANDOM_PARAM = 'zx';
+
 	exports.default = Uri;
 });
 //# sourceMappingURL=Uri.js.map

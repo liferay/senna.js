@@ -45,6 +45,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 		dom.addClassesWithoutNative_ = function addClassesWithoutNative_(element, classes) {
 			var elementClassName = ' ' + element.className + ' ';
 			var classesToAppend = '';
+
 			classes = classes.split(' ');
 
 			for (var i = 0; i < classes.length; i++) {
@@ -64,17 +65,14 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 			if (_metal.core.isString(child)) {
 				child = dom.buildFragment(child);
 			}
-
 			if (child instanceof NodeList) {
 				var childArr = Array.prototype.slice.call(child);
-
 				for (var i = 0; i < childArr.length; i++) {
 					parent.appendChild(childArr[i]);
 				}
 			} else {
 				parent.appendChild(child);
 			}
-
 			return child;
 		};
 
@@ -82,17 +80,17 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 			var tempDiv = document.createElement('div');
 			tempDiv.innerHTML = '<br>' + htmlString;
 			tempDiv.removeChild(tempDiv.firstChild);
-			var fragment = document.createDocumentFragment();
 
+			var fragment = document.createDocumentFragment();
 			while (tempDiv.firstChild) {
 				fragment.appendChild(tempDiv.firstChild);
 			}
-
 			return fragment;
 		};
 
 		dom.contains = function contains(element1, element2) {
 			if (_metal.core.isDocument(element1)) {
+				// document.contains is not defined on IE9, so call it on documentElement instead.
 				return element1.documentElement.contains(element2);
 			} else {
 				return element1.contains(element2);
@@ -101,12 +99,10 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.delegate = function delegate(element, eventName, selector, callback) {
 			var customConfig = dom.customEvents[eventName];
-
 			if (customConfig && customConfig.delegate) {
 				eventName = customConfig.originalEvent;
 				callback = customConfig.handler.bind(customConfig, callback);
 			}
-
 			return dom.on(element, eventName, dom.handleDelegateEvent_.bind(null, selector, callback));
 		};
 
@@ -122,6 +118,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.handleDelegateEvent_ = function handleDelegateEvent_(selector, callback, event) {
 			dom.normalizeDelegateEvent_(event);
+
 			var currentElement = event.target;
 			var returnValue = true;
 
@@ -130,15 +127,13 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 					event.delegateTarget = currentElement;
 					returnValue &= callback(event);
 				}
-
 				if (currentElement === event.currentTarget) {
 					break;
 				}
-
 				currentElement = currentElement.parentNode;
 			}
-
 			event.delegateTarget = null;
+
 			return returnValue;
 		};
 
@@ -169,7 +164,6 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 			var p = Element.prototype;
 			var m = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector;
-
 			if (m) {
 				return m.call(element, selector);
 			}
@@ -179,25 +173,21 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.matchFallback_ = function matchFallback_(element, selector) {
 			var nodes = document.querySelectorAll(selector, element.parentNode);
-
 			for (var i = 0; i < nodes.length; ++i) {
 				if (nodes[i] === element) {
 					return true;
 				}
 			}
-
 			return false;
 		};
 
 		dom.next = function next(element, selector) {
 			do {
 				element = element.nextSibling;
-
 				if (element && dom.match(element, selector)) {
 					return element;
 				}
 			} while (element);
-
 			return null;
 		};
 
@@ -210,14 +200,11 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 			if (_metal.core.isString(element)) {
 				return dom.delegate(document, eventName, element, callback);
 			}
-
 			var customConfig = dom.customEvents[eventName];
-
 			if (customConfig && customConfig.event) {
 				eventName = customConfig.originalEvent;
 				callback = customConfig.handler.bind(customConfig, callback);
 			}
-
 			element.addEventListener(eventName, callback, opt_capture);
 			return new _DomEventHandle2.default(element, eventName, callback, opt_capture);
 		};
@@ -236,7 +223,6 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.removeChildren = function removeChildren(node) {
 			var child;
-
 			while (child = node.firstChild) {
 				node.removeChild(child);
 			}
@@ -262,6 +248,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.removeClassesWithoutNative_ = function removeClassesWithoutNative_(element, classes) {
 			var elementClassName = ' ' + element.className + ' ';
+
 			classes = classes.split(' ');
 
 			for (var i = 0; i < classes.length; i++) {
@@ -297,10 +284,8 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 				if (!elementsByTag[element]) {
 					elementsByTag[element] = document.createElement(element);
 				}
-
 				element = elementsByTag[element];
 			}
-
 			return 'on' + eventName in element;
 		};
 
@@ -338,6 +323,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.toggleClassesWithoutNative_ = function toggleClassesWithoutNative_(element, classes) {
 			var elementClassName = ' ' + element.className + ' ';
+
 			classes = classes.split(' ');
 
 			for (var i = 0; i < classes.length; i++) {
@@ -357,9 +343,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 		dom.triggerEvent = function triggerEvent(element, eventName, opt_eventObj) {
 			var eventObj = document.createEvent('HTMLEvents');
 			eventObj.initEvent(eventName, true, true);
-
 			_metal.object.mixin(eventObj, opt_eventObj);
-
 			element.dispatchEvent(eventObj);
 		};
 
@@ -368,6 +352,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 	var elementsByTag = {};
 	dom.customEvents = {};
+
 	exports.default = dom;
 });
 //# sourceMappingURL=dom.js.map

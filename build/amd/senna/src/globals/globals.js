@@ -8,6 +8,7 @@ define(["exports"], function (exports) {
 		document: document,
 		window: window
 	};
+
 	exports.default = globals;
 });
 //# sourceMappingURL=globals.js.map

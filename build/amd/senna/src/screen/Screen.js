@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _metal, _dom, _Cacheable2, _Promise) {
 	'use strict';
 
@@ -28,7 +26,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -50,15 +48,42 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 	var Screen = function (_Cacheable) {
 		_inherits(Screen, _Cacheable);
 
+		/**
+   * Screen class is a special type of route handler that provides helper
+   * utilities that adds lifecycle and methods to provide content to each
+   * registered surface.
+   * @constructor
+   * @extends {Cacheable}
+   */
+
 		function Screen() {
 			_classCallCheck(this, Screen);
 
 			var _this = _possibleConstructorReturn(this, _Cacheable.call(this));
 
+			/**
+    * Holds the screen id.
+    * @type {string}
+    * @protected
+    */
 			_this.id = _this.makeId_(_metal.core.getUid());
+
+			/**
+    * Holds the screen title. Relevant when the page title should be
+    * upadated when screen is rendered.
+    * @type {?string=}
+    * @default null
+    * @protected
+    */
 			_this.title = null;
 			return _this;
 		}
+
+		/**
+   * Fires when the screen is active. Allows a screen to perform any setup
+   * that requires its DOM to be visible. Lifecycle.
+   */
+
 
 		Screen.prototype.activate = function activate() {
 			console.log('Screen [' + this + '] activate');
@@ -82,7 +107,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 
 		Screen.prototype.disposeInternal = function disposeInternal() {
 			_Cacheable.prototype.disposeInternal.call(this);
-
 			console.log('Screen [' + this + '] dispose');
 		};
 
@@ -103,12 +127,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 			var _this2 = this;
 
 			console.log('Screen [' + this + '] flip');
+
 			var transitions = [];
+
 			Object.keys(surfaces).forEach(function (sId) {
 				var surface = surfaces[sId];
 				var deferred = surface.show(_this2.id);
 				transitions.push(deferred);
 			});
+
 			return _Promise2.default.all(transitions);
 		};
 
@@ -150,6 +177,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 
 	Screen.prototype.registerMetalComponent && Screen.prototype.registerMetalComponent(Screen, 'Screen')
 
+
+	/**
+  * @param {*} object
+  * @return {boolean} Whether a given instance implements
+  * <code>Screen</code>.
+  */
 	Screen.isImplementedBy = function (object) {
 		return object instanceof Screen;
 	};

@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
@@ -18,7 +16,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -45,9 +43,22 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
+			/**
+    * An array that holds the added event handles, so the listeners can be
+    * removed later.
+    * @type {Array.<EventHandle>}
+    * @protected
+    */
 			_this.eventHandles_ = [];
 			return _this;
 		}
+
+		/**
+   * Adds event handles to be removed later through the `removeAllListeners`
+   * method.
+   * @param {...(!EventHandle)} var_args
+   */
+
 
 		EventHandler.prototype.add = function add() {
 			for (var i = 0; i < arguments.length; i++) {

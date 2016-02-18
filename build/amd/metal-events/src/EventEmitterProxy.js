@@ -1,5 +1,3 @@
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
@@ -18,7 +16,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
 
-		return call && ((typeof call === 'undefined' ? 'undefined' : _typeof(call)) === "object" || typeof call === "function") ? call : self;
+		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
 
 	function _inherits(subClass, superClass) {
@@ -45,16 +43,53 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
 
+			/**
+    * Map of events that should not be proxied.
+    * @type {Object}
+    * @protected
+    */
 			_this.blacklist_ = opt_blacklist || {};
+
+			/**
+    * The origin emitter. This emitter's events will be proxied through the
+    * target emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
 			_this.originEmitter_ = originEmitter;
+
+			/**
+    * Holds a map of events from the origin emitter that are already being proxied.
+    * @type {Object}
+    * @protected
+    */
 			_this.proxiedEvents_ = {};
+
+			/**
+    * The target emitter. This emitter will emit all events that come from
+    * the origin emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
 			_this.targetEmitter_ = targetEmitter;
+
+			/**
+    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
+    * @type {Object}
+    * @protected
+    */
 			_this.whitelist_ = opt_whitelist;
 
 			_this.startProxy_();
-
 			return _this;
 		}
+
+		/**
+   * Adds the proxy listener for the given event.
+   * @param {string} event.
+   * @protected
+   */
+
 
 		EventEmitterProxy.prototype.addListener_ = function addListener_(event) {
 			this.originEmitter_.on(event, this.proxiedEvents_[event]);
@@ -62,7 +97,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
 			_metal.object.map(this.proxiedEvents_, this.removeListener_.bind(this));
-
 			this.proxiedEvents_ = null;
 			this.originEmitter_ = null;
 			this.targetEmitter_ = null;
@@ -74,7 +108,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			}
 
 			var self = this;
-
 			this.proxiedEvents_[event] = function () {
 				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
 				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
@@ -91,11 +124,9 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			if (this.whitelist_ && !this.whitelist_[event]) {
 				return false;
 			}
-
 			if (this.blacklist_[event]) {
 				return false;
 			}
-
 			return !this.proxiedEvents_[event];
 		};
 

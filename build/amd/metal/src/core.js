@@ -1,6 +1,11 @@
 define(['exports'], function (exports) {
 	'use strict';
 
+	/**
+  * A collection of core utility functions.
+  * @const
+  */
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -28,12 +33,10 @@ define(['exports'], function (exports) {
 
 		core.collectSuperClassesProperty = function collectSuperClassesProperty(constructor, propertyName) {
 			var propertyValues = [constructor[propertyName]];
-
 			while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
 				constructor = constructor.__proto__;
 				propertyValues.push(constructor[propertyName]);
 			}
-
 			return propertyValues;
 		};
 
@@ -42,7 +45,6 @@ define(['exports'], function (exports) {
 				var str = fn.toString();
 				fn.name = str.substring(9, str.indexOf('('));
 			}
-
 			return fn.name;
 		};
 
@@ -50,7 +52,6 @@ define(['exports'], function (exports) {
 			if (opt_object) {
 				return opt_object[core.UID_PROPERTY] || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
 			}
-
 			return core.uniqueIdCounter_++;
 		};
 
@@ -109,17 +110,14 @@ define(['exports'], function (exports) {
 
 		core.mergeSuperClassesProperty = function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
 			var mergedName = propertyName + '_MERGED';
-
 			if (constructor.hasOwnProperty(mergedName)) {
 				return false;
 			}
 
 			var merged = core.collectSuperClassesProperty(constructor, propertyName);
-
 			if (opt_mergeFn) {
 				merged = opt_mergeFn(merged);
 			}
-
 			constructor[mergedName] = merged;
 			return true;
 		};
@@ -129,8 +127,20 @@ define(['exports'], function (exports) {
 		return core;
 	}();
 
+	/**
+  * Unique id property prefix.
+  * @type {String}
+  * @protected
+  */
 	core.UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
+
+	/**
+  * Counter for unique id.
+  * @type {Number}
+  * @private
+  */
 	core.uniqueIdCounter_ = 1;
+
 	exports.default = core;
 });
 //# sourceMappingURL=core.js.map
