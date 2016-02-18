@@ -60,6 +60,15 @@ class utils {
 		return false;
 	}
 
+	/**
+	 * Returns true if HTML5 History api is supported.
+	 * @return {boolean}
+	 * @static
+	 */
+	static isHtml5HistorySupported() {
+		return !!(globals.window.history && globals.window.history.pushState);
+	}
+
 }
 
 export default utils;

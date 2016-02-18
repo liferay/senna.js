@@ -1240,14 +1240,16 @@ describe('App', function() {
 	});
 
 	it('should not navigate when HTML5 History api is not supported', function() {
+		var original = utils.isHtml5HistorySupported;
 		assert.throws(function() {
 			var app = new App();
 			app.addRoutes(new Route('/path', Screen));
-			app.isHtml5HistorySupported = function() {
+			utils.isHtml5HistorySupported = function() {
 				return false;
 			};
 			app.navigate('/path');
 		}, Error);
+		utils.isHtml5HistorySupported = original;
 	});
 
 	it('should set document title from screen title', function(done) {

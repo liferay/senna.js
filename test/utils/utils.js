@@ -12,6 +12,9 @@ describe('utils', function() {
 				pathname: '/path',
 				search: '?a=1',
 				hash: '#hash'
+			},
+			history: {
+				pushState: 1
 			}
 		};
 	});
@@ -42,6 +45,12 @@ describe('utils', function() {
 
 	it('should get current browser path excluding hashbang', function() {
 		assert.strictEqual('/path?a=1', utils.getCurrentBrowserPathWithoutHash());
+	});
+
+	it('should test if Html5 history is supported', function() {
+		assert.ok(utils.isHtml5HistorySupported());
+		globals.window.history = null;
+		assert.ok(!utils.isHtml5HistorySupported());
 	});
 
 });

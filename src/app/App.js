@@ -491,14 +491,6 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Returns true if HTML5 History api is supported.
-	 * @return {boolean}
-	 */
-	isHtml5HistorySupported() {
-		return globals.window.history && globals.window.history.pushState;
-	}
-
-	/**
 	 * Tests if hostname is an offsite link.
 	 * @param {!string} hostname Link hostname to compare with
 	 *     <code>globals.window.location.hostname</code>.
@@ -621,7 +613,7 @@ class App extends EventEmitter {
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	navigate(path, opt_replaceHistory) {
-		if (!this.isHtml5HistorySupported()) {
+		if (!utils.isHtml5HistorySupported()) {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 		}
 
