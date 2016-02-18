@@ -243,6 +243,31 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Returns if can navigate to path.
+	 * @param {!string} url
+	 * @return {boolean}
+	 */
+	canNavigate(url) {
+		var path = this.getPath(url);
+		var uri = new Uri(url);
+
+		if (!this.isLinkSameOrigin_(uri.getHostname())) {
+			console.log('Offsite link clicked');
+			return false;
+		}
+		if (!this.isSameBasePath_(path)) {
+			console.log('Link clicked outside app\'s base path');
+			return false;
+		}
+		if (!this.findRoute(path)) {
+			console.log('No route for ' + path);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Clear screens cache.
 	 * @chainable
 	 */
@@ -436,6 +461,16 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Extracts the path from url.
+	 * @return {!string}
+	 */
+	getPath(url) {
+		var uri = new Uri(url);
+
+		return uri.getPathname() + uri.getSearch() + uri.getHash();
+	}
+
+	/**
 	 * Gets the update scroll position value.
 	 * @return {boolean}
 	 */
@@ -554,19 +589,7 @@ class App extends EventEmitter {
 	 * @param {Event} event Dom event that initiated the navigation.
 	 */
 	maybeNavigate_(href, event) {
-		var uri = new Uri(href);
-		var path = uri.getPathname() + uri.getSearch() + uri.getHash();
-
-		if (!this.isLinkSameOrigin_(uri.getHostname())) {
-			console.log('Offsite link clicked');
-			return;
-		}
-		if (!this.isSameBasePath_(path)) {
-			console.log('Link clicked outside app\'s base path');
-			return;
-		}
-		if (!this.findRoute(path)) {
-			console.log('No route for ' + path);
+		if (!this.canNavigate(href)) {
 			return;
 		}
 
@@ -579,7 +602,7 @@ class App extends EventEmitter {
 
 		var navigateFailed = false;
 		try {
-			this.navigate(path);
+			this.navigate(this.getPath(href));
 		} catch (err) {
 			// Do not prevent link navigation in case some synchronous error occurs
 			navigateFailed = true;

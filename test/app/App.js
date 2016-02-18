@@ -294,6 +294,12 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should get path from url', function() {
+		var app = new App();
+		assert.strictEqual('/path?a=1#hash', app.getPath('http://localhost/path?a=1#hash'));
+		app.dispose();
+	});
+
 	it('should get update scroll position', function() {
 		var app = new App();
 		assert.strictEqual(true, app.getUpdateScrollPosition());
@@ -332,6 +338,26 @@ describe('App', function() {
 		app.setLinkSelector('');
 		assert.strictEqual('', app.getLinkSelector());
 		app.dispose();
+	});
+
+	it('should test if can navigate to url', function() {
+		var app = new App();
+		globals.window = {
+			history: {},
+			location: {
+				hostname: 'localhost',
+				pathname: '/path',
+				search: ''
+			}
+		};
+		app.setBasePath('/base');
+		app.addRoutes(new Route('/path', Screen));
+		assert.ok(app.canNavigate('http://localhost/base/path'));
+		assert.ok(!app.canNavigate('http://localhost/base/path1'));
+		assert.ok(!app.canNavigate('http://localhost/path'));
+		assert.ok(!app.canNavigate('http://external/path'));
+		app.dispose();
+		globals.window = window;
 	});
 
 	it('should store proper senna state after navigate', function(done) {
