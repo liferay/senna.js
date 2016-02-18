@@ -3762,6 +3762,895 @@ babelHelpers;
 }).call(this);
 'use strict';
 
+/**
+ * Parses the given uri string into an object.
+ * @param {*=} opt_uri Optional string URI to parse
+ */
+
+(function () {
+	function parseFromAnchor(opt_uri) {
+		var link = document.createElement('a');
+		link.href = opt_uri;
+		return {
+			hash: link.hash,
+			hostname: link.hostname,
+			password: link.password,
+			pathname: link.pathname[0] === '/' ? link.pathname : '/' + link.pathname,
+			port: link.port,
+			protocol: link.protocol,
+			search: link.search,
+			username: link.username
+		};
+	}
+
+	this.senna.parseFromAnchor = parseFromAnchor;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.sennaNamed.metal.core;
+	var parseFromAnchor = this.senna.parseFromAnchor;
+
+	/**
+  * Parses the given uri string into an object. The URL function will be used
+  * when present, otherwise we'll fall back to the anchor node element.
+  * @param {*=} opt_uri Optional string URI to parse
+  */
+
+	function parse(opt_uri) {
+		if (core.isFunction(URL) && URL.length) {
+			return new URL(opt_uri);
+		} else {
+			return parseFromAnchor(opt_uri);
+		}
+	}
+
+	this.senna.parse = parse;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this.sennaNamed.metal.Disposable;
+
+	/**
+  * A cached reference to the create function.
+  */
+
+	var create = Object.create;
+
+	/**
+  * Case insensitive string Multimap implementation. Allows multiple values for
+  * the same key name.
+  * @extends {Disposable}
+  */
+
+	var MultiMap = function (_Disposable) {
+		babelHelpers.inherits(MultiMap, _Disposable);
+
+		function MultiMap() {
+			babelHelpers.classCallCheck(this, MultiMap);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.keys = create(null);
+			_this.values = create(null);
+			return _this;
+		}
+
+		/**
+   * Adds value to a key name.
+   * @param {string} name
+   * @param {*} value
+   * @chainable
+   */
+
+
+		MultiMap.prototype.add = function add(name, value) {
+			this.keys[name.toLowerCase()] = name;
+			this.values[name.toLowerCase()] = this.values[name.toLowerCase()] || [];
+			this.values[name.toLowerCase()].push(value);
+			return this;
+		};
+
+		/**
+   * Clears map names and values.
+   * @chainable
+   */
+
+
+		MultiMap.prototype.clear = function clear() {
+			this.keys = create(null);
+			this.values = create(null);
+			return this;
+		};
+
+		/**
+   * Checks if map contains a value to the key name.
+   * @param {string} name
+   * @return {boolean}
+   * @chainable
+   */
+
+
+		MultiMap.prototype.contains = function contains(name) {
+			return name.toLowerCase() in this.values;
+		};
+
+		/**
+   * @inheritDoc
+   */
+
+
+		MultiMap.prototype.disposeInternal = function disposeInternal() {
+			this.values = null;
+		};
+
+		/**
+   * Gets the first added value from a key name.
+   * @param {string} name
+   * @return {*}
+   * @chainable
+   */
+
+
+		MultiMap.prototype.get = function get(name) {
+			var values = this.values[name.toLowerCase()];
+			if (values) {
+				return values[0];
+			}
+		};
+
+		/**
+   * Gets all values from a key name.
+   * @param {string} name
+   * @return {Array.<*>}
+   */
+
+
+		MultiMap.prototype.getAll = function getAll(name) {
+			return this.values[name.toLowerCase()];
+		};
+
+		/**
+   * Returns true if the map is empty, false otherwise.
+   * @return {boolean}
+   */
+
+
+		MultiMap.prototype.isEmpty = function isEmpty() {
+			return this.size() === 0;
+		};
+
+		/**
+   * Gets array of key names.
+   * @return {Array.<string>}
+   */
+
+
+		MultiMap.prototype.names = function names() {
+			var _this2 = this;
+
+			return Object.keys(this.values).map(function (key) {
+				return _this2.keys[key];
+			});
+		};
+
+		/**
+   * Removes all values from a key name.
+   * @param {string} name
+   * @chainable
+   */
+
+
+		MultiMap.prototype.remove = function remove(name) {
+			delete this.keys[name.toLowerCase()];
+			delete this.values[name.toLowerCase()];
+			return this;
+		};
+
+		/**
+   * Sets the value of a key name. Relevant to replace the current values with
+   * a new one.
+   * @param {string} name
+   * @param {*} value
+   * @chainable
+   */
+
+
+		MultiMap.prototype.set = function set(name, value) {
+			this.keys[name.toLowerCase()] = name;
+			this.values[name.toLowerCase()] = [value];
+			return this;
+		};
+
+		/**
+   * Gets the size of the map key names.
+   * @return {number}
+   */
+
+
+		MultiMap.prototype.size = function size() {
+			return this.names().length;
+		};
+
+		/**
+   * Returns the parsed values as a string.
+   * @return {string}
+   */
+
+
+		MultiMap.prototype.toString = function toString() {
+			return JSON.stringify(this.values);
+		};
+
+		return MultiMap;
+	}(Disposable);
+
+	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
+	this.senna.MultiMap = MultiMap;
+}).call(this);
+'use strict';
+
+(function () {
+	var core = this.sennaNamed.metal.core;
+	var string = this.sennaNamed.metal.string;
+	var parse = this.senna.parse;
+	var MultiMap = this.senna.MultiMap;
+
+
+	var parseFn_ = parse;
+
+	var Uri = function () {
+
+		/**
+   * This class contains setters and getters for the parts of the URI.
+   * The following figure displays an example URIs and their component parts.
+   *
+   *                                  path
+   *	                             ┌───┴────┐
+   *	  abc://example.com:123/path/data?key=value#fragid1
+   *	  └┬┘   └────┬────┘ └┬┘           └───┬───┘ └──┬──┘
+   * protocol  hostname  port            search    hash
+   *          └──────┬───────┘
+   *                host
+   *
+   * @param {*=} opt_uri Optional string URI to parse
+   * @constructor
+   */
+
+		function Uri() {
+			var opt_uri = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+			babelHelpers.classCallCheck(this, Uri);
+
+			this.url = Uri.parse(this.maybeAddProtocolAndHostname_(opt_uri));
+		}
+
+		/**
+   * Adds parameters to uri from a <code>MultiMap</code> as source.
+   * @param {MultiMap} multimap The <code>MultiMap</code> containing the
+   *   parameters.
+   * @protected
+   * @chainable
+   */
+
+
+		Uri.prototype.addParametersFromMultiMap = function addParametersFromMultiMap(multimap) {
+			var _this = this;
+
+			multimap.names().forEach(function (name) {
+				multimap.getAll(name).forEach(function (value) {
+					_this.addParameterValue(name, value);
+				});
+			});
+			return this;
+		};
+
+		/**
+   * Adds the value of the named query parameters.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value. Will be explicitly casted to String.
+   * @chainable
+   */
+
+
+		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
+			this.ensureQueryInitialized_();
+			if (core.isDef(value)) {
+				value = String(value);
+			}
+			this.query.add(name, value);
+			return this;
+		};
+
+		/**
+   * Adds the values of the named query parameter.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value.
+   * @chainable
+   */
+
+
+		Uri.prototype.addParameterValues = function addParameterValues(name, values) {
+			var _this2 = this;
+
+			values.forEach(function (value) {
+				return _this2.addParameterValue(name, value);
+			});
+			return this;
+		};
+
+		/**
+   * Ensures query internal map is initialized and synced with initial value
+   * extracted from URI search part.
+   * @protected
+   */
+
+
+		Uri.prototype.ensureQueryInitialized_ = function ensureQueryInitialized_() {
+			var _this3 = this;
+
+			if (this.query) {
+				return;
+			}
+			this.query = new MultiMap();
+			var search = this.url.search;
+			if (search) {
+				search.substring(1).split('&').forEach(function (param) {
+					var _param$split = param.split('=');
+
+					var _param$split2 = babelHelpers.slicedToArray(_param$split, 2);
+
+					var key = _param$split2[0];
+					var value = _param$split2[1];
+
+					if (core.isDef(value)) {
+						value = Uri.urlDecode(value);
+					}
+					_this3.addParameterValue(key, value);
+				});
+			}
+		};
+
+		/**
+   * Gets the hash part of uri.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getHash = function getHash() {
+			return this.url.hash || '';
+		};
+
+		/**
+   * Gets the host part of uri. E.g. <code>[hostname]:[port]</code>.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getHost = function getHost() {
+			var host = this.getHostname();
+			if (host) {
+				var port = this.getPort();
+				if (port && port !== '80') {
+					host += ':' + port;
+				}
+			}
+			return host;
+		};
+
+		/**
+   * Gets the hostname part of uri without protocol and port.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getHostname = function getHostname() {
+			var hostname = this.url.hostname;
+			if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
+				return '';
+			}
+			return hostname;
+		};
+
+		/**
+   * Gets the origin part of uri. E.g. <code>http://[hostname]:[port]</code>.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getOrigin = function getOrigin() {
+			var host = this.getHost();
+			if (host) {
+				return this.getProtocol() + '//' + host;
+			}
+			return '';
+		};
+
+		/**
+   * Returns the first value for a given parameter or undefined if the given
+   * parameter name does not appear in the query string.
+   * @param {string} paramName Unescaped parameter name.
+   * @return {string|undefined} The first value for a given parameter or
+   *   undefined if the given parameter name does not appear in the query
+   *   string.
+   */
+
+
+		Uri.prototype.getParameterValue = function getParameterValue(name) {
+			this.ensureQueryInitialized_();
+			return this.query.get(name);
+		};
+
+		/**
+   * Returns the value<b>s</b> for a given parameter as a list of decoded
+   * query parameter values.
+   * @param {string} name The parameter to get values for.
+   * @return {!Array<?>} The values for a given parameter as a list of decoded
+   *   query parameter values.
+   */
+
+
+		Uri.prototype.getParameterValues = function getParameterValues(name) {
+			this.ensureQueryInitialized_();
+			return this.query.getAll(name);
+		};
+
+		/**
+   * Returns the name<b>s</b> of the parameters.
+   * @return {!Array<string>} The names for the parameters as a list of
+   *   strings.
+   */
+
+
+		Uri.prototype.getParameterNames = function getParameterNames() {
+			this.ensureQueryInitialized_();
+			return this.query.names();
+		};
+
+		/**
+   * Gets the function currently being used to parse URIs.
+   * @return {!function()}
+   */
+
+
+		Uri.getParseFn = function getParseFn() {
+			return parseFn_;
+		};
+
+		/**
+   * Gets the pathname part of uri.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getPathname = function getPathname() {
+			return this.url.pathname;
+		};
+
+		/**
+   * Gets the port number part of uri as string.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getPort = function getPort() {
+			return this.url.port;
+		};
+
+		/**
+   * Gets the protocol part of uri. E.g. <code>http:</code>.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getProtocol = function getProtocol() {
+			return this.url.protocol;
+		};
+
+		/**
+   * Gets the search part of uri. Search value is retrieved from query
+   * parameters.
+   * @return {string}
+   */
+
+
+		Uri.prototype.getSearch = function getSearch() {
+			var _this4 = this;
+
+			var search = '';
+			var querystring = '';
+			this.getParameterNames().forEach(function (name) {
+				_this4.getParameterValues(name).forEach(function (value) {
+					querystring += name;
+					if (core.isDef(value)) {
+						querystring += '=' + encodeURIComponent(value);
+					}
+					querystring += '&';
+				});
+			});
+			querystring = querystring.slice(0, -1);
+			if (querystring) {
+				search += '?' + querystring;
+			}
+			return search;
+		};
+
+		/**
+   * Checks if uri contains the parameter.
+   * @param {string} name
+   * @return {boolean}
+   */
+
+
+		Uri.prototype.hasParameter = function hasParameter(name) {
+			this.ensureQueryInitialized_();
+			return this.query.contains(name);
+		};
+
+		/**
+   * Makes this URL unique by adding a random param to it. Useful for avoiding
+   * cache.
+   */
+
+
+		Uri.prototype.makeUnique = function makeUnique() {
+			this.setParameterValue(Uri.RANDOM_PARAM, string.getRandomString());
+			return this;
+		};
+
+		/**
+   * Maybe adds protocol and a hostname placeholder on a parial URI if needed.
+   * Relevent for compatibility with <code>URL</code> native object.
+   * @param {string=} opt_uri
+   * @return {string} URI with protocol and hostname placeholder.
+   */
+
+
+		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
+			var url = opt_uri;
+			if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
+				// jshint ignore:line
+
+				url = Uri.DEFAULT_PROTOCOL;
+				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
+					url += '//';
+				}
+
+				switch (opt_uri.charAt(0)) {
+					case '.':
+					case '?':
+					case '#':
+						url += Uri.HOSTNAME_PLACEHOLDER;
+						url += '/';
+						url += opt_uri;
+						break;
+					case '':
+					case '/':
+						if (opt_uri[1] !== '/') {
+							url += Uri.HOSTNAME_PLACEHOLDER;
+						}
+						url += opt_uri;
+						break;
+					default:
+						url += opt_uri;
+				}
+			}
+			return url;
+		};
+
+		/**
+   * Normalizes the parsed object to be in the expected standard.
+   * @param {!Object}
+   */
+
+
+		Uri.normalizeObject = function normalizeObject(parsed) {
+			var length = parsed.pathname ? parsed.pathname.length : 0;
+			if (length > 1 && parsed.pathname[length - 1] === '/') {
+				parsed.pathname = parsed.pathname.substr(0, length - 1);
+			}
+			return parsed;
+		};
+
+		/**
+   * Parses the given uri string into an object.
+   * @param {*=} opt_uri Optional string URI to parse
+   */
+
+
+		Uri.parse = function parse(opt_uri) {
+			return Uri.normalizeObject(parseFn_(opt_uri));
+		};
+
+		/**
+   * Removes the named query parameter.
+   * @param {string} name The parameter to remove.
+   * @chainable
+   */
+
+
+		Uri.prototype.removeParameter = function removeParameter(name) {
+			this.ensureQueryInitialized_();
+			this.query.remove(name);
+			return this;
+		};
+
+		/**
+   * Removes uniqueness parameter of the uri.
+   * @chainable
+   */
+
+
+		Uri.prototype.removeUnique = function removeUnique() {
+			this.removeParameter(Uri.RANDOM_PARAM);
+			return this;
+		};
+
+		/**
+   * Sets the hash.
+   * @param {string} hash
+   * @chainable
+   */
+
+
+		Uri.prototype.setHash = function setHash(hash) {
+			this.url.hash = hash;
+			return this;
+		};
+
+		/**
+   * Sets the hostname.
+   * @param {string} hostname
+   * @chainable
+   */
+
+
+		Uri.prototype.setHostname = function setHostname(hostname) {
+			this.url.hostname = hostname;
+			return this;
+		};
+
+		/**
+   * Sets the value of the named query parameters, clearing previous values
+   * for that key.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value.
+   * @chainable
+   */
+
+
+		Uri.prototype.setParameterValue = function setParameterValue(name, value) {
+			this.removeParameter(name);
+			this.addParameterValue(name, value);
+			return this;
+		};
+
+		/**
+   * Sets the values of the named query parameters, clearing previous values
+   * for that key.
+   * @param {string} key The parameter to set.
+   * @param {*} value The new value.
+   * @chainable
+   */
+
+
+		Uri.prototype.setParameterValues = function setParameterValues(name, values) {
+			var _this5 = this;
+
+			this.removeParameter(name);
+			values.forEach(function (value) {
+				return _this5.addParameterValue(name, value);
+			});
+			return this;
+		};
+
+		/**
+   * Sets the pathname.
+   * @param {string} pathname
+   * @chainable
+   */
+
+
+		Uri.prototype.setPathname = function setPathname(pathname) {
+			this.url.pathname = pathname;
+			return this;
+		};
+
+		/**
+   * Sets the port number.
+   * @param {*} port Port number.
+   * @chainable
+   */
+
+
+		Uri.prototype.setPort = function setPort(port) {
+			this.url.port = port;
+			return this;
+		};
+
+		/**
+   * Sets the function that will be used for parsing the original string uri
+   * into an object.
+   * @param {!function()} parseFn
+   */
+
+
+		Uri.setParseFn = function setParseFn(parseFn) {
+			parseFn_ = parseFn;
+		};
+
+		/**
+   * Sets the protocol. If missing <code>http:</code> is used as default.
+   * @param {string} protocol
+   * @chainable
+   */
+
+
+		Uri.prototype.setProtocol = function setProtocol(protocol) {
+			this.url.protocol = protocol;
+			if (this.url.protocol[this.url.protocol.length - 1] !== ':') {
+				this.url.protocol += ':';
+			}
+			return this;
+		};
+
+		/**
+   * @return {string} The string form of the url.
+   * @override
+   */
+
+
+		Uri.prototype.toString = function toString() {
+			var href = '';
+			var host = this.getHost();
+			if (host) {
+				href += this.getProtocol() + '//';
+			}
+			href += host + this.getPathname() + this.getSearch() + this.getHash();
+			return href;
+		};
+
+		/**
+   * Joins the given paths.
+   * @param {string} basePath
+   * @param {...string} ...paths Any number of paths to be joined with the base url.
+   * @static
+   */
+
+
+		Uri.joinPaths = function joinPaths(basePath) {
+			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				paths[_key - 1] = arguments[_key];
+			}
+
+			if (basePath.charAt(basePath.length - 1) === '/') {
+				basePath = basePath.substring(0, basePath.length - 1);
+			}
+			paths = paths.map(function (path) {
+				return path.charAt(0) === '/' ? path.substring(1) : path;
+			});
+			return [basePath].concat(paths).join('/').replace(/\/$/, '');
+		};
+
+		/**
+   * URL-decodes the string. We need to specially handle '+'s because
+   * the javascript library doesn't convert them to spaces.
+   * @param {string} str The string to url decode.
+   * @return {string} The decoded {@code str}.
+   */
+
+
+		Uri.urlDecode = function urlDecode(str) {
+			return decodeURIComponent(str.replace(/\+/g, ' '));
+		};
+
+		return Uri;
+	}();
+
+	/**
+  * Default protocol value.
+  * @type {string}
+  * @default http:
+  * @static
+  */
+
+
+	Uri.DEFAULT_PROTOCOL = 'http:';
+
+	/**
+  * Hostname placeholder. Relevant to internal usage only.
+  * @type {string}
+  * @static
+  */
+	Uri.HOSTNAME_PLACEHOLDER = 'hostname' + Date.now();
+
+	/**
+  * Name used by the param generated by `makeUnique`.
+  * @type {string}
+  * @static
+  */
+	Uri.RANDOM_PARAM = 'zx';
+
+	this.senna.Uri = Uri;
+}).call(this);
+'use strict';
+
+(function () {
+	var globals = this.senna.globals;
+	var Uri = this.senna.Uri;
+
+	/**
+  * A collection of static utility functions.
+  * @const
+  */
+
+	var utils = function () {
+		function utils() {
+			babelHelpers.classCallCheck(this, utils);
+		}
+
+		/**
+   * Gets the current browser path including hashbang.
+   * @return {!string}
+   */
+
+		utils.getCurrentBrowserPath = function getCurrentBrowserPath() {
+			return this.getCurrentBrowserPathWithoutHash() + globals.window.location.hash;
+		};
+
+		/**
+   * Gets the current browser path excluding hashbang.
+   * @return {!string}
+   */
+
+
+		utils.getCurrentBrowserPathWithoutHash = function getCurrentBrowserPathWithoutHash() {
+			return globals.window.location.pathname + globals.window.location.search;
+		};
+
+		/**
+   * Extracts the path part of an url.
+   * @return {!string}
+   */
+
+
+		utils.getUrlPath = function getUrlPath(url) {
+			var uri = new Uri(url);
+			return uri.getPathname() + uri.getSearch() + uri.getHash();
+		};
+
+		/**
+   * Extracts the path part of an url without hashbang.
+   * @return {!string}
+   */
+
+
+		utils.getUrlPathWithoutHash = function getUrlPathWithoutHash(url) {
+			var uri = new Uri(url);
+			return uri.getPathname() + uri.getSearch();
+		};
+
+		/**
+   * Checks if url is in the same browser current url excluding the hashbang.
+   * @param  {!string} url
+   * @return {boolean}
+   */
+
+
+		utils.isCurrentBrowserPath = function isCurrentBrowserPath(url) {
+			if (url) {
+				return utils.getUrlPathWithoutHash(url) === this.getCurrentBrowserPathWithoutHash();
+			}
+			return false;
+		};
+
+		return utils;
+	}();
+
+	this.senna.utils = utils;
+}).call(this);
+'use strict';
+
 (function () {
 	var core = this.sennaNamed.metal.core;
 
@@ -4590,819 +5479,6 @@ babelHelpers;
 }).call(this);
 'use strict';
 
-/**
- * Parses the given uri string into an object.
- * @param {*=} opt_uri Optional string URI to parse
- */
-
-(function () {
-	function parseFromAnchor(opt_uri) {
-		var link = document.createElement('a');
-		link.href = opt_uri;
-		return {
-			hash: link.hash,
-			hostname: link.hostname,
-			password: link.password,
-			pathname: link.pathname[0] === '/' ? link.pathname : '/' + link.pathname,
-			port: link.port,
-			protocol: link.protocol,
-			search: link.search,
-			username: link.username
-		};
-	}
-
-	this.senna.parseFromAnchor = parseFromAnchor;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.sennaNamed.metal.core;
-	var parseFromAnchor = this.senna.parseFromAnchor;
-
-	/**
-  * Parses the given uri string into an object. The URL function will be used
-  * when present, otherwise we'll fall back to the anchor node element.
-  * @param {*=} opt_uri Optional string URI to parse
-  */
-
-	function parse(opt_uri) {
-		if (core.isFunction(URL) && URL.length) {
-			return new URL(opt_uri);
-		} else {
-			return parseFromAnchor(opt_uri);
-		}
-	}
-
-	this.senna.parse = parse;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.sennaNamed.metal.Disposable;
-
-	/**
-  * A cached reference to the create function.
-  */
-
-	var create = Object.create;
-
-	/**
-  * Case insensitive string Multimap implementation. Allows multiple values for
-  * the same key name.
-  * @extends {Disposable}
-  */
-
-	var MultiMap = function (_Disposable) {
-		babelHelpers.inherits(MultiMap, _Disposable);
-
-		function MultiMap() {
-			babelHelpers.classCallCheck(this, MultiMap);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.keys = create(null);
-			_this.values = create(null);
-			return _this;
-		}
-
-		/**
-   * Adds value to a key name.
-   * @param {string} name
-   * @param {*} value
-   * @chainable
-   */
-
-
-		MultiMap.prototype.add = function add(name, value) {
-			this.keys[name.toLowerCase()] = name;
-			this.values[name.toLowerCase()] = this.values[name.toLowerCase()] || [];
-			this.values[name.toLowerCase()].push(value);
-			return this;
-		};
-
-		/**
-   * Clears map names and values.
-   * @chainable
-   */
-
-
-		MultiMap.prototype.clear = function clear() {
-			this.keys = create(null);
-			this.values = create(null);
-			return this;
-		};
-
-		/**
-   * Checks if map contains a value to the key name.
-   * @param {string} name
-   * @return {boolean}
-   * @chainable
-   */
-
-
-		MultiMap.prototype.contains = function contains(name) {
-			return name.toLowerCase() in this.values;
-		};
-
-		/**
-   * @inheritDoc
-   */
-
-
-		MultiMap.prototype.disposeInternal = function disposeInternal() {
-			this.values = null;
-		};
-
-		/**
-   * Gets the first added value from a key name.
-   * @param {string} name
-   * @return {*}
-   * @chainable
-   */
-
-
-		MultiMap.prototype.get = function get(name) {
-			var values = this.values[name.toLowerCase()];
-			if (values) {
-				return values[0];
-			}
-		};
-
-		/**
-   * Gets all values from a key name.
-   * @param {string} name
-   * @return {Array.<*>}
-   */
-
-
-		MultiMap.prototype.getAll = function getAll(name) {
-			return this.values[name.toLowerCase()];
-		};
-
-		/**
-   * Returns true if the map is empty, false otherwise.
-   * @return {boolean}
-   */
-
-
-		MultiMap.prototype.isEmpty = function isEmpty() {
-			return this.size() === 0;
-		};
-
-		/**
-   * Gets array of key names.
-   * @return {Array.<string>}
-   */
-
-
-		MultiMap.prototype.names = function names() {
-			var _this2 = this;
-
-			return Object.keys(this.values).map(function (key) {
-				return _this2.keys[key];
-			});
-		};
-
-		/**
-   * Removes all values from a key name.
-   * @param {string} name
-   * @chainable
-   */
-
-
-		MultiMap.prototype.remove = function remove(name) {
-			delete this.keys[name.toLowerCase()];
-			delete this.values[name.toLowerCase()];
-			return this;
-		};
-
-		/**
-   * Sets the value of a key name. Relevant to replace the current values with
-   * a new one.
-   * @param {string} name
-   * @param {*} value
-   * @chainable
-   */
-
-
-		MultiMap.prototype.set = function set(name, value) {
-			this.keys[name.toLowerCase()] = name;
-			this.values[name.toLowerCase()] = [value];
-			return this;
-		};
-
-		/**
-   * Gets the size of the map key names.
-   * @return {number}
-   */
-
-
-		MultiMap.prototype.size = function size() {
-			return this.names().length;
-		};
-
-		/**
-   * Returns the parsed values as a string.
-   * @return {string}
-   */
-
-
-		MultiMap.prototype.toString = function toString() {
-			return JSON.stringify(this.values);
-		};
-
-		return MultiMap;
-	}(Disposable);
-
-	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
-	this.senna.MultiMap = MultiMap;
-}).call(this);
-'use strict';
-
-(function () {
-	var core = this.sennaNamed.metal.core;
-	var string = this.sennaNamed.metal.string;
-	var parse = this.senna.parse;
-	var MultiMap = this.senna.MultiMap;
-
-
-	var parseFn_ = parse;
-
-	var Uri = function () {
-
-		/**
-   * This class contains setters and getters for the parts of the URI.
-   * The following figure displays an example URIs and their component parts.
-   *
-   *                                  path
-   *	                             ┌───┴────┐
-   *	  abc://example.com:123/path/data?key=value#fragid1
-   *	  └┬┘   └────┬────┘ └┬┘           └───┬───┘ └──┬──┘
-   * protocol  hostname  port            search    hash
-   *          └──────┬───────┘
-   *                host
-   *
-   * @param {*=} opt_uri Optional string URI to parse
-   * @constructor
-   */
-
-		function Uri() {
-			var opt_uri = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
-			babelHelpers.classCallCheck(this, Uri);
-
-			this.url = Uri.parse(this.maybeAddProtocolAndHostname_(opt_uri));
-		}
-
-		/**
-   * Adds parameters to uri from a <code>MultiMap</code> as source.
-   * @param {MultiMap} multimap The <code>MultiMap</code> containing the
-   *   parameters.
-   * @protected
-   * @chainable
-   */
-
-
-		Uri.prototype.addParametersFromMultiMap = function addParametersFromMultiMap(multimap) {
-			var _this = this;
-
-			multimap.names().forEach(function (name) {
-				multimap.getAll(name).forEach(function (value) {
-					_this.addParameterValue(name, value);
-				});
-			});
-			return this;
-		};
-
-		/**
-   * Adds the value of the named query parameters.
-   * @param {string} key The parameter to set.
-   * @param {*} value The new value. Will be explicitly casted to String.
-   * @chainable
-   */
-
-
-		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
-			this.ensureQueryInitialized_();
-			if (core.isDef(value)) {
-				value = String(value);
-			}
-			this.query.add(name, value);
-			return this;
-		};
-
-		/**
-   * Adds the values of the named query parameter.
-   * @param {string} key The parameter to set.
-   * @param {*} value The new value.
-   * @chainable
-   */
-
-
-		Uri.prototype.addParameterValues = function addParameterValues(name, values) {
-			var _this2 = this;
-
-			values.forEach(function (value) {
-				return _this2.addParameterValue(name, value);
-			});
-			return this;
-		};
-
-		/**
-   * Ensures query internal map is initialized and synced with initial value
-   * extracted from URI search part.
-   * @protected
-   */
-
-
-		Uri.prototype.ensureQueryInitialized_ = function ensureQueryInitialized_() {
-			var _this3 = this;
-
-			if (this.query) {
-				return;
-			}
-			this.query = new MultiMap();
-			var search = this.url.search;
-			if (search) {
-				search.substring(1).split('&').forEach(function (param) {
-					var _param$split = param.split('=');
-
-					var _param$split2 = babelHelpers.slicedToArray(_param$split, 2);
-
-					var key = _param$split2[0];
-					var value = _param$split2[1];
-
-					if (core.isDef(value)) {
-						value = Uri.urlDecode(value);
-					}
-					_this3.addParameterValue(key, value);
-				});
-			}
-		};
-
-		/**
-   * Gets the hash part of uri.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getHash = function getHash() {
-			return this.url.hash || '';
-		};
-
-		/**
-   * Gets the host part of uri. E.g. <code>[hostname]:[port]</code>.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getHost = function getHost() {
-			var host = this.getHostname();
-			if (host) {
-				var port = this.getPort();
-				if (port && port !== '80') {
-					host += ':' + port;
-				}
-			}
-			return host;
-		};
-
-		/**
-   * Gets the hostname part of uri without protocol and port.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getHostname = function getHostname() {
-			var hostname = this.url.hostname;
-			if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
-				return '';
-			}
-			return hostname;
-		};
-
-		/**
-   * Gets the origin part of uri. E.g. <code>http://[hostname]:[port]</code>.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getOrigin = function getOrigin() {
-			var host = this.getHost();
-			if (host) {
-				return this.getProtocol() + '//' + host;
-			}
-			return '';
-		};
-
-		/**
-   * Returns the first value for a given parameter or undefined if the given
-   * parameter name does not appear in the query string.
-   * @param {string} paramName Unescaped parameter name.
-   * @return {string|undefined} The first value for a given parameter or
-   *   undefined if the given parameter name does not appear in the query
-   *   string.
-   */
-
-
-		Uri.prototype.getParameterValue = function getParameterValue(name) {
-			this.ensureQueryInitialized_();
-			return this.query.get(name);
-		};
-
-		/**
-   * Returns the value<b>s</b> for a given parameter as a list of decoded
-   * query parameter values.
-   * @param {string} name The parameter to get values for.
-   * @return {!Array<?>} The values for a given parameter as a list of decoded
-   *   query parameter values.
-   */
-
-
-		Uri.prototype.getParameterValues = function getParameterValues(name) {
-			this.ensureQueryInitialized_();
-			return this.query.getAll(name);
-		};
-
-		/**
-   * Returns the name<b>s</b> of the parameters.
-   * @return {!Array<string>} The names for the parameters as a list of
-   *   strings.
-   */
-
-
-		Uri.prototype.getParameterNames = function getParameterNames() {
-			this.ensureQueryInitialized_();
-			return this.query.names();
-		};
-
-		/**
-   * Gets the function currently being used to parse URIs.
-   * @return {!function()}
-   */
-
-
-		Uri.getParseFn = function getParseFn() {
-			return parseFn_;
-		};
-
-		/**
-   * Gets the pathname part of uri.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getPathname = function getPathname() {
-			return this.url.pathname;
-		};
-
-		/**
-   * Gets the port number part of uri as string.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getPort = function getPort() {
-			return this.url.port;
-		};
-
-		/**
-   * Gets the protocol part of uri. E.g. <code>http:</code>.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getProtocol = function getProtocol() {
-			return this.url.protocol;
-		};
-
-		/**
-   * Gets the search part of uri. Search value is retrieved from query
-   * parameters.
-   * @return {string}
-   */
-
-
-		Uri.prototype.getSearch = function getSearch() {
-			var _this4 = this;
-
-			var search = '';
-			var querystring = '';
-			this.getParameterNames().forEach(function (name) {
-				_this4.getParameterValues(name).forEach(function (value) {
-					querystring += name;
-					if (core.isDef(value)) {
-						querystring += '=' + encodeURIComponent(value);
-					}
-					querystring += '&';
-				});
-			});
-			querystring = querystring.slice(0, -1);
-			if (querystring) {
-				search += '?' + querystring;
-			}
-			return search;
-		};
-
-		/**
-   * Checks if uri contains the parameter.
-   * @param {string} name
-   * @return {boolean}
-   */
-
-
-		Uri.prototype.hasParameter = function hasParameter(name) {
-			this.ensureQueryInitialized_();
-			return this.query.contains(name);
-		};
-
-		/**
-   * Makes this URL unique by adding a random param to it. Useful for avoiding
-   * cache.
-   */
-
-
-		Uri.prototype.makeUnique = function makeUnique() {
-			this.setParameterValue(Uri.RANDOM_PARAM, string.getRandomString());
-			return this;
-		};
-
-		/**
-   * Maybe adds protocol and a hostname placeholder on a parial URI if needed.
-   * Relevent for compatibility with <code>URL</code> native object.
-   * @param {string=} opt_uri
-   * @return {string} URI with protocol and hostname placeholder.
-   */
-
-
-		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
-			var url = opt_uri;
-			if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
-				// jshint ignore:line
-
-				url = Uri.DEFAULT_PROTOCOL;
-				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
-					url += '//';
-				}
-
-				switch (opt_uri.charAt(0)) {
-					case '.':
-					case '?':
-					case '#':
-						url += Uri.HOSTNAME_PLACEHOLDER;
-						url += '/';
-						url += opt_uri;
-						break;
-					case '':
-					case '/':
-						if (opt_uri[1] !== '/') {
-							url += Uri.HOSTNAME_PLACEHOLDER;
-						}
-						url += opt_uri;
-						break;
-					default:
-						url += opt_uri;
-				}
-			}
-			return url;
-		};
-
-		/**
-   * Normalizes the parsed object to be in the expected standard.
-   * @param {!Object}
-   */
-
-
-		Uri.normalizeObject = function normalizeObject(parsed) {
-			var length = parsed.pathname ? parsed.pathname.length : 0;
-			if (length > 1 && parsed.pathname[length - 1] === '/') {
-				parsed.pathname = parsed.pathname.substr(0, length - 1);
-			}
-			return parsed;
-		};
-
-		/**
-   * Parses the given uri string into an object.
-   * @param {*=} opt_uri Optional string URI to parse
-   */
-
-
-		Uri.parse = function parse(opt_uri) {
-			return Uri.normalizeObject(parseFn_(opt_uri));
-		};
-
-		/**
-   * Removes the named query parameter.
-   * @param {string} name The parameter to remove.
-   * @chainable
-   */
-
-
-		Uri.prototype.removeParameter = function removeParameter(name) {
-			this.ensureQueryInitialized_();
-			this.query.remove(name);
-			return this;
-		};
-
-		/**
-   * Removes uniqueness parameter of the uri.
-   * @chainable
-   */
-
-
-		Uri.prototype.removeUnique = function removeUnique() {
-			this.removeParameter(Uri.RANDOM_PARAM);
-			return this;
-		};
-
-		/**
-   * Sets the hash.
-   * @param {string} hash
-   * @chainable
-   */
-
-
-		Uri.prototype.setHash = function setHash(hash) {
-			this.url.hash = hash;
-			return this;
-		};
-
-		/**
-   * Sets the hostname.
-   * @param {string} hostname
-   * @chainable
-   */
-
-
-		Uri.prototype.setHostname = function setHostname(hostname) {
-			this.url.hostname = hostname;
-			return this;
-		};
-
-		/**
-   * Sets the value of the named query parameters, clearing previous values
-   * for that key.
-   * @param {string} key The parameter to set.
-   * @param {*} value The new value.
-   * @chainable
-   */
-
-
-		Uri.prototype.setParameterValue = function setParameterValue(name, value) {
-			this.removeParameter(name);
-			this.addParameterValue(name, value);
-			return this;
-		};
-
-		/**
-   * Sets the values of the named query parameters, clearing previous values
-   * for that key.
-   * @param {string} key The parameter to set.
-   * @param {*} value The new value.
-   * @chainable
-   */
-
-
-		Uri.prototype.setParameterValues = function setParameterValues(name, values) {
-			var _this5 = this;
-
-			this.removeParameter(name);
-			values.forEach(function (value) {
-				return _this5.addParameterValue(name, value);
-			});
-			return this;
-		};
-
-		/**
-   * Sets the pathname.
-   * @param {string} pathname
-   * @chainable
-   */
-
-
-		Uri.prototype.setPathname = function setPathname(pathname) {
-			this.url.pathname = pathname;
-			return this;
-		};
-
-		/**
-   * Sets the port number.
-   * @param {*} port Port number.
-   * @chainable
-   */
-
-
-		Uri.prototype.setPort = function setPort(port) {
-			this.url.port = port;
-			return this;
-		};
-
-		/**
-   * Sets the function that will be used for parsing the original string uri
-   * into an object.
-   * @param {!function()} parseFn
-   */
-
-
-		Uri.setParseFn = function setParseFn(parseFn) {
-			parseFn_ = parseFn;
-		};
-
-		/**
-   * Sets the protocol. If missing <code>http:</code> is used as default.
-   * @param {string} protocol
-   * @chainable
-   */
-
-
-		Uri.prototype.setProtocol = function setProtocol(protocol) {
-			this.url.protocol = protocol;
-			if (this.url.protocol[this.url.protocol.length - 1] !== ':') {
-				this.url.protocol += ':';
-			}
-			return this;
-		};
-
-		/**
-   * @return {string} The string form of the url.
-   * @override
-   */
-
-
-		Uri.prototype.toString = function toString() {
-			var href = '';
-			var host = this.getHost();
-			if (host) {
-				href += this.getProtocol() + '//';
-			}
-			href += host + this.getPathname() + this.getSearch() + this.getHash();
-			return href;
-		};
-
-		/**
-   * Joins the given paths.
-   * @param {string} basePath
-   * @param {...string} ...paths Any number of paths to be joined with the base url.
-   * @static
-   */
-
-
-		Uri.joinPaths = function joinPaths(basePath) {
-			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-				paths[_key - 1] = arguments[_key];
-			}
-
-			if (basePath.charAt(basePath.length - 1) === '/') {
-				basePath = basePath.substring(0, basePath.length - 1);
-			}
-			paths = paths.map(function (path) {
-				return path.charAt(0) === '/' ? path.substring(1) : path;
-			});
-			return [basePath].concat(paths).join('/').replace(/\/$/, '');
-		};
-
-		/**
-   * URL-decodes the string. We need to specially handle '+'s because
-   * the javascript library doesn't convert them to spaces.
-   * @param {string} str The string to url decode.
-   * @return {string} The decoded {@code str}.
-   */
-
-
-		Uri.urlDecode = function urlDecode(str) {
-			return decodeURIComponent(str.replace(/\+/g, ' '));
-		};
-
-		return Uri;
-	}();
-
-	/**
-  * Default protocol value.
-  * @type {string}
-  * @default http:
-  * @static
-  */
-
-
-	Uri.DEFAULT_PROTOCOL = 'http:';
-
-	/**
-  * Hostname placeholder. Relevant to internal usage only.
-  * @type {string}
-  * @static
-  */
-	Uri.HOSTNAME_PLACEHOLDER = 'hostname' + Date.now();
-
-	/**
-  * Name used by the param generated by `makeUnique`.
-  * @type {string}
-  * @static
-  */
-	Uri.RANDOM_PARAM = 'zx';
-
-	this.senna.Uri = Uri;
-}).call(this);
-'use strict';
-
 (function () {
 	var array = this.sennaNamed.metal.array;
 	var async = this.sennaNamed.metal.async;
@@ -5411,6 +5487,7 @@ babelHelpers;
 	var CancellablePromise = this.senna.Promise;
 	var EventEmitter = this.sennaNamed.events.EventEmitter;
 	var EventHandler = this.sennaNamed.events.EventHandler;
+	var utils = this.senna.utils;
 	var globals = this.senna.globals;
 	var Route = this.senna.Route;
 	var Screen = this.senna.Screen;
@@ -5669,7 +5746,7 @@ babelHelpers;
 
 
 		App.prototype.canNavigate = function canNavigate(url) {
-			var path = this.getPath(url);
+			var path = utils.getUrlPath(url);
 			var uri = new Uri(url);
 
 			if (!this.isLinkSameOrigin_(uri.getHostname())) {
@@ -5756,8 +5833,7 @@ babelHelpers;
 
 
 		App.prototype.dispatch = function dispatch() {
-			var currentPath = globals.window.location.pathname + globals.window.location.search + globals.window.location.hash;
-			return this.navigate(currentPath, true);
+			return this.navigate(utils.getCurrentBrowserPath(), true);
 		};
 
 		/**
@@ -5846,11 +5922,11 @@ babelHelpers;
 
 		App.prototype.findRoute = function findRoute(path) {
 			// Prevents navigation if it's a hash change on the same url.
-			if (path.lastIndexOf('#') > -1 && this.isPathCurrentBrowserPath(path)) {
+			if (path.lastIndexOf('#') > -1 && utils.isCurrentBrowserPath(path)) {
 				return null;
 			}
 
-			path = this.maybeRemovePathHashbang(path).substr(this.basePath.length);
+			path = utils.getUrlPathWithoutHash(path).substr(this.basePath.length);
 
 			for (var i = 0; i < this.routes.length; i++) {
 				var route = this.routes[i];
@@ -5913,18 +5989,6 @@ babelHelpers;
 		};
 
 		/**
-   * Extracts the path from url.
-   * @return {!string}
-   */
-
-
-		App.prototype.getPath = function getPath(url) {
-			var uri = new Uri(url);
-
-			return uri.getPathname() + uri.getSearch() + uri.getHash();
-		};
-
-		/**
    * Gets the update scroll position value.
    * @return {boolean}
    */
@@ -5945,7 +6009,7 @@ babelHelpers;
 
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
 			console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
-			if (!this.isPathCurrentBrowserPath(path)) {
+			if (!utils.isCurrentBrowserPath(path)) {
 				this.removeScreen(path);
 			}
 		};
@@ -5958,20 +6022,6 @@ babelHelpers;
 
 		App.prototype.hasRoutes = function hasRoutes() {
 			return this.routes.length > 0;
-		};
-
-		/**
-   * Checks if path is the same as the browser current path.
-   * @param  {!string} path
-   * @return {boolean}
-   */
-
-
-		App.prototype.isPathCurrentBrowserPath = function isPathCurrentBrowserPath(path) {
-			if (path) {
-				return this.maybeRemovePathHashbang(path) === globals.window.location.pathname + globals.window.location.search;
-			}
-			return false;
 		};
 
 		/**
@@ -6076,7 +6126,7 @@ babelHelpers;
 
 			var navigateFailed = false;
 			try {
-				this.navigate(this.getPath(href));
+				this.navigate(utils.getUrlPath(href));
 			} catch (err) {
 				// Do not prevent link navigation in case some synchronous error occurs
 				navigateFailed = true;
@@ -6085,21 +6135,6 @@ babelHelpers;
 			if (!navigateFailed) {
 				event.preventDefault();
 			}
-		};
-
-		/**
-   * Checks if path has hashbang, if so, removes it.
-   * @param  {!string} path
-   * @return {string} Path without hashbang.
-   */
-
-
-		App.prototype.maybeRemovePathHashbang = function maybeRemovePathHashbang(path) {
-			var hashIndex = path.lastIndexOf('#');
-			if (hashIndex > -1) {
-				path = path.substr(0, hashIndex);
-			}
-			return path;
 		};
 
 		/**
@@ -6257,7 +6292,7 @@ babelHelpers;
 					// to a different url, reload the browser. This behavior doesn't
 					// require senna to route hashed links and is closer to native
 					// browser behavior.
-					if (this.redirectPath && !this.isPathCurrentBrowserPath(this.redirectPath)) {
+					if (this.redirectPath && !utils.isCurrentBrowserPath(this.redirectPath)) {
 						this.reloadPage();
 					}
 					// Always try to reposition scroll to the hashed anchor when
@@ -6851,6 +6886,7 @@ babelHelpers;
 	var Ajax = this.senna.Ajax;
 	var MultiMap = this.senna.MultiMap;
 	var CancellablePromise = this.senna.Promise;
+	var utils = this.senna.utils;
 	var globals = this.senna.globals;
 	var Screen = this.senna.Screen;
 	var Uri = this.senna.Uri;
@@ -7009,8 +7045,7 @@ babelHelpers;
 		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
 			if (request) {
-				var uri = new Uri(request.responseURL);
-				return uri.getPathname() + uri.getSearch() + uri.getHash();
+				return utils.getUrlPath(request.responseURL);
 			}
 			return null;
 		};

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _globals, _Screen2, _Uri, _UA) {
+define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _utils, _globals, _Screen2, _Uri, _UA) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -10,6 +10,8 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	var _MultiMap2 = _interopRequireDefault(_MultiMap);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
+
+	var _utils2 = _interopRequireDefault(_utils);
 
 	var _globals2 = _interopRequireDefault(_globals);
 
@@ -169,8 +171,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
 			if (request) {
-				var uri = new _Uri2.default(request.responseURL);
-				return uri.getPathname() + uri.getSearch() + uri.getHash();
+				return _utils2.default.getUrlPath(request.responseURL);
 			}
 			return null;
 		};
