@@ -80,7 +80,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			_this.redirectPath = null;
 			_this.routes = [];
 			_this.screens = {};
-			_this.scrollHandle = null;
 			_this.skipLoadPopstate = false;
 			_this.surfaces = {};
 			_this.updateScrollPosition = true;

@@ -5346,14 +5346,6 @@ babelHelpers;
 			_this.screens = {};
 
 			/**
-    * Holds the scroll event handle.
-    * @type {Object}
-    * @default null
-    * @protected
-    */
-			_this.scrollHandle = null;
-
-			/**
     * When set to true the first erroneous popstate fired on page load will be
     * ignored, only if <code>globals.window.history.state</code> is also
     * <code>null</code>.
