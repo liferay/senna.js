@@ -89,10 +89,11 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 		};
 
 		HtmlScreen.prototype.allocateVirtualDocumentForContent = function allocateVirtualDocumentForContent(htmlString) {
-			if (!this.virtualDocument) {
-				this.virtualDocument = _globals2.default.document.createElement('html');
-			}
-			this.virtualDocument.innerHTML = htmlString;
+			var doc = _globals2.default.document.implementation.createHTMLDocument('');
+			doc.open('replace');
+			doc.write(htmlString);
+			doc.close();
+			this.virtualDocument = doc;
 		};
 
 		HtmlScreen.prototype.appendStyleIntoDocument_ = function appendStyleIntoDocument_(newStyle) {
