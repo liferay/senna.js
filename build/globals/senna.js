@@ -7247,11 +7247,10 @@ babelHelpers;
 
 
 		HtmlScreen.prototype.allocateVirtualDocumentForContent = function allocateVirtualDocumentForContent(htmlString) {
-			var doc = globals.document.implementation.createHTMLDocument('');
-			doc.open('replace');
-			doc.write(htmlString);
-			doc.close();
-			this.virtualDocument = doc;
+			if (!this.virtualDocument) {
+				this.virtualDocument = globals.document.createElement('html');
+			}
+			this.virtualDocument.innerHTML = htmlString;
 		};
 
 		/**
