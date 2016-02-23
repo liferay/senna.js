@@ -422,13 +422,16 @@ describe('App', function() {
 	});
 
 	it('should cancel navigate', function(done) {
+		var stub = sinon.stub();
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		app.on('endNavigate', function(payload) {
 			assert.ok(payload.error instanceof Error);
+			stub();
 		});
 		app.navigate('/path').catch(function(reason) {
 			assert.ok(reason instanceof Error);
+			assert.strictEqual(1, stub.callCount);
 			app.dispose();
 			done();
 		}).cancel();
