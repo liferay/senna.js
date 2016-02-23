@@ -876,9 +876,11 @@ class App extends EventEmitter {
 	 */
 	removeScreen(path) {
 		var screen = this.screens[path];
-		Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].remove(screen.getId()));
-		screen.dispose();
-		delete this.screens[path];
+		if (screen) {
+			Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].remove(screen.getId()));
+			screen.dispose();
+			delete this.screens[path];
+		}
 	}
 
 	/**
