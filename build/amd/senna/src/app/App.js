@@ -744,11 +744,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			var _this9 = this;
 
 			var screen = this.screens[path];
-			Object.keys(this.surfaces).forEach(function (surfaceId) {
-				return _this9.surfaces[surfaceId].remove(screen.getId());
-			});
-			screen.dispose();
-			delete this.screens[path];
+			if (screen) {
+				Object.keys(this.surfaces).forEach(function (surfaceId) {
+					return _this9.surfaces[surfaceId].remove(screen.getId());
+				});
+				screen.dispose();
+				delete this.screens[path];
+			}
 		};
 
 		App.prototype.saveHistoryCurrentPageScrollPosition_ = function saveHistoryCurrentPageScrollPosition_() {
