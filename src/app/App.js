@@ -639,7 +639,7 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigate_(event) {
 		if (this.pendingNavigate) {
-			if (this.screens[event.path] === this.screens[this.pendingNavigate.path]) {
+			if (this.pendingNavigate.path === event.path) {
 				console.log('Waiting...');
 				return;
 			}
