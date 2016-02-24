@@ -4,6 +4,7 @@ import { core } from 'metal';
 import Ajax from 'metal-ajax';
 import MultiMap from 'metal-multimap';
 import CancellablePromise from 'metal-promise';
+import errors from '../errors/errors';
 import utils from '../utils/utils';
 import globals from '../globals/globals';
 import Screen from './Screen';
@@ -73,10 +74,8 @@ class RequestScreen extends Screen {
 	 */
 	assertValidResponseStatusCode(status) {
 		if (!this.isValidResponseStatusCode(status)) {
-			var error = new Error('Invalid response status code. ' +
-				'To customize which status codes are valid, ' +
-				'overwrite `screen.isValidResponseStatusCode` method.');
-			error.responseError = true;
+			var error = new Error(errors.INVALID_STATUS);
+			error.invalidStatus = true;
 			throw error;
 		}
 	}
@@ -202,6 +201,17 @@ class RequestScreen extends Screen {
 					this.addCache(xhr.responseText);
 				}
 				return xhr.responseText;
+			})
+			.catch((reason) => {
+				switch (reason.message) {
+					case errors.REQUEST_TIMEOUT:
+						reason.timeout = true;
+						break;
+					case errors.REQUEST_ERROR:
+						reason.requestError = true;
+						break;
+				}
+				throw reason;
 			});
 	}
 

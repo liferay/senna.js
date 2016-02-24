@@ -90,14 +90,6 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
-	it('should request fail for invalid status code response', function(done) {
-		new RequestScreen().load('/url').catch((error) => {
-			assert.ok(error.responseError);
-			done();
-		});
-		this.requests[0].respond(404);
-	});
-
 	it('should load response content from cache', function(done) {
 		var screen = new RequestScreen();
 		var cache = {};
@@ -123,17 +115,46 @@ describe('RequestScreen', function() {
 	});
 
 	it('should cancel load request to an url', function(done) {
-		var self = this;
 		var screen = new RequestScreen();
 		screen.load('/url')
-			.then(function() {
-				assert.fail();
-			})
-			.catch(function() {
-				assert.ok(self.requests[0].aborted);
+			.then(() => assert.fail())
+			.catch(() => {
+				assert.ok(this.requests[0].aborted);
 				done();
 			})
 			.cancel();
+	});
+
+	it('should fail for timeout request', function(done) {
+		var screen = new RequestScreen();
+		screen.setTimeout(0);
+		screen.load('/url')
+			.catch(function(reason) {
+				assert.ok(reason.timeout);
+				clearTimeout(id);
+				done();
+			});
+		var id = setTimeout(() => this.requests[0].respond(200), 100);
+	});
+
+	it('should fail for invalid status code response', function(done) {
+		new RequestScreen()
+			.load('/url')
+			.catch((error) => {
+				assert.ok(error.invalidStatus);
+				done();
+			});
+		this.requests[0].respond(404);
+	});
+
+	it('should fail for request errors response', function(done) {
+		new RequestScreen()
+			.load('/url')
+			.catch((error) => {
+				assert.ok(error.requestError);
+				done();
+			});
+		this.requests[0].abort();
 	});
 
 	it('should form navigate force post method and request body wrapped in FormData', function(done) {

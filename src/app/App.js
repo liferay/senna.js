@@ -765,7 +765,6 @@ class App extends EventEmitter {
 		this.captureScrollPositionFromScrollEvent = false;
 		dom.addClasses(globals.document.documentElement, this.loadingCssClass);
 
-		var path = event.path;
 		var endNavigatePayload = {};
 
 		if (globals.capturedFormElement) {
@@ -773,20 +772,20 @@ class App extends EventEmitter {
 			endNavigatePayload.form = globals.capturedFormElement;
 		}
 
-		this.pendingNavigate = this.doNavigate_(path, event.replaceHistory)
-			.catch((err) => {
-				endNavigatePayload.error = err;
-				throw err;
+		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
+			.catch((reason) => {
+				endNavigatePayload.error = reason;
+				throw reason;
 			})
 			.thenAlways(() => {
-				endNavigatePayload.path = path;
+				endNavigatePayload.path = event.path;
 				dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
 				this.maybeRestoreNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = true;
 				this.emit('endNavigate', endNavigatePayload);
 			});
 
-		this.pendingNavigate.path = path;
+		this.pendingNavigate.path = event.path;
 	}
 
 	/**
