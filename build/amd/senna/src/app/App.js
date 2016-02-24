@@ -86,6 +86,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			_this.activePath = null;
 
 			/**
+    * Allows prevent navigate from dom prevented event.
+    * @type {boolean}
+    * @default true
+    * @protected
+    */
+			_this.allowPreventNavigate = true;
+
+			/**
     * Holds link base path.
     * @type {!string}
     * @default ''
@@ -230,7 +238,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', _this.onScroll_.bind(_this)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
-			_this.on('beforeNavigate', _this.onBeforeNavigate_, true);
+			_this.on('beforeNavigate', _this.onBeforeNavigate_);
+			_this.on('beforeNavigate', _this.onBeforeNavigateDefault_, true);
 
 			_this.setLinkSelector(_this.linkSelector);
 			_this.setFormSelector(_this.formSelector);
@@ -431,6 +440,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			return null;
 		};
 
+		App.prototype.getAllowPreventNavigate = function getAllowPreventNavigate() {
+			return this.allowPreventNavigate;
+		};
+
 		App.prototype.getBasePath = function getBasePath() {
 			return this.basePath;
 		};
@@ -511,12 +524,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				return;
 			}
 
-			_globals2.default.capturedFormElement = event.capturedFormElement;
-
-			if (event.defaultPrevented) {
+			if (this.allowPreventNavigate && event.defaultPrevented) {
 				console.log('Navigate prevented');
 				return;
 			}
+
+			_globals2.default.capturedFormElement = event.capturedFormElement;
 
 			var navigateFailed = false;
 			try {
@@ -567,6 +580,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		};
 
 		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
+			if (_globals2.default.capturedFormElement) {
+				event.form = _globals2.default.capturedFormElement;
+			}
+		};
+
+		App.prototype.onBeforeNavigateDefault_ = function onBeforeNavigateDefault_(event) {
 			if (this.pendingNavigate) {
 				if (this.pendingNavigate.path === event.path) {
 					console.log('Waiting...');
@@ -575,6 +594,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			}
 
 			this.emit('startNavigate', {
+				form: event.form,
 				path: event.path,
 				replaceHistory: event.replaceHistory
 			});
@@ -660,12 +680,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			this.captureScrollPositionFromScrollEvent = false;
 			_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
 
-			var endNavigatePayload = {};
-
-			if (_globals2.default.capturedFormElement) {
-				event.form = _globals2.default.capturedFormElement;
-				endNavigatePayload.form = _globals2.default.capturedFormElement;
-			}
+			var endNavigatePayload = {
+				form: event.form,
+				path: event.path
+			};
 
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
 				endNavigatePayload.error = reason;
@@ -676,7 +694,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					_this7.maybeRestoreNativeScrollRestoration();
 					_this7.captureScrollPositionFromScrollEvent = true;
 				}
-				endNavigatePayload.path = event.path;
 				_this7.emit('endNavigate', endNavigatePayload);
 			});
 
@@ -761,6 +778,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				state.scrollLeft = _globals2.default.window.pageXOffset;
 				_globals2.default.window.history.replaceState(state, null, null);
 			}
+		};
+
+		App.prototype.setAllowPreventNavigate = function setAllowPreventNavigate(allowPreventNavigate) {
+			this.allowPreventNavigate = allowPreventNavigate;
 		};
 
 		App.prototype.setBasePath = function setBasePath(basePath) {

@@ -5542,6 +5542,14 @@ babelHelpers;
 			_this.activePath = null;
 
 			/**
+    * Allows prevent navigate from dom prevented event.
+    * @type {boolean}
+    * @default true
+    * @protected
+    */
+			_this.allowPreventNavigate = true;
+
+			/**
     * Holds link base path.
     * @type {!string}
     * @default ''
@@ -5686,7 +5694,8 @@ babelHelpers;
 			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', _this.onScroll_.bind(_this)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
-			_this.on('beforeNavigate', _this.onBeforeNavigate_, true);
+			_this.on('beforeNavigate', _this.onBeforeNavigate_);
+			_this.on('beforeNavigate', _this.onBeforeNavigateDefault_, true);
 
 			_this.setLinkSelector(_this.linkSelector);
 			_this.setFormSelector(_this.formSelector);
@@ -5955,6 +5964,16 @@ babelHelpers;
 		};
 
 		/**
+   * Gets allow prevent navigate.
+   * @return {boolean}
+   */
+
+
+		App.prototype.getAllowPreventNavigate = function getAllowPreventNavigate() {
+			return this.allowPreventNavigate;
+		};
+
+		/**
    * Gets link base path.
    * @return {!string}
    */
@@ -6123,12 +6142,12 @@ babelHelpers;
 				return;
 			}
 
-			globals.capturedFormElement = event.capturedFormElement;
-
-			if (event.defaultPrevented) {
+			if (this.allowPreventNavigate && event.defaultPrevented) {
 				console.log('Navigate prevented');
 				return;
 			}
+
+			globals.capturedFormElement = event.capturedFormElement;
 
 			var navigateFailed = false;
 			try {
@@ -6206,6 +6225,20 @@ babelHelpers;
 
 
 		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
+			if (globals.capturedFormElement) {
+				event.form = globals.capturedFormElement;
+			}
+		};
+
+		/**
+   * Befores navigation to a path. Runs after external listeners.
+   * @param {!Event} event Event facade containing <code>path</code> and
+   *     <code>replaceHistory</code>.
+   * @protected
+   */
+
+
+		App.prototype.onBeforeNavigateDefault_ = function onBeforeNavigateDefault_(event) {
 			if (this.pendingNavigate) {
 				if (this.pendingNavigate.path === event.path) {
 					console.log('Waiting...');
@@ -6214,6 +6247,7 @@ babelHelpers;
 			}
 
 			this.emit('startNavigate', {
+				form: event.form,
 				path: event.path,
 				replaceHistory: event.replaceHistory
 			});
@@ -6349,12 +6383,10 @@ babelHelpers;
 			this.captureScrollPositionFromScrollEvent = false;
 			dom.addClasses(globals.document.documentElement, this.loadingCssClass);
 
-			var endNavigatePayload = {};
-
-			if (globals.capturedFormElement) {
-				event.form = globals.capturedFormElement;
-				endNavigatePayload.form = globals.capturedFormElement;
-			}
+			var endNavigatePayload = {
+				form: event.form,
+				path: event.path
+			};
 
 			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
 				endNavigatePayload.error = reason;
@@ -6365,7 +6397,6 @@ babelHelpers;
 					_this7.maybeRestoreNativeScrollRestoration();
 					_this7.captureScrollPositionFromScrollEvent = true;
 				}
-				endNavigatePayload.path = event.path;
 				_this7.emit('endNavigate', endNavigatePayload);
 			});
 
@@ -6495,6 +6526,16 @@ babelHelpers;
 				state.scrollLeft = globals.window.pageXOffset;
 				globals.window.history.replaceState(state, null, null);
 			}
+		};
+
+		/**
+   * Sets allow prevent navigate.
+   * @param {boolean} allowPreventNavigate
+   */
+
+
+		App.prototype.setAllowPreventNavigate = function setAllowPreventNavigate(allowPreventNavigate) {
+			this.allowPreventNavigate = allowPreventNavigate;
 		};
 
 		/**
