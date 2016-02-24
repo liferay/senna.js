@@ -778,10 +778,12 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
+				if (!this.pendingNavigate) {
+					dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
+					this.maybeRestoreNativeScrollRestoration();
+					this.captureScrollPositionFromScrollEvent = true;
+				}
 				endNavigatePayload.path = event.path;
-				dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
-				this.maybeRestoreNativeScrollRestoration();
-				this.captureScrollPositionFromScrollEvent = true;
 				this.emit('endNavigate', endNavigatePayload);
 			});
 

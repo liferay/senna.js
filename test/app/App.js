@@ -565,6 +565,25 @@ describe('App', function() {
 		app.navigate('/path').then(() => assert.ok(!containsLoadingCssClass()));
 	});
 
+	it('should not remove loading css class on navigate if there is pending navigate', function(done) {
+		var containsLoadingCssClass = function() {
+			return globals.document.documentElement.classList.contains(app.getLoadingCssClass());
+		};
+		var app = new App();
+		app.addRoutes(new Route('/path1', Screen));
+		app.addRoutes(new Route('/path2', Screen));
+		app.once('startNavigate', () => {
+			app.once('startNavigate', () => assert.ok(containsLoadingCssClass()));
+			app.once('endNavigate', () => assert.ok(containsLoadingCssClass()));
+			app.navigate('/path2').then(() => {
+				assert.ok(!containsLoadingCssClass());
+				app.dispose();
+				done();
+			});
+		});
+		app.navigate('/path1');
+	});
+
 	it('should not navigate to unrouted paths', function(done) {
 		var app = new App();
 		app.on('endNavigate', function(payload) {
