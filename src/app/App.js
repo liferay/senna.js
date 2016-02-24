@@ -192,7 +192,8 @@ class App extends EventEmitter {
 		);
 
 		this.on('startNavigate', this.onStartNavigate_);
-		this.on('beforeNavigate', this.onBeforeNavigate_, true);
+		this.on('beforeNavigate', this.onBeforeNavigate_);
+		this.on('beforeNavigate', this.onBeforeNavigateDefault_, true);
 
 		this.setLinkSelector(this.linkSelector);
 		this.setFormSelector(this.formSelector);
@@ -654,6 +655,18 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	onBeforeNavigate_(event) {
+		if (globals.capturedFormElement) {
+			event.form = globals.capturedFormElement;
+		}
+	}
+
+	/**
+	 * Befores navigation to a path. Runs after external listeners.
+	 * @param {!Event} event Event facade containing <code>path</code> and
+	 *     <code>replaceHistory</code>.
+	 * @protected
+	 */
+	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
 			if (this.pendingNavigate.path === event.path) {
 				console.log('Waiting...');
@@ -662,6 +675,7 @@ class App extends EventEmitter {
 		}
 
 		this.emit('startNavigate', {
+			form: event.form,
 			path: event.path,
 			replaceHistory: event.replaceHistory
 		});
@@ -781,12 +795,10 @@ class App extends EventEmitter {
 		this.captureScrollPositionFromScrollEvent = false;
 		dom.addClasses(globals.document.documentElement, this.loadingCssClass);
 
-		var endNavigatePayload = {};
-
-		if (globals.capturedFormElement) {
-			event.form = globals.capturedFormElement;
-			endNavigatePayload.form = globals.capturedFormElement;
-		}
+		var endNavigatePayload = {
+			form: event.form,
+			path: event.path
+		};
 
 		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
 			.catch((reason) => {
@@ -799,7 +811,6 @@ class App extends EventEmitter {
 					this.maybeRestoreNativeScrollRestoration();
 					this.captureScrollPositionFromScrollEvent = true;
 				}
-				endNavigatePayload.path = event.path;
 				this.emit('endNavigate', endNavigatePayload);
 			});
 
