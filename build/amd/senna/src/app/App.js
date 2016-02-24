@@ -671,10 +671,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				endNavigatePayload.error = reason;
 				throw reason;
 			}).thenAlways(function () {
+				if (!_this7.pendingNavigate) {
+					_dom2.default.removeClasses(_globals2.default.document.documentElement, _this7.loadingCssClass);
+					_this7.maybeRestoreNativeScrollRestoration();
+					_this7.captureScrollPositionFromScrollEvent = true;
+				}
 				endNavigatePayload.path = event.path;
-				_dom2.default.removeClasses(_globals2.default.document.documentElement, _this7.loadingCssClass);
-				_this7.maybeRestoreNativeScrollRestoration();
-				_this7.captureScrollPositionFromScrollEvent = true;
 				_this7.emit('endNavigate', endNavigatePayload);
 			});
 

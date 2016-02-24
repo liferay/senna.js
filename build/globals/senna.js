@@ -6360,10 +6360,12 @@ babelHelpers;
 				endNavigatePayload.error = reason;
 				throw reason;
 			}).thenAlways(function () {
+				if (!_this7.pendingNavigate) {
+					dom.removeClasses(globals.document.documentElement, _this7.loadingCssClass);
+					_this7.maybeRestoreNativeScrollRestoration();
+					_this7.captureScrollPositionFromScrollEvent = true;
+				}
 				endNavigatePayload.path = event.path;
-				dom.removeClasses(globals.document.documentElement, _this7.loadingCssClass);
-				_this7.maybeRestoreNativeScrollRestoration();
-				_this7.captureScrollPositionFromScrollEvent = true;
 				_this7.emit('endNavigate', endNavigatePayload);
 			});
 
