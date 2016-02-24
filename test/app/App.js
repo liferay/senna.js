@@ -989,22 +989,23 @@ describe('App', function() {
 		});
 	});
 
-	it('should navigate when submitting routed forms', function() {
+	it('should navigate when submitting routed forms', function(done) {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
 		assert.ok(app.pendingNavigate);
-		exitDocumentFormElement();
-		app.dispose();
+		app.on('endNavigate', () => {
+			exitDocumentFormElement();
+			app.dispose();
+			done();
+		});
 	});
 
 	it('should not navigate when submitting routed forms if submit event was prevented', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		var form = enterDocumentFormElement('/path', 'post');
-		dom.once(form, 'submit', function(event) {
-			event.preventDefault();
-		});
+		dom.once(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(!app.pendingNavigate);
 		exitDocumentFormElement();
