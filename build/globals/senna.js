@@ -6207,7 +6207,7 @@ babelHelpers;
 
 		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
 			if (this.pendingNavigate) {
-				if (this.screens[event.path] === this.screens[this.pendingNavigate.path]) {
+				if (this.pendingNavigate.path === event.path) {
 					console.log('Waiting...');
 					return;
 				}
@@ -6349,7 +6349,6 @@ babelHelpers;
 			this.captureScrollPositionFromScrollEvent = false;
 			dom.addClasses(globals.document.documentElement, this.loadingCssClass);
 
-			var path = event.path;
 			var endNavigatePayload = {};
 
 			if (globals.capturedFormElement) {
@@ -6357,18 +6356,18 @@ babelHelpers;
 				endNavigatePayload.form = globals.capturedFormElement;
 			}
 
-			this.pendingNavigate = this.doNavigate_(path, event.replaceHistory).catch(function (err) {
-				endNavigatePayload.error = err;
-				throw err;
+			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
+				endNavigatePayload.error = reason;
+				throw reason;
 			}).thenAlways(function () {
-				endNavigatePayload.path = path;
+				endNavigatePayload.path = event.path;
 				dom.removeClasses(globals.document.documentElement, _this7.loadingCssClass);
 				_this7.maybeRestoreNativeScrollRestoration();
 				_this7.captureScrollPositionFromScrollEvent = true;
 				_this7.emit('endNavigate', endNavigatePayload);
 			});
 
-			this.pendingNavigate.path = path;
+			this.pendingNavigate.path = event.path;
 		};
 
 		/**
@@ -6758,6 +6757,43 @@ babelHelpers;
 'use strict';
 
 /**
+ * Holds value error messages.
+ * @const
+ */
+
+(function () {
+  var errors = function errors() {
+    babelHelpers.classCallCheck(this, errors);
+  };
+
+  /**
+   * Invalid status error message.
+   * @type {string}
+   * @static
+   */
+
+
+  errors.INVALID_STATUS = 'Invalid status code';
+
+  /**
+   * Request error message.
+   * @type {string}
+   * @static
+   */
+  errors.REQUEST_ERROR = 'Request error';
+
+  /**
+   * Request timeout error message.
+   * @type {string}
+   * @static
+   */
+  errors.REQUEST_TIMEOUT = 'Request timeout';
+
+  this.senna.errors = errors;
+}).call(this);
+'use strict';
+
+/**
  * Metal.js browser user agent detection. It's extremely recommended the usage
  * of feature checking over browser user agent sniffing. Unfortunately, in some
  * situations feature checking can be slow or even impossible, therefore use
@@ -6894,6 +6930,7 @@ babelHelpers;
 	var Ajax = this.senna.Ajax;
 	var MultiMap = this.senna.MultiMap;
 	var CancellablePromise = this.senna.Promise;
+	var errors = this.senna.errors;
 	var utils = this.senna.utils;
 	var globals = this.senna.globals;
 	var Screen = this.senna.Screen;
@@ -6973,8 +7010,8 @@ babelHelpers;
 
 		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
 			if (!this.isValidResponseStatusCode(status)) {
-				var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
-				error.responseError = true;
+				var error = new Error(errors.INVALID_STATUS);
+				error.invalidStatus = true;
 				throw error;
 			}
 		};
@@ -7122,6 +7159,16 @@ babelHelpers;
 					_this2.addCache(xhr.responseText);
 				}
 				return xhr.responseText;
+			}).catch(function (reason) {
+				switch (reason.message) {
+					case errors.REQUEST_TIMEOUT:
+						reason.timeout = true;
+						break;
+					case errors.REQUEST_ERROR:
+						reason.requestError = true;
+						break;
+				}
+				throw reason;
 			});
 		};
 

@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _utils, _globals, _Screen2, _Uri, _UA) {
+define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../errors/errors', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _errors, _utils, _globals, _Screen2, _Uri, _UA) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -10,6 +10,8 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	var _MultiMap2 = _interopRequireDefault(_MultiMap);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
+
+	var _errors2 = _interopRequireDefault(_errors);
 
 	var _utils2 = _interopRequireDefault(_utils);
 
@@ -127,8 +129,8 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 
 		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
 			if (!this.isValidResponseStatusCode(status)) {
-				var error = new Error('Invalid response status code. ' + 'To customize which status codes are valid, ' + 'overwrite `screen.isValidResponseStatusCode` method.');
-				error.responseError = true;
+				var error = new Error(_errors2.default.INVALID_STATUS);
+				error.invalidStatus = true;
 				throw error;
 			}
 		};
@@ -216,6 +218,16 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 					_this2.addCache(xhr.responseText);
 				}
 				return xhr.responseText;
+			}).catch(function (reason) {
+				switch (reason.message) {
+					case _errors2.default.REQUEST_TIMEOUT:
+						reason.timeout = true;
+						break;
+					case _errors2.default.REQUEST_ERROR:
+						reason.requestError = true;
+						break;
+				}
+				throw reason;
 			});
 		};
 

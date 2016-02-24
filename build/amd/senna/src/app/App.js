@@ -568,7 +568,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
 			if (this.pendingNavigate) {
-				if (this.screens[event.path] === this.screens[this.pendingNavigate.path]) {
+				if (this.pendingNavigate.path === event.path) {
 					console.log('Waiting...');
 					return;
 				}
@@ -660,7 +660,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			this.captureScrollPositionFromScrollEvent = false;
 			_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
 
-			var path = event.path;
 			var endNavigatePayload = {};
 
 			if (_globals2.default.capturedFormElement) {
@@ -668,18 +667,18 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				endNavigatePayload.form = _globals2.default.capturedFormElement;
 			}
 
-			this.pendingNavigate = this.doNavigate_(path, event.replaceHistory).catch(function (err) {
-				endNavigatePayload.error = err;
-				throw err;
+			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
+				endNavigatePayload.error = reason;
+				throw reason;
 			}).thenAlways(function () {
-				endNavigatePayload.path = path;
+				endNavigatePayload.path = event.path;
 				_dom2.default.removeClasses(_globals2.default.document.documentElement, _this7.loadingCssClass);
 				_this7.maybeRestoreNativeScrollRestoration();
 				_this7.captureScrollPositionFromScrollEvent = true;
 				_this7.emit('endNavigate', endNavigatePayload);
 			});
 
-			this.pendingNavigate.path = path;
+			this.pendingNavigate.path = event.path;
 		};
 
 		App.prototype.prefetch = function prefetch(path) {
