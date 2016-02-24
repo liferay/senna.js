@@ -1011,15 +1011,13 @@ describe('App', function() {
 		app.dispose();
 	});
 
-	it('should capture form element even when submit event was prevented', function() {
+	it('should not capture form element when submit event was prevented', function() {
 		var app = new App();
 		app.addRoutes(new Route('/path', Screen));
 		var form = enterDocumentFormElement('/path', 'post');
-		dom.once(form, 'submit', function(event) {
-			event.preventDefault();
-		});
+		dom.once(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.ok(globals.capturedFormElement);
+		assert.ok(!globals.capturedFormElement);
 		exitDocumentFormElement();
 		app.dispose();
 	});

@@ -579,12 +579,12 @@ class App extends EventEmitter {
 			return;
 		}
 
-		globals.capturedFormElement = event.capturedFormElement;
-
 		if (this.allowPreventNavigate && event.defaultPrevented) {
 			console.log('Navigate prevented');
 			return;
 		}
+
+		globals.capturedFormElement = event.capturedFormElement;
 
 		var navigateFailed = false;
 		try {
