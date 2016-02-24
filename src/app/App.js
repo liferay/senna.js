@@ -36,6 +36,14 @@ class App extends EventEmitter {
 		this.activePath = null;
 
 		/**
+		 * Allows prevent navigate from dom prevented event.
+		 * @type {boolean}
+		 * @default true
+		 * @protected
+		 */
+		this.allowPreventNavigate = true;
+
+		/**
 		 * Holds link base path.
 		 * @type {!string}
 		 * @default ''
@@ -421,6 +429,14 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Gets allow prevent navigate.
+	 * @return {boolean}
+	 */
+	getAllowPreventNavigate() {
+		return this.allowPreventNavigate;
+	}
+
+	/**
 	 * Gets link base path.
 	 * @return {!string}
 	 */
@@ -565,7 +581,7 @@ class App extends EventEmitter {
 
 		globals.capturedFormElement = event.capturedFormElement;
 
-		if (event.defaultPrevented) {
+		if (this.allowPreventNavigate && event.defaultPrevented) {
 			console.log('Navigate prevented');
 			return;
 		}
@@ -894,6 +910,14 @@ class App extends EventEmitter {
 			state.scrollLeft = globals.window.pageXOffset;
 			globals.window.history.replaceState(state, null, null);
 		}
+	}
+
+	/**
+	 * Sets allow prevent navigate.
+	 * @param {boolean} allowPreventNavigate
+	 */
+	setAllowPreventNavigate(allowPreventNavigate) {
+		this.allowPreventNavigate = allowPreventNavigate;
 	}
 
 	/**

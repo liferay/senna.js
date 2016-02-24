@@ -278,6 +278,14 @@ describe('App', function() {
 		app.dispose();
 	});
 
+	it('should get allow prevent navigate', function() {
+		var app = new App();
+		assert.strictEqual(true, app.getAllowPreventNavigate());
+		app.setAllowPreventNavigate(false);
+		assert.strictEqual(false, app.getAllowPreventNavigate());
+		app.dispose();
+	});
+
 	it('should get default title', function() {
 		globals.document.title = 'default';
 		var app = new App();
@@ -788,6 +796,7 @@ describe('App', function() {
 	it('should not navigate when clicking on external links', function() {
 		var link = enterDocumentLinkElement('http://sennajs.com');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
 		assert.strictEqual(null, app.pendingNavigate);
@@ -798,6 +807,7 @@ describe('App', function() {
 	it('should not navigate when clicking on links outside basepath', function() {
 		var link = enterDocumentLinkElement('/path');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		app.setBasePath('/base');
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
@@ -809,6 +819,7 @@ describe('App', function() {
 	it('should not navigate when clicking on unrouted links', function() {
 		var link = enterDocumentLinkElement('/path');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
 		assert.strictEqual(null, app.pendingNavigate);
@@ -819,6 +830,7 @@ describe('App', function() {
 	it('should not navigate when clicking on links with invalid mouse button or modifier keys pressed', function() {
 		var link = enterDocumentLinkElement('/path');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		app.addRoutes(new Route('/path', Screen));
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click', {
@@ -844,6 +856,7 @@ describe('App', function() {
 	it('should not navigate when navigate fails synchronously', function() {
 		var link = enterDocumentLinkElement('/path');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		app.addRoutes(new Route('/path', Screen));
 		app.navigate = function() {
 			throw new Error();
@@ -1029,6 +1042,7 @@ describe('App', function() {
 	it('should not navigate when submitting forms with method get', function() {
 		var form = enterDocumentFormElement('/path', 'get');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		app.addRoutes(new Route('/path', Screen));
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
@@ -1040,6 +1054,7 @@ describe('App', function() {
 	it('should not navigate when submitting on external forms', function() {
 		var form = enterDocumentFormElement('http://sennajs.com', 'post');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.strictEqual(null, app.pendingNavigate);
@@ -1050,6 +1065,7 @@ describe('App', function() {
 	it('should not navigate when submitting on forms outside basepath', function() {
 		var form = enterDocumentFormElement('/path', 'post');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		app.setBasePath('/base');
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
@@ -1061,6 +1077,7 @@ describe('App', function() {
 	it('should not navigate when submitting on unrouted forms', function() {
 		var form = enterDocumentFormElement('/path', 'post');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.strictEqual(null, app.pendingNavigate);
@@ -1071,26 +1088,28 @@ describe('App', function() {
 	it('should not capture form if navigate fails when submitting forms', function() {
 		var form = enterDocumentFormElement('/path', 'post');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(!globals.capturedFormElement);
-		app.on('beforeNavigate', () => assert.ok(!globals.capturedFormElement));
-		app.on('beforeNavigate', (event) => assert.ok(!event.form));
 		exitDocumentFormElement();
 		app.dispose();
 	});
 
-	it('should capture form if navigate when submitting forms', function() {
+	it('should capture form on beforeNavigate', function(done) {
 		var form = enterDocumentFormElement('/path', 'post');
 		var app = new App();
+		app.setAllowPreventNavigate(false);
 		app.addRoutes(new Route('/path', Screen));
+		app.on('beforeNavigate', (event) => {
+			assert.ok(event.form);
+			exitDocumentFormElement();
+			app.dispose();
+			done();
+		});
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(globals.capturedFormElement);
-		app.on('beforeNavigate', () => assert.ok(globals.capturedFormElement));
-		app.on('beforeNavigate', (event) => assert.ok(event.form));
-		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should set redirect path if history path was redirected', function(done) {
