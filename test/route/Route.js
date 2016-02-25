@@ -7,37 +7,37 @@ describe('Route', function() {
 
 	describe('Constructor', function() {
 		it('should throws error when path and handler not specified', function() {
-			assert.throws(function() {
+			assert.throws(() => {
 				new Route();
 			}, Error);
 		});
 
 		it('should throws error when path is null', function() {
-			assert.throws(function() {
+			assert.throws(() => {
 				new Route(null, core.nullFunction);
 			}, Error);
 		});
 
 		it('should throws error when path is undefined', function() {
-			assert.throws(function() {
+			assert.throws(() => {
 				new Route(undefined, core.nullFunction);
 			}, Error);
 		});
 
 		it('should throws error when handler not specified', function() {
-			assert.throws(function() {
+			assert.throws(() => {
 				new Route('/path');
 			}, Error);
 		});
 
 		it('should throws error when handler not a function', function() {
-			assert.throws(function() {
+			assert.throws(() => {
 				new Route('/path', {});
 			}, Error);
 		});
 
 		it('should not throws error when handler is a function', function() {
-			assert.doesNotThrow(function() {
+			assert.doesNotThrow(() => {
 				new Route('/path', core.nullFunction);
 			});
 		});

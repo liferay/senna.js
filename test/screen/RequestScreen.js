@@ -7,14 +7,11 @@ import UA from 'metal-useragent';
 describe('RequestScreen', function() {
 
 	beforeEach(function() {
-		this.xhr = sinon.useFakeXMLHttpRequest();
-
 		var requests = this.requests = [];
-
+		this.xhr = sinon.useFakeXMLHttpRequest();
 		this.xhr.onCreate = function(xhr) {
 			requests.push(xhr);
 		};
-
 		UA.testUserAgent(UA.getNativeUserAgent());
 	});
 
@@ -53,7 +50,7 @@ describe('RequestScreen', function() {
 
 	it('should screen beforeUpdateHistoryPath returns response path if different from navigate path', function() {
 		var screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', function() {
+		sinon.stub(screen, 'getRequest', () => {
 			return {
 				responseURL: '/redirect'
 			};
@@ -79,7 +76,7 @@ describe('RequestScreen', function() {
 	it('should send request to an url', function(done) {
 		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
 		var screen = new RequestScreen();
-		screen.load('/url').then(function() {
+		screen.load('/url').then(() => {
 			assert.strictEqual('/url', screen.getRequest().url);
 			assert.deepEqual({
 				'X-PJAX': 'true',
@@ -94,7 +91,7 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		var cache = {};
 		screen.addCache(cache);
-		screen.load('/url').then(function(cachedContent) {
+		screen.load('/url').then((cachedContent) => {
 			assert.strictEqual(cache, cachedContent);
 			done();
 		});
@@ -129,7 +126,7 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		screen.setTimeout(0);
 		screen.load('/url')
-			.catch(function(reason) {
+			.catch((reason) => {
 				assert.ok(reason.timeout);
 				clearTimeout(id);
 				done();
@@ -160,7 +157,7 @@ describe('RequestScreen', function() {
 	it('should form navigate force post method and request body wrapped in FormData', function(done) {
 		globals.capturedFormElement = globals.document.createElement('form');
 		var screen = new RequestScreen();
-		screen.load('/url').then(function() {
+		screen.load('/url').then(() => {
 			assert.strictEqual(RequestScreen.POST, screen.getRequest().method);
 			assert.ok(screen.getRequest().requestBody instanceof FormData);
 			globals.capturedFormElement = null;
@@ -173,7 +170,7 @@ describe('RequestScreen', function() {
 		UA.testUserAgent('MSIE'); // Simulates ie user agent
 		var url = '/url';
 		var screen = new RequestScreen();
-		screen.load(url).then(function() {
+		screen.load(url).then(() => {
 			assert.notStrictEqual(url, screen.getRequest().url);
 			done();
 		});
@@ -184,7 +181,7 @@ describe('RequestScreen', function() {
 		UA.testUserAgent('Edge'); // Simulates edge user agent
 		var url = '/url';
 		var screen = new RequestScreen();
-		screen.load(url).then(function() {
+		screen.load(url).then(() => {
 			assert.notStrictEqual(url, screen.getRequest().url);
 			done();
 		});

@@ -24,13 +24,13 @@ describe('AppDataAttributeHandler', function() {
 	});
 
 	it('should throw error when base element not specified', function() {
-		assert.throws(function() {
+		assert.throws(() => {
 			new AppDataAttributeHandler().handle();
 		}, Error);
 	});
 
 	it('should throw error when base element not valid', function() {
-		assert.throws(function() {
+		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement({});
 			appDataAttributeHandler.handle();
@@ -38,7 +38,7 @@ describe('AppDataAttributeHandler', function() {
 	});
 
 	it('should throw error when already handled', function() {
-		assert.throws(function() {
+		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
 			appDataAttributeHandler.handle();
@@ -47,7 +47,7 @@ describe('AppDataAttributeHandler', function() {
 	});
 
 	it('should not throw error when base element specified', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
 			appDataAttributeHandler.handle();
@@ -64,7 +64,7 @@ describe('AppDataAttributeHandler', function() {
 	});
 
 	it('should dispose when not handled', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.dispose();
 		});
@@ -106,7 +106,7 @@ describe('AppDataAttributeHandler', function() {
 
 	it('should throw error when adding app surfaces from document missing id', function() {
 		enterDocumentSurfaceElementMissingId('surfaceId');
-		assert.throws(function() {
+		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
 			appDataAttributeHandler.handle();
@@ -146,7 +146,7 @@ describe('AppDataAttributeHandler', function() {
 
 	it('should throw error when adding routes from document with missing screen type', function() {
 		enterDocumentRouteElementMissingScreenType('/path');
-		assert.throws(function() {
+		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
 			appDataAttributeHandler.handle();
@@ -156,7 +156,7 @@ describe('AppDataAttributeHandler', function() {
 
 	it('should throw error when adding routes from document with missing path', function() {
 		enterDocumentRouteElementMissingPath();
-		assert.throws(function() {
+		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
 			appDataAttributeHandler.handle();

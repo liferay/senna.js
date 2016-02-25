@@ -9,13 +9,13 @@ describe('Surface', function() {
 
 	describe('Constructor', function() {
 		it('should throws error when surface id not specified', function() {
-			assert.throws(function() {
+			assert.throws(() => {
 				new Surface();
 			}, Error);
 		});
 
 		it('should not throw error when surface id specified', function() {
-			assert.doesNotThrow(function() {
+			assert.doesNotThrow(() => {
 				new Surface('id');
 			});
 		});
@@ -185,12 +185,10 @@ describe('Surface', function() {
 			var surface = new Surface('surfaceId');
 			var surfaceChild = surface.addContent('screenId', 'content');
 			var surfaceChildNext = surface.addContent('screenNextId', 'content');
-			var transitionFn = function() {
-				return CancellablePromise.resolve();
-			};
+			var transitionFn = () => CancellablePromise.resolve();
 			surface.setTransitionFn(transitionFn);
 			surface.show('screenId');
-			surface.show('screenNextId').then(function() {
+			surface.show('screenNextId').then(() => {
 				assert.ok(!surfaceChild.parentNode);
 				assert.ok(surfaceChildNext.parentNode);
 				done();
@@ -202,9 +200,7 @@ describe('Surface', function() {
 
 		it('should transition deferred be cancellable', function(done) {
 			var surface = new Surface('surfaceId');
-			var transitionFn = function() {
-				return CancellablePromise.resolve();
-			};
+			var transitionFn = () => CancellablePromise.resolve();
 			surface.setTransitionFn(transitionFn);
 			surface.transition(null, null).catch(() => done()).cancel();
 		});

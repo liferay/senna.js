@@ -6,53 +6,53 @@ import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'metal-promise';
 
 describe('Screen', function() {
-	before(function() {
+	before(() => {
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');
 	});
 
-	after(function() {
+	after(() => {
 		console.log.restore();
 	});
 
 	it('should expose lifecycle activate', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().activate();
 		});
 	});
 
 	it('should expose lifecycle deactivate', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().deactivate();
 		});
 	});
 
 	it('should expose lifecycle beforeDeactivate', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().beforeDeactivate();
 		});
 	});
 
 	it('should expose lifecycle load', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().load();
 		});
 	});
 
 	it('should expose lifecycle getSurfaceContent', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().getSurfaceContent();
 		});
 	});
 
 	it('should expose lifecycle dispose', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().dispose();
 		});
 	});
 
 	it('should expose lifecycle flip', function() {
-		assert.doesNotThrow(function() {
+		assert.doesNotThrow(() => {
 			new Screen().flip({});
 		});
 	});
@@ -64,15 +64,15 @@ describe('Screen', function() {
 		};
 		var stub1 = sinon.stub();
 		var stub2 = sinon.stub();
-		surfaces.surface1.show = function() {
+		surfaces.surface1.show = () => {
 			stub1();
 			return CancellablePromise.resolve();
 		};
-		surfaces.surface2.show = function() {
+		surfaces.surface2.show = () => {
 			stub2();
 			return CancellablePromise.resolve();
 		};
-		new Screen().flip(surfaces).then(function() {
+		new Screen().flip(surfaces).then(() => {
 			assert.strictEqual(1, stub1.callCount);
 			assert.strictEqual(1, stub2.callCount);
 			done();
