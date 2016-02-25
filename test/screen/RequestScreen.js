@@ -6,32 +6,32 @@ import UA from 'metal-useragent';
 
 describe('RequestScreen', function() {
 
-	beforeEach(function() {
+	beforeEach(() => {
 		var requests = this.requests = [];
 		this.xhr = sinon.useFakeXMLHttpRequest();
-		this.xhr.onCreate = function(xhr) {
+		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
 		UA.testUserAgent(UA.getNativeUserAgent());
 	});
 
-	afterEach(function() {
+	afterEach(() => {
 		this.xhr.restore();
 	});
 
-	it('should be cacheable', function() {
+	it('should be cacheable', () => {
 		var screen = new RequestScreen();
 		assert.ok(screen.isCacheable());
 	});
 
-	it('should set HTTP method', function() {
+	it('should set HTTP method', () => {
 		var screen = new RequestScreen();
 		assert.strictEqual(RequestScreen.GET, screen.getHttpMethod());
 		screen.setHttpMethod(RequestScreen.POST);
 		assert.strictEqual(RequestScreen.POST, screen.getHttpMethod());
 	});
 
-	it('should set HTTP headers', function() {
+	it('should set HTTP headers', () => {
 		var screen = new RequestScreen();
 		assert.deepEqual({
 			'X-PJAX': 'true',
@@ -41,14 +41,14 @@ describe('RequestScreen', function() {
 		assert.deepEqual({}, screen.getHttpHeaders());
 	});
 
-	it('should set timeout', function() {
+	it('should set timeout', () => {
 		var screen = new RequestScreen();
 		assert.strictEqual(30000, screen.getTimeout());
 		screen.setTimeout(0);
 		assert.strictEqual(0, screen.getTimeout());
 	});
 
-	it('should screen beforeUpdateHistoryPath returns response path if different from navigate path', function() {
+	it('should screen beforeUpdateHistoryPath returns response path if different from navigate path', () => {
 		var screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
@@ -58,7 +58,7 @@ describe('RequestScreen', function() {
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
 
-	it('should screen beforeUpdateHistoryState returns null if form navigate to post-without-redirect-get', function() {
+	it('should screen beforeUpdateHistoryState returns null if form navigate to post-without-redirect-get', () => {
 		var screen = new RequestScreen();
 		assert.strictEqual(null, screen.beforeUpdateHistoryState({
 			senna: true,
@@ -68,12 +68,12 @@ describe('RequestScreen', function() {
 		}));
 	});
 
-	it('should request path return null if no requests were made', function() {
+	it('should request path return null if no requests were made', () => {
 		var screen = new RequestScreen();
 		assert.strictEqual(null, screen.getRequestPath());
 	});
 
-	it('should send request to an url', function(done) {
+	it('should send request to an url', (done) => {
 		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
 		var screen = new RequestScreen();
 		screen.load('/url').then(() => {
@@ -87,7 +87,7 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
-	it('should load response content from cache', function(done) {
+	it('should load response content from cache', (done) => {
 		var screen = new RequestScreen();
 		var cache = {};
 		screen.addCache(cache);
@@ -97,7 +97,7 @@ describe('RequestScreen', function() {
 		});
 	});
 
-	it('should not load response content from cache for post requests', function(done) {
+	it('should not load response content from cache for post requests', (done) => {
 		var screen = new RequestScreen();
 		var cache = {};
 		screen.setHttpMethod(RequestScreen.POST);
@@ -111,7 +111,7 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
-	it('should cancel load request to an url', function(done) {
+	it('should cancel load request to an url', (done) => {
 		var screen = new RequestScreen();
 		screen.load('/url')
 			.then(() => assert.fail())
@@ -122,7 +122,7 @@ describe('RequestScreen', function() {
 			.cancel();
 	});
 
-	it('should fail for timeout request', function(done) {
+	it('should fail for timeout request', (done) => {
 		var screen = new RequestScreen();
 		screen.setTimeout(0);
 		screen.load('/url')
@@ -134,7 +134,7 @@ describe('RequestScreen', function() {
 		var id = setTimeout(() => this.requests[0].respond(200), 100);
 	});
 
-	it('should fail for invalid status code response', function(done) {
+	it('should fail for invalid status code response', (done) => {
 		new RequestScreen()
 			.load('/url')
 			.catch((error) => {
@@ -144,7 +144,7 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(404);
 	});
 
-	it('should fail for request errors response', function(done) {
+	it('should fail for request errors response', (done) => {
 		new RequestScreen()
 			.load('/url')
 			.catch((error) => {
@@ -154,7 +154,7 @@ describe('RequestScreen', function() {
 		this.requests[0].abort();
 	});
 
-	it('should form navigate force post method and request body wrapped in FormData', function(done) {
+	it('should form navigate force post method and request body wrapped in FormData', (done) => {
 		globals.capturedFormElement = globals.document.createElement('form');
 		var screen = new RequestScreen();
 		screen.load('/url').then(() => {
@@ -166,7 +166,7 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
-	it('should not cache get requests on ie browsers', function(done) {
+	it('should not cache get requests on ie browsers', (done) => {
 		UA.testUserAgent('MSIE'); // Simulates ie user agent
 		var url = '/url';
 		var screen = new RequestScreen();
@@ -177,7 +177,7 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
-	it('should not cache get requests on edge browsers', function(done) {
+	it('should not cache get requests on edge browsers', (done) => {
 		UA.testUserAgent('Edge'); // Simulates edge user agent
 		var url = '/url';
 		var screen = new RequestScreen();

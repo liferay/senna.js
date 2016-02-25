@@ -7,7 +7,7 @@ import Screen from '../../src/screen/Screen';
 
 describe('AppDataAttributeHandler', function() {
 
-	before(function() {
+	before(() => {
 		globals.document.body.setAttribute('data-senna', '');
 		globals.window.senna = {
 			Screen: Screen
@@ -17,19 +17,19 @@ describe('AppDataAttributeHandler', function() {
 		sinon.stub(console, 'log');
 	});
 
-	after(function() {
+	after(() => {
 		globals.document.body.removeAttribute('data-senna');
 		delete globals.window.senna;
 		console.log.restore();
 	});
 
-	it('should throw error when base element not specified', function() {
+	it('should throw error when base element not specified', () => {
 		assert.throws(() => {
 			new AppDataAttributeHandler().handle();
 		}, Error);
 	});
 
-	it('should throw error when base element not valid', function() {
+	it('should throw error when base element not valid', () => {
 		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement({});
@@ -37,7 +37,7 @@ describe('AppDataAttributeHandler', function() {
 		}, Error);
 	});
 
-	it('should throw error when already handled', function() {
+	it('should throw error when already handled', () => {
 		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -46,7 +46,7 @@ describe('AppDataAttributeHandler', function() {
 		}, Error);
 	});
 
-	it('should not throw error when base element specified', function() {
+	it('should not throw error when base element specified', () => {
 		assert.doesNotThrow(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -55,7 +55,7 @@ describe('AppDataAttributeHandler', function() {
 		});
 	});
 
-	it('should dispose internal app when disposed', function() {
+	it('should dispose internal app when disposed', () => {
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
 		appDataAttributeHandler.handle();
@@ -63,14 +63,14 @@ describe('AppDataAttributeHandler', function() {
 		assert.ok(appDataAttributeHandler.getApp().isDisposed());
 	});
 
-	it('should dispose when not handled', function() {
+	it('should dispose when not handled', () => {
 		assert.doesNotThrow(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
 			appDataAttributeHandler.dispose();
 		});
 	});
 
-	it('should get app', function() {
+	it('should get app', () => {
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
 		appDataAttributeHandler.handle();
@@ -78,13 +78,13 @@ describe('AppDataAttributeHandler', function() {
 		appDataAttributeHandler.dispose();
 	});
 
-	it('should get base element', function() {
+	it('should get base element', () => {
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
 		assert.strictEqual(globals.document.body, appDataAttributeHandler.getBaseElement());
 	});
 
-	it('should add app surfaces from document', function() {
+	it('should add app surfaces from document', () => {
 		enterDocumentSurfaceElement('surfaceId');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -94,7 +94,7 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentSurfaceElement('surfaceId');
 	});
 
-	it('should adds random id to body without id when used as app surface', function() {
+	it('should adds random id to body without id when used as app surface', () => {
 		globals.document.body.setAttribute('data-senna-surface', '');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -104,7 +104,7 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-surface');
 	});
 
-	it('should throw error when adding app surfaces from document missing id', function() {
+	it('should throw error when adding app surfaces from document missing id', () => {
 		enterDocumentSurfaceElementMissingId('surfaceId');
 		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
@@ -114,7 +114,7 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentSurfaceElementMissingId('surfaceId');
 	});
 
-	it('should add default route if not found in document', function() {
+	it('should add default route if not found in document', () => {
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
 		appDataAttributeHandler.handle();
@@ -122,7 +122,7 @@ describe('AppDataAttributeHandler', function() {
 		appDataAttributeHandler.dispose();
 	});
 
-	it('should add routes from document', function() {
+	it('should add routes from document', () => {
 		enterDocumentRouteElement('/path1');
 		enterDocumentRouteElement('/path2');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
@@ -134,7 +134,7 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentRouteElement('/path2');
 	});
 
-	it('should add routes from document with regex paths', function() {
+	it('should add routes from document with regex paths', () => {
 		enterDocumentRouteElement('regex:[a-z]');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -144,7 +144,7 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentRouteElement('regex:[a-z]');
 	});
 
-	it('should throw error when adding routes from document with missing screen type', function() {
+	it('should throw error when adding routes from document with missing screen type', () => {
 		enterDocumentRouteElementMissingScreenType('/path');
 		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
@@ -154,7 +154,7 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentRouteElement('/path');
 	});
 
-	it('should throw error when adding routes from document with missing path', function() {
+	it('should throw error when adding routes from document with missing path', () => {
 		enterDocumentRouteElementMissingPath();
 		assert.throws(() => {
 			var appDataAttributeHandler = new AppDataAttributeHandler();
@@ -164,7 +164,7 @@ describe('AppDataAttributeHandler', function() {
 		exitDocumentRouteElementMissingPath();
 	});
 
-	it('should set base path from data attribute', function() {
+	it('should set base path from data attribute', () => {
 		globals.document.body.setAttribute('data-senna-base-path', '/base');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -174,7 +174,7 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-base-path');
 	});
 
-	it('should set link selector from data attribute', function() {
+	it('should set link selector from data attribute', () => {
 		globals.document.body.setAttribute('data-senna-link-selector', 'a');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -184,7 +184,7 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-link-selector');
 	});
 
-	it('should set loading css class from data attribute', function() {
+	it('should set loading css class from data attribute', () => {
 		globals.document.body.setAttribute('data-senna-loading-css-class', 'loading');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -194,7 +194,7 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-loading-css-class');
 	});
 
-	it('should set update scroll position to false from data attribute', function() {
+	it('should set update scroll position to false from data attribute', () => {
 		globals.document.body.setAttribute('data-senna-update-scroll-position', 'false');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -204,7 +204,7 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-update-scroll-position');
 	});
 
-	it('should set update scroll position to true from data attribute', function() {
+	it('should set update scroll position to true from data attribute', () => {
 		globals.document.body.setAttribute('data-senna-update-scroll-position', 'true');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -214,7 +214,7 @@ describe('AppDataAttributeHandler', function() {
 		globals.document.body.removeAttribute('data-senna-update-scroll-position');
 	});
 
-	it('should dispatch app from data attribute', function(done) {
+	it('should dispatch app from data attribute', (done) => {
 		globals.document.body.setAttribute('data-senna-dispatch', '');
 		var appDataAttributeHandler = new AppDataAttributeHandler();
 		appDataAttributeHandler.setBaseElement(globals.document.body);

@@ -15,49 +15,49 @@ describe('Screen', function() {
 		console.log.restore();
 	});
 
-	it('should expose lifecycle activate', function() {
+	it('should expose lifecycle activate', () => {
 		assert.doesNotThrow(() => {
 			new Screen().activate();
 		});
 	});
 
-	it('should expose lifecycle deactivate', function() {
+	it('should expose lifecycle deactivate', () => {
 		assert.doesNotThrow(() => {
 			new Screen().deactivate();
 		});
 	});
 
-	it('should expose lifecycle beforeDeactivate', function() {
+	it('should expose lifecycle beforeDeactivate', () => {
 		assert.doesNotThrow(() => {
 			new Screen().beforeDeactivate();
 		});
 	});
 
-	it('should expose lifecycle load', function() {
+	it('should expose lifecycle load', () => {
 		assert.doesNotThrow(() => {
 			new Screen().load();
 		});
 	});
 
-	it('should expose lifecycle getSurfaceContent', function() {
+	it('should expose lifecycle getSurfaceContent', () => {
 		assert.doesNotThrow(() => {
 			new Screen().getSurfaceContent();
 		});
 	});
 
-	it('should expose lifecycle dispose', function() {
+	it('should expose lifecycle dispose', () => {
 		assert.doesNotThrow(() => {
 			new Screen().dispose();
 		});
 	});
 
-	it('should expose lifecycle flip', function() {
+	it('should expose lifecycle flip', () => {
 		assert.doesNotThrow(() => {
 			new Screen().flip({});
 		});
 	});
 
-	it('should wait to flip all surfaces', function(done) {
+	it('should wait to flip all surfaces', (done) => {
 		var surfaces = {
 			surface1: new Surface('surface1'),
 			surface2: new Surface('surface2')
@@ -79,25 +79,25 @@ describe('Screen', function() {
 		});
 	});
 
-	it('should get screen id', function() {
+	it('should get screen id', () => {
 		var screen = new Screen();
 		assert.ok(screen.getId());
 		screen.setId('otherId');
 		assert.strictEqual('otherId', screen.getId());
 	});
 
-	it('should get screen title', function() {
+	it('should get screen title', () => {
 		var screen = new Screen();
 		assert.strictEqual(null, screen.getTitle());
 		screen.setTitle('other');
 		assert.strictEqual('other', screen.getTitle());
 	});
 
-	it('should check if object implements a screen', function() {
+	it('should check if object implements a screen', () => {
 		assert.ok(Screen.isImplementedBy(new Screen()));
 	});
 
-	it('should evaluate surface scripts', function(done) {
+	it('should evaluate surface scripts', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '<script>window.sentinel=true;</script>');
 		var surface = new Surface('surfaceId');
 		var screen = new Screen();
@@ -112,7 +112,7 @@ describe('Screen', function() {
 		});
 	});
 
-	it('should evaluate surface styles', function(done) {
+	it('should evaluate surface styles', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '<style>body{background-color:rgb(0, 255, 0);}</style>');
 		var surface = new Surface('surfaceId');
 		var screen = new Screen();
