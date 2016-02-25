@@ -16,180 +16,166 @@ describe('App', function() {
 	});
 
 	beforeEach(function() {
-		this.xhr = sinon.useFakeXMLHttpRequest();
-
 		var requests = this.requests = [];
-
+		this.xhr = sinon.useFakeXMLHttpRequest();
 		this.xhr.onCreate = function(xhr) {
 			requests.push(xhr);
 		};
-
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');
 	});
 
 	afterEach(function() {
+		if (this.app && !this.app.isDisposed()) {
+			this.app.dispose();
+		}
+		this.app = null;
 		this.xhr.restore();
 		console.log.restore();
 	});
 
 	it('should add route', function() {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		var route = app.findRoute('/path');
-		assert.ok(app.hasRoutes());
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		var route = this.app.findRoute('/path');
+		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
 		assert.strictEqual('/path', route.getPath());
 		assert.strictEqual(Screen, route.getHandler());
-		app.dispose();
 	});
 
 	it('should remove route', function() {
-		var app = new App();
+		this.app = new App();
 		var route = new Route('/path', Screen);
-		app.addRoutes(route);
-		assert.ok(app.removeRoute(route));
-		app.dispose();
+		this.app.addRoutes(route);
+		assert.ok(this.app.removeRoute(route));
 	});
 
 	it('should add route from object', function() {
-		var app = new App();
-		app.addRoutes({
+		this.app = new App();
+		this.app.addRoutes({
 			path: '/path',
 			handler: Screen
 		});
-		var route = app.findRoute('/path');
-		assert.ok(app.hasRoutes());
+		var route = this.app.findRoute('/path');
+		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
 		assert.strictEqual('/path', route.getPath());
 		assert.strictEqual(Screen, route.getHandler());
-		app.dispose();
 	});
 
 	it('should add route from array', function() {
-		var app = new App();
-		app.addRoutes([{
+		this.app = new App();
+		this.app.addRoutes([{
 			path: '/path',
 			handler: Screen
 		}, new Route('/pathOther', Screen)]);
-		var route = app.findRoute('/path');
-		assert.ok(app.hasRoutes());
+		var route = this.app.findRoute('/path');
+		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
 		assert.strictEqual('/path', route.getPath());
 		assert.strictEqual(Screen, route.getHandler());
-		var routeOther = app.findRoute('/pathOther');
+		var routeOther = this.app.findRoute('/pathOther');
 		assert.ok(routeOther instanceof Route);
 		assert.strictEqual('/pathOther', routeOther.getPath());
 		assert.strictEqual(Screen, routeOther.getHandler());
-		app.dispose();
 	});
 
 	it('should not find route for not registered paths', function() {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		assert.strictEqual(null, app.findRoute('/pathOther'));
-		app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		assert.strictEqual(null, this.app.findRoute('/pathOther'));
 	});
 
 	it('should not find route for urls with hashbang when navigate to same basepath', function() {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
 		globals.window = {
 			location: {
 				pathname: '/path',
 				search: ''
 			}
 		};
-		assert.strictEqual(null, app.findRoute('/path#hashbang'));
-		app.dispose();
+		assert.strictEqual(null, this.app.findRoute('/path#hashbang'));
 		globals.window = window;
 	});
 
 	it('should find route for urls with hashbang for different basepath', function() {
-		var app = new App();
-		app.addRoutes(new Route('/pathOther', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/pathOther', Screen));
 		globals.window = {
 			location: {
 				pathname: '/path',
 				search: ''
 			}
 		};
-		assert.ok(app.findRoute('/pathOther#hashbang'));
-		app.dispose();
+		assert.ok(this.app.findRoute('/pathOther#hashbang'));
 		globals.window = window;
 	});
 
 	it('should add surface', function() {
-		var app = new App();
-		app.addSurfaces(new Surface('surfaceId'));
-		assert.ok(app.surfaces.surfaceId);
-		assert.strictEqual('surfaceId', app.surfaces.surfaceId.getId());
-		app.dispose();
+		this.app = new App();
+		this.app.addSurfaces(new Surface('surfaceId'));
+		assert.ok(this.app.surfaces.surfaceId);
+		assert.strictEqual('surfaceId', this.app.surfaces.surfaceId.getId());
 	});
 
 	it('should add surface from surface id', function() {
-		var app = new App();
-		app.addSurfaces('surfaceId');
-		assert.ok(app.surfaces.surfaceId);
-		assert.strictEqual('surfaceId', app.surfaces.surfaceId.getId());
-		app.dispose();
+		this.app = new App();
+		this.app.addSurfaces('surfaceId');
+		assert.ok(this.app.surfaces.surfaceId);
+		assert.strictEqual('surfaceId', this.app.surfaces.surfaceId.getId());
 	});
 
 	it('should add surface from array', function() {
-		var app = new App();
-		app.addSurfaces([new Surface('surfaceId'), 'surfaceIdOther']);
-		assert.ok(app.surfaces.surfaceId);
-		assert.ok(app.surfaces.surfaceIdOther);
-		assert.strictEqual('surfaceId', app.surfaces.surfaceId.getId());
-		assert.strictEqual('surfaceIdOther', app.surfaces.surfaceIdOther.getId());
-		app.dispose();
+		this.app = new App();
+		this.app.addSurfaces([new Surface('surfaceId'), 'surfaceIdOther']);
+		assert.ok(this.app.surfaces.surfaceId);
+		assert.ok(this.app.surfaces.surfaceIdOther);
+		assert.strictEqual('surfaceId', this.app.surfaces.surfaceId.getId());
+		assert.strictEqual('surfaceIdOther', this.app.surfaces.surfaceIdOther.getId());
 	});
 
 	it('should create screen instance to a route', function() {
-		var app = new App();
-		var screen = app.createScreenInstance('/path', new Route('/path', Screen));
+		this.app = new App();
+		var screen = this.app.createScreenInstance('/path', new Route('/path', Screen));
 		assert.ok(screen instanceof Screen);
-		app.dispose();
 	});
 
 	it('should create screen instance to a route for Screen class child', function() {
-		var app = new App();
-		var screen = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
+		this.app = new App();
+		var screen = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
 		assert.ok(screen instanceof HtmlScreen);
-		app.dispose();
 	});
 
 	it('should create screen instance to a route with function handler', function() {
-		var app = new App();
+		this.app = new App();
 		var stub = sinon.stub();
 		var route = new Route('/path', stub);
-		var screen = app.createScreenInstance('/path', route);
+		var screen = this.app.createScreenInstance('/path', route);
 		assert.strictEqual(1, stub.callCount);
 		assert.strictEqual(route, stub.args[0][0]);
 		assert.strictEqual(undefined, stub.returnValues[0]);
 		assert.ok(screen instanceof Screen);
-		app.dispose();
 	});
 
 	it('should get same screen instance to a route', function() {
-		var app = new App();
+		this.app = new App();
 		var route = new Route('/path', Screen);
-		var screen = app.createScreenInstance('/path', route);
-		app.screens['/path'] = screen;
-		assert.strictEqual(screen, app.createScreenInstance('/path', route));
-		app.dispose();
+		var screen = this.app.createScreenInstance('/path', route);
+		this.app.screens['/path'] = screen;
+		assert.strictEqual(screen, this.app.createScreenInstance('/path', route));
 	});
 
 	it('should use same screen instance when simulating navigate refresh', function() {
-		var app = new App();
+		this.app = new App();
 		var route = new Route('/path', HtmlScreen);
-		var screen = app.createScreenInstance('/path', route);
-		app.screens['/path'] = screen;
-		app.activePath = '/path';
-		app.activeScreen = screen;
-		var screenRefresh = app.createScreenInstance('/path', route);
+		var screen = this.app.createScreenInstance('/path', route);
+		this.app.screens['/path'] = screen;
+		this.app.activePath = '/path';
+		this.app.activeScreen = screen;
+		var screenRefresh = this.app.createScreenInstance('/path', route);
 		assert.strictEqual(screen, screenRefresh);
-		app.dispose();
 	});
 
 	it('should create different screen instance navigate when not cacheable', function(done) {
@@ -199,15 +185,14 @@ describe('App', function() {
 				this.cacheable = false;
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path1', NoCacheScreen));
-		app.addRoutes(new Route('/path2', NoCacheScreen));
-		app.navigate('/path1').then(() => {
-			var screenFirstNavigate = app.screens['/path1'];
-			app.navigate('/path2').then(() => {
-				app.navigate('/path1').then(() => {
-					assert.notStrictEqual(screenFirstNavigate, app.screens['/path1']);
-					app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', NoCacheScreen));
+		this.app.addRoutes(new Route('/path2', NoCacheScreen));
+		this.app.navigate('/path1').then(() => {
+			var screenFirstNavigate = this.app.screens['/path1'];
+			this.app.navigate('/path2').then(() => {
+				this.app.navigate('/path1').then(() => {
+					assert.notStrictEqual(screenFirstNavigate, this.app.screens['/path1']);
 					done();
 				});
 			});
@@ -221,15 +206,14 @@ describe('App', function() {
 				this.cacheable = true;
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path1', CacheScreen));
-		app.addRoutes(new Route('/path2', CacheScreen));
-		app.navigate('/path1').then(() => {
-			var screenFirstNavigate = app.screens['/path1'];
-			app.navigate('/path2').then(() => {
-				app.navigate('/path1').then(() => {
-					assert.strictEqual(screenFirstNavigate, app.screens['/path1']);
-					app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', CacheScreen));
+		this.app.addRoutes(new Route('/path2', CacheScreen));
+		this.app.navigate('/path1').then(() => {
+			var screenFirstNavigate = this.app.screens['/path1'];
+			this.app.navigate('/path2').then(() => {
+				this.app.navigate('/path1').then(() => {
+					assert.strictEqual(screenFirstNavigate, this.app.screens['/path1']);
 					done();
 				});
 			});
@@ -237,114 +221,103 @@ describe('App', function() {
 	});
 
 	it('should clear screen cache', function() {
-		var app = new App();
-		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
-		app.clearScreensCache();
-		assert.strictEqual(0, Object.keys(app.screens).length);
-		app.dispose();
+		this.app = new App();
+		this.app.screens['/path'] = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
+		this.app.clearScreensCache();
+		assert.strictEqual(0, Object.keys(this.app.screens).length);
 	});
 
 	it('should clear all screen caches on app dispose', function() {
-		var app = new App();
-		var screen1 = app.createScreenInstance('/path1', new Route('/path1', HtmlScreen));
-		var screen2 = app.createScreenInstance('/path2', new Route('/path2', HtmlScreen));
-		app.activePath = '/path1';
-		app.activeScreen = screen1;
-		app.screens['/path1'] = screen1;
-		app.screens['/path2'] = screen2;
-		app.dispose();
-		assert.strictEqual(0, Object.keys(app.screens).length);
+		this.app = new App();
+		var screen1 = this.app.createScreenInstance('/path1', new Route('/path1', HtmlScreen));
+		var screen2 = this.app.createScreenInstance('/path2', new Route('/path2', HtmlScreen));
+		this.app.activePath = '/path1';
+		this.app.activeScreen = screen1;
+		this.app.screens['/path1'] = screen1;
+		this.app.screens['/path2'] = screen2;
+		this.app.dispose();
+		assert.strictEqual(0, Object.keys(this.app.screens).length);
 	});
 
 	it('should clear screen cache and remove surfaces', function() {
-		var app = new App();
+		this.app = new App();
 		var surface = new Surface('surfaceId');
 		surface.remove = sinon.stub();
-		app.addSurfaces(surface);
-		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
-		app.clearScreensCache();
+		this.app.addSurfaces(surface);
+		this.app.screens['/path'] = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
+		this.app.clearScreensCache();
 		assert.strictEqual(1, surface.remove.callCount);
-		app.dispose();
 	});
 
 	it('should clear screen cache for activeScreen but not remove it', function() {
-		var app = new App();
-		app.screens['/path'] = app.createScreenInstance('/path', new Route('/path', HtmlScreen));
-		app.activePath = '/path';
-		app.activeScreen = app.screens['/path'];
-		app.clearScreensCache();
-		assert.strictEqual(1, Object.keys(app.screens).length);
-		assert.strictEqual(null, app.activeScreen.getCache());
-		app.dispose();
+		this.app = new App();
+		this.app.screens['/path'] = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
+		this.app.activePath = '/path';
+		this.app.activeScreen = this.app.screens['/path'];
+		this.app.clearScreensCache();
+		assert.strictEqual(1, Object.keys(this.app.screens).length);
+		assert.strictEqual(null, this.app.activeScreen.getCache());
 	});
 
 	it('should get allow prevent navigate', function() {
-		var app = new App();
-		assert.strictEqual(true, app.getAllowPreventNavigate());
-		app.setAllowPreventNavigate(false);
-		assert.strictEqual(false, app.getAllowPreventNavigate());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual(true, this.app.getAllowPreventNavigate());
+		this.app.setAllowPreventNavigate(false);
+		assert.strictEqual(false, this.app.getAllowPreventNavigate());
 	});
 
 	it('should get default title', function() {
 		globals.document.title = 'default';
-		var app = new App();
-		assert.strictEqual('default', app.getDefaultTitle());
-		app.setDefaultTitle('title');
-		assert.strictEqual('title', app.getDefaultTitle());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual('default', this.app.getDefaultTitle());
+		this.app.setDefaultTitle('title');
+		assert.strictEqual('title', this.app.getDefaultTitle());
 	});
 
 	it('should get basepath', function() {
-		var app = new App();
-		assert.strictEqual('', app.getBasePath());
-		app.setBasePath('/base');
-		assert.strictEqual('/base', app.getBasePath());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual('', this.app.getBasePath());
+		this.app.setBasePath('/base');
+		assert.strictEqual('/base', this.app.getBasePath());
 	});
 
 	it('should get update scroll position', function() {
-		var app = new App();
-		assert.strictEqual(true, app.getUpdateScrollPosition());
-		app.setUpdateScrollPosition(false);
-		assert.strictEqual(false, app.getUpdateScrollPosition());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual(true, this.app.getUpdateScrollPosition());
+		this.app.setUpdateScrollPosition(false);
+		assert.strictEqual(false, this.app.getUpdateScrollPosition());
 	});
 
 	it('should get loading css class', function() {
-		var app = new App();
-		assert.strictEqual('senna-loading', app.getLoadingCssClass());
-		app.setLoadingCssClass('');
-		assert.strictEqual('', app.getLoadingCssClass());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual('senna-loading', this.app.getLoadingCssClass());
+		this.app.setLoadingCssClass('');
+		assert.strictEqual('', this.app.getLoadingCssClass());
 	});
 
 	it('should get form selector', function() {
-		var app = new App();
-		assert.strictEqual('form[enctype="multipart/form-data"]:not([data-senna-off])', app.getFormSelector());
-		app.setFormSelector('');
-		assert.strictEqual('', app.getFormSelector());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual('form[enctype="multipart/form-data"]:not([data-senna-off])', this.app.getFormSelector());
+		this.app.setFormSelector('');
+		assert.strictEqual('', this.app.getFormSelector());
 	});
 
 	it('should get link selector', function() {
-		var app = new App();
-		assert.strictEqual('a:not([data-senna-off])', app.getLinkSelector());
-		app.setLinkSelector('');
-		assert.strictEqual('', app.getLinkSelector());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual('a:not([data-senna-off])', this.app.getLinkSelector());
+		this.app.setLinkSelector('');
+		assert.strictEqual('', this.app.getLinkSelector());
 	});
 
 	it('should get link selector', function() {
-		var app = new App();
-		assert.strictEqual('a:not([data-senna-off])', app.getLinkSelector());
-		app.setLinkSelector('');
-		assert.strictEqual('', app.getLinkSelector());
-		app.dispose();
+		this.app = new App();
+		assert.strictEqual('a:not([data-senna-off])', this.app.getLinkSelector());
+		this.app.setLinkSelector('');
+		assert.strictEqual('', this.app.getLinkSelector());
 	});
 
 	it('should test if can navigate to url', function() {
-		var app = new App();
+		this.app = new App();
 		globals.window = {
 			history: {},
 			location: {
@@ -353,20 +326,19 @@ describe('App', function() {
 				search: ''
 			}
 		};
-		app.setBasePath('/base');
-		app.addRoutes(new Route('/path', Screen));
-		assert.ok(app.canNavigate('http://localhost/base/path'));
-		assert.ok(!app.canNavigate('http://localhost/base/path1'));
-		assert.ok(!app.canNavigate('http://localhost/path'));
-		assert.ok(!app.canNavigate('http://external/path'));
-		app.dispose();
+		this.app.setBasePath('/base');
+		this.app.addRoutes(new Route('/path', Screen));
+		assert.ok(this.app.canNavigate('http://localhost/base/path'));
+		assert.ok(!this.app.canNavigate('http://localhost/base/path1'));
+		assert.ok(!this.app.canNavigate('http://localhost/path'));
+		assert.ok(!this.app.canNavigate('http://external/path'));
 		globals.window = window;
 	});
 
 	it('should store proper senna state after navigate', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.navigate('/path').then(() => {
 			assert.deepEqual({
 				form: false,
 				redirectPath: '/path',
@@ -375,7 +347,6 @@ describe('App', function() {
 				scrollTop: 0,
 				scrollLeft: 0
 			}, globals.window.history.state);
-			app.dispose();
 			done();
 		});
 	});
@@ -383,17 +354,16 @@ describe('App', function() {
 	it('should navigate emit startNavigate and endNavigate custom event', function(done) {
 		var startNavigateStub = sinon.stub();
 		var endNavigateStub = sinon.stub();
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('startNavigate', startNavigateStub);
-		app.on('endNavigate', endNavigateStub);
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('startNavigate', startNavigateStub);
+		this.app.on('endNavigate', endNavigateStub);
+		this.app.navigate('/path').then(() => {
 			assert.strictEqual(1, startNavigateStub.callCount);
 			assert.strictEqual('/path', startNavigateStub.args[0][0].path);
 			assert.strictEqual(false, startNavigateStub.args[0][0].replaceHistory);
 			assert.strictEqual(1, endNavigateStub.callCount);
 			assert.strictEqual('/path', endNavigateStub.args[0][0].path);
-			app.dispose();
 			done();
 		});
 	});
@@ -401,59 +371,55 @@ describe('App', function() {
 	it('should navigate emit startNavigate and endNavigate custom event with replace history', function(done) {
 		var startNavigateStub = sinon.stub();
 		var endNavigateStub = sinon.stub();
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('startNavigate', startNavigateStub);
-		app.on('endNavigate', endNavigateStub);
-		app.navigate('/path', true).then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('startNavigate', startNavigateStub);
+		this.app.on('endNavigate', endNavigateStub);
+		this.app.navigate('/path', true).then(() => {
 			assert.strictEqual(1, startNavigateStub.callCount);
 			assert.strictEqual('/path', startNavigateStub.args[0][0].path);
 			assert.strictEqual(true, startNavigateStub.args[0][0].replaceHistory);
 			assert.strictEqual(1, endNavigateStub.callCount);
 			assert.strictEqual('/path', endNavigateStub.args[0][0].path);
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should navigate overwrite event.path on beforeNavigate custom event', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path1', Screen));
-		app.on('beforeNavigate', function(event) {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.on('beforeNavigate', (event) => {
 			event.path = '/path1';
 		});
-		app.navigate('/path').then(() => {
+		this.app.navigate('/path').then(() => {
 			assert.strictEqual('/path1', globals.window.location.pathname);
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should cancel navigate', function(done) {
 		var stub = sinon.stub();
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('endNavigate', function(payload) {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('endNavigate', (payload) => {
 			assert.ok(payload.error instanceof Error);
 			stub();
 		});
-		app.navigate('/path').catch(function(reason) {
+		this.app.navigate('/path').catch((reason) => {
 			assert.ok(reason instanceof Error);
 			assert.strictEqual(1, stub.callCount);
-			app.dispose();
 			done();
 		}).cancel();
 	});
 
 	it('should clear pendingNavigate after navigate', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.navigate('/path').then(() => {
-			assert.ok(!app.pendingNavigate);
-			app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.navigate('/path').then(() => {
+			assert.ok(!this.app.pendingNavigate);
 			done();
 		});
-		assert.ok(app.pendingNavigate);
+		assert.ok(this.app.pendingNavigate);
 	});
 
 	it('should wait for pendingNavigate if navigate to same path', function(done) {
@@ -463,32 +429,30 @@ describe('App', function() {
 				this.cacheable = true;
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path', CacheScreen));
-		app.navigate('/path').then(() => {
-			var pendingNavigate1 = app.navigate('/path');
-			var pendingNavigate2 = app.navigate('/path');
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', CacheScreen));
+		this.app.navigate('/path').then(() => {
+			var pendingNavigate1 = this.app.navigate('/path');
+			var pendingNavigate2 = this.app.navigate('/path');
 			assert.ok(pendingNavigate1);
 			assert.ok(pendingNavigate2);
 			assert.strictEqual(pendingNavigate1, pendingNavigate2);
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should navigate back when clicking browser back button', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1')
-			.then(() => app.navigate('/path2'))
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				var activeScreen = app.activeScreen;
+				var activeScreen = this.app.activeScreen;
 				assert.strictEqual('/path2', globals.window.location.pathname);
-				app.once('endNavigate', () => {
+				this.app.once('endNavigate', () => {
 					assert.strictEqual('/path1', globals.window.location.pathname);
-					assert.notStrictEqual(activeScreen, app.activeScreen);
-					app.dispose();
+					assert.notStrictEqual(activeScreen, this.app.activeScreen);
 					done();
 				});
 				globals.window.history.back();
@@ -502,18 +466,17 @@ describe('App', function() {
 				this.cacheable = true;
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path', CacheScreen));
-		app.navigate('/path').then(() => {
-			app.navigate('/path');
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', CacheScreen));
+		this.app.navigate('/path').then(() => {
+			this.app.navigate('/path');
 			var beforeNavigate = sinon.stub();
 			var startNavigate = sinon.stub();
-			app.on('beforeNavigate', beforeNavigate);
-			app.on('startNavigate', startNavigate);
-			app.navigate('/path');
+			this.app.on('beforeNavigate', beforeNavigate);
+			this.app.on('startNavigate', startNavigate);
+			this.app.navigate('/path');
 			assert.strictEqual(1, beforeNavigate.callCount);
 			assert.strictEqual(0, startNavigate.callCount);
-			app.dispose();
 			done();
 		});
 	});
@@ -525,81 +488,76 @@ describe('App', function() {
 				this.cacheable = true;
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path1', CacheScreen));
-		app.addRoutes(new Route('/path2', CacheScreen));
-		app.navigate('/path1')
-			.then(() => app.navigate('/path2'))
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', CacheScreen));
+		this.app.addRoutes(new Route('/path2', CacheScreen));
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				var pendingNavigate1 = app.navigate('/path1');
-				var pendingNavigate2 = app.navigate('/path2');
+				var pendingNavigate1 = this.app.navigate('/path1');
+				var pendingNavigate2 = this.app.navigate('/path2');
 				assert.ok(pendingNavigate1);
 				assert.ok(pendingNavigate2);
 				assert.notStrictEqual(pendingNavigate1, pendingNavigate2);
-				app.dispose();
 				done();
 			});
 	});
 
 	it('should simulate refresh on navigate to the same path', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.once('startNavigate', function(payload) {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.once('startNavigate', (payload) => {
 			assert.ok(!payload.replaceHistory);
 		});
-		app.navigate('/path').then(() => {
-			app.once('startNavigate', function(payload) {
+		this.app.navigate('/path').then(() => {
+			this.app.once('startNavigate', (payload) => {
 				assert.ok(payload.replaceHistory);
 			});
-			app.navigate('/path').then(() => {
-				app.dispose();
+			this.app.navigate('/path').then(() => {
 				done();
 			});
 		});
 	});
 
 	it('should add loading css class on navigate', function(done) {
-		var containsLoadingCssClass = function() {
-			return globals.document.documentElement.classList.contains(app.getLoadingCssClass());
+		var containsLoadingCssClass = () => {
+			return globals.document.documentElement.classList.contains(this.app.getLoadingCssClass());
 		};
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('startNavigate', () => assert.ok(containsLoadingCssClass()));
-		app.on('endNavigate', function() {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('startNavigate', () => assert.ok(containsLoadingCssClass()));
+		this.app.on('endNavigate', () => {
 			assert.ok(!containsLoadingCssClass());
-			app.dispose();
 			done();
 		});
-		app.navigate('/path').then(() => assert.ok(!containsLoadingCssClass()));
+		this.app.navigate('/path').then(() => assert.ok(!containsLoadingCssClass()));
 	});
 
 	it('should not remove loading css class on navigate if there is pending navigate', function(done) {
-		var containsLoadingCssClass = function() {
-			return globals.document.documentElement.classList.contains(app.getLoadingCssClass());
+		var containsLoadingCssClass = () => {
+			return globals.document.documentElement.classList.contains(this.app.getLoadingCssClass());
 		};
-		var app = new App();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.once('startNavigate', () => {
-			app.once('startNavigate', () => assert.ok(containsLoadingCssClass()));
-			app.once('endNavigate', () => assert.ok(containsLoadingCssClass()));
-			app.navigate('/path2').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.once('startNavigate', () => {
+			this.app.once('startNavigate', () => assert.ok(containsLoadingCssClass()));
+			this.app.once('endNavigate', () => assert.ok(containsLoadingCssClass()));
+			this.app.navigate('/path2').then(() => {
 				assert.ok(!containsLoadingCssClass());
-				app.dispose();
 				done();
 			});
 		});
-		app.navigate('/path1');
+		this.app.navigate('/path1');
 	});
 
 	it('should not navigate to unrouted paths', function(done) {
-		var app = new App();
-		app.on('endNavigate', function(payload) {
+		this.app = new App();
+		this.app.on('endNavigate', (payload) => {
 			assert.ok(payload.error instanceof Error);
 		});
-		app.navigate('/path', true).catch(function(reason) {
+		this.app.navigate('/path', true).catch((reason) => {
 			assert.ok(reason instanceof Error);
-			app.dispose();
 			done();
 		});
 	});
@@ -611,11 +569,10 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var app = new App();
-		setTimeout(function() {
+		this.app = new App();
+		setTimeout(() => {
 			assert.strictEqual(100, globals.window.history.state.scrollTop);
 			assert.strictEqual(100, globals.window.history.state.scrollLeft);
-			app.dispose();
 			hidePageScrollbar();
 			done();
 		}, 100);
@@ -623,16 +580,15 @@ describe('App', function() {
 	});
 
 	it('should not store page scroll position during navigate', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('startNavigate', function() {
-			app.onScroll_(); // Coverage
-			assert.ok(!app.captureScrollPositionFromScrollEvent);
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('startNavigate', () => {
+			this.app.onScroll_(); // Coverage
+			assert.ok(!this.app.captureScrollPositionFromScrollEvent);
 		});
-		assert.ok(app.captureScrollPositionFromScrollEvent);
-		app.navigate('/path').then(() => {
-			assert.ok(app.captureScrollPositionFromScrollEvent);
-			app.dispose();
+		assert.ok(this.app.captureScrollPositionFromScrollEvent);
+		this.app.navigate('/path').then(() => {
+			assert.ok(this.app.captureScrollPositionFromScrollEvent);
 			done();
 		});
 	});
@@ -644,15 +600,14 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var app = new App();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(() => {
-			setTimeout(function() {
-				app.navigate('/path2').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			setTimeout(() => {
+				this.app.navigate('/path2').then(() => {
 					assert.strictEqual(0, window.pageXOffset);
 					assert.strictEqual(0, window.pageYOffset);
-					app.dispose();
 					hidePageScrollbar();
 					done();
 				});
@@ -668,16 +623,15 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var app = new App();
-		app.setUpdateScrollPosition(false);
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(() => {
-			setTimeout(function() {
-				app.navigate('/path2').then(() => {
+		this.app = new App();
+		this.app.setUpdateScrollPosition(false);
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			setTimeout(() => {
+				this.app.navigate('/path2').then(() => {
 					assert.strictEqual(100, window.pageXOffset);
 					assert.strictEqual(100, window.pageYOffset);
-					app.dispose();
 					hidePageScrollbar();
 					done();
 				});
@@ -693,18 +647,17 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var app = new App();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(() => {
-			setTimeout(function() {
-				app.navigate('/path2').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			setTimeout(() => {
+				this.app.navigate('/path2').then(() => {
 					assert.strictEqual(0, window.pageXOffset);
 					assert.strictEqual(0, window.pageYOffset);
-					app.once('endNavigate', function() {
+					this.app.once('endNavigate', () => {
 						assert.strictEqual(100, window.pageXOffset);
 						assert.strictEqual(100, window.pageYOffset);
-						app.dispose();
 						hidePageScrollbar();
 						done();
 					});
@@ -717,15 +670,14 @@ describe('App', function() {
 
 	it('should dispatch navigate to current path', function(done) {
 		globals.window.history.replaceState({}, '', '/path1?foo=1#hash');
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('endNavigate', function(payload) {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('endNavigate', (payload) => {
 			assert.strictEqual('/path1?foo=1#hash', payload.path);
-			app.dispose();
 			globals.window.history.replaceState({}, '', utils.getCurrentBrowserPath());
 			done();
 		});
-		app.dispatch();
+		this.app.dispatch();
 	});
 
 	it('should not navigate if active screen forbid deactivate', function(done) {
@@ -734,104 +686,96 @@ describe('App', function() {
 				return true;
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path1', NoNavigateScreen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(() => {
-			app.on('endNavigate', function(payload) {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', NoNavigateScreen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			this.app.on('endNavigate', (payload) => {
 				assert.ok(payload.error instanceof Error);
 			});
-			app.navigate('/path2').catch(function(reason) {
+			this.app.navigate('/path2').catch((reason) => {
 				assert.ok(reason instanceof Error);
-				app.dispose();
 				done();
 			});
 		});
 	});
 
 	it('should prefetch paths', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.prefetch('/path').then(() => {
-			assert.ok(app.screens['/path'] instanceof Screen);
-			app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.prefetch('/path').then(() => {
+			assert.ok(this.app.screens['/path'] instanceof Screen);
 			done();
 		});
 	});
 
 	it('should prefetch fail on navigate to unrouted paths', function(done) {
-		var app = new App();
-		app.on('endNavigate', function(payload) {
+		this.app = new App();
+		this.app.on('endNavigate', (payload) => {
 			assert.ok(payload.error instanceof Error);
 		});
-		app.prefetch('/path').catch(function(reason) {
+		this.app.prefetch('/path').catch((reason) => {
 			assert.ok(reason instanceof Error);
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should cancel prefetch', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.on('endNavigate', function(payload) {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('endNavigate', (payload) => {
 			assert.ok(payload.error instanceof Error);
 		});
-		app.prefetch('/path').catch(function(reason) {
+		this.app.prefetch('/path').catch((reason) => {
 			assert.ok(reason instanceof Error);
-			app.dispose();
 			done();
 		}).cancel();
 	});
 
 	it('should navigate when clicking on routed links', function() {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
 		dom.triggerEvent(enterDocumentLinkElement('/path'), 'click');
-		assert.ok(app.pendingNavigate);
+		assert.ok(this.app.pendingNavigate);
 		exitDocumentLinkElement();
-		app.dispose();
 	});
 
 	it('should not navigate when clicking on external links', function() {
 		var link = enterDocumentLinkElement('http://sennajs.com');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentLinkElement();
-		app.dispose();
 	});
 
 	it('should not navigate when clicking on links outside basepath', function() {
 		var link = enterDocumentLinkElement('/path');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
-		app.setBasePath('/base');
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.setBasePath('/base');
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentLinkElement();
-		app.dispose();
 	});
 
 	it('should not navigate when clicking on unrouted links', function() {
 		var link = enterDocumentLinkElement('/path');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentLinkElement();
-		app.dispose();
 	});
 
 	it('should not navigate when clicking on links with invalid mouse button or modifier keys pressed', function() {
 		var link = enterDocumentLinkElement('/path');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.addRoutes(new Route('/path', Screen));
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click', {
 			altKey: true
@@ -848,37 +792,34 @@ describe('App', function() {
 		dom.triggerEvent(link, 'click', {
 			button: true
 		});
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentLinkElement();
-		app.dispose();
 	});
 
 	it('should not navigate when navigate fails synchronously', function() {
 		var link = enterDocumentLinkElement('/path');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
-		app.addRoutes(new Route('/path', Screen));
-		app.navigate = function() {
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.navigate = () => {
 			throw new Error();
 		};
 		dom.on(link, 'click', preventDefault);
 		dom.triggerEvent(link, 'click');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentLinkElement();
-		app.dispose();
 	});
 
 	it('should reload page on navigate back to a routed page without history state', function(done) {
-		var app = new App();
-		app.reloadPage = sinon.stub();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(() => {
+		this.app = new App();
+		this.app.reloadPage = sinon.stub();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
 			window.history.replaceState(null, null, null);
-			app.navigate('/path2').then(() => {
-				dom.once(globals.window, 'popstate', function() {
-					assert.strictEqual(1, app.reloadPage.callCount);
-					app.dispose();
+			this.app.navigate('/path2').then(() => {
+				dom.once(globals.window, 'popstate', () => {
+					assert.strictEqual(1, this.app.reloadPage.callCount);
 					done();
 				});
 				globals.window.history.back();
@@ -887,16 +828,15 @@ describe('App', function() {
 	});
 
 	it('should not reload page on navigate back to a routed page with same path containing hashbang without history state', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.reloadPage = sinon.stub();
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.reloadPage = sinon.stub();
+		this.app.navigate('/path').then(() => {
 			globals.window.location.hash = 'hash1';
 			window.history.replaceState(null, null, null);
-			app.navigate('/path').then(() => {
+			this.app.navigate('/path').then(() => {
 				dom.once(globals.window, 'popstate', () => {
-					assert.strictEqual(0, app.reloadPage.callCount);
-					app.dispose();
+					assert.strictEqual(0, this.app.reloadPage.callCount);
 					done();
 				});
 				globals.window.history.back();
@@ -905,17 +845,16 @@ describe('App', function() {
 	});
 
 	it('should reload page on navigate back to a routed page with different path containing hashbang without history state', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.reloadPage = sinon.stub();
-		app.navigate('/path1').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.reloadPage = sinon.stub();
+		this.app.navigate('/path1').then(() => {
 			globals.window.location.hash = 'hash1';
 			window.history.replaceState(null, null, null);
-			app.navigate('/path2').then(() => {
+			this.app.navigate('/path2').then(() => {
 				dom.once(globals.window, 'popstate', () => {
-					assert.strictEqual(1, app.reloadPage.callCount);
-					app.dispose();
+					assert.strictEqual(1, this.app.reloadPage.callCount);
 					done();
 				});
 				globals.window.history.back();
@@ -924,13 +863,12 @@ describe('App', function() {
 	});
 
 	it('should not reload page on clicking links with same path containing different hashbang without history state', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.reloadPage = sinon.stub();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.reloadPage = sinon.stub();
 		window.history.replaceState(null, null, '/path#hash1');
 		dom.once(globals.window, 'popstate', () => {
-			assert.strictEqual(0, app.reloadPage.callCount);
-			app.dispose();
+			assert.strictEqual(0, this.app.reloadPage.callCount);
 			done();
 		});
 		dom.triggerEvent(globals.window, 'popstate');
@@ -947,9 +885,9 @@ describe('App', function() {
 		link.style.position = 'absolute';
 		link.style.top = '1000px';
 		link.style.left = '1000px';
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.navigate('/path').then(() => {
 			globals.window.location.hash = 'link';
 			window.history.replaceState(null, null, null);
 			globals.window.location.hash = 'other';
@@ -957,7 +895,6 @@ describe('App', function() {
 			dom.once(globals.window, 'popstate', () => {
 				assert.strictEqual(1000, window.pageXOffset);
 				assert.strictEqual(1000, window.pageYOffset);
-				app.dispose();
 				exitDocumentLinkElement();
 				hidePageScrollbar();
 
@@ -971,139 +908,128 @@ describe('App', function() {
 	});
 
 	it('should not reload page on navigate back to a routed page without history state and skipLoadPopstate is active', function(done) {
-		var app = new App();
-		app.reloadPage = sinon.stub();
-		app.addRoutes(new Route('/path1', Screen));
-		app.addRoutes(new Route('/path2', Screen));
-		app.navigate('/path1').then(() => {
+		this.app = new App();
+		this.app.reloadPage = sinon.stub();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
 			window.history.replaceState(null, null, null);
-			app.navigate('/path2').then(() => {
+			this.app.navigate('/path2').then(() => {
 				dom.once(globals.window, 'popstate', () => {
-					assert.strictEqual(0, app.reloadPage.callCount);
-					app.dispose();
+					assert.strictEqual(0, this.app.reloadPage.callCount);
 					done();
 				});
-				app.skipLoadPopstate = true;
+				this.app.skipLoadPopstate = true;
 				globals.window.history.back();
 			});
 		});
 	});
 
 	it('should navigate when submitting routed forms', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
 		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
-		assert.ok(app.pendingNavigate);
-		app.on('endNavigate', () => {
+		assert.ok(this.app.pendingNavigate);
+		this.app.on('endNavigate', () => {
 			exitDocumentFormElement();
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should not navigate when submitting routed forms if submit event was prevented', function() {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
 		var form = enterDocumentFormElement('/path', 'post');
 		dom.once(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.ok(!app.pendingNavigate);
+		assert.ok(!this.app.pendingNavigate);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should not capture form element when submit event was prevented', function() {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
 		var form = enterDocumentFormElement('/path', 'post');
 		dom.once(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(!globals.capturedFormElement);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should expose form reference in event data when submitting routed forms', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
 		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
-		app.on('startNavigate', function(data) {
+		this.app.on('startNavigate', (data) => {
 			assert.ok(data.form);
 		});
-		app.on('endNavigate', function(data) {
+		this.app.on('endNavigate', (data) => {
 			assert.ok(data.form);
 			exitDocumentFormElement();
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should not navigate when submitting forms with method get', function() {
 		var form = enterDocumentFormElement('/path', 'get');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
-		app.addRoutes(new Route('/path', Screen));
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.addRoutes(new Route('/path', Screen));
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should not navigate when submitting on external forms', function() {
 		var form = enterDocumentFormElement('http://sennajs.com', 'post');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should not navigate when submitting on forms outside basepath', function() {
 		var form = enterDocumentFormElement('/path', 'post');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
-		app.setBasePath('/base');
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.setBasePath('/base');
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should not navigate when submitting on unrouted forms', function() {
 		var form = enterDocumentFormElement('/path', 'post');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
-		assert.strictEqual(null, app.pendingNavigate);
+		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should not capture form if navigate fails when submitting forms', function() {
 		var form = enterDocumentFormElement('/path', 'post');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(!globals.capturedFormElement);
 		exitDocumentFormElement();
-		app.dispose();
 	});
 
 	it('should capture form on beforeNavigate', function(done) {
 		var form = enterDocumentFormElement('/path', 'post');
-		var app = new App();
-		app.setAllowPreventNavigate(false);
-		app.addRoutes(new Route('/path', Screen));
-		app.on('beforeNavigate', (event) => {
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('beforeNavigate', (event) => {
 			assert.ok(event.form);
 			exitDocumentFormElement();
-			app.dispose();
 			done();
 		});
 		dom.on(form, 'submit', preventDefault);
@@ -1117,23 +1043,21 @@ describe('App', function() {
 				return '/redirect';
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path', RedirectScreen));
-		app.navigate('/path').then(() => {
-			assert.strictEqual('/redirect', app.redirectPath);
-			assert.strictEqual('/path', app.activePath);
-			app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path').then(() => {
+			assert.strictEqual('/redirect', this.app.redirectPath);
+			assert.strictEqual('/path', this.app.activePath);
 			done();
 		});
 	});
 
 	it('should skipLoadPopstate before page is loaded', function(done) {
-		var app = new App();
-		app.onLoad_(); // Simulate
-		assert.ok(app.skipLoadPopstate);
+		this.app = new App();
+		this.app.onLoad_(); // Simulate
+		assert.ok(this.app.skipLoadPopstate);
 		setTimeout(() => {
-			assert.ok(!app.skipLoadPopstate);
-			app.dispose();
+			assert.ok(!this.app.skipLoadPopstate);
 			done();
 		}, 0);
 	});
@@ -1158,11 +1082,11 @@ describe('App', function() {
 		StubScreen2.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
 		StubScreen2.prototype.evaluateStyles = sinon.spy();
 		StubScreen2.prototype.evaluateScripts = sinon.spy();
-		var app = new App();
-		app.addRoutes(new Route('/path1', StubScreen1));
-		app.addRoutes(new Route('/path2', StubScreen2));
-		app.navigate('/path1').then(() => {
-			app.navigate('/path2').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', StubScreen1));
+		this.app.addRoutes(new Route('/path2', StubScreen2));
+		this.app.navigate('/path1').then(() => {
+			this.app.navigate('/path2').then(() => {
 				var lifecycleOrder = [
 					StubScreen1.prototype.load,
 					StubScreen1.prototype.evaluateStyles,
@@ -1181,7 +1105,6 @@ describe('App', function() {
 				for (var i = 1; i < lifecycleOrder.length - 1; i++) {
 					assert.ok(lifecycleOrder[i - 1].calledBefore(lifecycleOrder[i]));
 				}
-				app.dispose();
 				done();
 			});
 		});
@@ -1198,14 +1121,13 @@ describe('App', function() {
 		}
 		var surface = new Surface('surfaceId');
 		surface.addContent = sinon.stub();
-		var app = new App();
-		app.addRoutes(new Route('/path', ContentScreen));
-		app.addSurfaces(surface);
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', ContentScreen));
+		this.app.addSurfaces(surface);
+		this.app.navigate('/path').then(() => {
 			assert.strictEqual(1, surface.addContent.callCount);
 			assert.strictEqual('screenId', surface.addContent.args[0][0]);
 			assert.strictEqual('surfaceId', surface.addContent.args[0][1]);
-			app.dispose();
 			done();
 		});
 	});
@@ -1237,11 +1159,11 @@ describe('App', function() {
 		var surface2 = new Surface('surfaceId2');
 		surface1.addContent = sinon.stub();
 		surface2.addContent = sinon.stub();
-		var app = new App();
-		app.addRoutes(new Route('/path1', ContentScreen1));
-		app.addRoutes(new Route('/path2', ContentScreen2));
-		app.addSurfaces([surface1, surface2]);
-		app.navigate('/path1').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', ContentScreen1));
+		this.app.addRoutes(new Route('/path2', ContentScreen2));
+		this.app.addSurfaces([surface1, surface2]);
+		this.app.navigate('/path1').then(() => {
 			assert.strictEqual(1, surface1.addContent.callCount);
 			assert.strictEqual('screenId1', surface1.addContent.args[0][0]);
 			assert.strictEqual('content1', surface1.addContent.args[0][1]);
@@ -1249,7 +1171,7 @@ describe('App', function() {
 			assert.strictEqual('screenId1', surface2.addContent.args[0][0]);
 			assert.strictEqual(undefined, surface2.addContent.args[0][1]);
 			assert.strictEqual('default2', surface2.getChild('default').innerHTML);
-			app.navigate('/path2').then(() => {
+			this.app.navigate('/path2').then(() => {
 				assert.strictEqual(2, surface1.addContent.callCount);
 				assert.strictEqual('screenId2', surface1.addContent.args[1][0]);
 				assert.strictEqual(undefined, surface1.addContent.args[1][1]);
@@ -1257,7 +1179,6 @@ describe('App', function() {
 				assert.strictEqual(2, surface2.addContent.callCount);
 				assert.strictEqual('screenId2', surface2.addContent.args[1][0]);
 				assert.strictEqual('content2', surface2.addContent.args[1][1]);
-				app.dispose();
 				dom.exitDocument(surface1.getElement());
 				dom.exitDocument(surface2.getElement());
 				done();
@@ -1267,27 +1188,26 @@ describe('App', function() {
 
 	it('should add surface content after history path is updated', function(done) {
 		var surface = new Surface('surfaceId');
-		surface.addContent = function() {
+		surface.addContent = () => {
 			assert.strictEqual('/path', globals.window.location.pathname);
 		};
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.addSurfaces(surface);
-		app.navigate('/path').then(() => {
-			app.dispose();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.addSurfaces(surface);
+		this.app.navigate('/path').then(() => {
 			done();
 		});
 	});
 
 	it('should not navigate when HTML5 History api is not supported', function() {
 		var original = utils.isHtml5HistorySupported;
-		assert.throws(function() {
-			var app = new App();
-			app.addRoutes(new Route('/path', Screen));
-			utils.isHtml5HistorySupported = function() {
+		assert.throws(() => {
+			this.app = new App();
+			this.app.addRoutes(new Route('/path', Screen));
+			utils.isHtml5HistorySupported = () => {
 				return false;
 			};
-			app.navigate('/path');
+			this.app.navigate('/path');
 		}, Error);
 		utils.isHtml5HistorySupported = original;
 	});
@@ -1298,46 +1218,42 @@ describe('App', function() {
 				return 'title';
 			}
 		}
-		var app = new App();
-		app.addRoutes(new Route('/path', TitledScreen));
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', TitledScreen));
+		this.app.navigate('/path').then(() => {
 			assert.strictEqual('title', globals.document.title);
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should set globals.capturedFormElement to null after navigate', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', Screen));
-		app.navigate('/path').then(() => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.navigate('/path').then(() => {
 			assert.strictEqual(null, globals.capturedFormElement);
-			app.dispose();
 			done();
 		});
 	});
 
 	it('should cancel nested promises on canceled navigate', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', HtmlScreen));
-		app.navigate('/path')
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', HtmlScreen));
+		this.app.navigate('/path')
 			.then(() => assert.fail())
 			.catch(() => {
 				assert.ok(this.requests[0].aborted);
-				app.dispose();
 				done();
 			})
 			.cancel();
 	});
 
 	it('should cancel nested promises on canceled prefetch', function(done) {
-		var app = new App();
-		app.addRoutes(new Route('/path', HtmlScreen));
-		app.prefetch('/path')
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', HtmlScreen));
+		this.app.prefetch('/path')
 			.then(() => assert.fail())
 			.catch(() => {
 				assert.ok(this.requests[0].aborted);
-				app.dispose();
 				done();
 			})
 			.cancel();
