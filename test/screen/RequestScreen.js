@@ -201,6 +201,7 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		screen.load(url).then(() => {
 			assert.notStrictEqual(url, screen.getRequest().url);
+			assert.strictEqual(url, screen.getRequestPath());
 			done();
 		});
 		this.requests[0].respond(200);
