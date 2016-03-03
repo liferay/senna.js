@@ -142,7 +142,12 @@ class RequestScreen extends Screen {
 	getRequestPath() {
 		var request = this.getRequest();
 		if (request) {
-			return utils.getUrlPath(request.responseURL);
+			var requestPath = request.requestPath;
+			var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
+			if (responseUrl) {
+				requestPath = responseUrl;
+			}
+			return utils.getUrlPath(requestPath);
 		}
 		return null;
 	}
@@ -192,14 +197,16 @@ class RequestScreen extends Screen {
 		var headers = new MultiMap();
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 
+		var requestPath = this.formatLoadPath(path);
 		return Ajax
-			.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout)
+			.request(requestPath, httpMethod, body, headers, null, this.timeout)
 			.then(xhr => {
 				this.setRequest(xhr);
 				this.assertValidResponseStatusCode(xhr.status);
 				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
 					this.addCache(xhr.responseText);
 				}
+				xhr.requestPath = requestPath;
 				return xhr.responseText;
 			})
 			.catch((reason) => {
@@ -213,6 +220,25 @@ class RequestScreen extends Screen {
 				}
 				throw reason;
 			});
+	}
+
+	/**
+	 * The following method tries to extract the response url value by checking
+	 * the custom response header 'X-Request-URL' if proper value is not present
+	 * in XMLHttpRequest. The value of responseURL will be the final URL
+	 * obtained after any redirects. Internet Explorer, Edge and Safari <= 7
+	 * does not yet support the feature. For more information see:
+	 * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseURL
+	 * https://xhr.spec.whatwg.org/#the-responseurl-attribute
+	 * @param {XMLHttpRequest} request
+	 * @return {?string} Response url best match.
+	 */
+	maybeExtractResponseUrlFromRequest(request) {
+		var responseUrl = request.responseURL;
+		if (responseUrl) {
+			return responseUrl;
+		}
+		return request.getResponseHeader(RequestScreen.X_RESPONSE_URL_HEADER);
 	}
 
 	/**
@@ -264,5 +290,13 @@ RequestScreen.GET = 'get';
  * @static
  */
 RequestScreen.POST = 'post';
+
+/**
+ * Fallback response url header.
+ * @type {string}
+ * @default 'X-Request-URL'
+ * @static
+ */
+RequestScreen.X_RESPONSE_URL_HEADER = 'X-Request-URL';
 
 export default RequestScreen;

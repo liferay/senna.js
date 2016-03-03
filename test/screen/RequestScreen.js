@@ -48,17 +48,46 @@ describe('RequestScreen', function() {
 		assert.strictEqual(0, screen.getTimeout());
 	});
 
-	it('should screen beforeUpdateHistoryPath returns response path if different from navigate path', () => {
+	it('should screen beforeUpdateHistoryPath return request path if responseURL or X-Request-URL not present', () => {
 		var screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
+				requestPath: '/path',
+				getResponseHeader: function() {
+					return null;
+				}
+			};
+		});
+		assert.strictEqual('/path', screen.beforeUpdateHistoryPath('/path'));
+	});
+
+	it('should screen beforeUpdateHistoryPath return responseURL if present', () => {
+		var screen = new RequestScreen();
+		sinon.stub(screen, 'getRequest', () => {
+			return {
+				requestPath: '/path',
 				responseURL: '/redirect'
 			};
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
 
-	it('should screen beforeUpdateHistoryState returns null if form navigate to post-without-redirect-get', () => {
+	it('should screen beforeUpdateHistoryPath return X-Request-URL if present and responseURL is not', () => {
+		var screen = new RequestScreen();
+		sinon.stub(screen, 'getRequest', () => {
+			return {
+				requestPath: '/path',
+				getResponseHeader: (header) => {
+					return {
+						'X-Request-URL': '/redirect'
+					}[header];
+				}
+			};
+		});
+		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
+	});
+
+	it('should screen beforeUpdateHistoryState return null if form navigate to post-without-redirect-get', () => {
 		var screen = new RequestScreen();
 		assert.strictEqual(null, screen.beforeUpdateHistoryState({
 			senna: true,
@@ -72,6 +101,15 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		assert.strictEqual(null, screen.getRequestPath());
 	});
+
+	// it('should do it...', () => {
+	// 	var screen = new RequestScreen();
+	// 	screen.setRequest({
+	// 		requestPath: '/path',
+	// 		responseURL: '/redirect'
+	// 	});
+	// 	assert.strictEqual('/redirect', screen.getRequestPath());
+	// });
 
 	it('should send request to an url', (done) => {
 		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
