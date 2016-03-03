@@ -7133,7 +7133,12 @@ babelHelpers;
 		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
 			if (request) {
-				return utils.getUrlPath(request.responseURL);
+				var requestPath = request.requestPath;
+				var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
+				if (responseUrl) {
+					requestPath = responseUrl;
+				}
+				return utils.getUrlPath(requestPath);
 			}
 			return null;
 		};
@@ -7195,12 +7200,14 @@ babelHelpers;
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
 
-			return Ajax.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+			var requestPath = this.formatLoadPath(path);
+			return Ajax.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
 				_this2.assertValidResponseStatusCode(xhr.status);
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
 				}
+				xhr.requestPath = requestPath;
 				return xhr.responseText;
 			}).catch(function (reason) {
 				switch (reason.message) {
@@ -7213,6 +7220,27 @@ babelHelpers;
 				}
 				throw reason;
 			});
+		};
+
+		/**
+   * The following method tries to extract the response url value by checking
+   * the custom response header 'X-Request-URL' if proper value is not present
+   * in XMLHttpRequest. The value of responseURL will be the final URL
+   * obtained after any redirects. Internet Explorer, Edge and Safari <= 7
+   * does not yet support the feature. For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseURL
+   * https://xhr.spec.whatwg.org/#the-responseurl-attribute
+   * @param {XMLHttpRequest} request
+   * @return {?string} Response url best match.
+   */
+
+
+		RequestScreen.prototype.maybeExtractResponseUrlFromRequest = function maybeExtractResponseUrlFromRequest(request) {
+			var responseUrl = request.responseURL;
+			if (responseUrl) {
+				return responseUrl;
+			}
+			return request.getResponseHeader(RequestScreen.X_RESPONSE_URL_HEADER);
 		};
 
 		/**
@@ -7276,6 +7304,14 @@ babelHelpers;
   * @static
   */
 	RequestScreen.POST = 'post';
+
+	/**
+  * Fallback response url header.
+  * @type {string}
+  * @default 'X-Request-URL'
+  * @static
+  */
+	RequestScreen.X_RESPONSE_URL_HEADER = 'X-Request-URL';
 
 	this.senna.RequestScreen = RequestScreen;
 }).call(this);

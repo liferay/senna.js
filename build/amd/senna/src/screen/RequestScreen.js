@@ -173,7 +173,12 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		RequestScreen.prototype.getRequestPath = function getRequestPath() {
 			var request = this.getRequest();
 			if (request) {
-				return _utils2.default.getUrlPath(request.responseURL);
+				var requestPath = request.requestPath;
+				var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
+				if (responseUrl) {
+					requestPath = responseUrl;
+				}
+				return _utils2.default.getUrlPath(requestPath);
 			}
 			return null;
 		};
@@ -211,12 +216,14 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
 
-			return _Ajax2.default.request(this.formatLoadPath(path), httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+			var requestPath = this.formatLoadPath(path);
+			return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 				_this2.setRequest(xhr);
 				_this2.assertValidResponseStatusCode(xhr.status);
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(xhr.responseText);
 				}
+				xhr.requestPath = requestPath;
 				return xhr.responseText;
 			}).catch(function (reason) {
 				switch (reason.message) {
@@ -229,6 +236,14 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 				}
 				throw reason;
 			});
+		};
+
+		RequestScreen.prototype.maybeExtractResponseUrlFromRequest = function maybeExtractResponseUrlFromRequest(request) {
+			var responseUrl = request.responseURL;
+			if (responseUrl) {
+				return responseUrl;
+			}
+			return request.getResponseHeader(RequestScreen.X_RESPONSE_URL_HEADER);
 		};
 
 		RequestScreen.prototype.setHttpHeaders = function setHttpHeaders(httpHeaders) {
@@ -268,6 +283,14 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
   * @static
   */
 	RequestScreen.POST = 'post';
+
+	/**
+  * Fallback response url header.
+  * @type {string}
+  * @default 'X-Request-URL'
+  * @static
+  */
+	RequestScreen.X_RESPONSE_URL_HEADER = 'X-Request-URL';
 
 	exports.default = RequestScreen;
 });
