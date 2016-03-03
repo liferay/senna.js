@@ -155,9 +155,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 
 		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
 			if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-				var uri = new _Uri2.default(path);
-				uri.makeUnique();
-				return uri.toString();
+				return new _Uri2.default(path).makeUnique().toString();
 			}
 			return path;
 		};
@@ -177,6 +175,9 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 				var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
 				if (responseUrl) {
 					requestPath = responseUrl;
+				}
+				if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+					requestPath = new _Uri2.default(requestPath).removeUnique().toString();
 				}
 				return _utils2.default.getUrlPath(requestPath);
 			}

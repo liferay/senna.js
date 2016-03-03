@@ -7097,9 +7097,7 @@ babelHelpers;
 
 		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
 			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-				var uri = new Uri(path);
-				uri.makeUnique();
-				return uri.toString();
+				return new Uri(path).makeUnique().toString();
 			}
 			return path;
 		};
@@ -7137,6 +7135,9 @@ babelHelpers;
 				var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
 				if (responseUrl) {
 					requestPath = responseUrl;
+				}
+				if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+					requestPath = new Uri(requestPath).removeUnique().toString();
 				}
 				return utils.getUrlPath(requestPath);
 			}
