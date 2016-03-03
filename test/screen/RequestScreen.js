@@ -102,15 +102,6 @@ describe('RequestScreen', function() {
 		assert.strictEqual(null, screen.getRequestPath());
 	});
 
-	// it('should do it...', () => {
-	// 	var screen = new RequestScreen();
-	// 	screen.setRequest({
-	// 		requestPath: '/path',
-	// 		responseURL: '/redirect'
-	// 	});
-	// 	assert.strictEqual('/redirect', screen.getRequestPath());
-	// });
-
 	it('should send request to an url', (done) => {
 		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
 		var screen = new RequestScreen();
