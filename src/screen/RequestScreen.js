@@ -239,7 +239,7 @@ class RequestScreen extends Screen {
 		if (responseUrl) {
 			return responseUrl;
 		}
-		return request.getResponseHeader(RequestScreen.X_RESPONSE_URL_HEADER);
+		return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
 	}
 
 	/**
@@ -293,11 +293,11 @@ RequestScreen.GET = 'get';
 RequestScreen.POST = 'post';
 
 /**
- * Fallback response url header.
+ * Fallback http header to retrieve response request url.
  * @type {string}
  * @default 'X-Request-URL'
  * @static
  */
-RequestScreen.X_RESPONSE_URL_HEADER = 'X-Request-URL';
+RequestScreen.X_REQUEST_URL_HEADER = 'X-Request-URL';
 
 export default RequestScreen;
