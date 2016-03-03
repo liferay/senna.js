@@ -1125,7 +1125,7 @@ babelHelpers;
 
 			var listeners = this.events_[event];
 			if (listeners.length > this.maxListeners_ && !listeners.warned) {
-				void 0;
+				console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
 				listeners.warned = true;
 			}
 		};
@@ -4920,7 +4920,7 @@ babelHelpers;
 
 
 		Screen.prototype.activate = function activate() {
-			void 0;
+			console.log('Screen [' + this + '] activate');
 		};
 
 		/**
@@ -4934,7 +4934,7 @@ babelHelpers;
 
 
 		Screen.prototype.beforeDeactivate = function beforeDeactivate() {
-			void 0;
+			console.log('Screen [' + this + '] beforeDeactivate');
 		};
 
 		/**
@@ -4967,7 +4967,7 @@ babelHelpers;
 
 
 		Screen.prototype.deactivate = function deactivate() {
-			void 0;
+			console.log('Screen [' + this + '] deactivate');
 		};
 
 		/**
@@ -4979,7 +4979,7 @@ babelHelpers;
 
 		Screen.prototype.disposeInternal = function disposeInternal() {
 			_Cacheable.prototype.disposeInternal.call(this);
-			void 0;
+			console.log('Screen [' + this + '] dispose');
 		};
 
 		/**
@@ -5025,7 +5025,7 @@ babelHelpers;
 		Screen.prototype.flip = function flip(surfaces) {
 			var _this2 = this;
 
-			void 0;
+			console.log('Screen [' + this + '] flip');
 
 			var transitions = [];
 
@@ -5060,7 +5060,7 @@ babelHelpers;
 
 
 		Screen.prototype.getSurfaceContent = function getSurfaceContent() {
-			void 0;
+			console.log('Screen [' + this + '] getSurfaceContent');
 		};
 
 		/**
@@ -5085,7 +5085,7 @@ babelHelpers;
 
 
 		Screen.prototype.load = function load() {
-			void 0;
+			console.log('Screen [' + this + '] load');
 			return CancellablePromise.resolve();
 		};
 
@@ -5775,15 +5775,15 @@ babelHelpers;
 			var uri = new Uri(url);
 
 			if (!this.isLinkSameOrigin_(uri.getHostname())) {
-				void 0;
+				console.log('Offsite link clicked');
 				return false;
 			}
 			if (!this.isSameBasePath_(path)) {
-				void 0;
+				console.log('Link clicked outside app\'s base path');
 				return false;
 			}
 			if (!this.findRoute(path)) {
-				void 0;
+				console.log('No route for ' + path);
 				return false;
 			}
 
@@ -5817,7 +5817,7 @@ babelHelpers;
 
 		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
 			if (!this.pendingNavigate && path === this.activePath) {
-				void 0;
+				console.log('Already at destination, refresh navigation');
 				return this.activeScreen;
 			}
 			/* jshint newcap: false */
@@ -5829,7 +5829,7 @@ babelHelpers;
 				} else {
 					screen = handler(route) || new Screen();
 				}
-				void 0;
+				console.log('Create screen for [' + path + '] [' + screen + ']');
 			}
 			return screen;
 		};
@@ -5883,7 +5883,7 @@ babelHelpers;
 				return this.pendingNavigate;
 			}
 
-			void 0;
+			console.log('Navigate to [' + path + ']');
 
 			this.stopPendingNavigate_();
 
@@ -5933,7 +5933,7 @@ babelHelpers;
 			this.screens[path] = nextScreen;
 			this.pendingNavigate = null;
 			globals.capturedFormElement = null;
-			void 0;
+			console.log('Navigation done');
 		};
 
 		/**
@@ -6043,7 +6043,7 @@ babelHelpers;
 
 
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
-			void 0;
+			console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 			if (!utils.isCurrentBrowserPath(path)) {
 				this.removeScreen(path);
 			}
@@ -6143,7 +6143,7 @@ babelHelpers;
 			}
 
 			if (this.allowPreventNavigate && event.defaultPrevented) {
-				void 0;
+				console.log('Navigate prevented');
 				return;
 			}
 
@@ -6241,7 +6241,7 @@ babelHelpers;
 		App.prototype.onBeforeNavigateDefault_ = function onBeforeNavigateDefault_(event) {
 			if (this.pendingNavigate) {
 				if (this.pendingNavigate.path === event.path) {
-					void 0;
+					console.log('Waiting...');
 					return;
 				}
 			}
@@ -6263,7 +6263,7 @@ babelHelpers;
 
 		App.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
 			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-				void 0;
+				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 				return;
 			}
 			this.maybeNavigate_(event.delegateTarget.href, event);
@@ -6280,7 +6280,7 @@ babelHelpers;
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
 			var form = event.delegateTarget;
 			if (form.method === 'get') {
-				void 0;
+				console.log('GET method not supported');
 				return;
 			}
 			event.capturedFormElement = form;
@@ -6345,7 +6345,7 @@ babelHelpers;
 			}
 
 			if (state.senna) {
-				void 0;
+				console.log('History navigation to [' + state.path + ']');
 				this.popstateScrollTop = state.scrollTop;
 				this.popstateScrollLeft = state.scrollLeft;
 				if (!this.nativeScrollRestorationSupported) {
@@ -6418,7 +6418,7 @@ babelHelpers;
 				return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
 			}
 
-			void 0;
+			console.log('Prefetching [' + path + ']');
 
 			var nextScreen = this.createScreenInstance(path, route);
 
@@ -6471,7 +6471,7 @@ babelHelpers;
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id);
 				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-				void 0;
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		};
 
@@ -7722,7 +7722,7 @@ babelHelpers;
 			}
 
 			if (!this.baseElement.hasAttribute(dataAttributes.senna)) {
-				void 0;
+				console.log('Senna was not initialized from data attributes. ' + 'In order to enable its usage from data attributes try setting ' + 'in the base element, e.g. `<body data-senna>`.');
 				return;
 			}
 
@@ -7730,7 +7730,7 @@ babelHelpers;
 				throw new Error('Senna app was already initialized.');
 			}
 
-			void 0;
+			console.log('Senna initialized from data attribute.');
 
 			this.app = new App();
 			this.maybeAddRoutes_();
@@ -7788,7 +7788,7 @@ babelHelpers;
 			});
 			if (!this.app.hasRoutes()) {
 				this.app.addRoutes(new Route(/.*/, HtmlScreen));
-				void 0;
+				console.log('Senna can\'t find route elements, adding default.');
 			}
 		};
 
@@ -7828,7 +7828,7 @@ babelHelpers;
 		AppDataAttributeHandler.prototype.maybeParseLinkRoute_ = function maybeParseLinkRoute_(link) {
 			var route = new Route(this.maybeParseLinkRoutePath_(link), this.maybeParseLinkRouteHandler_(link));
 			this.app.addRoutes(route);
-			void 0;
+			console.log('Senna scanned route ' + route.getPath());
 		};
 
 		/**
@@ -7872,7 +7872,7 @@ babelHelpers;
 			var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
 			if (core.isDefAndNotNull(basePath)) {
 				this.app.setBasePath(basePath);
-				void 0;
+				console.log('Senna scanned base path ' + basePath);
 			}
 		};
 
@@ -7886,7 +7886,7 @@ babelHelpers;
 			var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
 			if (core.isDefAndNotNull(linkSelector)) {
 				this.app.setLinkSelector(linkSelector);
-				void 0;
+				console.log('Senna scanned link selector ' + linkSelector);
 			}
 		};
 
@@ -7900,7 +7900,7 @@ babelHelpers;
 			var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
 			if (core.isDefAndNotNull(loadingCssClass)) {
 				this.app.setLoadingCssClass(loadingCssClass);
-				void 0;
+				console.log('Senna scanned loading css class ' + loadingCssClass);
 			}
 		};
 
@@ -7918,7 +7918,7 @@ babelHelpers;
 				} else {
 					this.app.setUpdateScrollPosition(true);
 				}
-				void 0;
+				console.log('Senna scanned update scroll position ' + updateScrollPosition);
 			}
 		};
 
