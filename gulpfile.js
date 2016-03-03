@@ -4,7 +4,9 @@ var connect = require('gulp-connect');
 var gulp = require('gulp');
 var header = require('gulp-header');
 var metal = require('gulp-metal');
+var rename = require('gulp-rename');
 var runSequence = require('run-sequence');
+var stripDebug = require('gulp-strip-debug');
 
 // Metal -----------------------------------------------------------------------
 
@@ -92,10 +94,28 @@ gulp.task('banner', function() {
 		.pipe(gulp.dest('build/globals'));
 });
 
+gulp.task('clean:debug', function() {
+	return gulp.src('build/globals/senna.js')
+		.pipe(rename('senna-debug.js'))
+		.pipe(gulp.dest('build/globals'));
+});
+
+gulp.task('clean:debug:globals', function() {
+	return gulp.src('build/globals/senna.js')
+		.pipe(stripDebug())
+		.pipe(gulp.dest('build/globals'));
+});
+
+gulp.task('clean:debug:amd', function() {
+	return gulp.src('build/amd/senna/**/*.js')
+		.pipe(stripDebug())
+		.pipe(gulp.dest('build/amd/senna'));
+});
+
 // Runner ----------------------------------------------------------------------
 
 gulp.task('default', function(done) {
-	runSequence('clean', 'css', 'build:globals', 'build:amd', 'banner', done);
+	runSequence('clean', 'css', 'build:globals', 'build:amd', 'banner', 'clean:debug', 'clean:debug:globals', 'clean:debug:amd', done);
 });
 
 gulp.task('server', ['default'], function() {
