@@ -92,9 +92,26 @@ describe('HtmlScreen', function() {
 	it('should set body id in virtual document to page body id', () => {
 		var screen = new HtmlScreen();
 		globals.document.body.id = 'bodyAsSurface';
-		screen.allocateVirtualDocumentForContent('<body data-senna-surface>body</body>');
-		screen.maybeSetBodyIdInVirtualDocument();
+		screen.allocateVirtualDocumentForContent('<body>body</body>');
+		screen.assertSameBodyIdInVirtualDocument();
 		assert.strictEqual('bodyAsSurface', screen.virtualDocument.querySelector('body').id);
+	});
+
+	it('should set body id in virtual document to page body id even when it was already set', () => {
+		var screen = new HtmlScreen();
+		globals.document.body.id = 'bodyAsSurface';
+		screen.allocateVirtualDocumentForContent('<body id="serverId">body</body>');
+		screen.assertSameBodyIdInVirtualDocument();
+		assert.strictEqual('bodyAsSurface', screen.virtualDocument.querySelector('body').id);
+	});
+
+	it('should set body id in document and use the same in virtual document', () => {
+		var screen = new HtmlScreen();
+		globals.document.body.id = '';
+		screen.allocateVirtualDocumentForContent('<body>body</body>');
+		screen.assertSameBodyIdInVirtualDocument();
+		assert.ok(globals.document.body.id);
+		assert.strictEqual(globals.document.body.id, screen.virtualDocument.querySelector('body').id);
 	});
 
 	it('should evaluate surface scripts', (done) => {

@@ -1,11 +1,11 @@
 'use strict';
 
+import { core } from 'metal';
 import { dom, globalEval, globalEvalStyles } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
-import dataAttributes from '../app/dataAttributes';
 
 class HtmlScreen extends RequestScreen {
 
@@ -68,6 +68,20 @@ class HtmlScreen extends RequestScreen {
 			}
 		}
 		globals.document.head.appendChild(newStyle);
+	}
+
+	/**
+	 * If body is used as surface forces the requested documents to have same id
+	 * of the initial page.
+	 */
+	assertSameBodyIdInVirtualDocument() {
+		var bodySurface = this.virtualDocument.querySelector('body');
+		if (!globals.document.body.id) {
+			globals.document.body.id = 'senna_surface_' + core.getUid();
+		}
+		if (bodySurface) {
+			bodySurface.id = globals.document.body.id;
+		}
 	}
 
 	/**
@@ -200,7 +214,7 @@ class HtmlScreen extends RequestScreen {
 			.then(content => {
 				this.allocateVirtualDocumentForContent(content);
 				this.resolveTitleFromVirtualDocument();
-				this.maybeSetBodyIdInVirtualDocument();
+				this.assertSameBodyIdInVirtualDocument();
 				return content;
 			});
 	}
@@ -246,17 +260,6 @@ class HtmlScreen extends RequestScreen {
 	 */
 	setTitleSelector(titleSelector) {
 		this.titleSelector = titleSelector;
-	}
-
-	/**
-	 * If body is used as surface forces the requested documents to have same id
-	 * of the initial page.
-	 */
-	maybeSetBodyIdInVirtualDocument() {
-		var bodySurface = this.virtualDocument.querySelector('body[' + dataAttributes.surface + ']');
-		if (bodySurface) {
-			bodySurface.id = globals.document.body.id;
-		}
 	}
 
 }
