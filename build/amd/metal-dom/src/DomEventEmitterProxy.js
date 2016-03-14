@@ -52,24 +52,27 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 			return _possibleConstructorReturn(this, _EventEmitterProxy.apply(this, arguments));
 		}
 
-		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event) {
+		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
 			if (this.originEmitter_.addEventListener) {
-				_dom2.default.on(this.originEmitter_, event, this.proxiedEvents_[event]);
+				if (event.startsWith('delegate:')) {
+					var index = event.indexOf(':', 9);
+					var eventName = event.substring(9, index);
+					var selector = event.substring(index + 1);
+					return _dom2.default.delegate(this.originEmitter_, eventName, selector, listener);
+				} else {
+					return _dom2.default.on(this.originEmitter_, event, listener);
+				}
 			} else {
-				_EventEmitterProxy.prototype.addListener_.call(this, event);
+				return _EventEmitterProxy.prototype.addListener_.call(this, event, listener);
 			}
 		};
 
-		DomEventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
-			if (this.originEmitter_.removeEventListener) {
-				this.originEmitter_.removeEventListener(event, this.proxiedEvents_[event]);
-			} else {
-				_EventEmitterProxy.prototype.removeListener_.call(this, event);
-			}
+		DomEventEmitterProxy.prototype.isSupportedDomEvent_ = function isSupportedDomEvent_(event) {
+			return event.startsWith('delegate:') && event.indexOf(':', 9) !== -1 || _dom2.default.supportsEvent(this.originEmitter_, event);
 		};
 
 		DomEventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
-			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || _dom2.default.supportsEvent(this.originEmitter_, event));
+			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || this.isSupportedDomEvent_(event));
 		};
 
 		return DomEventEmitterProxy;

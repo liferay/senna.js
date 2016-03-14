@@ -1,4 +1,4 @@
-define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface', '../app/dataAttributes'], function (exports, _dom, _Promise, _globals, _RequestScreen2, _Surface, _dataAttributes) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface'], function (exports, _metal, _dom, _Promise, _globals, _RequestScreen2, _Surface) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -12,8 +12,6 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 	var _RequestScreen3 = _interopRequireDefault(_RequestScreen2);
 
 	var _Surface2 = _interopRequireDefault(_Surface);
-
-	var _dataAttributes2 = _interopRequireDefault(_dataAttributes);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -108,6 +106,16 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 				}
 			}
 			_globals2.default.document.head.appendChild(newStyle);
+		};
+
+		HtmlScreen.prototype.assertSameBodyIdInVirtualDocument = function assertSameBodyIdInVirtualDocument() {
+			var bodySurface = this.virtualDocument.querySelector('body');
+			if (!_globals2.default.document.body.id) {
+				_globals2.default.document.body.id = 'senna_surface_' + _metal.core.getUid();
+			}
+			if (bodySurface) {
+				bodySurface.id = _globals2.default.document.body.id;
+			}
 		};
 
 		HtmlScreen.prototype.disposeInternal = function disposeInternal() {
@@ -207,7 +215,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
 				_this5.allocateVirtualDocumentForContent(content);
 				_this5.resolveTitleFromVirtualDocument();
-				_this5.maybeSetBodyIdInVirtualDocument();
+				_this5.assertSameBodyIdInVirtualDocument();
 				return content;
 			});
 		};
@@ -233,13 +241,6 @@ define(['exports', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise',
 
 		HtmlScreen.prototype.setTitleSelector = function setTitleSelector(titleSelector) {
 			this.titleSelector = titleSelector;
-		};
-
-		HtmlScreen.prototype.maybeSetBodyIdInVirtualDocument = function maybeSetBodyIdInVirtualDocument() {
-			var bodySurface = this.virtualDocument.querySelector('body[' + _dataAttributes2.default.surface + ']');
-			if (bodySurface) {
-				bodySurface.id = _globals2.default.document.body.id;
-			}
 		};
 
 		return HtmlScreen;

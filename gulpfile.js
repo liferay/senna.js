@@ -115,7 +115,7 @@ gulp.task('clean:debug:amd', function() {
 // Runner ----------------------------------------------------------------------
 
 gulp.task('default', function(done) {
-	runSequence('clean', 'css', 'build:globals', 'build:amd', 'banner', 'clean:debug', 'clean:debug:globals', 'clean:debug:amd', done);
+	runSequence('clean', 'css', 'build:globals', 'uglify', 'build:amd', 'banner', 'clean:debug', 'clean:debug:globals', 'clean:debug:amd', done);
 });
 
 gulp.task('server', ['default'], function() {

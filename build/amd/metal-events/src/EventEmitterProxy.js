@@ -60,7 +60,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 			/**
     * Holds a map of events from the origin emitter that are already being proxied.
-    * @type {Object}
+    * @type {Object<string, !EventHandle>}
     * @protected
     */
 			_this.proxiedEvents_ = {};
@@ -85,39 +85,57 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}
 
 		/**
-   * Adds the proxy listener for the given event.
-   * @param {string} event.
+   * Adds the given listener for the given event.
+   * @param {string} event
+   * @param {!function()} listener
+   * @return {!EventHandle} The listened event's handle.
    * @protected
    */
 
 
-		EventEmitterProxy.prototype.addListener_ = function addListener_(event) {
-			this.originEmitter_.on(event, this.proxiedEvents_[event]);
+		EventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
+			return this.originEmitter_.on(event, listener);
+		};
+
+		EventEmitterProxy.prototype.addListenerForEvent_ = function addListenerForEvent_(event) {
+			return this.addListener_(event, this.emitOnTarget_.bind(this, event));
 		};
 
 		EventEmitterProxy.prototype.disposeInternal = function disposeInternal() {
-			_metal.object.map(this.proxiedEvents_, this.removeListener_.bind(this));
+			this.removeListeners_();
 			this.proxiedEvents_ = null;
 			this.originEmitter_ = null;
 			this.targetEmitter_ = null;
 		};
 
-		EventEmitterProxy.prototype.proxyEvent_ = function proxyEvent_(event) {
-			if (!this.shouldProxyEvent_(event)) {
-				return;
-			}
-
-			var self = this;
-			this.proxiedEvents_[event] = function () {
-				var args = [event].concat(Array.prototype.slice.call(arguments, 0));
-				self.targetEmitter_.emit.apply(self.targetEmitter_, args);
-			};
-
-			this.addListener_(event);
+		EventEmitterProxy.prototype.emitOnTarget_ = function emitOnTarget_(eventType) {
+			var args = [eventType].concat(_metal.array.slice(arguments, 1));
+			this.targetEmitter_.emit.apply(this.targetEmitter_, args);
 		};
 
-		EventEmitterProxy.prototype.removeListener_ = function removeListener_(event) {
-			this.originEmitter_.removeListener(event, this.proxiedEvents_[event]);
+		EventEmitterProxy.prototype.proxyEvent = function proxyEvent(event) {
+			if (this.shouldProxyEvent_(event)) {
+				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+			}
+		};
+
+		EventEmitterProxy.prototype.removeListeners_ = function removeListeners_() {
+			var events = Object.keys(this.proxiedEvents_);
+			for (var i = 0; i < events.length; i++) {
+				this.proxiedEvents_[events[i]].removeListener();
+			}
+			this.proxiedEvents_ = {};
+		};
+
+		EventEmitterProxy.prototype.setOriginEmitter = function setOriginEmitter(originEmitter) {
+			var handles = this.proxiedEvents_;
+			this.removeListeners_();
+			this.originEmitter_ = originEmitter;
+
+			var events = Object.keys(handles);
+			for (var i = 0; i < events.length; i++) {
+				this.proxiedEvents_[events[i]] = this.addListenerForEvent_(events[i]);
+			}
 		};
 
 		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
@@ -131,7 +149,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		};
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
-			this.targetEmitter_.on('newListener', this.proxyEvent_.bind(this));
+			this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
 		};
 
 		return EventEmitterProxy;

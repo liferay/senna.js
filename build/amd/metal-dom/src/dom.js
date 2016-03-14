@@ -61,6 +61,13 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 			}
 		};
 
+		dom.closest = function closest(element, selector) {
+			while (element && !dom.match(element, selector)) {
+				element = element.parentNode;
+			}
+			return element;
+		};
+
 		dom.append = function append(parent, child) {
 			if (_metal.core.isString(child)) {
 				child = dom.buildFragment(child);
@@ -215,6 +222,10 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 				return callback.apply(this, arguments);
 			});
 			return domEventHandle;
+		};
+
+		dom.parent = function parent(element, selector) {
+			return dom.closest(element.parentNode, selector);
 		};
 
 		dom.registerCustomEvent = function registerCustomEvent(eventName, customConfig) {
