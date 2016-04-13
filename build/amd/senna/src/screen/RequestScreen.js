@@ -266,9 +266,6 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		return RequestScreen;
 	}(_Screen3.default);
 
-	RequestScreen.prototype.registerMetalComponent && RequestScreen.prototype.registerMetalComponent(RequestScreen, 'RequestScreen')
-
-
 	/**
   * Holds value for method get.
   * @type {string}

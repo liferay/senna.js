@@ -87,43 +87,6 @@ babelHelpers;
 'use strict';
 
 /**
- * Holds value error messages.
- * @const
- */
-
-(function () {
-  var errors = function errors() {
-    babelHelpers.classCallCheck(this, errors);
-  };
-
-  /**
-   * Invalid status error message.
-   * @type {string}
-   * @static
-   */
-
-
-  errors.INVALID_STATUS = 'Invalid status code';
-
-  /**
-   * Request error message.
-   * @type {string}
-   * @static
-   */
-  errors.REQUEST_ERROR = 'Request error';
-
-  /**
-   * Request timeout error message.
-   * @type {string}
-   * @static
-   */
-  errors.REQUEST_TIMEOUT = 'Request timeout';
-
-  this.senna.errors = errors;
-}).call(this);
-'use strict';
-
-/**
  * A collection of core utility functions.
  * @const
  */
@@ -424,12 +387,15 @@ babelHelpers;
    */
 
 		array.equal = function equal(arr1, arr2) {
+			if (arr1.length !== arr2.length) {
+				return false;
+			}
 			for (var i = 0; i < arr1.length; i++) {
 				if (arr1[i] !== arr2[i]) {
 					return false;
 				}
 			}
-			return arr1.length === arr2.length;
+			return true;
 		};
 
 		/**
@@ -822,8 +788,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	var core = this.senna.core;
-
 	var object = function () {
 		function object() {
 			babelHelpers.classCallCheck(this, object);
@@ -852,22 +816,16 @@ babelHelpers;
    * @param {string} name The fully qualified name.
    * @param {object=} opt_obj The object within which to look; default is
    *     <code>window</code>.
-   * @return {?} The value (object or primitive) or, if not found, null.
+   * @return {?} The value (object or primitive) or, if not found, undefined.
    */
 
 
 		object.getObjectByName = function getObjectByName(name, opt_obj) {
+			var scope = opt_obj || window;
 			var parts = name.split('.');
-			var cur = opt_obj || window;
-			var part;
-			while (part = parts.shift()) {
-				if (core.isDefAndNotNull(cur[part])) {
-					cur = cur[part];
-				} else {
-					return null;
-				}
-			}
-			return cur;
+			return parts.reduce(function (part, key) {
+				return part[key];
+			}, scope);
 		};
 
 		/**
@@ -974,127 +932,13 @@ babelHelpers;
   var object = this.senna.object;
   var string = this.senna.string;
   this.senna.metal = core;
-  this.sennaNamed.metal = {};
+  this.sennaNamed.metal = this.sennaNamed.metal || {};
   this.sennaNamed.metal.core = core;
   this.sennaNamed.metal.array = array;
   this.sennaNamed.metal.async = async;
   this.sennaNamed.metal.Disposable = Disposable;
   this.sennaNamed.metal.object = object;
   this.sennaNamed.metal.string = string;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.sennaNamed.metal.Disposable;
-
-	var Cacheable = function (_Disposable) {
-		babelHelpers.inherits(Cacheable, _Disposable);
-
-
-		/**
-   * Abstract class for defining cacheable behavior.
-   * @constructor
-   */
-
-		function Cacheable() {
-			babelHelpers.classCallCheck(this, Cacheable);
-
-
-			/**
-    * Holds the cached data.
-    * @type {!Object}
-    * @default null
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.cache = null;
-
-			/**
-    * Holds whether class is cacheable.
-    * @type {boolean}
-    * @default false
-    * @protected
-    */
-			_this.cacheable = false;
-			return _this;
-		}
-
-		/**
-   * Adds content to the cache.
-   * @param {string} content Content to be cached.
-   * @chainable
-   */
-
-
-		Cacheable.prototype.addCache = function addCache(content) {
-			if (this.cacheable) {
-				this.cache = content;
-			}
-			return this;
-		};
-
-		/**
-   * Clears the cache.
-   * @chainable
-   */
-
-
-		Cacheable.prototype.clearCache = function clearCache() {
-			this.cache = null;
-			return this;
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-
-		Cacheable.prototype.disposeInternal = function disposeInternal() {
-			this.clearCache();
-		};
-
-		/**
-   * Gets the cached content.
-   * @return {Object} Cached content.
-   * @protected
-   */
-
-
-		Cacheable.prototype.getCache = function getCache() {
-			return this.cache;
-		};
-
-		/**
-   * Whether the class is cacheable.
-   * @return {boolean} Returns true when class is cacheable, false otherwise.
-   */
-
-
-		Cacheable.prototype.isCacheable = function isCacheable() {
-			return this.cacheable;
-		};
-
-		/**
-   * Sets whether the class is cacheable.
-   * @param {boolean} cacheable
-   */
-
-
-		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
-			if (!cacheable) {
-				this.clearCache();
-			}
-			this.cacheable = cacheable;
-		};
-
-		return Cacheable;
-	}(Disposable);
-
-	Cacheable.prototype.registerMetalComponent && Cacheable.prototype.registerMetalComponent(Cacheable, 'Cacheable')
-	this.senna.Cacheable = Cacheable;
 }).call(this);
 'use strict';
 
@@ -1173,7 +1017,6 @@ babelHelpers;
 		return EventHandle;
 	}(Disposable);
 
-	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
 	this.senna.EventHandle = EventHandle;
 }).call(this);
 'use strict';
@@ -1579,7 +1422,6 @@ babelHelpers;
 		return EventEmitter;
 	}(Disposable);
 
-	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	this.senna.EventEmitter = EventEmitter;
 }).call(this);
 'use strict';
@@ -1587,7 +1429,6 @@ babelHelpers;
 (function () {
 	var array = this.sennaNamed.metal.array;
 	var Disposable = this.sennaNamed.metal.Disposable;
-	var object = this.sennaNamed.metal.object;
 
 	/**
   * EventEmitterProxy utility. It's responsible for linking two EventEmitter
@@ -1779,7 +1620,6 @@ babelHelpers;
 		return EventEmitterProxy;
 	}(Disposable);
 
-	EventEmitterProxy.prototype.registerMetalComponent && EventEmitterProxy.prototype.registerMetalComponent(EventEmitterProxy, 'EventEmitterProxy')
 	this.senna.EventEmitterProxy = EventEmitterProxy;
 }).call(this);
 'use strict';
@@ -1853,7 +1693,6 @@ babelHelpers;
 		return EventHandler;
 	}(Disposable);
 
-	EventHandler.prototype.registerMetalComponent && EventHandler.prototype.registerMetalComponent(EventHandler, 'EventHandler')
 	this.senna.EventHandler = EventHandler;
 }).call(this);
 'use strict';
@@ -1864,7 +1703,7 @@ babelHelpers;
   var EventHandle = this.senna.EventHandle;
   var EventHandler = this.senna.EventHandler;
   this.senna.events = EventEmitter;
-  this.sennaNamed.events = {};
+  this.sennaNamed.events = this.sennaNamed.events || {};
   this.sennaNamed.events.EventEmitter = EventEmitter;
   this.sennaNamed.events.EventEmitterProxy = EventEmitterProxy;
   this.sennaNamed.events.EventHandle = EventHandle;
@@ -1915,7 +1754,6 @@ babelHelpers;
 		return DomEventHandle;
 	}(EventHandle);
 
-	DomEventHandle.prototype.registerMetalComponent && DomEventHandle.prototype.registerMetalComponent(DomEventHandle, 'DomEventHandle')
 	this.senna.DomEventHandle = DomEventHandle;
 }).call(this);
 'use strict';
@@ -1958,7 +1796,9 @@ babelHelpers;
 
 		dom.addClassesWithNative_ = function addClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
-				element.classList.add(className);
+				if (className) {
+					element.classList.add(className);
+				}
 			});
 		};
 
@@ -2384,7 +2224,9 @@ babelHelpers;
 
 		dom.removeClassesWithNative_ = function removeClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
-				element.classList.remove(className);
+				if (className) {
+					element.classList.remove(className);
+				}
 			});
 		};
 
@@ -2648,7 +2490,6 @@ babelHelpers;
 		return DomEventEmitterProxy;
 	}(EventEmitterProxy);
 
-	DomEventEmitterProxy.prototype.registerMetalComponent && DomEventEmitterProxy.prototype.registerMetalComponent(DomEventEmitterProxy, 'DomEventEmitterProxy')
 	this.senna.DomEventEmitterProxy = DomEventEmitterProxy;
 }).call(this);
 'use strict';
@@ -3045,7 +2886,7 @@ babelHelpers;
   var globalEval = this.senna.globalEval;
   var globalEvalStyles = this.senna.globalEvalStyles;
   this.senna.dom = dom;
-  this.sennaNamed.dom = {};
+  this.sennaNamed.dom = this.sennaNamed.dom || {};
   this.sennaNamed.dom.dom = dom;
   this.sennaNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
   this.sennaNamed.dom.DomEventHandle = DomEventHandle;
@@ -3970,7 +3811,7 @@ babelHelpers;
   /** @override */
   CancellablePromise.CancellationError.prototype.name = 'cancel';
 
-  this.sennaNamed.Promise = {};
+  this.sennaNamed.Promise = this.sennaNamed.Promise || {};
   this.sennaNamed.Promise.CancellablePromise = CancellablePromise;
   this.senna.Promise = CancellablePromise;
 }).call(this);
@@ -4210,7 +4051,6 @@ babelHelpers;
 		return MultiMap;
 	}(Disposable);
 
-	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
 	this.senna.MultiMap = MultiMap;
 }).call(this);
 'use strict';
@@ -4981,6 +4821,119 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var Disposable = this.sennaNamed.metal.Disposable;
+
+	var Cacheable = function (_Disposable) {
+		babelHelpers.inherits(Cacheable, _Disposable);
+
+
+		/**
+   * Abstract class for defining cacheable behavior.
+   * @constructor
+   */
+
+		function Cacheable() {
+			babelHelpers.classCallCheck(this, Cacheable);
+
+
+			/**
+    * Holds the cached data.
+    * @type {!Object}
+    * @default null
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.cache = null;
+
+			/**
+    * Holds whether class is cacheable.
+    * @type {boolean}
+    * @default false
+    * @protected
+    */
+			_this.cacheable = false;
+			return _this;
+		}
+
+		/**
+   * Adds content to the cache.
+   * @param {string} content Content to be cached.
+   * @chainable
+   */
+
+
+		Cacheable.prototype.addCache = function addCache(content) {
+			if (this.cacheable) {
+				this.cache = content;
+			}
+			return this;
+		};
+
+		/**
+   * Clears the cache.
+   * @chainable
+   */
+
+
+		Cacheable.prototype.clearCache = function clearCache() {
+			this.cache = null;
+			return this;
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+
+		Cacheable.prototype.disposeInternal = function disposeInternal() {
+			this.clearCache();
+		};
+
+		/**
+   * Gets the cached content.
+   * @return {Object} Cached content.
+   * @protected
+   */
+
+
+		Cacheable.prototype.getCache = function getCache() {
+			return this.cache;
+		};
+
+		/**
+   * Whether the class is cacheable.
+   * @return {boolean} Returns true when class is cacheable, false otherwise.
+   */
+
+
+		Cacheable.prototype.isCacheable = function isCacheable() {
+			return this.cacheable;
+		};
+
+		/**
+   * Sets whether the class is cacheable.
+   * @param {boolean} cacheable
+   */
+
+
+		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
+			if (!cacheable) {
+				this.clearCache();
+			}
+			this.cacheable = cacheable;
+		};
+
+		return Cacheable;
+	}(Disposable);
+
+	this.senna.Cacheable = Cacheable;
+}).call(this);
+'use strict';
+
+(function () {
 	var core = this.sennaNamed.metal.core;
 	var globalEval = this.sennaNamed.dom.globalEval;
 	var Cacheable = this.senna.Cacheable;
@@ -5250,7 +5203,6 @@ babelHelpers;
   */
 
 
-	Screen.prototype.registerMetalComponent && Screen.prototype.registerMetalComponent(Screen, 'Screen')
 	Screen.isImplementedBy = function (object) {
 		return object instanceof Screen;
 	};
@@ -5563,7 +5515,6 @@ babelHelpers;
     */
 
 
-	Surface.prototype.registerMetalComponent && Surface.prototype.registerMetalComponent(Surface, 'Surface')
 	Surface.DEFAULT = 'default';
 
 	/**
@@ -6784,7 +6735,6 @@ babelHelpers;
 		return App;
 	}(EventEmitter);
 
-	App.prototype.registerMetalComponent && App.prototype.registerMetalComponent(App, 'App')
 	this.senna.App = App;
 }).call(this);
 'use strict';
@@ -6906,6 +6856,43 @@ babelHelpers;
 	}();
 
 	this.senna.Ajax = Ajax;
+}).call(this);
+'use strict';
+
+/**
+ * Holds value error messages.
+ * @const
+ */
+
+(function () {
+  var errors = function errors() {
+    babelHelpers.classCallCheck(this, errors);
+  };
+
+  /**
+   * Invalid status error message.
+   * @type {string}
+   * @static
+   */
+
+
+  errors.INVALID_STATUS = 'Invalid status code';
+
+  /**
+   * Request error message.
+   * @type {string}
+   * @static
+   */
+  errors.REQUEST_ERROR = 'Request error';
+
+  /**
+   * Request timeout error message.
+   * @type {string}
+   * @static
+   */
+  errors.REQUEST_TIMEOUT = 'Request timeout';
+
+  this.senna.errors = errors;
 }).call(this);
 'use strict';
 
@@ -7368,7 +7355,6 @@ babelHelpers;
   */
 
 
-	RequestScreen.prototype.registerMetalComponent && RequestScreen.prototype.registerMetalComponent(RequestScreen, 'RequestScreen')
 	RequestScreen.GET = 'get';
 
 	/**
@@ -7400,6 +7386,8 @@ babelHelpers;
 	var globals = this.senna.globals;
 	var RequestScreen = this.senna.RequestScreen;
 	var Surface = this.senna.Surface;
+	var UA = this.senna.UA;
+	var Uri = this.senna.Uri;
 
 	var HtmlScreen = function (_RequestScreen) {
 		babelHelpers.inherits(HtmlScreen, _RequestScreen);
@@ -7467,6 +7455,9 @@ babelHelpers;
 			var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 			if (isTemporaryStyle) {
 				this.pendingStyles.push(newStyle);
+				if (UA.isIe && newStyle.href) {
+					newStyle.href = new Uri(newStyle.href).makeUnique().toString();
+				}
 			}
 			if (newStyle.id) {
 				var styleInDoc = globals.document.getElementById(newStyle.id);
@@ -7721,7 +7712,6 @@ babelHelpers;
   */
 
 
-	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
 	HtmlScreen.selectors = {
 		scripts: 'script[data-senna-track]',
 		scriptsPermanent: 'script[data-senna-track="permanent"]',
@@ -8036,7 +8026,6 @@ babelHelpers;
 		return AppDataAttributeHandler;
 	}(Disposable);
 
-	AppDataAttributeHandler.prototype.registerMetalComponent && AppDataAttributeHandler.prototype.registerMetalComponent(AppDataAttributeHandler, 'AppDataAttributeHandler')
 	this.senna.AppDataAttributeHandler = AppDataAttributeHandler;
 }).call(this);
 'use strict';

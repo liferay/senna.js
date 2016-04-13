@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface'], function (exports, _metal, _dom, _Promise, _globals, _RequestScreen2, _Surface) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface', 'metal-useragent/src/UA', 'metal-uri/src/Uri'], function (exports, _metal, _dom, _Promise, _globals, _RequestScreen2, _Surface, _UA, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -12,6 +12,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 	var _RequestScreen3 = _interopRequireDefault(_RequestScreen2);
 
 	var _Surface2 = _interopRequireDefault(_Surface);
+
+	var _UA2 = _interopRequireDefault(_UA);
+
+	var _Uri2 = _interopRequireDefault(_Uri);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -97,6 +101,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			var isTemporaryStyle = _dom.dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 			if (isTemporaryStyle) {
 				this.pendingStyles.push(newStyle);
+				if (_UA2.default.isIe && newStyle.href) {
+					newStyle.href = new _Uri2.default(newStyle.href).makeUnique().toString();
+				}
 			}
 			if (newStyle.id) {
 				var styleInDoc = _globals2.default.document.getElementById(newStyle.id);
@@ -245,9 +252,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 		return HtmlScreen;
 	}(_RequestScreen3.default);
-
-	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
-
 
 	/**
   * Helper selectors for tracking resources.

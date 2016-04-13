@@ -25,12 +25,15 @@ define(['exports', '../core'], function (exports, _core) {
 		}
 
 		array.equal = function equal(arr1, arr2) {
+			if (arr1.length !== arr2.length) {
+				return false;
+			}
 			for (var i = 0; i < arr1.length; i++) {
 				if (arr1[i] !== arr2[i]) {
 					return false;
 				}
 			}
-			return arr1.length === arr2.length;
+			return true;
 		};
 
 		array.firstDefinedValue = function firstDefinedValue(arr) {
