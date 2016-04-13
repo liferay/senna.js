@@ -262,7 +262,7 @@ describe('HtmlScreen', function() {
 		screen.allocateVirtualDocumentForContent('<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlyes.css">');
 		screen.evaluateStyles({})
 			.then(() => {
-				assert.ok(!document.getElementById('testIEStlye').href.endsWith('testIEStlyes.css'));
+				assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
 				done();
 			});
 		screen.activate();
