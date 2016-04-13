@@ -6,6 +6,8 @@ import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
+import UA from 'metal-useragent';
+import Uri from 'metal-uri';
 
 class HtmlScreen extends RequestScreen {
 
@@ -59,6 +61,9 @@ class HtmlScreen extends RequestScreen {
 		var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 		if (isTemporaryStyle) {
 			this.pendingStyles.push(newStyle);
+			if (UA.isIe && newStyle.href) {
+				newStyle.href = new Uri(newStyle.href).makeUnique().toString();
+			}
 		}
 		if (newStyle.id) {
 			var styleInDoc = globals.document.getElementById(newStyle.id);
