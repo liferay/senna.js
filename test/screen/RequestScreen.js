@@ -218,4 +218,16 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
+	it('should not cache redirected requests on edge browsers', (done) => {
+		UA.testUserAgent('Edge'); // Simulates edge user agent
+		globals.capturedFormElement = globals.document.createElement('form');
+		var url = '/url';
+		var screen = new RequestScreen();
+		screen.load(url).then(() => {
+			assert.ok(screen.getRequest().requestHeaders['If-None-Match']);
+			done();
+		});
+		this.requests[0].respond(200);
+	});
+
 });

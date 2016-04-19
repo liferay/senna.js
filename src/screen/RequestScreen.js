@@ -1,6 +1,6 @@
 'use strict';
 
-import { core } from 'metal';
+import { core, string } from 'metal';
 import Ajax from 'metal-ajax';
 import MultiMap from 'metal-multimap';
 import CancellablePromise from 'metal-promise';
@@ -190,13 +190,16 @@ class RequestScreen extends Screen {
 		var body = null;
 		var httpMethod = this.httpMethod;
 
+		var headers = new MultiMap();
+		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
+
 		if (globals.capturedFormElement) {
 			body = new FormData(globals.capturedFormElement);
 			httpMethod = RequestScreen.POST;
+			if (UA.isIeOrEdge) {
+				headers.add('If-None-Match', string.getRandomString());
+			}
 		}
-
-		var headers = new MultiMap();
-		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 
 		var requestPath = this.formatLoadPath(path);
 		return Ajax
