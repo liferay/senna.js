@@ -16,6 +16,7 @@ metal.registerTasks({
 	globalName: 'senna',
 	mainBuildJsTasks: ['build:globals'],
 	moduleName: 'senna',
+	noSoy: true,
 	testBrowsers: ['Chrome', 'Firefox', 'Safari', 'IE10 - Win7', 'IE11 - Win7'],
 	testSaucelabsBrowsers: {
 		sl_chrome: {
