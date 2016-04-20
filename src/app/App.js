@@ -417,7 +417,11 @@ class App extends EventEmitter {
 			return null;
 		}
 
-		path = utils.getUrlPathWithoutHash(path).substr(this.basePath.length);
+		path = utils.getUrlPathWithoutHash(path);
+
+		// Makes sure that the path substring will be in the expected format
+		// (that is, will end with a "/").
+		path = utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
 
 		for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];

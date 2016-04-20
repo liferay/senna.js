@@ -327,7 +327,9 @@ describe('App', function() {
 			}
 		};
 		this.app.setBasePath('/base');
-		this.app.addRoutes(new Route('/path', Screen));
+		this.app.addRoutes([new Route('/', Screen), new Route('/path', Screen)]);
+		assert.ok(this.app.canNavigate('http://localhost/base/'));
+		assert.ok(this.app.canNavigate('http://localhost/base'));
 		assert.ok(this.app.canNavigate('http://localhost/base/path'));
 		assert.ok(!this.app.canNavigate('http://localhost/base/path1'));
 		assert.ok(!this.app.canNavigate('http://localhost/path'));
