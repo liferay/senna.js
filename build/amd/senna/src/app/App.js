@@ -428,7 +428,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				return null;
 			}
 
-			path = _utils2.default.getUrlPathWithoutHash(path).substr(this.basePath.length);
+			path = _utils2.default.getUrlPathWithoutHash(path);
+
+			// Makes sure that the path substring will be in the expected format
+			// (that is, will end with a "/").
+			path = _utils2.default.getUrlPathWithoutHash(path.substr(this.basePath.length));
 
 			for (var i = 0; i < this.routes.length; i++) {
 				var route = this.routes[i];
