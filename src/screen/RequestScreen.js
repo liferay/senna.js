@@ -1,6 +1,6 @@
 'use strict';
 
-import { core, string } from 'metal';
+import { core } from 'metal';
 import Ajax from 'metal-ajax';
 import MultiMap from 'metal-multimap';
 import CancellablePromise from 'metal-promise';
@@ -197,7 +197,7 @@ class RequestScreen extends Screen {
 			body = new FormData(globals.capturedFormElement);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
-				headers.add('If-None-Match', string.getRandomString());
+				headers.add('If-None-Match', core.getUid());
 			}
 		}
 
