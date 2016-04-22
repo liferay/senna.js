@@ -107,7 +107,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		return Cacheable;
 	}(_metal.Disposable);
 
-	Cacheable.prototype.registerMetalComponent && Cacheable.prototype.registerMetalComponent(Cacheable, 'Cacheable')
 	exports.default = Cacheable;
 });
 //# sourceMappingURL=Cacheable.js.map
