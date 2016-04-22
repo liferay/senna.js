@@ -216,7 +216,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 				body = new FormData(_globals2.default.capturedFormElement);
 				httpMethod = RequestScreen.POST;
 				if (_UA2.default.isIeOrEdge) {
-					headers.add('If-None-Match', _metal.core.getUid());
+					headers.add('Cache-Control', 'no-cache');
 				}
 			}
 

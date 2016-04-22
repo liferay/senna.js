@@ -945,119 +945,6 @@ babelHelpers;
 (function () {
 	var Disposable = this.sennaNamed.metal.Disposable;
 
-	var Cacheable = function (_Disposable) {
-		babelHelpers.inherits(Cacheable, _Disposable);
-
-
-		/**
-   * Abstract class for defining cacheable behavior.
-   * @constructor
-   */
-
-		function Cacheable() {
-			babelHelpers.classCallCheck(this, Cacheable);
-
-
-			/**
-    * Holds the cached data.
-    * @type {!Object}
-    * @default null
-    * @protected
-    */
-
-			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
-
-			_this.cache = null;
-
-			/**
-    * Holds whether class is cacheable.
-    * @type {boolean}
-    * @default false
-    * @protected
-    */
-			_this.cacheable = false;
-			return _this;
-		}
-
-		/**
-   * Adds content to the cache.
-   * @param {string} content Content to be cached.
-   * @chainable
-   */
-
-
-		Cacheable.prototype.addCache = function addCache(content) {
-			if (this.cacheable) {
-				this.cache = content;
-			}
-			return this;
-		};
-
-		/**
-   * Clears the cache.
-   * @chainable
-   */
-
-
-		Cacheable.prototype.clearCache = function clearCache() {
-			this.cache = null;
-			return this;
-		};
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-
-		Cacheable.prototype.disposeInternal = function disposeInternal() {
-			this.clearCache();
-		};
-
-		/**
-   * Gets the cached content.
-   * @return {Object} Cached content.
-   * @protected
-   */
-
-
-		Cacheable.prototype.getCache = function getCache() {
-			return this.cache;
-		};
-
-		/**
-   * Whether the class is cacheable.
-   * @return {boolean} Returns true when class is cacheable, false otherwise.
-   */
-
-
-		Cacheable.prototype.isCacheable = function isCacheable() {
-			return this.cacheable;
-		};
-
-		/**
-   * Sets whether the class is cacheable.
-   * @param {boolean} cacheable
-   */
-
-
-		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
-			if (!cacheable) {
-				this.clearCache();
-			}
-			this.cacheable = cacheable;
-		};
-
-		return Cacheable;
-	}(Disposable);
-
-	this.senna.Cacheable = Cacheable;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this.sennaNamed.metal.Disposable;
-
 	/**
   * EventHandle utility. Holds information about an event subscription, and
   * allows removing them easily.
@@ -4934,6 +4821,119 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var Disposable = this.sennaNamed.metal.Disposable;
+
+	var Cacheable = function (_Disposable) {
+		babelHelpers.inherits(Cacheable, _Disposable);
+
+
+		/**
+   * Abstract class for defining cacheable behavior.
+   * @constructor
+   */
+
+		function Cacheable() {
+			babelHelpers.classCallCheck(this, Cacheable);
+
+
+			/**
+    * Holds the cached data.
+    * @type {!Object}
+    * @default null
+    * @protected
+    */
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _Disposable.call(this));
+
+			_this.cache = null;
+
+			/**
+    * Holds whether class is cacheable.
+    * @type {boolean}
+    * @default false
+    * @protected
+    */
+			_this.cacheable = false;
+			return _this;
+		}
+
+		/**
+   * Adds content to the cache.
+   * @param {string} content Content to be cached.
+   * @chainable
+   */
+
+
+		Cacheable.prototype.addCache = function addCache(content) {
+			if (this.cacheable) {
+				this.cache = content;
+			}
+			return this;
+		};
+
+		/**
+   * Clears the cache.
+   * @chainable
+   */
+
+
+		Cacheable.prototype.clearCache = function clearCache() {
+			this.cache = null;
+			return this;
+		};
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+
+		Cacheable.prototype.disposeInternal = function disposeInternal() {
+			this.clearCache();
+		};
+
+		/**
+   * Gets the cached content.
+   * @return {Object} Cached content.
+   * @protected
+   */
+
+
+		Cacheable.prototype.getCache = function getCache() {
+			return this.cache;
+		};
+
+		/**
+   * Whether the class is cacheable.
+   * @return {boolean} Returns true when class is cacheable, false otherwise.
+   */
+
+
+		Cacheable.prototype.isCacheable = function isCacheable() {
+			return this.cacheable;
+		};
+
+		/**
+   * Sets whether the class is cacheable.
+   * @param {boolean} cacheable
+   */
+
+
+		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
+			if (!cacheable) {
+				this.clearCache();
+			}
+			this.cacheable = cacheable;
+		};
+
+		return Cacheable;
+	}(Disposable);
+
+	this.senna.Cacheable = Cacheable;
+}).call(this);
+'use strict';
+
+(function () {
 	var core = this.sennaNamed.metal.core;
 	var globalEval = this.sennaNamed.dom.globalEval;
 	var Cacheable = this.senna.Cacheable;
@@ -7264,7 +7264,7 @@ babelHelpers;
 				body = new FormData(globals.capturedFormElement);
 				httpMethod = RequestScreen.POST;
 				if (UA.isIeOrEdge) {
-					headers.add('If-None-Match', core.getUid());
+					headers.add('Cache-Control', 'no-cache');
 				}
 			}
 
