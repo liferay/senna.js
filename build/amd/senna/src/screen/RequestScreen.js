@@ -207,15 +207,18 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			var body = null;
 			var httpMethod = this.httpMethod;
 
-			if (_globals2.default.capturedFormElement) {
-				body = new FormData(_globals2.default.capturedFormElement);
-				httpMethod = RequestScreen.POST;
-			}
-
 			var headers = new _MultiMap2.default();
 			Object.keys(this.httpHeaders).forEach(function (header) {
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
+
+			if (_globals2.default.capturedFormElement) {
+				body = new FormData(_globals2.default.capturedFormElement);
+				httpMethod = RequestScreen.POST;
+				if (_UA2.default.isIeOrEdge) {
+					headers.add('If-None-Match', _metal.core.getUid());
+				}
+			}
 
 			var requestPath = this.formatLoadPath(path);
 			return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
@@ -265,6 +268,9 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 
 		return RequestScreen;
 	}(_Screen3.default);
+
+	RequestScreen.prototype.registerMetalComponent && RequestScreen.prototype.registerMetalComponent(RequestScreen, 'RequestScreen')
+
 
 	/**
   * Holds value for method get.

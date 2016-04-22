@@ -233,6 +233,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 		return AppDataAttributeHandler;
 	}(_metal.Disposable);
 
+	AppDataAttributeHandler.prototype.registerMetalComponent && AppDataAttributeHandler.prototype.registerMetalComponent(AppDataAttributeHandler, 'AppDataAttributeHandler')
 	exports.default = AppDataAttributeHandler;
 });
 //# sourceMappingURL=AppDataAttributeHandler.js.map

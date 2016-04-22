@@ -134,6 +134,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		return MultiMap;
 	}(_metal.Disposable);
 
+	MultiMap.prototype.registerMetalComponent && MultiMap.prototype.registerMetalComponent(MultiMap, 'MultiMap')
 	exports.default = MultiMap;
 });
 //# sourceMappingURL=MultiMap.js.map

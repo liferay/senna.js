@@ -78,6 +78,7 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 		return DomEventEmitterProxy;
 	}(_events.EventEmitterProxy);
 
+	DomEventEmitterProxy.prototype.registerMetalComponent && DomEventEmitterProxy.prototype.registerMetalComponent(DomEventEmitterProxy, 'DomEventEmitterProxy')
 	exports.default = DomEventEmitterProxy;
 });
 //# sourceMappingURL=DomEventEmitterProxy.js.map

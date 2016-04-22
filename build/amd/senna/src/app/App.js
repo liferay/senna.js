@@ -863,6 +863,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		return App;
 	}(_events.EventEmitter);
 
+	App.prototype.registerMetalComponent && App.prototype.registerMetalComponent(App, 'App')
 	exports.default = App;
 });
 //# sourceMappingURL=App.js.map

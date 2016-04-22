@@ -87,6 +87,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		return EventHandle;
 	}(_metal.Disposable);
 
+	EventHandle.prototype.registerMetalComponent && EventHandle.prototype.registerMetalComponent(EventHandle, 'EventHandle')
 	exports.default = EventHandle;
 });
 //# sourceMappingURL=EventHandle.js.map

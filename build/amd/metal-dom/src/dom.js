@@ -38,9 +38,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.addClassesWithNative_ = function addClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
-				if (className) {
-					element.classList.add(className);
-				}
+				element.classList.add(className);
 			});
 		};
 
@@ -255,9 +253,7 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 
 		dom.removeClassesWithNative_ = function removeClassesWithNative_(element, classes) {
 			classes.split(' ').forEach(function (className) {
-				if (className) {
-					element.classList.remove(className);
-				}
+				element.classList.remove(className);
 			});
 		};
 

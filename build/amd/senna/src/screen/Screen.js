@@ -175,6 +175,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		return Screen;
 	}(_Cacheable3.default);
 
+	Screen.prototype.registerMetalComponent && Screen.prototype.registerMetalComponent(Screen, 'Screen')
+
+
 	/**
   * @param {*} object
   * @return {boolean} Whether a given instance implements

@@ -266,6 +266,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		return EventEmitter;
 	}(_metal.Disposable);
 
+	EventEmitter.prototype.registerMetalComponent && EventEmitter.prototype.registerMetalComponent(EventEmitter, 'EventEmitter')
 	exports.default = EventEmitter;
 });
 //# sourceMappingURL=EventEmitter.js.map

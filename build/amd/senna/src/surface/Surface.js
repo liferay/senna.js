@@ -231,6 +231,9 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 		return Surface;
 	}(_metal.Disposable);
 
+	Surface.prototype.registerMetalComponent && Surface.prototype.registerMetalComponent(Surface, 'Surface')
+
+
 	/**
     * Holds the default surface name. Elements on the page must contain a child
     * element containing the default content, this element must be as following:

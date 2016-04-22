@@ -253,6 +253,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		return HtmlScreen;
 	}(_RequestScreen3.default);
 
+	HtmlScreen.prototype.registerMetalComponent && HtmlScreen.prototype.registerMetalComponent(HtmlScreen, 'HtmlScreen')
+
+
 	/**
   * Helper selectors for tracking resources.
   * @type {object}

@@ -1,9 +1,17 @@
-define(['exports'], function (exports) {
+define(['exports', '../core'], function (exports, _core) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
+
+	var _core2 = _interopRequireDefault(_core);
+
+	function _interopRequireDefault(obj) {
+		return obj && obj.__esModule ? obj : {
+			default: obj
+		};
+	}
 
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
@@ -28,11 +36,17 @@ define(['exports'], function (exports) {
 		};
 
 		object.getObjectByName = function getObjectByName(name, opt_obj) {
-			var scope = opt_obj || window;
 			var parts = name.split('.');
-			return parts.reduce(function (part, key) {
-				return part[key];
-			}, scope);
+			var cur = opt_obj || window;
+			var part;
+			while (part = parts.shift()) {
+				if (_core2.default.isDefAndNotNull(cur[part])) {
+					cur = cur[part];
+				} else {
+					return null;
+				}
+			}
+			return cur;
 		};
 
 		object.map = function map(obj, fn) {
