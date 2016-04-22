@@ -224,7 +224,7 @@ describe('RequestScreen', function() {
 		var url = '/url';
 		var screen = new RequestScreen();
 		screen.load(url).then(() => {
-			assert.strictEqual('no-cache', screen.getRequest().requestHeaders['Cache-Control']);
+			assert.ok('"0"', screen.getRequest().requestHeaders['If-None-Match']);
 			done();
 		});
 		this.requests[0].respond(200);

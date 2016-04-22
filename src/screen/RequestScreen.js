@@ -197,7 +197,7 @@ class RequestScreen extends Screen {
 			body = new FormData(globals.capturedFormElement);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
-				headers.add('Cache-Control', 'no-cache');
+				headers.add('If-None-Match', '"0"');
 			}
 		}
 
