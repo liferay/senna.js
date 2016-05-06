@@ -358,6 +358,22 @@ describe('App', function() {
 		globals.window = window;
 	});
 
+	it('should be able to navigate to route that ends with "/"', () => {
+		this.app = new App();
+		globals.window = {
+			history: {},
+			location: {
+				hostname: 'localhost',
+				pathname: '/path',
+				search: ''
+			}
+		};
+		this.app.addRoutes([new Route('/path/', Screen)]);
+		assert.ok(this.app.canNavigate('http://localhost/path'));
+		assert.ok(this.app.canNavigate('http://localhost/path/'));
+		globals.window = window;
+	});
+
 	it('should store proper senna state after navigate', (done) => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
