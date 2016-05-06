@@ -1055,7 +1055,7 @@ class App extends EventEmitter {
 	 * @param {!string} path
 	 */
 	setBasePath(basePath) {
-		this.basePath = basePath;
+		this.basePath = utils.getUrlPathWithoutHash(basePath);
 	}
 
 	/**

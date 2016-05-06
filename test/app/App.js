@@ -411,6 +411,27 @@ describe('App', function() {
 		globals.window = window;
 	});
 
+	it('should test if can navigate to url with base path ending in "/"', () => {
+		this.app = new App();
+		globals.window = {
+			history: {},
+			location: {
+				hostname: 'localhost',
+				pathname: '/path',
+				search: ''
+			}
+		};
+		this.app.setBasePath('/base/');
+		this.app.addRoutes([new Route('/', Screen), new Route('/path', Screen)]);
+		assert.ok(this.app.canNavigate('http://localhost/base/'));
+		assert.ok(this.app.canNavigate('http://localhost/base'));
+		assert.ok(this.app.canNavigate('http://localhost/base/path'));
+		assert.ok(!this.app.canNavigate('http://localhost/base/path1'));
+		assert.ok(!this.app.canNavigate('http://localhost/path'));
+		assert.ok(!this.app.canNavigate('http://external/path'));
+		globals.window = window;
+	});
+
 	it('should store proper senna state after navigate', (done) => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
