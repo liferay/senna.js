@@ -2,6 +2,7 @@
 
 import { core } from 'metal';
 import { extractData, parse, toRegex } from 'metal-path-parser';
+import utils from '../utils/utils';
 
 class Route {
 
@@ -32,7 +33,7 @@ class Route {
 		 * @type {!string|RegExp|Function}
 		 * @protected
 		 */
-		this.path = path;
+		this.path = core.isString(path) ? utils.getUrlPathWithoutHash(path) : path;
 	}
 
 	/**
