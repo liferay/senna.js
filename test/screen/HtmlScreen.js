@@ -66,6 +66,15 @@ describe('HtmlScreen', function() {
 			}).cancel();
 	});
 
+	it('should copy surface root node attributes from response content', (done) => {
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('<html attributeA="valueA"><div id="surfaceId">surface</div></html>');
+		screen.flip([]).then(() => {
+			assert.strictEqual(document.documentElement.getAttribute('attributeA'), 'valueA');
+			done();
+		});
+	});
+
 	it('should extract surface content from response content', () => {
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<div id="surfaceId">surface</div>');
