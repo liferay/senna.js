@@ -10,6 +10,15 @@ import Uri from 'metal-uri';
 class utils {
 
 	/**
+	 * Copies attributes form source node to target node.
+	 * @return {void}
+	 * @static
+	 */
+	static copyNodeAttributes(source, target) {
+		Array.prototype.slice.call(source.attributes).forEach((attribute) => target.setAttribute(attribute.name, attribute.value));
+	}
+
+	/**
 	 * Gets the current browser path including hashbang.
 	 * @return {!string}
 	 * @static
@@ -67,6 +76,15 @@ class utils {
 	 */
 	static isHtml5HistorySupported() {
 		return !!(globals.window.history && globals.window.history.pushState);
+	}
+
+	/**
+	 * Removes all attributes form node.
+	 * @return {void}
+	 * @static
+	 */
+	static clearNodeAttributes(node) {
+		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
 	}
 
 }
