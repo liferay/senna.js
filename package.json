@@ -8,8 +8,8 @@
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
   },
-  "jsnext:main": "src/app/App.js",
-  "main": "lib/app/App.js",
+  "jsnext:main": "src/senna.js",
+  "main": "lib/senna.js",
   "files": [
     "build",
     "lib",
