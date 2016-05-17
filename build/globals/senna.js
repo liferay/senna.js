@@ -6824,19 +6824,6 @@ babelHelpers;
 'use strict';
 
 (function () {
-	this.senna.dataAttributes = {
-		basePath: 'data-senna-base-path',
-		linkSelector: 'data-senna-link-selector',
-		loadingCssClass: 'data-senna-loading-css-class',
-		senna: 'data-senna',
-		dispatch: 'data-senna-dispatch',
-		surface: 'data-senna-surface',
-		updateScrollPosition: 'data-senna-update-scroll-position'
-	};
-}).call(this);
-'use strict';
-
-(function () {
 	var core = this.sennaNamed.metal.core;
 	var Uri = this.senna.Uri;
 	var Promise = this.sennaNamed.Promise.CancellablePromise;
@@ -7822,6 +7809,35 @@ babelHelpers;
 	HtmlScreen.permanentResourcesInDoc = {};
 
 	this.senna.HtmlScreen = HtmlScreen;
+}).call(this);
+'use strict';
+
+(function () {
+  var App = this.senna.App;
+  var HtmlScreen = this.senna.HtmlScreen;
+  var RequestScreen = this.senna.RequestScreen;
+  var Route = this.senna.Route;
+  var Screen = this.senna.Screen;
+  this.senna.senna = App;
+  this.sennaNamed.senna = this.sennaNamed.senna || {};
+  this.sennaNamed.senna.App = App;
+  this.sennaNamed.senna.HtmlScreen = HtmlScreen;
+  this.sennaNamed.senna.Route = Route;
+  this.sennaNamed.senna.RequestScreen = RequestScreen;
+  this.sennaNamed.senna.Screen = Screen;
+}).call(this);
+'use strict';
+
+(function () {
+	this.senna.dataAttributes = {
+		basePath: 'data-senna-base-path',
+		linkSelector: 'data-senna-link-selector',
+		loadingCssClass: 'data-senna-loading-css-class',
+		senna: 'data-senna',
+		dispatch: 'data-senna-dispatch',
+		surface: 'data-senna-surface',
+		updateScrollPosition: 'data-senna-update-scroll-position'
+	};
 }).call(this);
 'use strict';
 
