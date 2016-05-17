@@ -20,6 +20,10 @@ define(['exports'], function (exports) {
 			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
 		};
 
+		string.escapeRegex = function escapeRegex(str) {
+			return String(str).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
+		};
+
 		string.getRandomString = function getRandomString() {
 			var x = 2147483648;
 			return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);

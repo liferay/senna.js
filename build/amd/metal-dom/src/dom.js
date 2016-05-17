@@ -116,11 +116,11 @@ define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _m
 		};
 
 		dom.enterDocument = function enterDocument(node) {
-			dom.append(document.body, node);
+			node && dom.append(document.body, node);
 		};
 
 		dom.exitDocument = function exitDocument(node) {
-			if (node.parentNode) {
+			if (node && node.parentNode) {
 				node.parentNode.removeChild(node);
 			}
 		};

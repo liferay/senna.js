@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v1.0.4
+ * @version v1.1.0
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -846,6 +846,32 @@ babelHelpers;
 			return mappedObj;
 		};
 
+		/**
+   * Checks if the two given objects are equal. This is done via a shallow
+   * check, including only the keys directly contained by the 2 objects.
+   * @return {boolean}
+   */
+
+
+		object.shallowEqual = function shallowEqual(obj1, obj2) {
+			if (obj1 === obj2) {
+				return true;
+			}
+
+			var keys1 = Object.keys(obj1);
+			var keys2 = Object.keys(obj2);
+			if (keys1.length !== keys2.length) {
+				return false;
+			}
+
+			for (var i = 0; i < keys1.length; i++) {
+				if (obj1[keys1[i]] !== obj2[keys1[i]]) {
+					return false;
+				}
+			}
+			return true;
+		};
+
 		return object;
 	}();
 
@@ -869,6 +895,18 @@ babelHelpers;
 
 		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
 			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
+		};
+
+		/**
+  * Escapes characters in the string that are not safe to use in a RegExp.
+  * @param {*} str The string to escape. If not a string, it will be casted
+  *     to one.
+  * @return {string} A RegExp safe, escaped copy of {@code s}.
+  */
+
+
+		string.escapeRegex = function escapeRegex(str) {
+			return String(str).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
 		};
 
 		/**
@@ -1471,6 +1509,15 @@ babelHelpers;
 			_this.originEmitter_ = originEmitter;
 
 			/**
+    * A list of events that are pending to be listened by an actual origin
+    * emitter. Events are stored here when the origin doesn't exist, so they
+    * can be set on a new origin when one is set.
+    * @type {!Array}
+    * @protected
+    */
+			_this.pendingEvents_ = [];
+
+			/**
     * Holds a map of events from the origin emitter that are already being proxied.
     * @type {Object<string, !EventHandle>}
     * @protected
@@ -1553,7 +1600,7 @@ babelHelpers;
 
 		EventEmitterProxy.prototype.proxyEvent = function proxyEvent(event) {
 			if (this.shouldProxyEvent_(event)) {
-				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+				this.tryToAddListener_(event);
 			}
 		};
 
@@ -1569,24 +1616,26 @@ babelHelpers;
 				this.proxiedEvents_[events[i]].removeListener();
 			}
 			this.proxiedEvents_ = {};
+			this.pendingEvents_ = [];
 		};
 
 		/**
    * Changes the origin emitter. This automatically detaches any events that
    * were already being proxied from the previous emitter, and starts proxying
    * them on the new emitter instead.
+   * @param {!EventEmitter} originEmitter
    */
 
 
 		EventEmitterProxy.prototype.setOriginEmitter = function setOriginEmitter(originEmitter) {
-			var handles = this.proxiedEvents_;
+			var _this2 = this;
+
+			var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
 			this.removeListeners_();
 			this.originEmitter_ = originEmitter;
-
-			var events = Object.keys(handles);
-			for (var i = 0; i < events.length; i++) {
-				this.proxiedEvents_[events[i]] = this.addListenerForEvent_(events[i]);
-			}
+			events.forEach(function (event) {
+				return _this2.proxyEvent(event);
+			});
 		};
 
 		/**
@@ -1615,6 +1664,22 @@ babelHelpers;
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
 			this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
+		};
+
+		/**
+   * Adds a listener to the origin emitter, if it exists. Otherwise, stores
+   * the pending listener so it can be used on a future origin emitter.
+   * @param {string} event
+   * @protected
+   */
+
+
+		EventEmitterProxy.prototype.tryToAddListener_ = function tryToAddListener_(event) {
+			if (this.originEmitter_) {
+				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+			} else {
+				this.pendingEvents_.push(event);
+			}
 		};
 
 		return EventEmitterProxy;
@@ -1936,7 +2001,7 @@ babelHelpers;
 
 
 		dom.enterDocument = function enterDocument(node) {
-			dom.append(document.body, node);
+			node && dom.append(document.body, node);
 		};
 
 		/**
@@ -1946,7 +2011,7 @@ babelHelpers;
 
 
 		dom.exitDocument = function exitDocument(node) {
-			if (node.parentNode) {
+			if (node && node.parentNode) {
 				node.parentNode.removeChild(node);
 			}
 		};
@@ -2450,7 +2515,7 @@ babelHelpers;
 
 		DomEventEmitterProxy.prototype.addListener_ = function addListener_(event, listener) {
 			if (this.originEmitter_.addEventListener) {
-				if (event.startsWith('delegate:')) {
+				if (this.isDelegateEvent_(event)) {
 					var index = event.indexOf(':', 9);
 					var eventName = event.substring(9, index);
 					var selector = event.substring(index + 1);
@@ -2464,6 +2529,18 @@ babelHelpers;
 		};
 
 		/**
+   * Checks if the given event is of the delegate type.
+   * @param {string} event
+   * @return {boolean}
+   * @protected
+   */
+
+
+		DomEventEmitterProxy.prototype.isDelegateEvent_ = function isDelegateEvent_(event) {
+			return event.substr(0, 9) === 'delegate:';
+		};
+
+		/**
    * Checks if the given event is supported by the origin element.
    * @param {string} event
    * @protected
@@ -2471,7 +2548,10 @@ babelHelpers;
 
 
 		DomEventEmitterProxy.prototype.isSupportedDomEvent_ = function isSupportedDomEvent_(event) {
-			return event.startsWith('delegate:') && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
+			if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
+				return true;
+			}
+			return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || dom.supportsEvent(this.originEmitter_, event);
 		};
 
 		/**
@@ -2484,7 +2564,7 @@ babelHelpers;
 
 
 		DomEventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
-			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && (!this.originEmitter_.addEventListener || this.isSupportedDomEvent_(event));
+			return _EventEmitterProxy.prototype.shouldProxyEvent_.call(this, event) && this.isSupportedDomEvent_(event);
 		};
 
 		return DomEventEmitterProxy;
@@ -6805,12 +6885,13 @@ babelHelpers;
    * @param {MultiMap=} opt_params
    * @param {number=} opt_timeout
    * @param {boolean=} opt_sync
+   * @param {boolean=} opt_withCredentials
    * @return {Promise} Deferred ajax request.
    * @protected
    */
 
 
-		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync) {
+		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync, opt_withCredentials) {
 			var request = new XMLHttpRequest();
 
 			var promise = new Promise(function (resolve, reject) {
@@ -6838,6 +6919,10 @@ babelHelpers;
 			}
 
 			request.open(method, url, !opt_sync);
+
+			if (opt_withCredentials) {
+				request.withCredentials = true;
+			}
 
 			if (opt_headers) {
 				opt_headers.names().forEach(function (name) {

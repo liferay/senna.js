@@ -59,6 +59,15 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			_this.originEmitter_ = originEmitter;
 
 			/**
+    * A list of events that are pending to be listened by an actual origin
+    * emitter. Events are stored here when the origin doesn't exist, so they
+    * can be set on a new origin when one is set.
+    * @type {!Array}
+    * @protected
+    */
+			_this.pendingEvents_ = [];
+
+			/**
     * Holds a map of events from the origin emitter that are already being proxied.
     * @type {Object<string, !EventHandle>}
     * @protected
@@ -115,7 +124,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 		EventEmitterProxy.prototype.proxyEvent = function proxyEvent(event) {
 			if (this.shouldProxyEvent_(event)) {
-				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+				this.tryToAddListener_(event);
 			}
 		};
 
@@ -125,17 +134,18 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 				this.proxiedEvents_[events[i]].removeListener();
 			}
 			this.proxiedEvents_ = {};
+			this.pendingEvents_ = [];
 		};
 
 		EventEmitterProxy.prototype.setOriginEmitter = function setOriginEmitter(originEmitter) {
-			var handles = this.proxiedEvents_;
+			var _this2 = this;
+
+			var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
 			this.removeListeners_();
 			this.originEmitter_ = originEmitter;
-
-			var events = Object.keys(handles);
-			for (var i = 0; i < events.length; i++) {
-				this.proxiedEvents_[events[i]] = this.addListenerForEvent_(events[i]);
-			}
+			events.forEach(function (event) {
+				return _this2.proxyEvent(event);
+			});
 		};
 
 		EventEmitterProxy.prototype.shouldProxyEvent_ = function shouldProxyEvent_(event) {
@@ -150,6 +160,14 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 
 		EventEmitterProxy.prototype.startProxy_ = function startProxy_() {
 			this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
+		};
+
+		EventEmitterProxy.prototype.tryToAddListener_ = function tryToAddListener_(event) {
+			if (this.originEmitter_) {
+				this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+			} else {
+				this.pendingEvents_.push(event);
+			}
 		};
 
 		return EventEmitterProxy;

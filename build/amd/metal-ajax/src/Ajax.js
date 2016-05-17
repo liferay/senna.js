@@ -44,7 +44,7 @@ define(['exports', 'metal/src/metal', 'metal-uri/src/Uri', 'metal-promise/src/pr
 			return headers;
 		};
 
-		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync) {
+		Ajax.request = function request(url, method, body, opt_headers, opt_params, opt_timeout, opt_sync, opt_withCredentials) {
 			var request = new XMLHttpRequest();
 
 			var promise = new _Promise.CancellablePromise(function (resolve, reject) {
@@ -72,6 +72,10 @@ define(['exports', 'metal/src/metal', 'metal-uri/src/Uri', 'metal-promise/src/pr
 			}
 
 			request.open(method, url, !opt_sync);
+
+			if (opt_withCredentials) {
+				request.withCredentials = true;
+			}
 
 			if (opt_headers) {
 				opt_headers.names().forEach(function (name) {
