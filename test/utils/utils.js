@@ -23,6 +23,33 @@ describe('utils', function() {
 		globals.window = window;
 	});
 
+	it('should copy attributes from source node to target node', () => {
+		var nodeA = document.createElement('div');
+		nodeA.setAttribute('a', 'valueA');
+		nodeA.setAttribute('b', 'valueB');
+
+		var nodeB = document.createElement('div');
+		utils.copyNodeAttributes(nodeA, nodeB);
+
+		assert.strictEqual(nodeA.attributes.length, nodeB.attributes.length);
+		assert.strictEqual(nodeA.getAttribute('a'), nodeB.getAttribute('a'));
+		assert.strictEqual(nodeA.getAttribute('b'), nodeB.getAttribute('b'));
+		assert.strictEqual(nodeB.getAttribute('a'), 'valueA');
+		assert.strictEqual(nodeB.getAttribute('b'), 'valueB');
+	});
+
+	it('should clear attributes from a given node', () => {
+		var node = document.createElement('div');
+		node.setAttribute('a', 'valueA');
+		node.setAttribute('b', 'valueB');
+
+		utils.clearNodeAttributes(node);
+
+		assert.strictEqual(node.getAttribute('a'), null);
+		assert.strictEqual(node.getAttribute('b'), null);
+		assert.strictEqual(node.attributes.length, 0);
+	});
+
 	it('should get path from url', () => {
 		assert.strictEqual('/path?a=1#hash', utils.getUrlPath('http://hostname/path?a=1#hash'));
 	});

@@ -8,6 +8,7 @@ import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
 import UA from 'metal-useragent';
 import Uri from 'metal-uri';
+import utils from '../utils/utils';
 
 class HtmlScreen extends RequestScreen {
 
@@ -48,6 +49,9 @@ class HtmlScreen extends RequestScreen {
 		if (!this.virtualDocument) {
 			this.virtualDocument = globals.document.createElement('html');
 		}
+
+		this.copyNodeAttributesFromContent_(htmlString, this.virtualDocument);
+
 		this.virtualDocument.innerHTML = htmlString;
 	}
 
@@ -86,6 +90,21 @@ class HtmlScreen extends RequestScreen {
 		}
 		if (bodySurface) {
 			bodySurface.id = globals.document.body.id;
+		}
+	}
+
+	/**
+	 * Copies attributes from the <html> tag of content to the given node.
+	 */
+	copyNodeAttributesFromContent_(content, node) {
+		content = content.replace(/\<\s*html/ig, '<senna_placeholder');
+		content = content.replace(/\/html\s*\>/ig, '/senna_placeholder>');
+		node.innerHTML = content;
+
+		var placeholder = node.querySelector('senna_placeholder');
+		if (placeholder) {
+			utils.clearNodeAttributes(node);
+			utils.copyNodeAttributes(placeholder, node);
 		}
 	}
 
@@ -176,6 +195,16 @@ class HtmlScreen extends RequestScreen {
 				temporariesInDoc.forEach((resource) => dom.exitDocument(resource));
 				resolve();
 			}, opt_appendResourceFn);
+		});
+	}
+
+	/**
+	 * @Override
+	 */
+	flip(surfaces) {
+		return super.flip(surfaces).then(() => {
+			utils.clearNodeAttributes(document.documentElement);
+			utils.copyNodeAttributes(this.virtualDocument, document.documentElement);
 		});
 	}
 
