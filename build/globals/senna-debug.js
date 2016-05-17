@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v1.1.0
+ * @version v1.1.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
