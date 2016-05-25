@@ -1,6 +1,6 @@
 {
   "name": "senna",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A blazing-fast Single Page Application engine",
   "license": "BSD-3-Clause",
   "repository": "eduardolundgren/senna.js",
