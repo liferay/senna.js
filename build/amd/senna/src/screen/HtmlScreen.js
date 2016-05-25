@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface', 'metal-useragent/src/UA', 'metal-uri/src/Uri'], function (exports, _metal, _dom, _Promise, _globals, _RequestScreen2, _Surface, _UA, _Uri) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface', 'metal-useragent/src/UA', 'metal-uri/src/Uri', '../utils/utils'], function (exports, _metal, _dom, _Promise, _globals, _RequestScreen2, _Surface, _UA, _Uri, _utils) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -16,6 +16,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 	var _UA2 = _interopRequireDefault(_UA);
 
 	var _Uri2 = _interopRequireDefault(_Uri);
+
+	var _utils2 = _interopRequireDefault(_utils);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -94,6 +96,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			if (!this.virtualDocument) {
 				this.virtualDocument = _globals2.default.document.createElement('html');
 			}
+
+			this.copyNodeAttributesFromContent_(htmlString, this.virtualDocument);
+
 			this.virtualDocument.innerHTML = htmlString;
 		};
 
@@ -122,6 +127,17 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			}
 			if (bodySurface) {
 				bodySurface.id = _globals2.default.document.body.id;
+			}
+		};
+
+		HtmlScreen.prototype.copyNodeAttributesFromContent_ = function copyNodeAttributesFromContent_(content, node) {
+			content = content.replace(/[<]\s*html/ig, '<senna');
+			content = content.replace(/\/html\s*\>/ig, '/senna>');
+			node.innerHTML = content;
+			var placeholder = node.querySelector('senna');
+			if (placeholder) {
+				_utils2.default.clearNodeAttributes(node);
+				_utils2.default.copyNodeAttributes(placeholder, node);
 			}
 		};
 
@@ -197,6 +213,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			});
 		};
 
+		HtmlScreen.prototype.flip = function flip(surfaces) {
+			var _this5 = this;
+
+			return _RequestScreen.prototype.flip.call(this, surfaces).then(function () {
+				_utils2.default.clearNodeAttributes(document.documentElement);
+				_utils2.default.copyNodeAttributes(_this5.virtualDocument, document.documentElement);
+			});
+		};
+
 		HtmlScreen.prototype.getResourceKey_ = function getResourceKey_(resource) {
 			return resource.id || resource.href || resource.src || '';
 		};
@@ -217,12 +242,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		};
 
 		HtmlScreen.prototype.load = function load(path) {
-			var _this5 = this;
+			var _this6 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				_this5.allocateVirtualDocumentForContent(content);
-				_this5.resolveTitleFromVirtualDocument();
-				_this5.assertSameBodyIdInVirtualDocument();
+				_this6.allocateVirtualDocumentForContent(content);
+				_this6.resolveTitleFromVirtualDocument();
+				_this6.assertSameBodyIdInVirtualDocument();
 				return content;
 			});
 		};

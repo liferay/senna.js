@@ -2704,8 +2704,8 @@ babelHelpers;
 				dom.exitDocument(script);
 				opt_callback && opt_callback();
 			};
-			dom.on(script, 'load', callback);
-			dom.on(script, 'error', callback);
+			dom.once(script, 'load', callback);
+			dom.once(script, 'error', callback);
 
 			if (opt_appendFn) {
 				opt_appendFn(script);
@@ -2865,8 +2865,8 @@ babelHelpers;
 			if (style.tagName === 'STYLE') {
 				async.nextTick(callback);
 			} else {
-				dom.on(style, 'load', callback);
-				dom.on(style, 'error', callback);
+				dom.once(style, 'load', callback);
+				dom.once(style, 'error', callback);
 			}
 
 			if (opt_appendFn) {
@@ -4734,10 +4734,23 @@ babelHelpers;
 		}
 
 		/**
+   * Copies attributes form source node to target node.
+   * @return {void}
+   * @static
+   */
+
+		utils.copyNodeAttributes = function copyNodeAttributes(source, target) {
+			Array.prototype.slice.call(source.attributes).forEach(function (attribute) {
+				return target.setAttribute(attribute.name, attribute.value);
+			});
+		};
+
+		/**
    * Gets the current browser path including hashbang.
    * @return {!string}
    * @static
    */
+
 
 		utils.getCurrentBrowserPath = function getCurrentBrowserPath() {
 			return this.getCurrentBrowserPathWithoutHash() + globals.window.location.hash;
@@ -4802,6 +4815,19 @@ babelHelpers;
 
 		utils.isHtml5HistorySupported = function isHtml5HistorySupported() {
 			return !!(globals.window.history && globals.window.history.pushState);
+		};
+
+		/**
+   * Removes all attributes form node.
+   * @return {void}
+   * @static
+   */
+
+
+		utils.clearNodeAttributes = function clearNodeAttributes(node) {
+			Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
+				return node.removeAttribute(attribute.name);
+			});
 		};
 
 		return utils;
@@ -7467,6 +7493,7 @@ babelHelpers;
 	var Surface = this.senna.Surface;
 	var UA = this.senna.UA;
 	var Uri = this.senna.Uri;
+	var utils = this.senna.utils;
 
 	var HtmlScreen = function (_RequestScreen) {
 		babelHelpers.inherits(HtmlScreen, _RequestScreen);
@@ -7519,6 +7546,9 @@ babelHelpers;
 			if (!this.virtualDocument) {
 				this.virtualDocument = globals.document.createElement('html');
 			}
+
+			this.copyNodeAttributesFromContent_(htmlString, this.virtualDocument);
+
 			this.virtualDocument.innerHTML = htmlString;
 		};
 
@@ -7561,6 +7591,22 @@ babelHelpers;
 			}
 			if (bodySurface) {
 				bodySurface.id = globals.document.body.id;
+			}
+		};
+
+		/**
+   * Copies attributes from the <html> tag of content to the given node.
+   */
+
+
+		HtmlScreen.prototype.copyNodeAttributesFromContent_ = function copyNodeAttributesFromContent_(content, node) {
+			content = content.replace(/[<]\s*html/ig, '<senna');
+			content = content.replace(/\/html\s*\>/ig, '/senna>');
+			node.innerHTML = content;
+			var placeholder = node.querySelector('senna');
+			if (placeholder) {
+				utils.clearNodeAttributes(node);
+				utils.copyNodeAttributes(placeholder, node);
 			}
 		};
 
@@ -7674,6 +7720,20 @@ babelHelpers;
 		};
 
 		/**
+   * @Override
+   */
+
+
+		HtmlScreen.prototype.flip = function flip(surfaces) {
+			var _this5 = this;
+
+			return _RequestScreen.prototype.flip.call(this, surfaces).then(function () {
+				utils.clearNodeAttributes(document.documentElement);
+				utils.copyNodeAttributes(_this5.virtualDocument, document.documentElement);
+			});
+		};
+
+		/**
    * Extracts a key to identify the resource based on its attributes.
    * @param {Element} resource
    * @return {string} Extracted key based on resource attributes in order of
@@ -7717,12 +7777,12 @@ babelHelpers;
 
 
 		HtmlScreen.prototype.load = function load(path) {
-			var _this5 = this;
+			var _this6 = this;
 
 			return _RequestScreen.prototype.load.call(this, path).then(function (content) {
-				_this5.allocateVirtualDocumentForContent(content);
-				_this5.resolveTitleFromVirtualDocument();
-				_this5.assertSameBodyIdInVirtualDocument();
+				_this6.allocateVirtualDocumentForContent(content);
+				_this6.resolveTitleFromVirtualDocument();
+				_this6.assertSameBodyIdInVirtualDocument();
 				return content;
 			});
 		};

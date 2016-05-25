@@ -55,8 +55,8 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			if (style.tagName === 'STYLE') {
 				_metal.async.nextTick(callback);
 			} else {
-				_dom2.default.on(style, 'load', callback);
-				_dom2.default.on(style, 'error', callback);
+				_dom2.default.once(style, 'load', callback);
+				_dom2.default.once(style, 'error', callback);
 			}
 
 			if (opt_appendFn) {
