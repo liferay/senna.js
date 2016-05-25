@@ -70,7 +70,7 @@ describe('HtmlScreen', function() {
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<html attributeA="valueA"><div id="surfaceId">surface</div></html>');
 		screen.flip([]).then(() => {
-			assert.strictEqual(document.documentElement.getAttribute('attributeA'), 'valueA');
+			assert.strictEqual('valueA', document.documentElement.getAttribute('attributeA'));
 			done();
 		});
 	});
