@@ -10,15 +10,15 @@
 
 ## Install
 
-Install via [Bower](http://bower.io/), [npm](https://www.npmjs.com/) or
+Install via [npm](https://www.npmjs.com/), [Bower](http://bower.io/), [CDN](http://www.jsdelivr.com/projects/senna.js) or
 [download as a zip](https://github.com/liferay/senna.js/archive/master.zip):
 
 ```
-bower install senna
+npm install senna
 ```
 
 ```
-npm install senna
+bower install senna
 ```
 
 ## Examples
