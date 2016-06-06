@@ -1279,9 +1279,9 @@ describe('App', function() {
 			.then(() => app.navigate('/path2'))
 			.then(() => app.navigate('/path3'))
 			.then(() => {
-				app.on('endNavigate', function() {
+				app.on('endNavigate', () => {
 					assert.ok(app.screens['/path2']);
-					app.pendingNavigate.then(function() {
+					app.pendingNavigate.then(() => {
 						assert.ok(!app.screens['/path2']);
 						done();
 					});
