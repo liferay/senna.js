@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
   app.setBasePath('/examples/blog');
   app.addSurfaces('posts');
   app.addRoutes(new senna.Route(/\w+\.html/, senna.HtmlScreen));
-  app.dispatch();
 
   /* ==========================================================================
      Creates loading feedback HTML element
@@ -63,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  var debouncedNextPageLoader = senna.debounce(loadNextPage, 100);
+  var debouncedNextPageLoader = debounce(loadNextPage, 100);
 
   function loadNextPage() {
     if (!app.pendingNavigate && window.nextPage) {
@@ -76,6 +75,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function getScrollDistanceToBottom() {
     return document.body.offsetHeight - window.pageYOffset - window.innerHeight;
+  }
+
+  function debounce(fn, delay) {
+    return function debounced() {
+      var args = arguments;
+      debounced.id = setTimeout(function() {
+        fn.apply(null, args);
+      }, delay);
+    };
   }
 
 });
