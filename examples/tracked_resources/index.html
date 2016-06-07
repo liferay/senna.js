@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Tracked Resources</title>
+        <!-- Including Senna -->
+        <script src="../../build/globals/senna-debug.js"></script>
+        <link data-senna-track="permanent" rel="stylesheet" href="../../build/senna.css">
+        <link data-senna-track="permanent" rel="stylesheet" href="../../bower_components/pure/pure-min.css">
+        <link data-senna-track="permanent" rel="stylesheet" href="css/global_theme.css">
+        <link data-senna-track="temporary" rel="stylesheet" href="css/blue_theme.css">
+    </head>
+    <body data-senna>
+      <div id="nav-container" class="content pure-g">
+        <div id="nav" class="pure-u">
+          <div class="nav-inner">
+            <div class="header">
+              <h1 class="brand-title">Tracked Stylesheets</h1>
+              <p class="brand-tagline">Senna.js makes it easy to manage and reuse resources across pages.</p>
+            </div>
+
+            <div class="pure-menu pure-menu-open">
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="blue_profile.html">Blue Profile</a></li>
+                <li><a href="red_profile.html">Red Profile</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="surface1" data-senna-surface>
+        <div class="content">
+            <header class="profile-header">
+              <img class="profile-avatar" alt="Zeno Rocha's avatar" height="48" width="48" src="img/logo.png">
+
+              <h2 class="profile-title">Senna.js</h2>
+            </header>
+
+            <div class="profile-description">
+                <p>
+                    Senna.js provides an easy way to manage external style and script resources on the page.  When including resources in the <span class="code">&lt;head&gt;</span>, they can be annotated with the <span class="code">data-senna-track</span> attribute.  This attribute can be set to <span class="code">temporary</span> or <span class="code">permanent</span>, which determines whether a resource remains on the page permanently or is removed after navigation;
+                </p>
+            </div>
+        </div>
+      </div>
+    </body>
+</html>

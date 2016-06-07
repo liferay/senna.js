@@ -1,0 +1,131 @@
+/*
+ * -- BASE STYLES --
+ */
+body {
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: #1b98f8;
+}
+
+.code {
+    padding: 2px 4px;
+    color: #c7254e;
+    background-color: #f9f2f4;
+    border-radius: 4px;
+}
+
+/*
+ * -- HEADER --
+ * Styling the brand's title and tagline
+ */
+.brand-title {
+  color: #fff;
+  font-size: 1.8em;
+  margin: 0;
+}
+
+.brand-tagline {
+  color: rgb(126, 159, 194);
+  font-size: 14px;
+  margin: 2px 0 15px;
+  display: none;
+}
+
+.pure-menu.pure-menu-open {
+  background: #142860;
+  border: none;
+}
+
+.pure-menu a {
+  color: #fff;
+}
+
+#nav .pure-menu a:hover,
+#nav .pure-menu a:focus {
+  background: #011651;
+}
+
+/*
+ * -- LAYOUT STYLES --
+ */
+#nav-container, #nav {
+  margin: 0;
+  padding: 0 0 0 0;
+}
+
+/* Make the navigation 100% width on phones */
+#nav {
+  width: 100%;
+  height: 40px;
+  position: relative;
+  background: #142860;
+  text-align: center;
+}
+
+/*
+ * -- PROFILE STYLES --
+ */
+.content {
+  padding: 10px;
+  margin-top: 100px;
+}
+
+.profile-avatar {
+  border-radius: 50px;
+  display: block;
+  margin: auto;
+}
+
+.profile-description {
+  background-color: rgba(255, 255, 255, 0.78);
+  border-radius: 3px;
+  color: #444;
+  font-family: Georgia, "Cambria", serif;
+  line-height: 1.8em;
+  padding: 30px;
+}
+
+.profile-title {
+  color: #222;
+  font-size: 2em;
+  margin-bottom: 0.2em;
+  text-align: center;
+}
+
+
+@media (min-width: 40em) {
+
+  #nav-container {
+    padding-left:500px;
+    position: relative;
+  }
+
+  #nav {
+    bottom: 0;
+    height: 100%;
+    margin-left:-500px;
+    overflow: auto;
+    position: fixed;
+    top: 0;
+    width:200px;
+  }
+
+  #nav {
+  }
+
+  .nav-inner {
+    display: block;
+    padding: 2em 0;
+  }
+
+  .brand-tagline {
+    display: block;
+  }
+
+  .content {
+    margin: 0 0 0 200px;
+  }
+}
