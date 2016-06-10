@@ -5,36 +5,29 @@
   <title>Basic</title>
   <link rel="shortcut icon" href="http://sennajs.com/images/favicon.ico">
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/requirejs/2.1.22/require.js"></script>
+  <script src="https://cdn.jsdelivr.net/requirejs/2.1.22/require.js"></script>
 </head>
 <body>
   <div id="header">
-      Header default <a href="foo.html">Foo</a>
+    Header foo <a href="foo.html">Foo</a>
   </div>
   <div id="content">
-     Content default <a href="index.html">Index</a>
+    Content foo <a href="index.html">Index</a>
   </div>
   <div id="footer">
-    This is a footer static content.
-    <div id="footer-default">
-      This is a footer dynamic content from index.html.
-    </div>
-  </div>
-  <div id="indexOnlySurface">
-     Always show default content since it's only present on index.html.
+    This is a footer dynamic content from foo.html.
   </div>
 
   <!-- Initializing Senna -->
   <script>
-    'use strict';
     requirejs.config({
       baseUrl: '../../build/amd'
     });
 
-    requirejs(["senna/src/senna"], function(senna) {
+    requirejs(['senna/src/senna'], function(senna) {
       var app = new senna.App();
       app.setBasePath('/examples/amd');
-      app.addSurfaces(['header', 'content', 'footer', 'indexOnlySurface']);
+      app.addSurfaces(['header', 'content']);
       app.addRoutes([
         {
           path: '/index.html',
@@ -42,7 +35,12 @@
         },
         {
           path: '/foo.html',
-          handler: senna.HtmlScreen
+          handler: function(route) {
+            console.log('Middleware route handler for ' + route.getPath());
+            var screen = new senna.HtmlScreen();
+            screen.setCacheable(false);
+            return screen;
+          }
         }
       ]);
     });
