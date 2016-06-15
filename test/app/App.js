@@ -1034,7 +1034,7 @@ describe('App', function() {
 			exitDocumentFormElement();
 			done();
 		});
-		dom.on(form, 'submit', preventDefault);
+		dom.on(form, 'submit', sinon.stub());
 		dom.triggerEvent(form, 'submit');
 		assert.ok(globals.capturedFormElement);
 	});
