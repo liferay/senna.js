@@ -528,11 +528,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				return;
 			}
 
-			if (this.allowPreventNavigate && event.defaultPrevented) {
-				void 0;
-				return;
-			}
-
 			_globals2.default.capturedFormElement = event.capturedFormElement;
 
 			var navigateFailed = false;
@@ -801,7 +796,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			if (this.formEventHandler_) {
 				this.formEventHandler_.removeListener();
 			}
-			this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+			this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
 		};
 
 		App.prototype.setLinkSelector = function setLinkSelector(linkSelector) {
@@ -809,7 +804,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			if (this.linkEventHandler_) {
 				this.linkEventHandler_.removeListener();
 			}
-			this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
+			this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
 		};
 
 		App.prototype.setLoadingCssClass = function setLoadingCssClass(loadingCssClass) {

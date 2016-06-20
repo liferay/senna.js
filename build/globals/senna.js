@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Eduardo Lundgren <edu@rdo.io>
- * @version v1.2.0
+ * @version v1.3.0
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -154,15 +154,21 @@ babelHelpers;
    * mutated with an unique id. Consecutive calls with the same object
    * reference won't mutate the object again, instead the current object uid
    * returns. See {@link core.UID_PROPERTY}.
-   * @type {opt_object} Optional object to be mutated with the uid. If not
-   *     specified this method only returns the uid.
+   * @param {Object=} opt_object Optional object to be mutated with the uid. If
+   *     not specified this method only returns the uid.
+   * @param {boolean=} opt_noInheritance Optional flag indicating if this
+   *     object's uid property can be inherited from parents or not.
    * @throws {Error} when invoked to indicate the method should be overridden.
    */
 
 
-		core.getUid = function getUid(opt_object) {
+		core.getUid = function getUid(opt_object, opt_noInheritance) {
 			if (opt_object) {
-				return opt_object[core.UID_PROPERTY] || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
+				var id = opt_object[core.UID_PROPERTY];
+				if (opt_noInheritance && !opt_object.hasOwnProperty(core.UID_PROPERTY)) {
+					id = null;
+				}
+				return id || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
 			}
 			return core.uniqueIdCounter_++;
 		};
@@ -981,6 +987,35 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var METAL_DATA = '__metal_data__';
+
+	this.senna.metalData = function () {
+		function thisSennaMetalData() {
+			babelHelpers.classCallCheck(this, thisSennaMetalData);
+		}
+
+		/**
+   * Gets Metal.js's data for the given element.
+   * @param {!Element} element
+   * @return {!Object}
+   */
+
+		thisSennaMetalData.get = function get(element) {
+			if (!element[METAL_DATA]) {
+				element[METAL_DATA] = {
+					delegating: {},
+					listeners: {}
+				};
+			}
+			return element[METAL_DATA];
+		};
+
+		return thisSennaMetalData;
+	}();
+}).call(this);
+'use strict';
+
+(function () {
 	var Disposable = this.sennaNamed.metal.Disposable;
 
 	/**
@@ -1777,6 +1812,64 @@ babelHelpers;
 'use strict';
 
 (function () {
+	var array = this.sennaNamed.metal.array;
+	var core = this.sennaNamed.metal.core;
+	var metalData = this.senna.metalData;
+	var EventHandle = this.sennaNamed.events.EventHandle;
+
+	/**
+  * This is a special EventHandle, that is responsible for dom delegated events
+  * (only the ones that receive a target element, not a selector string).
+  * @extends {EventHandle}
+  */
+
+	var DomDelegatedEventHandle = function (_EventHandle) {
+		babelHelpers.inherits(DomDelegatedEventHandle, _EventHandle);
+
+		/**
+   * The constructor for `DomDelegatedEventHandle`.
+   * @param {!Event} emitter Element the event was subscribed to.
+   * @param {string} event The name of the event that was subscribed to.
+   * @param {!Function} listener The listener subscribed to the event.
+   * @param {string=} opt_selector An optional selector used when delegating
+   *     the event.
+   * @constructor
+   */
+
+		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
+			babelHelpers.classCallCheck(this, DomDelegatedEventHandle);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, _EventHandle.call(this, emitter, event, listener));
+
+			_this.selector_ = opt_selector;
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		DomDelegatedEventHandle.prototype.removeListener = function removeListener() {
+			var data = metalData.get(this.emitter_);
+			var selector = this.selector_;
+			var arr = core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
+			var key = core.isString(selector) ? selector : this.event_;
+
+			array.remove(arr[key] || [], this.listener_);
+			if (arr[key] && arr[key].length === 0) {
+				delete arr[key];
+			}
+		};
+
+		return DomDelegatedEventHandle;
+	}(EventHandle);
+
+	this.senna.DomDelegatedEventHandle = DomDelegatedEventHandle;
+}).call(this);
+'use strict';
+
+(function () {
 	var EventHandle = this.sennaNamed.events.EventHandle;
 
 	/**
@@ -1826,7 +1919,17 @@ babelHelpers;
 (function () {
 	var core = this.sennaNamed.metal.core;
 	var object = this.sennaNamed.metal.object;
+	var metalData = this.senna.metalData;
+	var DomDelegatedEventHandle = this.senna.DomDelegatedEventHandle;
 	var DomEventHandle = this.senna.DomEventHandle;
+
+
+	var NEXT_TARGET = '__metal_next_target__';
+	var USE_CAPTURE = {
+		blur: true,
+		focus: true,
+		scroll: true
+	};
 
 	var dom = function () {
 		function dom() {
@@ -1891,6 +1994,71 @@ babelHelpers;
 
 			if (classesToAppend) {
 				element.className = element.className + classesToAppend;
+			}
+		};
+
+		/**
+   * Adds an event listener to the given element, to be triggered via delegate.
+   * @param {!Element} element
+   * @param {string} eventName
+   * @param {!function()} listener
+   * @protected
+   */
+
+
+		dom.addElementListener_ = function addElementListener_(element, eventName, listener) {
+			var data = metalData.get(element);
+			dom.addToArr_(data.listeners, eventName, listener);
+		};
+
+		/**
+   * Adds an event listener to the given element, to be triggered via delegate
+   * selectors.
+   * @param {!Element} element
+   * @param {string} eventName
+   * @param {string} selector
+   * @param {!function()} listener
+   * @protected
+   */
+
+
+		dom.addSelectorListener_ = function addSelectorListener_(element, eventName, selector, listener) {
+			var data = metalData.get(element);
+			dom.addToArr_(data.delegating[eventName].selectors, selector, listener);
+		};
+
+		/**
+   * Adds a value to an array inside an object, creating it first if it doesn't
+   * yet exist.
+   * @param {!Array} arr
+   * @param {string} key
+   * @param {*} value
+   * @protected
+   */
+
+
+		dom.addToArr_ = function addToArr_(arr, key, value) {
+			if (!arr[key]) {
+				arr[key] = [];
+			}
+			arr[key].push(value);
+		};
+
+		/**
+   * Attaches a delegate listener, unless there's already one attached.
+   * @param {!Element} element
+   * @param {string} eventName
+   * @protected
+   */
+
+
+		dom.attachDelegateEvent_ = function attachDelegateEvent_(element, eventName) {
+			var data = metalData.get(element);
+			if (!data.delegating[eventName]) {
+				data.delegating[eventName] = {
+					handle: dom.on(element, eventName, dom.handleDelegateEvent_, !!USE_CAPTURE[eventName]),
+					selectors: {}
+				};
 			}
 		};
 
@@ -1973,25 +2141,43 @@ babelHelpers;
 
 		/**
    * Listens to the specified event on the given DOM element, but only calls the
-   * callback with the event when it triggered by elements that match the given
-   * selector.
-   * @param {!Element} element The container DOM element to listen to the event on.
+   * given callback listener when it's triggered by elements that match the
+   * given selector or target element.
+   * @param {!Element} element The DOM element the event should be listened on.
    * @param {string} eventName The name of the event to listen to.
-   * @param {string} selector The selector that matches the child elements that
-   *   the event should be triggered for.
-   * @param {!function(!Object)} callback Function to be called when the event is
-   *   triggered. It will receive the normalized event object.
-   * @return {!DomEventHandle} Can be used to remove the listener.
+   * @param {!Element|string} selectorOrTarget Either an element or css selector
+   *     that should match the event for the listener to be triggered.
+   * @param {!function(!Object)} callback Function to be called when the event
+   *     is triggered. It will receive the normalized event object.
+   * @param {boolean=} opt_default Optional flag indicating if this is a default
+   *     listener. That means that it would only be executed after all non
+   *     default listeners, and only if the event isn't prevented via
+   *     `preventDefault`.
+   * @return {!EventHandle} Can be used to remove the listener.
    */
 
 
-		dom.delegate = function delegate(element, eventName, selector, callback) {
+		dom.delegate = function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
 			var customConfig = dom.customEvents[eventName];
 			if (customConfig && customConfig.delegate) {
 				eventName = customConfig.originalEvent;
 				callback = customConfig.handler.bind(customConfig, callback);
 			}
-			return dom.on(element, eventName, dom.handleDelegateEvent_.bind(null, selector, callback));
+
+			if (opt_default) {
+				// Wrap callback so we don't set property directly on it.
+				callback = callback.bind();
+				callback.defaultListener_ = true;
+			}
+
+			dom.attachDelegateEvent_(element, eventName);
+			if (core.isString(selectorOrTarget)) {
+				dom.addSelectorListener_(element, eventName, selectorOrTarget, callback);
+			} else {
+				dom.addElementListener_(selectorOrTarget, eventName, callback);
+			}
+
+			return new DomDelegatedEventHandle(core.isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, core.isString(selectorOrTarget) ? selectorOrTarget : null);
 		};
 
 		/**
@@ -2017,37 +2203,38 @@ babelHelpers;
 		};
 
 		/**
-   * This is called when an event is triggered by a delegate listener (see
-   * `dom.delegate` for more details).
-   * @param {string} selector The selector or element that matches the child
-   *   elements that the event should be triggered for.
-   * @param {!function(!Object)} callback Function to be called when the event
-   *   is triggered. It will receive the normalized event object.
+   * This is called when an event is triggered by a delegate listener. All
+   * matching listeners of this event type from `target` to `currentTarget` will
+   * be triggered.
    * @param {!Event} event The event payload.
    * @return {boolean} False if at least one of the triggered callbacks returns
-   *   false, or true otherwise.
+   *     false, or true otherwise.
+   * @protected
    */
 
 
-		dom.handleDelegateEvent_ = function handleDelegateEvent_(selector, callback, event) {
+		dom.handleDelegateEvent_ = function handleDelegateEvent_(event) {
 			dom.normalizeDelegateEvent_(event);
+			var currElement = core.isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
+			var ret = true;
+			var container = event.currentTarget;
+			var limit = event.currentTarget.parentNode;
+			var defFns = [];
 
-			var currentElement = event.target;
-			var returnValue = true;
-
-			while (currentElement && !event.stopped) {
-				if (core.isString(selector) && dom.match(currentElement, selector)) {
-					event.delegateTarget = currentElement;
-					returnValue &= callback(event);
-				}
-				if (currentElement === event.currentTarget) {
-					break;
-				}
-				currentElement = currentElement.parentNode;
+			while (currElement && currElement !== limit && !event.stopped) {
+				event.delegateTarget = currElement;
+				ret &= dom.triggerMatchedListeners_(container, currElement, event, defFns);
+				currElement = currElement.parentNode;
 			}
-			event.delegateTarget = null;
 
-			return returnValue;
+			for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
+				event.delegateTarget = defFns[i].element;
+				ret &= defFns[i].fn(event);
+			}
+
+			event.delegateTarget = null;
+			event[NEXT_TARGET] = limit;
+			return ret;
 		};
 
 		/**
@@ -2337,6 +2524,7 @@ babelHelpers;
 
 		dom.stopImmediatePropagation_ = function stopImmediatePropagation_() {
 			this.stopped = true;
+			this.stoppedImmediate = true;
 			Event.prototype.stopImmediatePropagation.call(this);
 		};
 
@@ -2474,6 +2662,66 @@ babelHelpers;
 			eventObj.initEvent(eventName, true, true);
 			object.mixin(eventObj, opt_eventObj);
 			element.dispatchEvent(eventObj);
+		};
+
+		/**
+   * Triggers the given listeners array.
+   * @param {Array<!function()} listeners
+   * @param {!Event} event
+   * @param {!Element} element
+   * @param {!Array} defaultFns Array to collect default listeners in, instead
+   *     of running them.
+   * @return {boolean} False if at least one of the triggered callbacks returns
+   *     false, or true otherwise.
+   * @protected
+   */
+
+
+		dom.triggerListeners_ = function triggerListeners_(listeners, event, element, defaultFns) {
+			var ret = true;
+			listeners = listeners || [];
+			for (var i = 0; i < listeners.length && !event.stoppedImmediate; i++) {
+				if (listeners[i].defaultListener_) {
+					defaultFns.push({
+						element: element,
+						fn: listeners[i]
+					});
+				} else {
+					ret &= listeners[i](event);
+				}
+			}
+			return ret;
+		};
+
+		/**
+   * Triggers all listeners for the given event type that are stored in the
+   * specified element.
+   * @param {!Element} container
+   * @param {!Element} element
+   * @param {!Event} event
+   * @param {!Array} defaultFns Array to collect default listeners in, instead
+   *     of running them.
+   * @return {boolean} False if at least one of the triggered callbacks returns
+   *     false, or true otherwise.
+   * @protected
+   */
+
+
+		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
+			var data = metalData.get(element);
+			var listeners = data.listeners[event.type];
+			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
+
+			var selectorsMap = metalData.get(container).delegating[event.type].selectors;
+			var selectors = Object.keys(selectorsMap);
+			for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
+				if (dom.match(element, selectors[i])) {
+					listeners = selectorsMap[selectors[i]];
+					ret &= dom.triggerListeners_(listeners, event, element, defaultFns);
+				}
+			}
+
+			return ret;
 		};
 
 		return dom;
@@ -6313,11 +6561,6 @@ babelHelpers;
 				return;
 			}
 
-			if (this.allowPreventNavigate && event.defaultPrevented) {
-				void 0;
-				return;
-			}
-
 			globals.capturedFormElement = event.capturedFormElement;
 
 			var navigateFailed = false;
@@ -6740,7 +6983,7 @@ babelHelpers;
 			if (this.formEventHandler_) {
 				this.formEventHandler_.removeListener();
 			}
-			this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+			this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
 		};
 
 		/**
@@ -6754,7 +6997,7 @@ babelHelpers;
 			if (this.linkEventHandler_) {
 				this.linkEventHandler_.removeListener();
 			}
-			this.linkEventHandler_ = dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
+			this.linkEventHandler_ = dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
 		};
 
 		/**
