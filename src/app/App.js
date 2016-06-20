@@ -584,11 +584,6 @@ class App extends EventEmitter {
 			return;
 		}
 
-		if (this.allowPreventNavigate && event.defaultPrevented) {
-			console.log('Navigate prevented');
-			return;
-		}
-
 		globals.capturedFormElement = event.capturedFormElement;
 
 		var navigateFailed = false;
@@ -960,7 +955,7 @@ class App extends EventEmitter {
 		if (this.formEventHandler_) {
 			this.formEventHandler_.removeListener();
 		}
-		this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this));
+		this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
 	}
 
 	/**
@@ -972,7 +967,7 @@ class App extends EventEmitter {
 		if (this.linkEventHandler_) {
 			this.linkEventHandler_.removeListener();
 		}
-		this.linkEventHandler_ = dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this));
+		this.linkEventHandler_ = dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
 	}
 
 	/**
