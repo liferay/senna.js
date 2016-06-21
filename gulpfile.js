@@ -3,6 +3,7 @@
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var header = require('gulp-header');
+var jsdoc = require('gulp-jsdoc3');
 var metal = require('gulp-metal');
 var rename = require('gulp-rename');
 var runSequence = require('run-sequence');
@@ -111,6 +112,15 @@ gulp.task('clean:debug:amd', function() {
 	return gulp.src('build/amd/senna/**/*.js')
 		.pipe(stripDebug())
 		.pipe(gulp.dest('build/amd/senna'));
+});
+
+gulp.task('docs', function() {
+  return gulp.src(['src/**/*.js', 'README.md'])
+    .pipe(jsdoc({
+      "opts": {
+        "destination": 'docs'
+      }
+    }));
 });
 
 // Runner ----------------------------------------------------------------------

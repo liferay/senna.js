@@ -44,6 +44,7 @@
     "gulp": "^3.8.11",
     "gulp-connect": "^4.0.0",
     "gulp-header": "^1.7.1",
+    "gulp-jsdoc3": "^0.3.0",
     "gulp-metal": "^1.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-strip-debug": "^1.1.0",
