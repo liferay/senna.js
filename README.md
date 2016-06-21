@@ -1,5 +1,8 @@
 # Senna.js
+
 [![Build Status](http://img.shields.io/travis/liferay/senna.js/master.svg?style=flat)](https://travis-ci.org/liferay/senna.js)
+[![Dependencies Status](http://img.shields.io/david/liferay/senna.js.svg?style=flat)](https://david-dm.org/liferay/senna.js#info=dependencies)
+[![DevDependencies Status](http://img.shields.io/david/dev/liferay/senna.js.svg?style=flat)](https://david-dm.org/liferay/senna.js#info=devDependencies)
 
 *Senna.js* is a blazing-fast single page application engine that provides several low-level APIs that allows you to build modern web-based applications with only ~15 KB of JavaScript without any dependency.
 
