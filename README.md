@@ -17,19 +17,11 @@ Install via [npm](https://www.npmjs.com/), [Bower](http://bower.io/), [CDN](http
 npm install senna
 ```
 
-```
-bower install senna
-```
-
 ## Examples
 
 * **[Email Example](http://sennajs.com/examples/email):** *Enable Single Page Apps using only HTML5 data-attributes;*
 * **[Gallery Example](http://sennajs.com/examples/gallery):** *Carousel app with history support and cacheable screens;*
 * **[Blog Example](http://sennajs.com/examples/blog):** *Infinite scrolling pages done right with history support;*
-
-## Browser Support
-      
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/senna.svg)](https://travis-ci.org/liferay/senna.js)
 
 ## Setup
 
@@ -88,12 +80,17 @@ For detailed changelog, check [Releases](https://github.com/liferay/senna.js/rel
 
 ## Team
 
-*Senna.js* is maintained by these people and a bunch of awesome [contributors](https://github.com/liferay/senna.js/graphs/contributors).
+*Senna.js* was made with love by these people and a bunch of [awesome contributors](https://github.com/liferay/senna.js/graphs/contributors).
 
-[![Eduardo Lundgren](https://2.gravatar.com/avatar/42327de520e674a6d1686845b30778d0)](https://github.com/eduardolundgren) | [![Iliyan Peychev](https://2.gravatar.com/avatar/c2a0cb9ed0d19196b7fe061055c18838)](https://github.com/ipeychev) | [![Pedro Marques](https://2.gravatar.com/avatar/1cf95bc9cee05a0bba25f7529bcdb888)](https://github.com/pedromarks) | [![Zeno Rocha](https://2.gravatar.com/avatar/e190023b66e2b8aa73a842b106920c93)](https://github.com/zenorocha)
---- | --- | --- | --- | ---
-[Eduardo Lundgren](https://github.com/eduardolundgren) | [Iliyan Peychev](https://github.com/ipeychev) | [Pedro Marques](https://github.com/pedromarks) | [Zeno Rocha](https://github.com/zenorocha)
+| Author | Maintainer |
+|:-:|:-:|
+| [![Eduardo Lundgren](https://avatars3.githubusercontent.com/u/113087?s=70)](https://github.com/eduardolundgren) | [![Bruno Basto](https://avatars1.githubusercontent.com/u/156388?s=70)](https://github.com/brunobasto) |
+| [Eduardo Lundgren](https://github.com/eduardolundgren) | [Bruno Basto](https://github.com/brunobasto) |
+
+## Browser Support
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/senna.svg)](https://travis-ci.org/liferay/senna.js)
 
 ## License
 
-[BSD License](https://github.com/liferay/senna.js/blob/master/LICENSE) © Eduardo Lundgren
+[BSD License](https://github.com/liferay/senna.js/blob/master/LICENSE.md) © Liferay, Inc.

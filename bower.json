@@ -3,9 +3,6 @@
   "version": "1.3.0",
   "description": "A blazing-fast Single Page Application engine",
   "homepage": "http://sennajs.com",
-  "authors": [
-    "Eduardo Lundgren <edu@rdo.io>"
-  ],
   "main": [
     "build/globals/senna-min.js",
     "build/globals/senna.js",

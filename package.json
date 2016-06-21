@@ -3,7 +3,7 @@
   "version": "1.3.0",
   "description": "A blazing-fast Single Page Application engine",
   "license": "BSD-3-Clause",
-  "repository": "eduardolundgren/senna.js",
+  "repository": "liferay/senna.js",
   "engines": {
     "node": ">=0.12.0",
     "npm": ">=3.0.0"
@@ -16,12 +16,6 @@
     "src/**/*.js",
     "test/**/*.js"
   ],
-  "author": {
-    "name": "Eduardo Lundgren",
-    "email": "edu@rdo.io",
-    "web": "http://eduardo.io",
-    "twitter": "eduardolundgren"
-  },
   "scripts": {
     "compile": "babel --presets es2015 -d lib/ src/",
     "prepublish": "npm run compile"

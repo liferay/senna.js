@@ -82,7 +82,7 @@ gulp.task('banner', function() {
 	var stamp = [
 		'/**',
 		' * Senna.js - <%= description %>',
-		' * @author <%= author.name %> <<%= author.email %>>',
+		' * @author Liferay, Inc.',
 		' * @version v<%= version %>',
 		' * @link http://sennajs.com',
 		' * @license BSD-3-Clause',
