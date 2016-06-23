@@ -26,7 +26,10 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 	var NEXT_TARGET = '__metal_next_target__';
 	var USE_CAPTURE = {
 		blur: true,
+		error: true,
 		focus: true,
+		invalid: true,
+		load: true,
 		scroll: true
 	};
 

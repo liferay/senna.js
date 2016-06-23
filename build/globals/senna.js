@@ -986,6 +986,38 @@ babelHelpers;
 }).call(this);
 'use strict';
 
+/**
+  * Debounces function execution.
+  * @param {!function()} fn
+  * @param {number} delay
+  * @return {!function()}
+  */
+
+(function () {
+	function debounce(fn, delay) {
+		return function debounced() {
+			var args = arguments;
+			cancelDebounce(debounced);
+			debounced.id = setTimeout(function () {
+				fn.apply(null, args);
+			}, delay);
+		};
+	}
+
+	/**
+  * Cancels the scheduled debounced function.
+  */
+	function cancelDebounce(debounced) {
+		clearTimeout(debounced.id);
+	}
+
+	this.senna.debounce = debounce;
+	this.sennaNamed.debounce = this.sennaNamed.debounce || {};
+	this.sennaNamed.debounce.cancelDebounce = cancelDebounce;
+	this.sennaNamed.debounce.debounce = debounce;
+}).call(this);
+'use strict';
+
 (function () {
 	var METAL_DATA = '__metal_data__';
 
@@ -1927,7 +1959,10 @@ babelHelpers;
 	var NEXT_TARGET = '__metal_next_target__';
 	var USE_CAPTURE = {
 		blur: true,
+		error: true,
 		focus: true,
+		invalid: true,
+		load: true,
 		scroll: true
 	};
 
@@ -5914,6 +5949,7 @@ babelHelpers;
 	var array = this.sennaNamed.metal.array;
 	var async = this.sennaNamed.metal.async;
 	var core = this.sennaNamed.metal.core;
+	var debounce = this.senna.debounce;
 	var dom = this.senna.dom;
 	var CancellablePromise = this.senna.Promise;
 	var EventEmitter = this.sennaNamed.events.EventEmitter;
@@ -6106,7 +6142,7 @@ babelHelpers;
 
 			_this.appEventHandlers_ = new EventHandler();
 
-			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', _this.onScroll_.bind(_this)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', debounce(_this.onScroll_.bind(_this), 25)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);
