@@ -33,6 +33,7 @@
     "metal-debounce": "^1.0.0-rc",
     "metal-dom": "^1.0.0-rc.2",
     "metal-events": "^1.0.0-rc.1",
+    "metal-debounce": "^1.0.0-rc.2",
     "metal-multimap": "^1.0.0-rc.1",
     "metal-promise": "^1.0.0-rc.2",
     "metal-uri": "^1.0.0-rc.2",

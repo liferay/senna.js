@@ -1,6 +1,7 @@
 'use strict';
 
 import { array, async, core } from 'metal';
+import debounce from 'metal-debounce';
 import dom from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import { EventEmitter, EventHandler } from 'metal-events';
@@ -186,7 +187,7 @@ class App extends EventEmitter {
 		this.appEventHandlers_ = new EventHandler();
 
 		this.appEventHandlers_.add(
-			dom.on(globals.window, 'scroll', this.onScroll_.bind(this)),
+			dom.on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 25)),
 			dom.on(globals.window, 'load', this.onLoad_.bind(this)),
 			dom.on(globals.window, 'popstate', this.onPopstate_.bind(this))
 		);
