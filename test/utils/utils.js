@@ -80,4 +80,13 @@ describe('utils', function() {
 		assert.ok(!utils.isHtml5HistorySupported());
 	});
 
+	it('should test if path will navigate to a page fragment', () => {
+		assert.ok(!utils.isFragmentNavigate('http://hostname/path#hash'));
+		assert.ok(!utils.isFragmentNavigate('http://hostname/path'));
+		assert.ok(!utils.isFragmentNavigate('http://hostname/differentPath#hash'));
+		assert.ok(utils.isFragmentNavigate('http://hostname/path#newHash'));
+		assert.ok(utils.isFragmentNavigate('http://hostname/differentPath#newHash'));
+		assert.ok(utils.isFragmentNavigate('http://hostname/path#newHash'));
+	});
+
 });

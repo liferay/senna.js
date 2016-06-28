@@ -70,6 +70,19 @@ class utils {
 	}
 
 	/**
+	 * 
+	 * @param  {!string} url
+	 * @return {boolean}
+	 * @static
+	 */
+	static isFragmentNavigate(url) {
+		var currentHash = globals.window.location.hash;
+		var newHash = new Uri(url).getHash();
+
+		return !!newHash.length && (!currentHash || currentHash !== newHash);
+	}
+
+	/**
 	 * Returns true if HTML5 History api is supported.
 	 * @return {boolean}
 	 * @static

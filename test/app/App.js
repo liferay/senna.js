@@ -1261,6 +1261,16 @@ describe('App', function() {
 			.cancel();
 	});
 
+	it('should fire fragmentNavigate event when page is navigated to new hashbang', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', HtmlScreen));
+		this.app.on('fragmentNavigate', (event) => {
+			assert.strictEqual('/path#hash', event.path);
+			done();
+		});
+		this.app.navigate('/path#hash');
+	});
+
 });
 
 var canScrollIFrame_ = false;
