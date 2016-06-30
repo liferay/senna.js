@@ -1,13 +1,9 @@
-define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle', './DomEventHandle'], function (exports, _metal, _metalData, _DomDelegatedEventHandle, _DomEventHandle) {
+define(['exports', 'metal/src/metal', './DomEventHandle'], function (exports, _metal, _DomEventHandle) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _metalData2 = _interopRequireDefault(_metalData);
-
-	var _DomDelegatedEventHandle2 = _interopRequireDefault(_DomDelegatedEventHandle);
 
 	var _DomEventHandle2 = _interopRequireDefault(_DomEventHandle);
 
@@ -22,16 +18,6 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 			throw new TypeError("Cannot call a class as a function");
 		}
 	}
-
-	var NEXT_TARGET = '__metal_next_target__';
-	var USE_CAPTURE = {
-		blur: true,
-		error: true,
-		focus: true,
-		invalid: true,
-		load: true,
-		scroll: true
-	};
 
 	var dom = function () {
 		function dom() {
@@ -74,33 +60,6 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 
 			if (classesToAppend) {
 				element.className = element.className + classesToAppend;
-			}
-		};
-
-		dom.addElementListener_ = function addElementListener_(element, eventName, listener) {
-			var data = _metalData2.default.get(element);
-			dom.addToArr_(data.listeners, eventName, listener);
-		};
-
-		dom.addSelectorListener_ = function addSelectorListener_(element, eventName, selector, listener) {
-			var data = _metalData2.default.get(element);
-			dom.addToArr_(data.delegating[eventName].selectors, selector, listener);
-		};
-
-		dom.addToArr_ = function addToArr_(arr, key, value) {
-			if (!arr[key]) {
-				arr[key] = [];
-			}
-			arr[key].push(value);
-		};
-
-		dom.attachDelegateEvent_ = function attachDelegateEvent_(element, eventName) {
-			var data = _metalData2.default.get(element);
-			if (!data.delegating[eventName]) {
-				data.delegating[eventName] = {
-					handle: dom.on(element, eventName, dom.handleDelegateEvent_, !!USE_CAPTURE[eventName]),
-					selectors: {}
-				};
 			}
 		};
 
@@ -147,27 +106,13 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 			}
 		};
 
-		dom.delegate = function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
+		dom.delegate = function delegate(element, eventName, selector, callback) {
 			var customConfig = dom.customEvents[eventName];
 			if (customConfig && customConfig.delegate) {
 				eventName = customConfig.originalEvent;
 				callback = customConfig.handler.bind(customConfig, callback);
 			}
-
-			if (opt_default) {
-				// Wrap callback so we don't set property directly on it.
-				callback = callback.bind();
-				callback.defaultListener_ = true;
-			}
-
-			dom.attachDelegateEvent_(element, eventName);
-			if (_metal.core.isString(selectorOrTarget)) {
-				dom.addSelectorListener_(element, eventName, selectorOrTarget, callback);
-			} else {
-				dom.addElementListener_(selectorOrTarget, eventName, callback);
-			}
-
-			return new _DomDelegatedEventHandle2.default(_metal.core.isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, _metal.core.isString(selectorOrTarget) ? selectorOrTarget : null);
+			return dom.on(element, eventName, dom.handleDelegateEvent_.bind(null, selector, callback));
 		};
 
 		dom.enterDocument = function enterDocument(node) {
@@ -180,28 +125,25 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 			}
 		};
 
-		dom.handleDelegateEvent_ = function handleDelegateEvent_(event) {
+		dom.handleDelegateEvent_ = function handleDelegateEvent_(selector, callback, event) {
 			dom.normalizeDelegateEvent_(event);
-			var currElement = _metal.core.isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
-			var ret = true;
-			var container = event.currentTarget;
-			var limit = event.currentTarget.parentNode;
-			var defFns = [];
 
-			while (currElement && currElement !== limit && !event.stopped) {
-				event.delegateTarget = currElement;
-				ret &= dom.triggerMatchedListeners_(container, currElement, event, defFns);
-				currElement = currElement.parentNode;
+			var currentElement = event.target;
+			var returnValue = true;
+
+			while (currentElement && !event.stopped) {
+				if (_metal.core.isString(selector) && dom.match(currentElement, selector)) {
+					event.delegateTarget = currentElement;
+					returnValue &= callback(event);
+				}
+				if (currentElement === event.currentTarget) {
+					break;
+				}
+				currentElement = currentElement.parentNode;
 			}
-
-			for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
-				event.delegateTarget = defFns[i].element;
-				ret &= defFns[i].fn(event);
-			}
-
 			event.delegateTarget = null;
-			event[NEXT_TARGET] = limit;
-			return ret;
+
+			return returnValue;
 		};
 
 		dom.hasClass = function hasClass(element, className) {
@@ -340,7 +282,6 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 
 		dom.stopImmediatePropagation_ = function stopImmediatePropagation_() {
 			this.stopped = true;
-			this.stoppedImmediate = true;
 			Event.prototype.stopImmediatePropagation.call(this);
 		};
 
@@ -419,39 +360,6 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 			eventObj.initEvent(eventName, true, true);
 			_metal.object.mixin(eventObj, opt_eventObj);
 			element.dispatchEvent(eventObj);
-		};
-
-		dom.triggerListeners_ = function triggerListeners_(listeners, event, element, defaultFns) {
-			var ret = true;
-			listeners = listeners || [];
-			for (var i = 0; i < listeners.length && !event.stoppedImmediate; i++) {
-				if (listeners[i].defaultListener_) {
-					defaultFns.push({
-						element: element,
-						fn: listeners[i]
-					});
-				} else {
-					ret &= listeners[i](event);
-				}
-			}
-			return ret;
-		};
-
-		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
-			var data = _metalData2.default.get(element);
-			var listeners = data.listeners[event.type];
-			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
-
-			var selectorsMap = _metalData2.default.get(container).delegating[event.type].selectors;
-			var selectors = Object.keys(selectorsMap);
-			for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
-				if (dom.match(element, selectors[i])) {
-					listeners = selectorsMap[selectors[i]];
-					ret &= dom.triggerListeners_(listeners, event, element, defaultFns);
-				}
-			}
-
-			return ret;
 		};
 
 		return dom;

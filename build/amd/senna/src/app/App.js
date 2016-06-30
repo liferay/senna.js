@@ -304,15 +304,15 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			var uri = new _Uri2.default(url);
 
 			if (!this.isLinkSameOrigin_(uri.getHostname())) {
-				void 0;
+				console.log('Offsite link clicked');
 				return false;
 			}
 			if (!this.isSameBasePath_(path)) {
-				void 0;
+				console.log('Link clicked outside app\'s base path');
 				return false;
 			}
 			if (!this.findRoute(path)) {
-				void 0;
+				console.log('No route for ' + path);
 				return false;
 			}
 
@@ -333,7 +333,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
 			if (!this.pendingNavigate && path === this.activePath) {
-				void 0;
+				console.log('Already at destination, refresh navigation');
 				return this.activeScreen;
 			}
 			/* jshint newcap: false */
@@ -345,7 +345,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				} else {
 					screen = handler(route) || new _Screen2.default();
 				}
-				void 0;
+				console.log('Create screen for [' + path + '] [' + screen + ']');
 			}
 			return screen;
 		};
@@ -379,7 +379,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				return this.pendingNavigate;
 			}
 
-			void 0;
+			console.log('Navigate to [' + path + ']');
 
 			this.stopPendingNavigate_();
 
@@ -421,7 +421,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			this.screens[path] = nextScreen;
 			this.pendingNavigate = null;
 			_globals2.default.capturedFormElement = null;
-			void 0;
+			console.log('Navigation done');
 		};
 
 		App.prototype.findRoute = function findRoute(path) {
@@ -475,7 +475,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
-			void 0;
+			console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 			if (!_utils2.default.isCurrentBrowserPath(path)) {
 				this.removeScreen(path);
 			}
@@ -589,7 +589,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		App.prototype.onBeforeNavigateDefault_ = function onBeforeNavigateDefault_(event) {
 			if (this.pendingNavigate) {
 				if (this.pendingNavigate.path === event.path) {
-					void 0;
+					console.log('Waiting...');
 					return;
 				}
 			}
@@ -603,7 +603,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		App.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
 			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-				void 0;
+				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 				return;
 			}
 			this.maybeNavigate_(event.delegateTarget.href, event);
@@ -612,7 +612,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
 			var form = event.delegateTarget;
 			if (form.method === 'get') {
-				void 0;
+				console.log('GET method not supported');
 				return;
 			}
 			event.capturedFormElement = form;
@@ -658,7 +658,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			}
 
 			if (state.senna) {
-				void 0;
+				console.log('History navigation to [' + state.path + ']');
 				this.popstateScrollTop = state.scrollTop;
 				this.popstateScrollLeft = state.scrollLeft;
 				if (!this.nativeScrollRestorationSupported) {
@@ -709,7 +709,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				return _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
 			}
 
-			void 0;
+			console.log('Prefetching [' + path + ']');
 
 			var nextScreen = this.createScreenInstance(path, route);
 
@@ -747,7 +747,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id);
 				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-				void 0;
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (_metal.core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		};
 

@@ -48,13 +48,9 @@ define(['exports'], function (exports) {
 			return fn.name;
 		};
 
-		core.getUid = function getUid(opt_object, opt_noInheritance) {
+		core.getUid = function getUid(opt_object) {
 			if (opt_object) {
-				var id = opt_object[core.UID_PROPERTY];
-				if (opt_noInheritance && !opt_object.hasOwnProperty(core.UID_PROPERTY)) {
-					id = null;
-				}
-				return id || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
+				return opt_object[core.UID_PROPERTY] || (opt_object[core.UID_PROPERTY] = core.uniqueIdCounter_++);
 			}
 			return core.uniqueIdCounter_++;
 		};

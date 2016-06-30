@@ -86,11 +86,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 
 
 		Screen.prototype.activate = function activate() {
-			void 0;
+			console.log('Screen [' + this + '] activate');
 		};
 
 		Screen.prototype.beforeDeactivate = function beforeDeactivate() {
-			void 0;
+			console.log('Screen [' + this + '] beforeDeactivate');
 		};
 
 		Screen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
@@ -102,12 +102,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		};
 
 		Screen.prototype.deactivate = function deactivate() {
-			void 0;
+			console.log('Screen [' + this + '] deactivate');
 		};
 
 		Screen.prototype.disposeInternal = function disposeInternal() {
 			_Cacheable.prototype.disposeInternal.call(this);
-			void 0;
+			console.log('Screen [' + this + '] dispose');
 		};
 
 		Screen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
@@ -126,7 +126,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		Screen.prototype.flip = function flip(surfaces) {
 			var _this2 = this;
 
-			void 0;
+			console.log('Screen [' + this + '] flip');
 
 			var transitions = [];
 
@@ -144,7 +144,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		};
 
 		Screen.prototype.getSurfaceContent = function getSurfaceContent() {
-			void 0;
+			console.log('Screen [' + this + '] getSurfaceContent');
 		};
 
 		Screen.prototype.getTitle = function getTitle() {
@@ -152,7 +152,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		};
 
 		Screen.prototype.load = function load() {
-			void 0;
+			console.log('Screen [' + this + '] load');
 			return _Promise2.default.resolve();
 		};
 

@@ -100,15 +100,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			this.copyNodeAttributesFromContent_(htmlString, this.virtualDocument);
 
 			this.virtualDocument.innerHTML = htmlString;
+
+			if (_UA2.default.isIe) {
+				this.mutateStyleHrefsInVirtualDocument_();
+			}
 		};
 
 		HtmlScreen.prototype.appendStyleIntoDocument_ = function appendStyleIntoDocument_(newStyle) {
 			var isTemporaryStyle = _dom.dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 			if (isTemporaryStyle) {
 				this.pendingStyles.push(newStyle);
-				if (_UA2.default.isIe && newStyle.href) {
-					newStyle.href = new _Uri2.default(newStyle.href).makeUnique().toString();
-				}
 			}
 			if (newStyle.id) {
 				var styleInDoc = _globals2.default.document.getElementById(newStyle.id);
@@ -249,6 +250,21 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				_this6.resolveTitleFromVirtualDocument();
 				_this6.assertSameBodyIdInVirtualDocument();
 				return content;
+			});
+		};
+
+		HtmlScreen.prototype.mutateStyleHrefsInVirtualDocument_ = function mutateStyleHrefsInVirtualDocument_() {
+			var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
+
+			temporariesInDoc.forEach(function (style) {
+				var clonedStyle;
+				if (style.href) {
+					clonedStyle = _globals2.default.document.createElement(style.tagName);
+					style.href = new _Uri2.default(style.href).makeUnique().toString();
+					_utils2.default.copyNodeAttributes(style, clonedStyle);
+					style.parentNode.replaceChild(clonedStyle, style);
+					style.disabled = true;
+				}
 			});
 		};
 

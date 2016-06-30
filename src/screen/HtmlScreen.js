@@ -53,6 +53,10 @@ class HtmlScreen extends RequestScreen {
 		this.copyNodeAttributesFromContent_(htmlString, this.virtualDocument);
 
 		this.virtualDocument.innerHTML = htmlString;
+
+		if (UA.isIe) {
+			this.mutateStyleHrefsInVirtualDocument_();
+		}
 	}
 
 	/**
@@ -65,9 +69,6 @@ class HtmlScreen extends RequestScreen {
 		var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 		if (isTemporaryStyle) {
 			this.pendingStyles.push(newStyle);
-			if (UA.isIe && newStyle.href) {
-				newStyle.href = new Uri(newStyle.href).makeUnique().toString();
-			}
 		}
 		if (newStyle.id) {
 			var styleInDoc = globals.document.getElementById(newStyle.id);
@@ -250,6 +251,26 @@ class HtmlScreen extends RequestScreen {
 				this.assertSameBodyIdInVirtualDocument();
 				return content;
 			});
+	}
+
+	/**
+	 * Queries temporary styles from virtual document, clones them, and removes
+	 * the original.  This is necessary for cacheing and load event firing
+	 * issues specific to IE11.
+	 */
+	mutateStyleHrefsInVirtualDocument_() {
+		var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
+
+		temporariesInDoc.forEach((style) => {
+			var clonedStyle;
+			if (style.href) {
+			 	clonedStyle = globals.document.createElement(style.tagName);
+			 	style.href = new Uri(style.href).makeUnique().toString();
+			 	utils.copyNodeAttributes(style, clonedStyle);
+			 	style.parentNode.replaceChild(clonedStyle, style);
+			 	style.disabled = true;
+			}
+		});
 	}
 
 	/**
