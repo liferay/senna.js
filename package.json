@@ -17,7 +17,7 @@
     "test/**/*.js"
   ],
   "scripts": {
-    "compile": "babel --presets es2015 -d lib/ src/",
+    "compile": "babel --presets metal -d lib/ src/",
     "prepublish": "npm run compile"
   },
   "keywords": [
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
-    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",
     "gulp-connect": "^4.0.0",
     "gulp-header": "^1.7.1",
