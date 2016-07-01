@@ -65,9 +65,6 @@ class HtmlScreen extends RequestScreen {
 		var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 		if (isTemporaryStyle) {
 			this.pendingStyles.push(newStyle);
-			if (UA.isIe && newStyle.href) {
-				newStyle.href = new Uri(newStyle.href).makeUnique().toString();
-			}
 		}
 		if (newStyle.id) {
 			var styleInDoc = globals.document.getElementById(newStyle.id);
@@ -248,8 +245,38 @@ class HtmlScreen extends RequestScreen {
 				this.allocateVirtualDocumentForContent(content);
 				this.resolveTitleFromVirtualDocument();
 				this.assertSameBodyIdInVirtualDocument();
+				if (UA.isIe) {
+					this.makeTemporaryStylesHrefsUnique_();
+				}
 				return content;
 			});
+	}
+
+	/**
+	 * Queries temporary styles from virtual document, and makes them unique.
+	 * This is necessary for caching and load event firing issues specific to
+	 * IE11. https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7940171/
+	 */
+	makeTemporaryStylesHrefsUnique_() {
+		var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
+
+		temporariesInDoc.forEach((style) => {
+			this.replaceStyleAndMakeUnique_(style);
+		});
+	}
+
+	/**
+	 * Creates a new element from given, copies attributes, mutates href to be
+	 * unique to prevent caching and more than one load/error event from firing.
+	 */
+	replaceStyleAndMakeUnique_(style) {
+		if (style.href) {
+		 	var newStyle = globals.document.createElement(style.tagName);
+		 	style.href = new Uri(style.href).makeUnique().toString();
+		 	utils.copyNodeAttributes(style, newStyle);
+		 	style.parentNode.replaceChild(newStyle, style);
+		 	style.disabled = true;
+		}
 	}
 
 	/**
