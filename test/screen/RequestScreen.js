@@ -13,6 +13,11 @@ describe('RequestScreen', function() {
 			requests.push(xhr);
 		};
 		UA.testUserAgent(UA.getNativeUserAgent());
+
+		// A fix for window.location.origin in Internet Explorer
+		if (!globals.window.location.origin) {
+			globals.window.location.origin = globals.window.location.protocol + '//' + globals.window.location.hostname + (globals.window.location.port ? ':' + globals.window.location.port : '');
+		}
 	});
 
 	afterEach(() => {
@@ -106,7 +111,7 @@ describe('RequestScreen', function() {
 		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
 		var screen = new RequestScreen();
 		screen.load('/url').then(() => {
-			assert.strictEqual(window.location.origin + '/url', screen.getRequest().url);
+			assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
 			assert.deepEqual({
 				'X-PJAX': 'true',
 				'X-Requested-With': 'XMLHttpRequest'
@@ -232,7 +237,7 @@ describe('RequestScreen', function() {
 
 	it('should navigate over same protocol the page was viewed on', (done) => {
 		var screen = new RequestScreen();
-		var wrongProtocol = window.location.origin.replace('http', 'https');
+		var wrongProtocol = globals.window.location.origin.replace('http', 'https');
 		screen.load(wrongProtocol + '/url').then(() => {
 			var url = screen.getRequest().url;
 			assert.ok(url.indexOf('http:') === 0);
