@@ -106,7 +106,7 @@ describe('RequestScreen', function() {
 		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
 		var screen = new RequestScreen();
 		screen.load('/url').then(() => {
-			assert.strictEqual('/url', screen.getRequest().url);
+			assert.strictEqual(window.location.origin + '/url', screen.getRequest().url);
 			assert.deepEqual({
 				'X-PJAX': 'true',
 				'X-Requested-With': 'XMLHttpRequest'
