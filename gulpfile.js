@@ -115,12 +115,12 @@ gulp.task('clean:debug:amd', function() {
 });
 
 gulp.task('docs', function() {
-  return gulp.src(['src/**/*.js', 'README.md'])
-    .pipe(jsdoc({
-      "opts": {
-        "destination": 'docs'
-      }
-    }));
+	return gulp.src(['src/**/*.js', 'README.md'])
+		.pipe(jsdoc({
+			opts: {
+				destination: 'docs'
+			}
+		}));
 });
 
 // Runner ----------------------------------------------------------------------

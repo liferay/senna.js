@@ -259,10 +259,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	makeTemporaryStylesHrefsUnique_() {
 		var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
-
-		temporariesInDoc.forEach((style) => {
-			this.replaceStyleAndMakeUnique_(style);
-		});
+		temporariesInDoc.forEach((style) => this.replaceStyleAndMakeUnique_(style));
 	}
 
 	/**
@@ -271,11 +268,11 @@ class HtmlScreen extends RequestScreen {
 	 */
 	replaceStyleAndMakeUnique_(style) {
 		if (style.href) {
-		 	var newStyle = globals.document.createElement(style.tagName);
-		 	style.href = new Uri(style.href).makeUnique().toString();
-		 	utils.copyNodeAttributes(style, newStyle);
-		 	style.parentNode.replaceChild(newStyle, style);
-		 	style.disabled = true;
+			var newStyle = globals.document.createElement(style.tagName);
+			style.href = new Uri(style.href).makeUnique().toString();
+			utils.copyNodeAttributes(style, newStyle);
+			style.parentNode.replaceChild(newStyle, style);
+			style.disabled = true;
 		}
 	}
 
