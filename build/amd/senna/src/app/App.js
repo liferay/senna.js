@@ -237,7 +237,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 			_this.appEventHandlers_ = new _events.EventHandler();
 
-			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 25)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 100)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);

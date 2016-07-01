@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v1.4.0
+ * @version v1.5.0
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -6146,7 +6146,7 @@ babelHelpers;
 
 			_this.appEventHandlers_ = new EventHandler();
 
-			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', debounce(_this.onScroll_.bind(_this), 25)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add(dom.on(globals.window, 'scroll', debounce(_this.onScroll_.bind(_this), 100)), dom.on(globals.window, 'load', _this.onLoad_.bind(_this)), dom.on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);
@@ -7541,10 +7541,20 @@ babelHelpers;
 
 
 		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
-			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-				return new Uri(path).makeUnique().toString();
+			var uri = new Uri(path);
+
+			uri.setHostname(window.location.hostname);
+			uri.setProtocol(window.location.protocol);
+
+			if (window.location.port) {
+				uri.setPort(window.location.port);
 			}
-			return path;
+
+			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+				return uri.makeUnique().toString();
+			}
+
+			return uri.toString();
 		};
 
 		/**
@@ -7847,9 +7857,6 @@ babelHelpers;
 			var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
 			if (isTemporaryStyle) {
 				this.pendingStyles.push(newStyle);
-				if (UA.isIe && newStyle.href) {
-					newStyle.href = new Uri(newStyle.href).makeUnique().toString();
-				}
 			}
 			if (newStyle.id) {
 				var styleInDoc = globals.document.getElementById(newStyle.id);
@@ -8066,8 +8073,43 @@ babelHelpers;
 				_this6.allocateVirtualDocumentForContent(content);
 				_this6.resolveTitleFromVirtualDocument();
 				_this6.assertSameBodyIdInVirtualDocument();
+				if (UA.isIe) {
+					_this6.makeTemporaryStylesHrefsUnique_();
+				}
 				return content;
 			});
+		};
+
+		/**
+   * Queries temporary styles from virtual document, and makes them unique.
+   * This is necessary for caching and load event firing issues specific to
+   * IE11. https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7940171/
+   */
+
+
+		HtmlScreen.prototype.makeTemporaryStylesHrefsUnique_ = function makeTemporaryStylesHrefsUnique_() {
+			var _this7 = this;
+
+			var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
+			temporariesInDoc.forEach(function (style) {
+				return _this7.replaceStyleAndMakeUnique_(style);
+			});
+		};
+
+		/**
+   * Creates a new element from given, copies attributes, mutates href to be
+   * unique to prevent caching and more than one load/error event from firing.
+   */
+
+
+		HtmlScreen.prototype.replaceStyleAndMakeUnique_ = function replaceStyleAndMakeUnique_(style) {
+			if (style.href) {
+				var newStyle = globals.document.createElement(style.tagName);
+				style.href = new Uri(style.href).makeUnique().toString();
+				utils.copyNodeAttributes(style, newStyle);
+				style.parentNode.replaceChild(newStyle, style);
+				style.disabled = true;
+			}
 		};
 
 		/**

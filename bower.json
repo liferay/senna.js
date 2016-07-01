@@ -1,6 +1,6 @@
 {
   "name": "senna",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A blazing-fast Single Page Application engine",
   "homepage": "http://sennajs.com",
   "main": [

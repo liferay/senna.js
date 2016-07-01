@@ -154,10 +154,20 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		};
 
 		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
-			if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-				return new _Uri2.default(path).makeUnique().toString();
+			var uri = new _Uri2.default(path);
+
+			uri.setHostname(window.location.hostname);
+			uri.setProtocol(window.location.protocol);
+
+			if (window.location.port) {
+				uri.setPort(window.location.port);
 			}
-			return path;
+
+			if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+				return uri.makeUnique().toString();
+			}
+
+			return uri.toString();
 		};
 
 		RequestScreen.prototype.getHttpHeaders = function getHttpHeaders() {
