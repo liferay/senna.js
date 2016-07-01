@@ -111,10 +111,17 @@ class RequestScreen extends Screen {
 	 * @protected
 	 */
 	formatLoadPath(path) {
+		var uri = new Uri(path);
+
+		uri.setHostname(window.location.hostname);
+		uri.setPort(window.location.port);
+		uri.setProtocol(window.location.protocol);
+
 		if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-			return new Uri(path).makeUnique().toString();
+		  return uri.makeUnique().toString();
 		}
-		return path;
+
+		return uri.toString();
 	}
 
 	/**

@@ -230,4 +230,15 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
+	it('should navigate over same protocol the page was viewed on', (done) => {
+		var screen = new RequestScreen();
+		var wrongProtocol = window.location.origin.replace('http', 'https');
+		screen.load(wrongProtocol + '/url').then(() => {
+			var url = screen.getRequest().url;
+			assert.ok(url.indexOf('http:') == 0);
+			done();
+		});
+		this.requests[0].respond(200);
+	});
+
 });
