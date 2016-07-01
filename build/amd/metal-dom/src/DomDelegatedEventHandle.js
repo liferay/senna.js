@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/metal', './metalData', 'metal-events/src/events'], function (exports, _metal, _metalData, _events) {
+define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], function (exports, _metal, _domData, _events) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _metalData2 = _interopRequireDefault(_metalData);
+	var _domData2 = _interopRequireDefault(_domData);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -71,7 +71,7 @@ define(['exports', 'metal/src/metal', './metalData', 'metal-events/src/events'],
 
 
 		DomDelegatedEventHandle.prototype.removeListener = function removeListener() {
-			var data = _metalData2.default.get(this.emitter_);
+			var data = _domData2.default.get(this.emitter_);
 			var selector = this.selector_;
 			var arr = _metal.core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
 			var key = _metal.core.isString(selector) ? selector : this.event_;

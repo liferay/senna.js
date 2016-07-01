@@ -1,11 +1,11 @@
-define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle', './DomEventHandle'], function (exports, _metal, _metalData, _DomDelegatedEventHandle, _DomEventHandle) {
+define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', './DomEventHandle'], function (exports, _metal, _domData, _DomDelegatedEventHandle, _DomEventHandle) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _metalData2 = _interopRequireDefault(_metalData);
+	var _domData2 = _interopRequireDefault(_domData);
 
 	var _DomDelegatedEventHandle2 = _interopRequireDefault(_DomDelegatedEventHandle);
 
@@ -78,12 +78,12 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 		};
 
 		dom.addElementListener_ = function addElementListener_(element, eventName, listener) {
-			var data = _metalData2.default.get(element);
+			var data = _domData2.default.get(element);
 			dom.addToArr_(data.listeners, eventName, listener);
 		};
 
 		dom.addSelectorListener_ = function addSelectorListener_(element, eventName, selector, listener) {
-			var data = _metalData2.default.get(element);
+			var data = _domData2.default.get(element);
 			dom.addToArr_(data.delegating[eventName].selectors, selector, listener);
 		};
 
@@ -95,7 +95,7 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 		};
 
 		dom.attachDelegateEvent_ = function attachDelegateEvent_(element, eventName) {
-			var data = _metalData2.default.get(element);
+			var data = _domData2.default.get(element);
 			if (!data.delegating[eventName]) {
 				data.delegating[eventName] = {
 					handle: dom.on(element, eventName, dom.handleDelegateEvent_, !!USE_CAPTURE[eventName]),
@@ -438,11 +438,11 @@ define(['exports', 'metal/src/metal', './metalData', './DomDelegatedEventHandle'
 		};
 
 		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
-			var data = _metalData2.default.get(element);
+			var data = _domData2.default.get(element);
 			var listeners = data.listeners[event.type];
 			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
 
-			var selectorsMap = _metalData2.default.get(container).delegating[event.type].selectors;
+			var selectorsMap = _domData2.default.get(container).delegating[event.type].selectors;
 			var selectors = Object.keys(selectorsMap);
 			for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
 				if (dom.match(element, selectors[i])) {

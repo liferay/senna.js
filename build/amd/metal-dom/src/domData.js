@@ -13,12 +13,12 @@ define(['exports'], function (exports) {
 
 	var METAL_DATA = '__metal_data__';
 
-	var _class = function () {
-		function _class() {
-			_classCallCheck(this, _class);
+	var domData = function () {
+		function domData() {
+			_classCallCheck(this, domData);
 		}
 
-		_class.get = function get(element) {
+		domData.get = function get(element) {
 			if (!element[METAL_DATA]) {
 				element[METAL_DATA] = {
 					delegating: {},
@@ -28,9 +28,9 @@ define(['exports'], function (exports) {
 			return element[METAL_DATA];
 		};
 
-		return _class;
+		return domData;
 	}();
 
-	exports.default = _class;
+	exports.default = domData;
 });
-//# sourceMappingURL=metalData.js.map
+//# sourceMappingURL=domData.js.map

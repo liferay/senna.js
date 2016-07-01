@@ -1021,9 +1021,9 @@ babelHelpers;
 (function () {
 	var METAL_DATA = '__metal_data__';
 
-	this.senna.metalData = function () {
-		function thisSennaMetalData() {
-			babelHelpers.classCallCheck(this, thisSennaMetalData);
+	var domData = function () {
+		function domData() {
+			babelHelpers.classCallCheck(this, domData);
 		}
 
 		/**
@@ -1032,7 +1032,7 @@ babelHelpers;
    * @return {!Object}
    */
 
-		thisSennaMetalData.get = function get(element) {
+		domData.get = function get(element) {
 			if (!element[METAL_DATA]) {
 				element[METAL_DATA] = {
 					delegating: {},
@@ -1042,8 +1042,10 @@ babelHelpers;
 			return element[METAL_DATA];
 		};
 
-		return thisSennaMetalData;
+		return domData;
 	}();
+
+	this.senna.domData = domData;
 }).call(this);
 'use strict';
 
@@ -1846,7 +1848,7 @@ babelHelpers;
 (function () {
 	var array = this.sennaNamed.metal.array;
 	var core = this.sennaNamed.metal.core;
-	var metalData = this.senna.metalData;
+	var domData = this.senna.domData;
 	var EventHandle = this.sennaNamed.events.EventHandle;
 
 	/**
@@ -1883,7 +1885,7 @@ babelHelpers;
 
 
 		DomDelegatedEventHandle.prototype.removeListener = function removeListener() {
-			var data = metalData.get(this.emitter_);
+			var data = domData.get(this.emitter_);
 			var selector = this.selector_;
 			var arr = core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
 			var key = core.isString(selector) ? selector : this.event_;
@@ -1951,7 +1953,7 @@ babelHelpers;
 (function () {
 	var core = this.sennaNamed.metal.core;
 	var object = this.sennaNamed.metal.object;
-	var metalData = this.senna.metalData;
+	var domData = this.senna.domData;
 	var DomDelegatedEventHandle = this.senna.DomDelegatedEventHandle;
 	var DomEventHandle = this.senna.DomEventHandle;
 
@@ -2042,7 +2044,7 @@ babelHelpers;
 
 
 		dom.addElementListener_ = function addElementListener_(element, eventName, listener) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			dom.addToArr_(data.listeners, eventName, listener);
 		};
 
@@ -2058,7 +2060,7 @@ babelHelpers;
 
 
 		dom.addSelectorListener_ = function addSelectorListener_(element, eventName, selector, listener) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			dom.addToArr_(data.delegating[eventName].selectors, selector, listener);
 		};
 
@@ -2088,7 +2090,7 @@ babelHelpers;
 
 
 		dom.attachDelegateEvent_ = function attachDelegateEvent_(element, eventName) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			if (!data.delegating[eventName]) {
 				data.delegating[eventName] = {
 					handle: dom.on(element, eventName, dom.handleDelegateEvent_, !!USE_CAPTURE[eventName]),
@@ -2743,11 +2745,11 @@ babelHelpers;
 
 
 		dom.triggerMatchedListeners_ = function triggerMatchedListeners_(container, element, event, defaultFns) {
-			var data = metalData.get(element);
+			var data = domData.get(element);
 			var listeners = data.listeners[event.type];
 			var ret = dom.triggerListeners_(listeners, event, element, defaultFns);
 
-			var selectorsMap = metalData.get(container).delegating[event.type].selectors;
+			var selectorsMap = domData.get(container).delegating[event.type].selectors;
 			var selectors = Object.keys(selectorsMap);
 			for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
 				if (dom.match(element, selectors[i])) {
@@ -3243,6 +3245,7 @@ babelHelpers;
 
 (function () {
   var dom = this.senna.dom;
+  var domData = this.senna.domData;
   var DomEventEmitterProxy = this.senna.DomEventEmitterProxy;
   var DomEventHandle = this.senna.DomEventHandle;
   var features = this.senna.features;
@@ -3251,6 +3254,7 @@ babelHelpers;
   this.senna.dom = dom;
   this.sennaNamed.dom = this.sennaNamed.dom || {};
   this.sennaNamed.dom.dom = dom;
+  this.sennaNamed.dom.domData = domData;
   this.sennaNamed.dom.DomEventEmitterProxy = DomEventEmitterProxy;
   this.sennaNamed.dom.DomEventHandle = DomEventHandle;
   this.sennaNamed.dom.features = features;
