@@ -115,13 +115,13 @@ class RequestScreen extends Screen {
 
 		uri.setHostname(window.location.hostname);
 		uri.setProtocol(window.location.protocol);
-		
+
 		if (window.location.port) {
 			uri.setPort(window.location.port);
 		}
 
 		if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-		  return uri.makeUnique().toString();
+			return uri.makeUnique().toString();
 		}
 
 		return uri.toString();
