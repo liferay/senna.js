@@ -577,7 +577,7 @@ describe('App', function() {
 			assert.strictEqual(100, globals.window.history.state.scrollLeft);
 			hidePageScrollbar();
 			done();
-		}, 200);
+		}, 300);
 		globals.window.scrollTo(100, 100);
 	});
 
@@ -613,7 +613,7 @@ describe('App', function() {
 					hidePageScrollbar();
 					done();
 				});
-			}, 200);
+			}, 300);
 			globals.window.scrollTo(100, 100);
 		});
 	});
@@ -665,7 +665,7 @@ describe('App', function() {
 					});
 					globals.window.history.back();
 				});
-			}, 200);
+			}, 300);
 			globals.window.scrollTo(100, 100);
 		});
 	});
