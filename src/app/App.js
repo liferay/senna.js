@@ -187,7 +187,7 @@ class App extends EventEmitter {
 		this.appEventHandlers_ = new EventHandler();
 
 		this.appEventHandlers_.add(
-			dom.on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 25)),
+			dom.on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 100)),
 			dom.on(globals.window, 'load', this.onLoad_.bind(this)),
 			dom.on(globals.window, 'popstate', this.onPopstate_.bind(this))
 		);
