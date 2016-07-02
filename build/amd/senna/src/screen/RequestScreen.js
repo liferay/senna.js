@@ -156,11 +156,11 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
 			var uri = new _Uri2.default(path);
 
-			uri.setHostname(window.location.hostname);
-			uri.setProtocol(window.location.protocol);
+			uri.setHostname(_globals2.default.window.location.hostname);
+			uri.setProtocol(_globals2.default.window.location.protocol);
 
-			if (window.location.port) {
-				uri.setPort(window.location.port);
+			if (_globals2.default.window.location.port) {
+				uri.setPort(_globals2.default.window.location.port);
 			}
 
 			if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {

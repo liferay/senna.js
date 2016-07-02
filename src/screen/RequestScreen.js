@@ -113,11 +113,11 @@ class RequestScreen extends Screen {
 	formatLoadPath(path) {
 		var uri = new Uri(path);
 
-		uri.setHostname(window.location.hostname);
-		uri.setProtocol(window.location.protocol);
+		uri.setHostname(globals.window.location.hostname);
+		uri.setProtocol(globals.window.location.protocol);
 
-		if (window.location.port) {
-			uri.setPort(window.location.port);
+		if (globals.window.location.port) {
+			uri.setPort(globals.window.location.port);
 		}
 
 		if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
