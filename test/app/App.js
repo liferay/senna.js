@@ -1261,36 +1261,6 @@ describe('App', function() {
 			.cancel();
 	});
 
-	it('should wait for pendingNavigate before removing screen on double back navigation', (done) => {
-		class CacheScreen extends Screen {
-			constructor() {
-				super();
-				this.cacheable = true;
-			}
-		}
-
-		var app = new App();
-		this.app = app;
-		app.addRoutes(new Route('/path1', CacheScreen));
-		app.addRoutes(new Route('/path2', CacheScreen));
-		app.addRoutes(new Route('/path3', CacheScreen));
-
-		app.navigate('/path1')
-			.then(() => app.navigate('/path2'))
-			.then(() => app.navigate('/path3'))
-			.then(() => {
-				app.on('endNavigate', () => {
-					assert.ok(app.screens['/path2']);
-					app.pendingNavigate.then(() => {
-						assert.ok(!app.screens['/path2']);
-						done();
-					});
-				});
-				globals.window.history.back();
-				globals.window.history.back();
-			});
-	});
-
 });
 
 var canScrollIFrame_ = false;
