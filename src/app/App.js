@@ -500,7 +500,12 @@ class App extends EventEmitter {
 	handleNavigateError_(path, nextScreen, err) {
 		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 		if (!utils.isCurrentBrowserPath(path)) {
-			this.removeScreen(path);
+			 if (this.pendingNavigate) {
+			 	this.pendingNavigate.thenAlways(() => this.removeScreen(path), this);
+		 	}
+		 	else {
+		 		this.removeScreen(path);
+		 	}
 		}
 	}
 
