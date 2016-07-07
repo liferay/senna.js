@@ -1279,13 +1279,9 @@ describe('App', function() {
 			.then(() => app.navigate('/path2'))
 			.then(() => app.navigate('/path3'))
 			.then(() => {
-				var pendingNavigate;
-				app.on('startNavigate', () => {
-					pendingNavigate = app.pendingNavigate;
-				});
 				app.on('endNavigate', () => {
 					assert.ok(app.screens['/path2']);
-					pendingNavigate.then(() => {
+					app.pendingNavigate.then(() => {
 						assert.ok(!app.screens['/path2']);
 						done();
 					});
