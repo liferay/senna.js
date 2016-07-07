@@ -475,9 +475,17 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
+			var _this6 = this;
+
 			void 0;
 			if (!_utils2.default.isCurrentBrowserPath(path)) {
-				this.removeScreen(path);
+				if (this.pendingNavigate) {
+					this.pendingNavigate.thenAlways(function () {
+						return _this6.removeScreen(path);
+					}, this);
+				} else {
+					this.removeScreen(path);
+				}
 			}
 		};
 
@@ -620,13 +628,13 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		App.prototype.onLoad_ = function onLoad_() {
-			var _this6 = this;
+			var _this7 = this;
 
 			this.skipLoadPopstate = true;
 			setTimeout(function () {
 				// The timeout ensures that popstate events will be unblocked right
 				// after the load event occured, but not in the same event-loop cycle.
-				_this6.skipLoadPopstate = false;
+				_this7.skipLoadPopstate = false;
 			}, 0);
 			// Try to reposition scroll to the hashed anchor when page loads.
 			this.maybeRepositionScrollToHashedAnchor();
@@ -675,7 +683,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		App.prototype.onStartNavigate_ = function onStartNavigate_(event) {
-			var _this7 = this;
+			var _this8 = this;
 
 			this.maybeDisableNativeScrollRestoration();
 			this.captureScrollPositionFromScrollEvent = false;
@@ -690,19 +698,19 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				endNavigatePayload.error = reason;
 				throw reason;
 			}).thenAlways(function () {
-				if (!_this7.pendingNavigate) {
-					_dom2.default.removeClasses(_globals2.default.document.documentElement, _this7.loadingCssClass);
-					_this7.maybeRestoreNativeScrollRestoration();
-					_this7.captureScrollPositionFromScrollEvent = true;
+				if (!_this8.pendingNavigate) {
+					_dom2.default.removeClasses(_globals2.default.document.documentElement, _this8.loadingCssClass);
+					_this8.maybeRestoreNativeScrollRestoration();
+					_this8.captureScrollPositionFromScrollEvent = true;
 				}
-				_this7.emit('endNavigate', endNavigatePayload);
+				_this8.emit('endNavigate', endNavigatePayload);
 			});
 
 			this.pendingNavigate.path = event.path;
 		};
 
 		App.prototype.prefetch = function prefetch(path) {
-			var _this8 = this;
+			var _this9 = this;
 
 			var route = this.findRoute(path);
 			if (!route) {
@@ -714,9 +722,9 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			var nextScreen = this.createScreenInstance(path, route);
 
 			return nextScreen.load(path).then(function () {
-				return _this8.screens[path] = nextScreen;
+				return _this9.screens[path] = nextScreen;
 			}).catch(function (reason) {
-				_this8.handleNavigateError_(path, nextScreen, reason);
+				_this9.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
 		};
@@ -760,12 +768,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		App.prototype.removeScreen = function removeScreen(path) {
-			var _this9 = this;
+			var _this10 = this;
 
 			var screen = this.screens[path];
 			if (screen) {
 				Object.keys(this.surfaces).forEach(function (surfaceId) {
-					return _this9.surfaces[surfaceId].remove(screen.getId());
+					return _this10.surfaces[surfaceId].remove(screen.getId());
 				});
 				screen.dispose();
 				delete this.screens[path];
@@ -825,7 +833,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		};
 
 		App.prototype.syncScrollPositionSyncThenAsync_ = function syncScrollPositionSyncThenAsync_() {
-			var _this10 = this;
+			var _this11 = this;
 
 			var state = _globals2.default.window.history.state;
 			if (!state) {
@@ -836,7 +844,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			var scrollLeft = state.scrollLeft;
 
 			var sync = function sync() {
-				if (_this10.updateScrollPosition) {
+				if (_this11.updateScrollPosition) {
 					_globals2.default.window.scrollTo(scrollLeft, scrollTop);
 				}
 			};
