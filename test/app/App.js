@@ -1290,10 +1290,8 @@ describe('App', function() {
 						done();
 					});
 				});
-				globals.window.history.go(-1);
-				setTimeout(function() {
-					globals.window.history.go(-1);
-				}, 0);
+				globals.window.history.back();
+				globals.window.history.back();
 			});
 	});
 
