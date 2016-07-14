@@ -1,5 +1,6 @@
 'use strict';
 
+import { async } from 'metal';
 import { dom } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
@@ -1259,6 +1260,46 @@ describe('App', function() {
 				done();
 			})
 			.cancel();
+	});
+
+	it('should wait for pendingNavigate before removing screen on double back navigation', (done) => {
+		class CacheScreen extends Screen {
+			constructor() {
+				super();
+				this.cacheable = true;
+			}
+		}
+
+		var app = new App();
+		this.app = app;
+		app.addRoutes(new Route('/path1', CacheScreen));
+		app.addRoutes(new Route('/path2', CacheScreen));
+		app.addRoutes(new Route('/path3', CacheScreen));
+
+		app.navigate('/path1')
+			.then(() => app.navigate('/path2'))
+			.then(() => app.navigate('/path3'))
+			.then(() => {
+				var pendingNavigate;
+				app.on('startNavigate', () => {
+					pendingNavigate = app.pendingNavigate;
+					assert.ok(app.screens['/path2']);
+				});
+				app.once('endNavigate', () => {
+					if (app.isNavigationPending) {
+						assert.ok(!app.screens['/path2']);
+						done();
+					} else {
+						pendingNavigate.thenAlways(() => {
+							assert.ok(!app.screens['/path2']);
+							done();
+						});
+						pendingNavigate.cancel();
+					}
+				});
+				globals.window.history.go(-1);
+				async.nextTick(() => globals.window.history.go(-1));
+			});
 	});
 
 });

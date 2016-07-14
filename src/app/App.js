@@ -108,6 +108,15 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
+		 * When set to true there is a pendingNavigate that has not yet been
+		 * resolved or rejected.
+		 * @type {boolean}
+		 * @default false
+		 * @protected
+		 */
+		this.isNavigationPending = false;
+
+		/**
 		 * Holds a deferred with the current navigation.
 		 * @type {?CancellablePromise}
 		 * @default null
@@ -360,6 +369,7 @@ class App extends EventEmitter {
 		console.log('Navigate to [' + path + ']');
 
 		this.stopPendingNavigate_();
+		this.isNavigationPending = true;
 
 		var nextScreen = this.createScreenInstance(path, route);
 
@@ -377,6 +387,7 @@ class App extends EventEmitter {
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.catch((reason) => {
+				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
@@ -400,6 +411,7 @@ class App extends EventEmitter {
 		this.activePath = path;
 		this.activeScreen = nextScreen;
 		this.screens[path] = nextScreen;
+		this.isNavigationPending = false;
 		this.pendingNavigate = null;
 		globals.capturedFormElement = null;
 		console.log('Navigation done');
@@ -500,7 +512,11 @@ class App extends EventEmitter {
 	handleNavigateError_(path, nextScreen, err) {
 		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
 		if (!utils.isCurrentBrowserPath(path)) {
-			this.removeScreen(path);
+			if (this.isNavigationPending && this.pendingNavigate) {
+				this.pendingNavigate.thenAlways(() => this.removeScreen(path), this);
+			} else {
+				this.removeScreen(path);
+			}
 		}
 	}
 
