@@ -2,7 +2,7 @@
 
 import { core } from 'metal';
 import Ajax from 'metal-ajax';
-import MultiMap from 'metal-multimap';
+import { MultiMap } from 'metal-structs';
 import CancellablePromise from 'metal-promise';
 import errors from '../errors/errors';
 import utils from '../utils/utils';

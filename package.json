@@ -28,16 +28,16 @@
   ],
   "dependencies": {
     "bootstrap": "^3.3.6",
-    "metal": "^1.0.0-rc.1",
-    "metal-ajax": "^1.0.0-rc.1",
-    "metal-debounce": "^1.0.0-rc",
-    "metal-dom": "^1.0.0-rc.2",
-    "metal-events": "^1.0.0-rc.1",
-    "metal-debounce": "^1.0.0-rc.2",
-    "metal-multimap": "^1.0.0-rc.1",
-    "metal-promise": "^1.0.0-rc.2",
-    "metal-uri": "^1.0.0-rc.2",
-    "metal-useragent": "^1.0.0-rc.1"
+    "metal": "^2.0.0",
+    "metal-ajax": "^2.0.0",
+    "metal-debounce": "^2.0.0",
+    "metal-dom": "^2.0.0",
+    "metal-events": "^2.0.0",
+    "metal-debounce": "^2.0.0",
+    "metal-structs": "^1.0.0",
+    "metal-promise": "^2.0.0",
+    "metal-uri": "^2.0.0",
+    "metal-useragent": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
