@@ -43,7 +43,7 @@
     "babel-cli": "^6.4.5",
     "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",
-    "gulp-connect": "^4.0.0",
+    "gulp-connect": "^5.0.0",
     "gulp-header": "^1.7.1",
     "gulp-jsdoc3": "^0.3.0",
     "gulp-metal": "^1.0.0",
