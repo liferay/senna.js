@@ -379,7 +379,11 @@ class App extends EventEmitter {
 					this.activeScreen.deactivate();
 				}
 				this.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
-				this.prepareNavigateSurfaces_(nextScreen, this.surfaces);
+				this.prepareNavigateSurfaces_(
+					nextScreen,
+					this.surfaces,
+					route.extractParams(path)
+				);
 			})
 			.then(() => nextScreen.evaluateStyles(this.surfaces))
 			.then(() => nextScreen.flip(this.surfaces))
@@ -887,11 +891,12 @@ class App extends EventEmitter {
 	/**
 	 * Prepares screen flip. Updates history state and surfaces content.
 	 * @param {!Screen} nextScreen
-	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
+	 * @param {!Object} surfaces Map of surfaces to flip keyed by surface id.
+	 * @param {!Object} params Params extracted from the current path.
 	 */
-	prepareNavigateSurfaces_(nextScreen, surfaces) {
+	prepareNavigateSurfaces_(nextScreen, surfaces, params) {
 		Object.keys(surfaces).forEach((id) => {
-			var surfaceContent = nextScreen.getSurfaceContent(id);
+			var surfaceContent = nextScreen.getSurfaceContent(id, params);
 			surfaces[id].addContent(nextScreen.getId(), surfaceContent);
 			console.log('Screen [' + nextScreen.getId() + '] add content to surface ' +
 				'[' + surfaces[id] + '] [' + (core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');

@@ -1,7 +1,7 @@
 'use strict';
 
 import { core } from 'metal';
-import { toRegex } from 'metal-path-parser';
+import { extractData, parse, toRegex } from 'metal-path-parser';
 
 class Route {
 
@@ -36,15 +36,30 @@ class Route {
 	}
 	
 	/**
-	* Builds a regex for this route.
-	* @return {!RegExp}
+	* Builds parsed data (regex and tokens) for this route.
+	* @return {!Object}
 	* @protected
 	*/
-	buildRegex_() {
-		if (!this.regex_) {
-			this.regex_ = toRegex(this.path);
+	buildParsedData_() {
+		if (!this.parsedData_) {
+      var tokens = parse(this.path);
+      var regex = toRegex(tokens);
+			this.parsedData_ = {
+        regex,
+        tokens
+      };
 		}
-		return this.regex_;
+		return this.parsedData_;
+	}
+	
+	/**
+	 * Extracts param data from the given path, according to this route.
+	 * @param {string} path The url path to extract params from.
+	 * @return {Object} The extracted data, if the path matches this route, or
+	 *     null otherwise.
+	 */
+	extractParams(path) {
+		return extractData(this.buildParsedData_().tokens, path);
 	}
 
 	/**
@@ -75,7 +90,7 @@ class Route {
 			return path(value);
 		}
 		if (core.isString(path)) {
-			path = this.buildRegex_();
+			path = this.buildParsedData_().regex;
 		}
 		if (path instanceof RegExp) {
 			return value.search(path) > -1;
