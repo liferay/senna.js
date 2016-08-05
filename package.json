@@ -50,6 +50,6 @@
     "gulp-rename": "^1.2.2",
     "gulp-strip-debug": "^1.1.0",
     "run-sequence": "^1.1.5",
-    "sinon": "^1.14.1"
+    "sinon": "1.17.2"
   }
 }
