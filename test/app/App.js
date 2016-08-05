@@ -1135,6 +1135,37 @@ describe('App', function() {
 		});
 	});
 
+	it('should pass extracted params to "getSurfaceContent"', (done) => {
+		var screen;
+		class ContentScreen extends Screen {
+			constructor() {
+				super();
+				screen = this;
+			}
+			
+			getId() {
+				return 'screenId';
+			}
+		}
+		ContentScreen.prototype.getSurfaceContent = sinon.stub();
+		
+		var surface = new Surface('surfaceId');
+		this.app = new App();
+		this.app.addRoutes(new Route('/path/:foo(\\d+)/:bar', ContentScreen));
+		this.app.addSurfaces(surface);
+		this.app.navigate('/path/123/abc').then(() => {
+			assert.strictEqual(1, screen.getSurfaceContent.callCount);
+			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
+			
+			var expectedParams = {
+				foo: '123',
+				bar: 'abc'
+			};
+			assert.deepEqual(expectedParams, screen.getSurfaceContent.args[0][1]);
+			done();
+		});
+	});
+
 	it('should render default surface content when not provided by screen', (done) => {
 		class ContentScreen1 extends Screen {
 			getSurfaceContent(surfaceId) {
