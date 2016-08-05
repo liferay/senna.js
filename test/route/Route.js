@@ -55,6 +55,14 @@ describe('Route', function() {
 			assert.ok(route.matchesPath('/path'));
 		});
 
+		it('should match route by string path with params', () => {
+			var route = new Route('/path/:foo(\\d+)', core.nullFunction);
+			assert.ok(route.matchesPath('/path/10'));
+			assert.ok(route.matchesPath('/path/10/'));
+			assert.ok(!route.matchesPath('/path/abc'));
+			assert.ok(!route.matchesPath('/path'));
+		});
+
 		it('should match route by regex path', () => {
 			var route = new Route(/\/path/, core.nullFunction);
 			assert.ok(route.matchesPath('/path'));

@@ -1,6 +1,7 @@
 'use strict';
 
 import { core } from 'metal';
+import { toRegex } from 'metal-path-parser';
 
 class Route {
 
@@ -33,6 +34,18 @@ class Route {
 		 */
 		this.path = path;
 	}
+	
+	/**
+	* Builds a regex for this route.
+	* @return {!RegExp}
+	* @protected
+	*/
+	buildRegex_() {
+		if (!this.regex_) {
+			this.regex_ = toRegex(this.path);
+		}
+		return this.regex_;
+	}
 
 	/**
 	 * Gets the route handler.
@@ -49,21 +62,20 @@ class Route {
 	getPath() {
 		return this.path;
 	}
-
+	
 	/**
-	 * Matches if the router can handle the tested path.
-	 * @param {!string} value Path to test and may contains the querystring
-	 *     part.
-	 * @return {Boolean} Returns true if matches any route.
+ 	 * Matches if the router can handle the tested path.
+ 	 * @param {!string} value Path to test (may contain the querystring part).
+	 * @return {boolean} Returns true if matches any route.
 	 */
 	matchesPath(value) {
 		var path = this.path;
 
-		if (core.isString(path)) {
-			return value === path;
-		}
 		if (core.isFunction(path)) {
 			return path(value);
+		}
+		if (core.isString(path)) {
+			path = this.buildRegex_();
 		}
 		if (path instanceof RegExp) {
 			return value.search(path) > -1;
