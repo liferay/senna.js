@@ -10,13 +10,14 @@
 </head>
 <body>
   <div id="header">
-      Header default <a href="foo.html">Foo</a>
+      Header default <a href="foo.html">Foo</a><br>
+      Header default <a href="bar.html">Bar</a>
   </div>
   <div id="content">
      Content default <a href="index.html">Index</a>
   </div>
   <div id="footer">
-    Static content: this part will not change if navigating to a page without this surface.
+    Static content: this part will not change if navigating to a page without this surface. [INDEX]
   </div>
 
   <!-- Initializing Senna -->
@@ -32,6 +33,10 @@
       },
       {
         path: '/foo.html',
+        handler: senna.HtmlScreen
+      },
+      {
+        path: '/bar.html',
         handler: senna.HtmlScreen
       }
     ]);
