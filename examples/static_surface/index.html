@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Basic</title>
+  <title>Static Surface</title>
   <link rel="shortcut icon" href="http://sennajs.com/images/favicon.ico">
 
   <!-- Including Senna -->
@@ -10,34 +10,29 @@
 </head>
 <body>
   <div id="header">
-    Header foo <a href="foo.html">Foo</a>
+      Header default <a href="foo.html">Foo</a>
   </div>
   <div id="content">
-    Content foo <a href="index.html">Bar</a>
+     Content default <a href="index.html">Index</a>
   </div>
   <div id="footer">
-    This is a footer dynamic content from foo.html.
+    Static content: this part will not change if navigating to a page without this surface.
   </div>
 
   <!-- Initializing Senna -->
   <script>
     'use strict';
     var app = new senna.App();
-    app.setBasePath('/examples/basic');
-    app.addSurfaces(['header', 'content']);
+    app.setBasePath('/examples/static_surface');
+    app.addSurfaces(['header', 'content', 'footer']);
     app.addRoutes([
-      {
+     {
         path: '/index.html',
         handler: senna.HtmlScreen
       },
       {
         path: '/foo.html',
-        handler: function(route) {
-          console.log('Middleware route handler for ' + route.getPath());
-          var screen = new senna.HtmlScreen();
-          screen.setCacheable(false);
-          return screen;
-        }
+        handler: senna.HtmlScreen
       }
     ]);
   </script>
