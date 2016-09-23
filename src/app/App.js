@@ -1,8 +1,8 @@
 'use strict';
 
-import { array, async, core } from 'metal';
+import { array, async, isDefAndNotNull, isString } from 'metal';
 import debounce from 'metal-debounce';
-import dom from 'metal-dom';
+import { addClasses, delegate, on, removeClasses } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import { EventEmitter, EventHandler } from 'metal-events';
 import utils from '../utils/utils';
@@ -196,9 +196,9 @@ class App extends EventEmitter {
 		this.appEventHandlers_ = new EventHandler();
 
 		this.appEventHandlers_.add(
-			dom.on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 100)),
-			dom.on(globals.window, 'load', this.onLoad_.bind(this)),
-			dom.on(globals.window, 'popstate', this.onPopstate_.bind(this))
+			on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 100)),
+			on(globals.window, 'load', this.onLoad_.bind(this)),
+			on(globals.window, 'popstate', this.onPopstate_.bind(this))
 		);
 
 		this.on('startNavigate', this.onStartNavigate_);
@@ -254,7 +254,7 @@ class App extends EventEmitter {
 			surfaces = [surfaces];
 		}
 		surfaces.forEach((surface) => {
-			if (core.isString(surface)) {
+			if (isString(surface)) {
 				surface = new Surface(surface);
 			}
 			this.surfaces[surface.getId()] = surface;
@@ -813,7 +813,7 @@ class App extends EventEmitter {
 	onStartNavigate_(event) {
 		this.maybeDisableNativeScrollRestoration();
 		this.captureScrollPositionFromScrollEvent = false;
-		dom.addClasses(globals.document.documentElement, this.loadingCssClass);
+		addClasses(globals.document.documentElement, this.loadingCssClass);
 
 		var endNavigatePayload = {
 			form: event.form,
@@ -827,7 +827,7 @@ class App extends EventEmitter {
 			})
 			.thenAlways(() => {
 				if (!this.pendingNavigate) {
-					dom.removeClasses(globals.document.documentElement, this.loadingCssClass);
+					removeClasses(globals.document.documentElement, this.loadingCssClass);
 					this.maybeRestoreNativeScrollRestoration();
 					this.captureScrollPositionFromScrollEvent = true;
 				}
@@ -868,12 +868,12 @@ class App extends EventEmitter {
 	 */
 	prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 		var title = nextScreen.getTitle();
-		if (!core.isString(title)) {
+		if (!isString(title)) {
 			title = this.getDefaultTitle();
 		}
 		var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 		var historyState = {
-			form: core.isDefAndNotNull(globals.capturedFormElement),
+			form: isDefAndNotNull(globals.capturedFormElement),
 			redirectPath: redirectPath,
 			path: path,
 			senna: true,
@@ -899,7 +899,7 @@ class App extends EventEmitter {
 			var surfaceContent = nextScreen.getSurfaceContent(id, params);
 			surfaces[id].addContent(nextScreen.getId(), surfaceContent);
 			console.log('Screen [' + nextScreen.getId() + '] add content to surface ' +
-				'[' + surfaces[id] + '] [' + (core.isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
+				'[' + surfaces[id] + '] [' + (isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 		});
 	}
 
@@ -977,7 +977,7 @@ class App extends EventEmitter {
 		if (this.formEventHandler_) {
 			this.formEventHandler_.removeListener();
 		}
-		this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+		this.formEventHandler_ = delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
 	}
 
 	/**
@@ -989,7 +989,7 @@ class App extends EventEmitter {
 		if (this.linkEventHandler_) {
 			this.linkEventHandler_.removeListener();
 		}
-		this.linkEventHandler_ = dom.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
+		this.linkEventHandler_ = delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
 	}
 
 	/**
