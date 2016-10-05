@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'], function (exports, _metal, _parse, _MultiMap) {
+define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'], function (exports, _metal, _parse, _structs) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -6,8 +6,6 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 	});
 
 	var _parse2 = _interopRequireDefault(_parse);
-
-	var _MultiMap2 = _interopRequireDefault(_MultiMap);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -59,6 +57,24 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var parseFn_ = _parse2.default;
 
 	var Uri = function () {
@@ -78,9 +94,8 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
    * @param {*=} opt_uri Optional string URI to parse
    * @constructor
    */
-
 		function Uri() {
-			var opt_uri = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+			var opt_uri = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
 			_classCallCheck(this, Uri);
 
@@ -96,283 +111,319 @@ define(['exports', 'metal/src/metal', './parse', 'metal-multimap/src/MultiMap'],
    */
 
 
-		Uri.prototype.addParametersFromMultiMap = function addParametersFromMultiMap(multimap) {
-			var _this = this;
+		_createClass(Uri, [{
+			key: 'addParametersFromMultiMap',
+			value: function addParametersFromMultiMap(multimap) {
+				var _this = this;
 
-			multimap.names().forEach(function (name) {
-				multimap.getAll(name).forEach(function (value) {
-					_this.addParameterValue(name, value);
+				multimap.names().forEach(function (name) {
+					multimap.getAll(name).forEach(function (value) {
+						_this.addParameterValue(name, value);
+					});
 				});
-			});
-			return this;
-		};
-
-		Uri.prototype.addParameterValue = function addParameterValue(name, value) {
-			this.ensureQueryInitialized_();
-			if (_metal.core.isDef(value)) {
-				value = String(value);
+				return this;
 			}
-			this.query.add(name, value);
-			return this;
-		};
-
-		Uri.prototype.addParameterValues = function addParameterValues(name, values) {
-			var _this2 = this;
-
-			values.forEach(function (value) {
-				return _this2.addParameterValue(name, value);
-			});
-			return this;
-		};
-
-		Uri.prototype.ensureQueryInitialized_ = function ensureQueryInitialized_() {
-			var _this3 = this;
-
-			if (this.query) {
-				return;
+		}, {
+			key: 'addParameterValue',
+			value: function addParameterValue(name, value) {
+				this.ensureQueryInitialized_();
+				if ((0, _metal.isDef)(value)) {
+					value = String(value);
+				}
+				this.query.add(name, value);
+				return this;
 			}
-			this.query = new _MultiMap2.default();
-			var search = this.url.search;
-			if (search) {
-				search.substring(1).split('&').forEach(function (param) {
-					var _param$split = param.split('=');
+		}, {
+			key: 'addParameterValues',
+			value: function addParameterValues(name, values) {
+				var _this2 = this;
 
-					var _param$split2 = _slicedToArray(_param$split, 2);
-
-					var key = _param$split2[0];
-					var value = _param$split2[1];
-
-					if (_metal.core.isDef(value)) {
-						value = Uri.urlDecode(value);
-					}
-					_this3.addParameterValue(key, value);
+				values.forEach(function (value) {
+					return _this2.addParameterValue(name, value);
 				});
+				return this;
 			}
-		};
+		}, {
+			key: 'ensureQueryInitialized_',
+			value: function ensureQueryInitialized_() {
+				var _this3 = this;
 
-		Uri.prototype.getHash = function getHash() {
-			return this.url.hash || '';
-		};
+				if (this.query) {
+					return;
+				}
+				this.query = new _structs.MultiMap();
+				var search = this.url.search;
+				if (search) {
+					search.substring(1).split('&').forEach(function (param) {
+						var _param$split = param.split('=');
 
-		Uri.prototype.getHost = function getHost() {
-			var host = this.getHostname();
-			if (host) {
-				var port = this.getPort();
-				if (port && port !== '80') {
-					host += ':' + port;
+						var _param$split2 = _slicedToArray(_param$split, 2);
+
+						var key = _param$split2[0];
+						var value = _param$split2[1];
+
+						if ((0, _metal.isDef)(value)) {
+							value = Uri.urlDecode(value);
+						}
+						_this3.addParameterValue(key, value);
+					});
 				}
 			}
-			return host;
-		};
-
-		Uri.prototype.getHostname = function getHostname() {
-			var hostname = this.url.hostname;
-			if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
+		}, {
+			key: 'getHash',
+			value: function getHash() {
+				return this.url.hash || '';
+			}
+		}, {
+			key: 'getHost',
+			value: function getHost() {
+				var host = this.getHostname();
+				if (host) {
+					var port = this.getPort();
+					if (port && port !== '80') {
+						host += ':' + port;
+					}
+				}
+				return host;
+			}
+		}, {
+			key: 'getHostname',
+			value: function getHostname() {
+				var hostname = this.url.hostname;
+				if (hostname === Uri.HOSTNAME_PLACEHOLDER) {
+					return '';
+				}
+				return hostname;
+			}
+		}, {
+			key: 'getOrigin',
+			value: function getOrigin() {
+				var host = this.getHost();
+				if (host) {
+					return this.getProtocol() + '//' + host;
+				}
 				return '';
 			}
-			return hostname;
-		};
-
-		Uri.prototype.getOrigin = function getOrigin() {
-			var host = this.getHost();
-			if (host) {
-				return this.getProtocol() + '//' + host;
+		}, {
+			key: 'getParameterValue',
+			value: function getParameterValue(name) {
+				this.ensureQueryInitialized_();
+				return this.query.get(name);
 			}
-			return '';
-		};
-
-		Uri.prototype.getParameterValue = function getParameterValue(name) {
-			this.ensureQueryInitialized_();
-			return this.query.get(name);
-		};
-
-		Uri.prototype.getParameterValues = function getParameterValues(name) {
-			this.ensureQueryInitialized_();
-			return this.query.getAll(name);
-		};
-
-		Uri.prototype.getParameterNames = function getParameterNames() {
-			this.ensureQueryInitialized_();
-			return this.query.names();
-		};
-
-		Uri.getParseFn = function getParseFn() {
-			return parseFn_;
-		};
-
-		Uri.prototype.getPathname = function getPathname() {
-			return this.url.pathname;
-		};
-
-		Uri.prototype.getPort = function getPort() {
-			return this.url.port;
-		};
-
-		Uri.prototype.getProtocol = function getProtocol() {
-			return this.url.protocol;
-		};
-
-		Uri.prototype.getSearch = function getSearch() {
-			var _this4 = this;
-
-			var search = '';
-			var querystring = '';
-			this.getParameterNames().forEach(function (name) {
-				_this4.getParameterValues(name).forEach(function (value) {
-					querystring += name;
-					if (_metal.core.isDef(value)) {
-						querystring += '=' + encodeURIComponent(value);
-					}
-					querystring += '&';
-				});
-			});
-			querystring = querystring.slice(0, -1);
-			if (querystring) {
-				search += '?' + querystring;
+		}, {
+			key: 'getParameterValues',
+			value: function getParameterValues(name) {
+				this.ensureQueryInitialized_();
+				return this.query.getAll(name);
 			}
-			return search;
-		};
+		}, {
+			key: 'getParameterNames',
+			value: function getParameterNames() {
+				this.ensureQueryInitialized_();
+				return this.query.names();
+			}
+		}, {
+			key: 'getPathname',
+			value: function getPathname() {
+				return this.url.pathname;
+			}
+		}, {
+			key: 'getPort',
+			value: function getPort() {
+				return this.url.port;
+			}
+		}, {
+			key: 'getProtocol',
+			value: function getProtocol() {
+				return this.url.protocol;
+			}
+		}, {
+			key: 'getSearch',
+			value: function getSearch() {
+				var _this4 = this;
 
-		Uri.prototype.hasParameter = function hasParameter(name) {
-			this.ensureQueryInitialized_();
-			return this.query.contains(name);
-		};
-
-		Uri.prototype.makeUnique = function makeUnique() {
-			this.setParameterValue(Uri.RANDOM_PARAM, _metal.string.getRandomString());
-			return this;
-		};
-
-		Uri.prototype.maybeAddProtocolAndHostname_ = function maybeAddProtocolAndHostname_(opt_uri) {
-			var url = opt_uri;
-			if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
-				// jshint ignore:line
-
-				url = Uri.DEFAULT_PROTOCOL;
-				if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
-					url += '//';
-				}
-
-				switch (opt_uri.charAt(0)) {
-					case '.':
-					case '?':
-					case '#':
-						url += Uri.HOSTNAME_PLACEHOLDER;
-						url += '/';
-						url += opt_uri;
-						break;
-					case '':
-					case '/':
-						if (opt_uri[1] !== '/') {
-							url += Uri.HOSTNAME_PLACEHOLDER;
+				var search = '';
+				var querystring = '';
+				this.getParameterNames().forEach(function (name) {
+					_this4.getParameterValues(name).forEach(function (value) {
+						querystring += name;
+						if ((0, _metal.isDef)(value)) {
+							querystring += '=' + encodeURIComponent(value);
 						}
-						url += opt_uri;
-						break;
-					default:
-						url += opt_uri;
+						querystring += '&';
+					});
+				});
+				querystring = querystring.slice(0, -1);
+				if (querystring) {
+					search += '?' + querystring;
 				}
+				return search;
 			}
-			return url;
-		};
-
-		Uri.normalizeObject = function normalizeObject(parsed) {
-			var length = parsed.pathname ? parsed.pathname.length : 0;
-			if (length > 1 && parsed.pathname[length - 1] === '/') {
-				parsed.pathname = parsed.pathname.substr(0, length - 1);
+		}, {
+			key: 'hasParameter',
+			value: function hasParameter(name) {
+				this.ensureQueryInitialized_();
+				return this.query.contains(name);
 			}
-			return parsed;
-		};
-
-		Uri.parse = function parse(opt_uri) {
-			return Uri.normalizeObject(parseFn_(opt_uri));
-		};
-
-		Uri.prototype.removeParameter = function removeParameter(name) {
-			this.ensureQueryInitialized_();
-			this.query.remove(name);
-			return this;
-		};
-
-		Uri.prototype.removeUnique = function removeUnique() {
-			this.removeParameter(Uri.RANDOM_PARAM);
-			return this;
-		};
-
-		Uri.prototype.setHash = function setHash(hash) {
-			this.url.hash = hash;
-			return this;
-		};
-
-		Uri.prototype.setHostname = function setHostname(hostname) {
-			this.url.hostname = hostname;
-			return this;
-		};
-
-		Uri.prototype.setParameterValue = function setParameterValue(name, value) {
-			this.removeParameter(name);
-			this.addParameterValue(name, value);
-			return this;
-		};
-
-		Uri.prototype.setParameterValues = function setParameterValues(name, values) {
-			var _this5 = this;
-
-			this.removeParameter(name);
-			values.forEach(function (value) {
-				return _this5.addParameterValue(name, value);
-			});
-			return this;
-		};
-
-		Uri.prototype.setPathname = function setPathname(pathname) {
-			this.url.pathname = pathname;
-			return this;
-		};
-
-		Uri.prototype.setPort = function setPort(port) {
-			this.url.port = port;
-			return this;
-		};
-
-		Uri.setParseFn = function setParseFn(parseFn) {
-			parseFn_ = parseFn;
-		};
-
-		Uri.prototype.setProtocol = function setProtocol(protocol) {
-			this.url.protocol = protocol;
-			if (this.url.protocol[this.url.protocol.length - 1] !== ':') {
-				this.url.protocol += ':';
+		}, {
+			key: 'makeUnique',
+			value: function makeUnique() {
+				this.setParameterValue(Uri.RANDOM_PARAM, _metal.string.getRandomString());
+				return this;
 			}
-			return this;
-		};
+		}, {
+			key: 'maybeAddProtocolAndHostname_',
+			value: function maybeAddProtocolAndHostname_(opt_uri) {
+				var url = opt_uri;
+				if (opt_uri.indexOf('://') === -1 && opt_uri.indexOf('javascript:') !== 0) {
+					// jshint ignore:line
 
-		Uri.prototype.toString = function toString() {
-			var href = '';
-			var host = this.getHost();
-			if (host) {
-				href += this.getProtocol() + '//';
+					url = Uri.DEFAULT_PROTOCOL;
+					if (opt_uri[0] !== '/' || opt_uri[1] !== '/') {
+						url += '//';
+					}
+
+					switch (opt_uri.charAt(0)) {
+						case '.':
+						case '?':
+						case '#':
+							url += Uri.HOSTNAME_PLACEHOLDER;
+							url += '/';
+							url += opt_uri;
+							break;
+						case '':
+						case '/':
+							if (opt_uri[1] !== '/') {
+								url += Uri.HOSTNAME_PLACEHOLDER;
+							}
+							url += opt_uri;
+							break;
+						default:
+							url += opt_uri;
+					}
+				}
+				return url;
 			}
-			href += host + this.getPathname() + this.getSearch() + this.getHash();
-			return href;
-		};
-
-		Uri.joinPaths = function joinPaths(basePath) {
-			for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-				paths[_key - 1] = arguments[_key];
+		}, {
+			key: 'removeParameter',
+			value: function removeParameter(name) {
+				this.ensureQueryInitialized_();
+				this.query.remove(name);
+				return this;
 			}
-
-			if (basePath.charAt(basePath.length - 1) === '/') {
-				basePath = basePath.substring(0, basePath.length - 1);
+		}, {
+			key: 'removeUnique',
+			value: function removeUnique() {
+				this.removeParameter(Uri.RANDOM_PARAM);
+				return this;
 			}
-			paths = paths.map(function (path) {
-				return path.charAt(0) === '/' ? path.substring(1) : path;
-			});
-			return [basePath].concat(paths).join('/').replace(/\/$/, '');
-		};
+		}, {
+			key: 'setHash',
+			value: function setHash(hash) {
+				this.url.hash = hash;
+				return this;
+			}
+		}, {
+			key: 'setHostname',
+			value: function setHostname(hostname) {
+				this.url.hostname = hostname;
+				return this;
+			}
+		}, {
+			key: 'setParameterValue',
+			value: function setParameterValue(name, value) {
+				this.removeParameter(name);
+				this.addParameterValue(name, value);
+				return this;
+			}
+		}, {
+			key: 'setParameterValues',
+			value: function setParameterValues(name, values) {
+				var _this5 = this;
 
-		Uri.urlDecode = function urlDecode(str) {
-			return decodeURIComponent(str.replace(/\+/g, ' '));
-		};
+				this.removeParameter(name);
+				values.forEach(function (value) {
+					return _this5.addParameterValue(name, value);
+				});
+				return this;
+			}
+		}, {
+			key: 'setPathname',
+			value: function setPathname(pathname) {
+				this.url.pathname = pathname;
+				return this;
+			}
+		}, {
+			key: 'setPort',
+			value: function setPort(port) {
+				this.url.port = port;
+				return this;
+			}
+		}, {
+			key: 'setProtocol',
+			value: function setProtocol(protocol) {
+				this.url.protocol = protocol;
+				if (this.url.protocol[this.url.protocol.length - 1] !== ':') {
+					this.url.protocol += ':';
+				}
+				return this;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				var href = '';
+				var host = this.getHost();
+				if (host) {
+					href += this.getProtocol() + '//';
+				}
+				href += host + this.getPathname() + this.getSearch() + this.getHash();
+				return href;
+			}
+		}], [{
+			key: 'getParseFn',
+			value: function getParseFn() {
+				return parseFn_;
+			}
+		}, {
+			key: 'normalizeObject',
+			value: function normalizeObject(parsed) {
+				var length = parsed.pathname ? parsed.pathname.length : 0;
+				if (length > 1 && parsed.pathname[length - 1] === '/') {
+					parsed.pathname = parsed.pathname.substr(0, length - 1);
+				}
+				return parsed;
+			}
+		}, {
+			key: 'parse',
+			value: function parse(opt_uri) {
+				return Uri.normalizeObject(parseFn_(opt_uri));
+			}
+		}, {
+			key: 'setParseFn',
+			value: function setParseFn(parseFn) {
+				parseFn_ = parseFn;
+			}
+		}, {
+			key: 'joinPaths',
+			value: function joinPaths(basePath) {
+				for (var _len = arguments.length, paths = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+					paths[_key - 1] = arguments[_key];
+				}
+
+				if (basePath.charAt(basePath.length - 1) === '/') {
+					basePath = basePath.substring(0, basePath.length - 1);
+				}
+				paths = paths.map(function (path) {
+					return path.charAt(0) === '/' ? path.substring(1) : path;
+				});
+				return [basePath].concat(paths).join('/').replace(/\/$/, '');
+			}
+		}, {
+			key: 'urlDecode',
+			value: function urlDecode(str) {
+				return decodeURIComponent(str.replace(/\+/g, ' '));
+			}
+		}]);
 
 		return Uri;
 	}();

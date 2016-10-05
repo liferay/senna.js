@@ -11,6 +11,24 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -41,7 +59,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		function EventHandle(emitter, event, listener) {
 			_classCallCheck(this, EventHandle);
 
-			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
+			var _this = _possibleConstructorReturn(this, (EventHandle.__proto__ || Object.getPrototypeOf(EventHandle)).call(this));
 
 			/**
     * The EventEmitter instance that the event was subscribed to.
@@ -72,17 +90,21 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
    */
 
 
-		EventHandle.prototype.disposeInternal = function disposeInternal() {
-			this.removeListener();
-			this.emitter_ = null;
-			this.listener_ = null;
-		};
-
-		EventHandle.prototype.removeListener = function removeListener() {
-			if (!this.emitter_.isDisposed()) {
-				this.emitter_.removeListener(this.event_, this.listener_);
+		_createClass(EventHandle, [{
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.removeListener();
+				this.emitter_ = null;
+				this.listener_ = null;
 			}
-		};
+		}, {
+			key: 'removeListener',
+			value: function removeListener() {
+				if (!this.emitter_.isDisposed()) {
+					this.emitter_.removeListener(this.event_, this.listener_);
+				}
+			}
+		}]);
 
 		return EventHandle;
 	}(_metal.Disposable);

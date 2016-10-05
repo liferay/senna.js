@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src/MultiMap', 'metal-promise/src/promise/Promise', '../errors/errors', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _MultiMap, _Promise, _errors, _utils, _globals, _Screen2, _Uri, _UA) {
+define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/all/structs', 'metal-promise/src/promise/Promise', '../errors/errors', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _structs, _Promise, _errors, _utils, _globals, _Screen2, _Uri, _UA) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -6,8 +6,6 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 	});
 
 	var _Ajax2 = _interopRequireDefault(_Ajax);
-
-	var _MultiMap2 = _interopRequireDefault(_MultiMap);
 
 	var _Promise2 = _interopRequireDefault(_Promise);
 
@@ -34,6 +32,24 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
 			throw new TypeError("Cannot call a class as a function");
 		}
 	}
+
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
 
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
@@ -68,11 +84,10 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
    * @constructor
    * @extends {Screen}
    */
-
 		function RequestScreen() {
 			_classCallCheck(this, RequestScreen);
 
-			var _this = _possibleConstructorReturn(this, _Screen.call(this));
+			var _this = _possibleConstructorReturn(this, (RequestScreen.__proto__ || Object.getPrototypeOf(RequestScreen)).call(this));
 
 			/**
     * @inheritDoc
@@ -127,154 +142,172 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-multimap/src
    */
 
 
-		RequestScreen.prototype.assertValidResponseStatusCode = function assertValidResponseStatusCode(status) {
-			if (!this.isValidResponseStatusCode(status)) {
-				var error = new Error(_errors2.default.INVALID_STATUS);
-				error.invalidStatus = true;
-				throw error;
+		_createClass(RequestScreen, [{
+			key: 'assertValidResponseStatusCode',
+			value: function assertValidResponseStatusCode(status) {
+				if (!this.isValidResponseStatusCode(status)) {
+					var error = new Error(_errors2.default.INVALID_STATUS);
+					error.invalidStatus = true;
+					throw error;
+				}
 			}
-		};
-
-		RequestScreen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
-			var redirectPath = this.getRequestPath();
-			if (redirectPath && redirectPath !== path) {
-				return redirectPath;
+		}, {
+			key: 'beforeUpdateHistoryPath',
+			value: function beforeUpdateHistoryPath(path) {
+				var redirectPath = this.getRequestPath();
+				if (redirectPath && redirectPath !== path) {
+					return redirectPath;
+				}
+				return path;
 			}
-			return path;
-		};
+		}, {
+			key: 'beforeUpdateHistoryState',
+			value: function beforeUpdateHistoryState(state) {
+				// If state is ours and navigate to post-without-redirect-get set
+				// history state to null, that way Senna will reload the page on
+				// popstate since it cannot predict post data.
+				if (state.senna && state.form && state.redirectPath === state.path) {
+					return null;
+				}
+				return state;
+			}
+		}, {
+			key: 'formatLoadPath',
+			value: function formatLoadPath(path) {
+				var uri = new _Uri2.default(path);
 
-		RequestScreen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
-			// If state is ours and navigate to post-without-redirect-get set
-			// history state to null, that way Senna will reload the page on
-			// popstate since it cannot predict post data.
-			if (state.senna && state.form && state.redirectPath === state.path) {
+				uri.setHostname(_globals2.default.window.location.hostname);
+				uri.setProtocol(_globals2.default.window.location.protocol);
+
+				if (_globals2.default.window.location.port) {
+					uri.setPort(_globals2.default.window.location.port);
+				}
+
+				if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+					return uri.makeUnique().toString();
+				}
+
+				return uri.toString();
+			}
+		}, {
+			key: 'getHttpHeaders',
+			value: function getHttpHeaders() {
+				return this.httpHeaders;
+			}
+		}, {
+			key: 'getHttpMethod',
+			value: function getHttpMethod() {
+				return this.httpMethod;
+			}
+		}, {
+			key: 'getRequestPath',
+			value: function getRequestPath() {
+				var request = this.getRequest();
+				if (request) {
+					var requestPath = request.requestPath;
+					var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
+					if (responseUrl) {
+						requestPath = responseUrl;
+					}
+					if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+						requestPath = new _Uri2.default(requestPath).removeUnique().toString();
+					}
+					return _utils2.default.getUrlPath(requestPath);
+				}
 				return null;
 			}
-			return state;
-		};
-
-		RequestScreen.prototype.formatLoadPath = function formatLoadPath(path) {
-			var uri = new _Uri2.default(path);
-
-			uri.setHostname(_globals2.default.window.location.hostname);
-			uri.setProtocol(_globals2.default.window.location.protocol);
-
-			if (_globals2.default.window.location.port) {
-				uri.setPort(_globals2.default.window.location.port);
+		}, {
+			key: 'getRequest',
+			value: function getRequest() {
+				return this.request;
 			}
-
-			if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-				return uri.makeUnique().toString();
+		}, {
+			key: 'getTimeout',
+			value: function getTimeout() {
+				return this.timeout;
 			}
+		}, {
+			key: 'isValidResponseStatusCode',
+			value: function isValidResponseStatusCode(statusCode) {
+				return statusCode >= 200 && statusCode <= 399;
+			}
+		}, {
+			key: 'load',
+			value: function load(path) {
+				var _this2 = this;
 
-			return uri.toString();
-		};
+				var cache = this.getCache();
+				if (_metal.core.isDefAndNotNull(cache)) {
+					return _Promise2.default.resolve(cache);
+				}
 
-		RequestScreen.prototype.getHttpHeaders = function getHttpHeaders() {
-			return this.httpHeaders;
-		};
+				var body = null;
+				var httpMethod = this.httpMethod;
 
-		RequestScreen.prototype.getHttpMethod = function getHttpMethod() {
-			return this.httpMethod;
-		};
+				var headers = new _structs.MultiMap();
+				Object.keys(this.httpHeaders).forEach(function (header) {
+					return headers.add(header, _this2.httpHeaders[header]);
+				});
 
-		RequestScreen.prototype.getRequestPath = function getRequestPath() {
-			var request = this.getRequest();
-			if (request) {
-				var requestPath = request.requestPath;
-				var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
+				if (_globals2.default.capturedFormElement) {
+					body = new FormData(_globals2.default.capturedFormElement);
+					httpMethod = RequestScreen.POST;
+					if (_UA2.default.isIeOrEdge) {
+						headers.add('If-None-Match', '"0"');
+					}
+				}
+
+				var requestPath = this.formatLoadPath(path);
+				return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+					_this2.setRequest(xhr);
+					_this2.assertValidResponseStatusCode(xhr.status);
+					if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
+						_this2.addCache(xhr.responseText);
+					}
+					xhr.requestPath = requestPath;
+					return xhr.responseText;
+				}).catch(function (reason) {
+					switch (reason.message) {
+						case _errors2.default.REQUEST_TIMEOUT:
+							reason.timeout = true;
+							break;
+						case _errors2.default.REQUEST_ERROR:
+							reason.requestError = true;
+							break;
+					}
+					throw reason;
+				});
+			}
+		}, {
+			key: 'maybeExtractResponseUrlFromRequest',
+			value: function maybeExtractResponseUrlFromRequest(request) {
+				var responseUrl = request.responseURL;
 				if (responseUrl) {
-					requestPath = responseUrl;
+					return responseUrl;
 				}
-				if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
-					requestPath = new _Uri2.default(requestPath).removeUnique().toString();
-				}
-				return _utils2.default.getUrlPath(requestPath);
+				return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
 			}
-			return null;
-		};
-
-		RequestScreen.prototype.getRequest = function getRequest() {
-			return this.request;
-		};
-
-		RequestScreen.prototype.getTimeout = function getTimeout() {
-			return this.timeout;
-		};
-
-		RequestScreen.prototype.isValidResponseStatusCode = function isValidResponseStatusCode(statusCode) {
-			return statusCode >= 200 && statusCode <= 399;
-		};
-
-		RequestScreen.prototype.load = function load(path) {
-			var _this2 = this;
-
-			var cache = this.getCache();
-			if (_metal.core.isDefAndNotNull(cache)) {
-				return _Promise2.default.resolve(cache);
+		}, {
+			key: 'setHttpHeaders',
+			value: function setHttpHeaders(httpHeaders) {
+				this.httpHeaders = httpHeaders;
 			}
-
-			var body = null;
-			var httpMethod = this.httpMethod;
-
-			var headers = new _MultiMap2.default();
-			Object.keys(this.httpHeaders).forEach(function (header) {
-				return headers.add(header, _this2.httpHeaders[header]);
-			});
-
-			if (_globals2.default.capturedFormElement) {
-				body = new FormData(_globals2.default.capturedFormElement);
-				httpMethod = RequestScreen.POST;
-				if (_UA2.default.isIeOrEdge) {
-					headers.add('If-None-Match', '"0"');
-				}
+		}, {
+			key: 'setHttpMethod',
+			value: function setHttpMethod(httpMethod) {
+				this.httpMethod = httpMethod.toLowerCase();
 			}
-
-			var requestPath = this.formatLoadPath(path);
-			return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
-				_this2.setRequest(xhr);
-				_this2.assertValidResponseStatusCode(xhr.status);
-				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
-					_this2.addCache(xhr.responseText);
-				}
-				xhr.requestPath = requestPath;
-				return xhr.responseText;
-			}).catch(function (reason) {
-				switch (reason.message) {
-					case _errors2.default.REQUEST_TIMEOUT:
-						reason.timeout = true;
-						break;
-					case _errors2.default.REQUEST_ERROR:
-						reason.requestError = true;
-						break;
-				}
-				throw reason;
-			});
-		};
-
-		RequestScreen.prototype.maybeExtractResponseUrlFromRequest = function maybeExtractResponseUrlFromRequest(request) {
-			var responseUrl = request.responseURL;
-			if (responseUrl) {
-				return responseUrl;
+		}, {
+			key: 'setRequest',
+			value: function setRequest(request) {
+				this.request = request;
 			}
-			return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
-		};
-
-		RequestScreen.prototype.setHttpHeaders = function setHttpHeaders(httpHeaders) {
-			this.httpHeaders = httpHeaders;
-		};
-
-		RequestScreen.prototype.setHttpMethod = function setHttpMethod(httpMethod) {
-			this.httpMethod = httpMethod.toLowerCase();
-		};
-
-		RequestScreen.prototype.setRequest = function setRequest(request) {
-			this.request = request;
-		};
-
-		RequestScreen.prototype.setTimeout = function setTimeout(timeout) {
-			this.timeout = timeout;
-		};
+		}, {
+			key: 'setTimeout',
+			value: function setTimeout(timeout) {
+				this.timeout = timeout;
+			}
+		}]);
 
 		return RequestScreen;
 	}(_Screen3.default);

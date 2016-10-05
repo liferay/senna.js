@@ -1,8 +1,6 @@
 define(['./dom', './features'], function (_dom, _features) {
 	'use strict';
 
-	var _dom2 = _interopRequireDefault(_dom);
-
 	var _features2 = _interopRequireDefault(_features);
 
 	function _interopRequireDefault(obj) {
@@ -18,7 +16,7 @@ define(['./dom', './features'], function (_dom, _features) {
 		pointerleave: 'pointerout'
 	};
 	Object.keys(mouseEventMap).forEach(function (eventName) {
-		_dom2.default.registerCustomEvent(eventName, {
+		(0, _dom.registerCustomEvent)(eventName, {
 			delegate: true,
 			handler: function handler(callback, event) {
 				var related = event.relatedTarget;
@@ -38,7 +36,7 @@ define(['./dom', './features'], function (_dom, _features) {
 	};
 	Object.keys(animationEventMap).forEach(function (eventType) {
 		var eventName = animationEventMap[eventType];
-		_dom2.default.registerCustomEvent(eventName, {
+		(0, _dom.registerCustomEvent)(eventName, {
 			event: true,
 			delegate: true,
 			handler: function handler(callback, event) {

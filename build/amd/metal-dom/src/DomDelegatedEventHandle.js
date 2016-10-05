@@ -19,6 +19,24 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -55,11 +73,10 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
    *     the event.
    * @constructor
    */
-
 		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
 			_classCallCheck(this, DomDelegatedEventHandle);
 
-			var _this = _possibleConstructorReturn(this, _EventHandle.call(this, emitter, event, listener));
+			var _this = _possibleConstructorReturn(this, (DomDelegatedEventHandle.__proto__ || Object.getPrototypeOf(DomDelegatedEventHandle)).call(this, emitter, event, listener));
 
 			_this.selector_ = opt_selector;
 			return _this;
@@ -70,17 +87,20 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
    */
 
 
-		DomDelegatedEventHandle.prototype.removeListener = function removeListener() {
-			var data = _domData2.default.get(this.emitter_);
-			var selector = this.selector_;
-			var arr = _metal.core.isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
-			var key = _metal.core.isString(selector) ? selector : this.event_;
+		_createClass(DomDelegatedEventHandle, [{
+			key: 'removeListener',
+			value: function removeListener() {
+				var data = _domData2.default.get(this.emitter_);
+				var selector = this.selector_;
+				var arr = (0, _metal.isString)(selector) ? data.delegating[this.event_].selectors : data.listeners;
+				var key = (0, _metal.isString)(selector) ? selector : this.event_;
 
-			_metal.array.remove(arr[key] || [], this.listener_);
-			if (arr[key] && arr[key].length === 0) {
-				delete arr[key];
+				_metal.array.remove(arr[key] || [], this.listener_);
+				if (arr[key] && arr[key].length === 0) {
+					delete arr[key];
+				}
 			}
-		};
+		}]);
 
 		return DomDelegatedEventHandle;
 	}(_events.EventHandle);

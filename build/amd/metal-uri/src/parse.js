@@ -19,7 +19,7 @@ define(['exports', 'metal/src/metal', './parseFromAnchor'], function (exports, _
   * @param {*=} opt_uri Optional string URI to parse
   */
 	function parse(opt_uri) {
-		if (_metal.core.isFunction(URL) && URL.length) {
+		if ((0, _metal.isFunction)(URL) && URL.length) {
 			return new URL(opt_uri);
 		} else {
 			return (0, _parseFromAnchor2.default)(opt_uri);

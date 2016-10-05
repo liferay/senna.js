@@ -5,56 +5,71 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 		value: true
 	});
 
-	var _dom2 = _interopRequireDefault(_dom);
-
-	function _interopRequireDefault(obj) {
-		return obj && obj.__esModule ? obj : {
-			default: obj
-		};
-	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var features = function () {
 		function features() {
 			_classCallCheck(this, features);
 		}
 
-		features.checkAnimationEventName = function checkAnimationEventName() {
-			if (features.animationEventName_ === undefined) {
-				features.animationEventName_ = {
-					animation: features.checkAnimationEventName_('animation'),
-					transition: features.checkAnimationEventName_('transition')
-				};
-			}
-			return features.animationEventName_;
-		};
-
-		features.checkAnimationEventName_ = function checkAnimationEventName_(type) {
-			var prefixes = ['Webkit', 'MS', 'O', ''];
-			var typeTitleCase = _metal.string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
-			var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
-			for (var i = 0; i < prefixes.length; i++) {
-				if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
-					return prefixes[i].toLowerCase() + suffixes[i];
+		_createClass(features, null, [{
+			key: 'checkAnimationEventName',
+			value: function checkAnimationEventName() {
+				if (features.animationEventName_ === undefined) {
+					features.animationEventName_ = {
+						animation: features.checkAnimationEventName_('animation'),
+						transition: features.checkAnimationEventName_('transition')
+					};
 				}
+				return features.animationEventName_;
 			}
-			return type + 'end';
-		};
-
-		features.checkAttrOrderChange = function checkAttrOrderChange() {
-			if (features.attrOrderChange_ === undefined) {
-				var originalContent = '<div data-component="" data-ref=""></div>';
-				var element = document.createElement('div');
-				_dom2.default.append(element, originalContent);
-				features.attrOrderChange_ = originalContent !== element.innerHTML;
+		}, {
+			key: 'checkAnimationEventName_',
+			value: function checkAnimationEventName_(type) {
+				var prefixes = ['Webkit', 'MS', 'O', ''];
+				var typeTitleCase = _metal.string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
+				var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
+				for (var i = 0; i < prefixes.length; i++) {
+					if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
+						return prefixes[i].toLowerCase() + suffixes[i];
+					}
+				}
+				return type + 'end';
 			}
-			return features.attrOrderChange_;
-		};
+		}, {
+			key: 'checkAttrOrderChange',
+			value: function checkAttrOrderChange() {
+				if (features.attrOrderChange_ === undefined) {
+					var originalContent = '<div data-component="" data-ref=""></div>';
+					var element = document.createElement('div');
+					(0, _dom.append)(element, originalContent);
+					features.attrOrderChange_ = originalContent !== element.innerHTML;
+				}
+				return features.attrOrderChange_;
+			}
+		}]);
 
 		return features;
 	}();

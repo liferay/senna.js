@@ -35,6 +35,24 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -42,6 +60,31 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -67,11 +110,10 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
    * @constructor
    * @extends {EventEmitter}
    */
-
 		function App() {
 			_classCallCheck(this, App);
 
-			var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
+			var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this));
 
 			/**
     * Holds the active screen.
@@ -157,6 +199,15 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
     * @protected
     */
 			_this.nativeScrollRestorationSupported = 'scrollRestoration' in _globals2.default.window.history;
+
+			/**
+    * When set to true there is a pendingNavigate that has not yet been
+    * resolved or rejected.
+    * @type {boolean}
+    * @default false
+    * @protected
+    */
+			_this.isNavigationPending = false;
 
 			/**
     * Holds a deferred with the current navigation.
@@ -269,593 +320,658 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
    */
 
 
-		App.prototype.addRoutes = function addRoutes(routes) {
-			var _this2 = this;
+		_createClass(App, [{
+			key: 'addRoutes',
+			value: function addRoutes(routes) {
+				var _this2 = this;
 
-			if (!Array.isArray(routes)) {
-				routes = [routes];
-			}
-			routes.forEach(function (route) {
-				if (!(route instanceof _Route2.default)) {
-					route = new _Route2.default(route.path, route.handler);
+				if (!Array.isArray(routes)) {
+					routes = [routes];
 				}
-				_this2.routes.push(route);
-			});
-			return this;
-		};
-
-		App.prototype.addSurfaces = function addSurfaces(surfaces) {
-			var _this3 = this;
-
-			if (!Array.isArray(surfaces)) {
-				surfaces = [surfaces];
+				routes.forEach(function (route) {
+					if (!(route instanceof _Route2.default)) {
+						route = new _Route2.default(route.path, route.handler);
+					}
+					_this2.routes.push(route);
+				});
+				return this;
 			}
-			surfaces.forEach(function (surface) {
-				if (_metal.core.isString(surface)) {
-					surface = new _Surface2.default(surface);
+		}, {
+			key: 'addSurfaces',
+			value: function addSurfaces(surfaces) {
+				var _this3 = this;
+
+				if (!Array.isArray(surfaces)) {
+					surfaces = [surfaces];
 				}
-				_this3.surfaces[surface.getId()] = surface;
-			});
-			return this;
-		};
-
-		App.prototype.canNavigate = function canNavigate(url) {
-			var path = _utils2.default.getUrlPath(url);
-			var uri = new _Uri2.default(url);
-
-			if (!this.isLinkSameOrigin_(uri.getHostname())) {
-				void 0;
-				return false;
+				surfaces.forEach(function (surface) {
+					if (_metal.core.isString(surface)) {
+						surface = new _Surface2.default(surface);
+					}
+					_this3.surfaces[surface.getId()] = surface;
+				});
+				return this;
 			}
-			if (!this.isSameBasePath_(path)) {
-				void 0;
-				return false;
-			}
-			if (!this.findRoute(path)) {
-				void 0;
-				return false;
-			}
+		}, {
+			key: 'canNavigate',
+			value: function canNavigate(url) {
+				var path = _utils2.default.getUrlPath(url);
+				var uri = new _Uri2.default(url);
 
-			return true;
-		};
-
-		App.prototype.clearScreensCache = function clearScreensCache() {
-			var _this4 = this;
-
-			Object.keys(this.screens).forEach(function (path) {
-				if (path === _this4.activePath) {
-					_this4.activeScreen.clearCache();
-				} else {
-					_this4.removeScreen(path);
+				if (!this.isLinkSameOrigin_(uri.getHostname())) {
+					void 0;
+					return false;
 				}
-			});
-		};
-
-		App.prototype.createScreenInstance = function createScreenInstance(path, route) {
-			if (!this.pendingNavigate && path === this.activePath) {
-				void 0;
-				return this.activeScreen;
-			}
-			/* jshint newcap: false */
-			var screen = this.screens[path];
-			if (!screen) {
-				var handler = route.getHandler();
-				if (handler === _Screen2.default || _Screen2.default.isImplementedBy(handler.prototype)) {
-					screen = new handler();
-				} else {
-					screen = handler(route) || new _Screen2.default();
+				if (!this.isSameBasePath_(path)) {
+					void 0;
+					return false;
 				}
-				void 0;
-			}
-			return screen;
-		};
-
-		App.prototype.disposeInternal = function disposeInternal() {
-			if (this.activeScreen) {
-				this.removeScreen(this.activePath);
-			}
-			this.clearScreensCache();
-			this.formEventHandler_.removeListener();
-			this.linkEventHandler_.removeListener();
-			this.appEventHandlers_.removeAllListeners();
-			_EventEmitter.prototype.disposeInternal.call(this);
-		};
-
-		App.prototype.dispatch = function dispatch() {
-			return this.navigate(_utils2.default.getCurrentBrowserPath(), true);
-		};
-
-		App.prototype.doNavigate_ = function doNavigate_(path, opt_replaceHistory) {
-			var _this5 = this;
-
-			if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-				this.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('Cancelled by active screen'));
-				return this.pendingNavigate;
-			}
-
-			var route = this.findRoute(path);
-			if (!route) {
-				this.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
-				return this.pendingNavigate;
-			}
-
-			void 0;
-
-			this.stopPendingNavigate_();
-
-			var nextScreen = this.createScreenInstance(path, route);
-
-			return nextScreen.load(path).then(function () {
-				if (_this5.activeScreen) {
-					_this5.activeScreen.deactivate();
+				if (!this.findRoute(path)) {
+					void 0;
+					return false;
 				}
-				_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
-				_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces);
-			}).then(function () {
-				return nextScreen.evaluateStyles(_this5.surfaces);
-			}).then(function () {
-				return nextScreen.flip(_this5.surfaces);
-			}).then(function () {
-				return nextScreen.evaluateScripts(_this5.surfaces);
-			}).then(function () {
-				return _this5.syncScrollPositionSyncThenAsync_();
-			}).then(function () {
-				return _this5.finalizeNavigate_(path, nextScreen);
-			}).catch(function (reason) {
-				_this5.handleNavigateError_(path, nextScreen, reason);
-				throw reason;
-			});
-		};
 
-		App.prototype.finalizeNavigate_ = function finalizeNavigate_(path, nextScreen) {
-			nextScreen.activate();
+				return true;
+			}
+		}, {
+			key: 'clearScreensCache',
+			value: function clearScreensCache() {
+				var _this4 = this;
 
-			if (this.activeScreen && !this.activeScreen.isCacheable()) {
-				if (this.activeScreen !== nextScreen) {
+				Object.keys(this.screens).forEach(function (path) {
+					if (path === _this4.activePath) {
+						_this4.activeScreen.clearCache();
+					} else {
+						_this4.removeScreen(path);
+					}
+				});
+			}
+		}, {
+			key: 'createScreenInstance',
+			value: function createScreenInstance(path, route) {
+				if (!this.pendingNavigate && path === this.activePath) {
+					void 0;
+					return this.activeScreen;
+				}
+				/* jshint newcap: false */
+				var screen = this.screens[path];
+				if (!screen) {
+					var handler = route.getHandler();
+					if (handler === _Screen2.default || _Screen2.default.isImplementedBy(handler.prototype)) {
+						screen = new handler();
+					} else {
+						screen = handler(route) || new _Screen2.default();
+					}
+					void 0;
+				}
+				return screen;
+			}
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				if (this.activeScreen) {
 					this.removeScreen(this.activePath);
 				}
+				this.clearScreensCache();
+				this.formEventHandler_.removeListener();
+				this.linkEventHandler_.removeListener();
+				this.appEventHandlers_.removeAllListeners();
+				_get(App.prototype.__proto__ || Object.getPrototypeOf(App.prototype), 'disposeInternal', this).call(this);
 			}
+		}, {
+			key: 'dispatch',
+			value: function dispatch() {
+				return this.navigate(_utils2.default.getCurrentBrowserPath(), true);
+			}
+		}, {
+			key: 'doNavigate_',
+			value: function doNavigate_(path, opt_replaceHistory) {
+				var _this5 = this;
 
-			this.activePath = path;
-			this.activeScreen = nextScreen;
-			this.screens[path] = nextScreen;
-			this.pendingNavigate = null;
-			_globals2.default.capturedFormElement = null;
-			void 0;
-		};
+				if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
+					this.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('Cancelled by active screen'));
+					return this.pendingNavigate;
+				}
 
-		App.prototype.findRoute = function findRoute(path) {
-			// Prevents navigation if it's a hash change on the same url.
-			if (path.lastIndexOf('#') > -1 && _utils2.default.isCurrentBrowserPath(path)) {
+				var route = this.findRoute(path);
+				if (!route) {
+					this.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
+					return this.pendingNavigate;
+				}
+
+				void 0;
+
+				this.stopPendingNavigate_();
+				this.isNavigationPending = true;
+
+				var nextScreen = this.createScreenInstance(path, route);
+
+				return nextScreen.load(path).then(function () {
+					if (_this5.activeScreen) {
+						_this5.activeScreen.deactivate();
+					}
+					_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
+					_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces, route.extractParams(path));
+				}).then(function () {
+					return nextScreen.evaluateStyles(_this5.surfaces);
+				}).then(function () {
+					return nextScreen.flip(_this5.surfaces);
+				}).then(function () {
+					return nextScreen.evaluateScripts(_this5.surfaces);
+				}).then(function () {
+					return _this5.syncScrollPositionSyncThenAsync_();
+				}).then(function () {
+					return _this5.finalizeNavigate_(path, nextScreen);
+				}).catch(function (reason) {
+					_this5.isNavigationPending = false;
+					_this5.handleNavigateError_(path, nextScreen, reason);
+					throw reason;
+				});
+			}
+		}, {
+			key: 'finalizeNavigate_',
+			value: function finalizeNavigate_(path, nextScreen) {
+				nextScreen.activate();
+
+				if (this.activeScreen && !this.activeScreen.isCacheable()) {
+					if (this.activeScreen !== nextScreen) {
+						this.removeScreen(this.activePath);
+					}
+				}
+
+				this.activePath = path;
+				this.activeScreen = nextScreen;
+				this.screens[path] = nextScreen;
+				this.isNavigationPending = false;
+				this.pendingNavigate = null;
+				_globals2.default.capturedFormElement = null;
+				void 0;
+			}
+		}, {
+			key: 'findRoute',
+			value: function findRoute(path) {
+				// Prevents navigation if it's a hash change on the same url.
+				if (path.lastIndexOf('#') > -1 && _utils2.default.isCurrentBrowserPath(path)) {
+					return null;
+				}
+
+				path = _utils2.default.getUrlPathWithoutHash(path);
+
+				// Makes sure that the path substring will be in the expected format
+				// (that is, will end with a "/").
+				path = _utils2.default.getUrlPathWithoutHash(path.substr(this.basePath.length));
+
+				for (var i = 0; i < this.routes.length; i++) {
+					var route = this.routes[i];
+					if (route.matchesPath(path)) {
+						return route;
+					}
+				}
+
 				return null;
 			}
+		}, {
+			key: 'getAllowPreventNavigate',
+			value: function getAllowPreventNavigate() {
+				return this.allowPreventNavigate;
+			}
+		}, {
+			key: 'getBasePath',
+			value: function getBasePath() {
+				return this.basePath;
+			}
+		}, {
+			key: 'getDefaultTitle',
+			value: function getDefaultTitle() {
+				return this.defaultTitle;
+			}
+		}, {
+			key: 'getFormSelector',
+			value: function getFormSelector() {
+				return this.formSelector;
+			}
+		}, {
+			key: 'getLinkSelector',
+			value: function getLinkSelector() {
+				return this.linkSelector;
+			}
+		}, {
+			key: 'getLoadingCssClass',
+			value: function getLoadingCssClass() {
+				return this.loadingCssClass;
+			}
+		}, {
+			key: 'getUpdateScrollPosition',
+			value: function getUpdateScrollPosition() {
+				return this.updateScrollPosition;
+			}
+		}, {
+			key: 'handleNavigateError_',
+			value: function handleNavigateError_(path, nextScreen, err) {
+				var _this6 = this;
 
-			path = _utils2.default.getUrlPathWithoutHash(path);
-
-			// Makes sure that the path substring will be in the expected format
-			// (that is, will end with a "/").
-			path = _utils2.default.getUrlPathWithoutHash(path.substr(this.basePath.length));
-
-			for (var i = 0; i < this.routes.length; i++) {
-				var route = this.routes[i];
-				if (route.matchesPath(path)) {
-					return route;
+				void 0;
+				if (!_utils2.default.isCurrentBrowserPath(path)) {
+					if (this.isNavigationPending && this.pendingNavigate) {
+						this.pendingNavigate.thenAlways(function () {
+							return _this6.removeScreen(path);
+						}, this);
+					} else {
+						this.removeScreen(path);
+					}
 				}
 			}
-
-			return null;
-		};
-
-		App.prototype.getAllowPreventNavigate = function getAllowPreventNavigate() {
-			return this.allowPreventNavigate;
-		};
-
-		App.prototype.getBasePath = function getBasePath() {
-			return this.basePath;
-		};
-
-		App.prototype.getDefaultTitle = function getDefaultTitle() {
-			return this.defaultTitle;
-		};
-
-		App.prototype.getFormSelector = function getFormSelector() {
-			return this.formSelector;
-		};
-
-		App.prototype.getLinkSelector = function getLinkSelector() {
-			return this.linkSelector;
-		};
-
-		App.prototype.getLoadingCssClass = function getLoadingCssClass() {
-			return this.loadingCssClass;
-		};
-
-		App.prototype.getUpdateScrollPosition = function getUpdateScrollPosition() {
-			return this.updateScrollPosition;
-		};
-
-		App.prototype.handleNavigateError_ = function handleNavigateError_(path, nextScreen, err) {
-			void 0;
-			if (!_utils2.default.isCurrentBrowserPath(path)) {
-				this.removeScreen(path);
+		}, {
+			key: 'hasRoutes',
+			value: function hasRoutes() {
+				return this.routes.length > 0;
 			}
-		};
-
-		App.prototype.hasRoutes = function hasRoutes() {
-			return this.routes.length > 0;
-		};
-
-		App.prototype.isLinkSameOrigin_ = function isLinkSameOrigin_(hostname) {
-			return hostname === _globals2.default.window.location.hostname;
-		};
-
-		App.prototype.isSameBasePath_ = function isSameBasePath_(path) {
-			return path.indexOf(this.basePath) === 0;
-		};
-
-		App.prototype.lockHistoryScrollPosition_ = function lockHistoryScrollPosition_() {
-			var state = _globals2.default.window.history.state;
-			if (!state) {
-				return;
+		}, {
+			key: 'isLinkSameOrigin_',
+			value: function isLinkSameOrigin_(hostname) {
+				return hostname === _globals2.default.window.location.hostname;
 			}
-			// Browsers are inconsistent when re-positioning the scroll history on
-			// popstate. At some browsers, history scroll happens before popstate, then
-			// lock the scroll on the last known position as soon as possible after the
-			// current JS execution context and capture the current value. Some others,
-			// history scroll happens after popstate, in this case, we bind an once
-			// scroll event to lock the las known position. Lastly, the previous two
-			// behaviors can happen even on the same browser, hence the race will decide
-			// the winner.
-			var winner = false;
-			var switchScrollPositionRace = function switchScrollPositionRace() {
-				_globals2.default.document.removeEventListener('scroll', switchScrollPositionRace, false);
-				if (!winner) {
-					_globals2.default.window.scrollTo(state.scrollLeft, state.scrollTop);
-					winner = true;
+		}, {
+			key: 'isSameBasePath_',
+			value: function isSameBasePath_(path) {
+				return path.indexOf(this.basePath) === 0;
+			}
+		}, {
+			key: 'lockHistoryScrollPosition_',
+			value: function lockHistoryScrollPosition_() {
+				var state = _globals2.default.window.history.state;
+				if (!state) {
+					return;
 				}
-			};
-			_metal.async.nextTick(switchScrollPositionRace);
-			_globals2.default.document.addEventListener('scroll', switchScrollPositionRace, false);
-		};
-
-		App.prototype.maybeDisableNativeScrollRestoration = function maybeDisableNativeScrollRestoration() {
-			if (this.nativeScrollRestorationSupported) {
-				this.nativeScrollRestoration_ = _globals2.default.window.history.scrollRestoration;
-				_globals2.default.window.history.scrollRestoration = 'manual';
+				// Browsers are inconsistent when re-positioning the scroll history on
+				// popstate. At some browsers, history scroll happens before popstate, then
+				// lock the scroll on the last known position as soon as possible after the
+				// current JS execution context and capture the current value. Some others,
+				// history scroll happens after popstate, in this case, we bind an once
+				// scroll event to lock the las known position. Lastly, the previous two
+				// behaviors can happen even on the same browser, hence the race will decide
+				// the winner.
+				var winner = false;
+				var switchScrollPositionRace = function switchScrollPositionRace() {
+					_globals2.default.document.removeEventListener('scroll', switchScrollPositionRace, false);
+					if (!winner) {
+						_globals2.default.window.scrollTo(state.scrollLeft, state.scrollTop);
+						winner = true;
+					}
+				};
+				_metal.async.nextTick(switchScrollPositionRace);
+				_globals2.default.document.addEventListener('scroll', switchScrollPositionRace, false);
 			}
-		};
-
-		App.prototype.maybeNavigate_ = function maybeNavigate_(href, event) {
-			if (!this.canNavigate(href)) {
-				return;
-			}
-
-			_globals2.default.capturedFormElement = event.capturedFormElement;
-
-			var navigateFailed = false;
-			try {
-				this.navigate(_utils2.default.getUrlPath(href));
-			} catch (err) {
-				// Do not prevent link navigation in case some synchronous error occurs
-				navigateFailed = true;
-			}
-
-			if (!navigateFailed) {
-				event.preventDefault();
-			}
-		};
-
-		App.prototype.maybeRepositionScrollToHashedAnchor = function maybeRepositionScrollToHashedAnchor() {
-			var hash = _globals2.default.window.location.hash;
-			if (hash) {
-				var anchorElement = _globals2.default.document.getElementById(hash.substring(1));
-				if (anchorElement) {
-					_globals2.default.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+		}, {
+			key: 'maybeDisableNativeScrollRestoration',
+			value: function maybeDisableNativeScrollRestoration() {
+				if (this.nativeScrollRestorationSupported) {
+					this.nativeScrollRestoration_ = _globals2.default.window.history.scrollRestoration;
+					_globals2.default.window.history.scrollRestoration = 'manual';
 				}
 			}
-		};
+		}, {
+			key: 'maybeNavigate_',
+			value: function maybeNavigate_(href, event) {
+				if (!this.canNavigate(href)) {
+					return;
+				}
 
-		App.prototype.maybeRestoreNativeScrollRestoration = function maybeRestoreNativeScrollRestoration() {
-			if (this.nativeScrollRestorationSupported && this.nativeScrollRestoration_) {
-				_globals2.default.window.history.scrollRestoration = this.nativeScrollRestoration_;
+				_globals2.default.capturedFormElement = event.capturedFormElement;
+
+				var navigateFailed = false;
+				try {
+					this.navigate(_utils2.default.getUrlPath(href));
+				} catch (err) {
+					// Do not prevent link navigation in case some synchronous error occurs
+					navigateFailed = true;
+				}
+
+				if (!navigateFailed) {
+					event.preventDefault();
+				}
 			}
-		};
-
-		App.prototype.navigate = function navigate(path, opt_replaceHistory) {
-			if (!_utils2.default.isHtml5HistorySupported()) {
-				throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
+		}, {
+			key: 'maybeRepositionScrollToHashedAnchor',
+			value: function maybeRepositionScrollToHashedAnchor() {
+				var hash = _globals2.default.window.location.hash;
+				if (hash) {
+					var anchorElement = _globals2.default.document.getElementById(hash.substring(1));
+					if (anchorElement) {
+						_globals2.default.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+					}
+				}
 			}
-
-			// When reloading the same path do replaceState instead of pushState to
-			// avoid polluting history with states with the same path.
-			if (path === this.activePath) {
-				opt_replaceHistory = true;
+		}, {
+			key: 'maybeRestoreNativeScrollRestoration',
+			value: function maybeRestoreNativeScrollRestoration() {
+				if (this.nativeScrollRestorationSupported && this.nativeScrollRestoration_) {
+					_globals2.default.window.history.scrollRestoration = this.nativeScrollRestoration_;
+				}
 			}
+		}, {
+			key: 'navigate',
+			value: function navigate(path, opt_replaceHistory) {
+				if (!_utils2.default.isHtml5HistorySupported()) {
+					throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
+				}
 
-			this.emit('beforeNavigate', {
-				path: path,
-				replaceHistory: !!opt_replaceHistory
-			});
+				// When reloading the same path do replaceState instead of pushState to
+				// avoid polluting history with states with the same path.
+				if (path === this.activePath) {
+					opt_replaceHistory = true;
+				}
 
-			return this.pendingNavigate;
-		};
+				this.emit('beforeNavigate', {
+					path: path,
+					replaceHistory: !!opt_replaceHistory
+				});
 
-		App.prototype.onBeforeNavigate_ = function onBeforeNavigate_(event) {
-			if (_globals2.default.capturedFormElement) {
-				event.form = _globals2.default.capturedFormElement;
+				return this.pendingNavigate;
 			}
-		};
+		}, {
+			key: 'onBeforeNavigate_',
+			value: function onBeforeNavigate_(event) {
+				if (_globals2.default.capturedFormElement) {
+					event.form = _globals2.default.capturedFormElement;
+				}
+			}
+		}, {
+			key: 'onBeforeNavigateDefault_',
+			value: function onBeforeNavigateDefault_(event) {
+				if (this.pendingNavigate) {
+					if (this.pendingNavigate.path === event.path) {
+						void 0;
+						return;
+					}
+				}
 
-		App.prototype.onBeforeNavigateDefault_ = function onBeforeNavigateDefault_(event) {
-			if (this.pendingNavigate) {
-				if (this.pendingNavigate.path === event.path) {
+				this.emit('startNavigate', {
+					form: event.form,
+					path: event.path,
+					replaceHistory: event.replaceHistory
+				});
+			}
+		}, {
+			key: 'onDocClickDelegate_',
+			value: function onDocClickDelegate_(event) {
+				if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
 					void 0;
 					return;
 				}
+				this.maybeNavigate_(event.delegateTarget.href, event);
 			}
-
-			this.emit('startNavigate', {
-				form: event.form,
-				path: event.path,
-				replaceHistory: event.replaceHistory
-			});
-		};
-
-		App.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
-			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-				void 0;
-				return;
+		}, {
+			key: 'onDocSubmitDelegate_',
+			value: function onDocSubmitDelegate_(event) {
+				var form = event.delegateTarget;
+				if (form.method === 'get') {
+					void 0;
+					return;
+				}
+				event.capturedFormElement = form;
+				this.maybeNavigate_(form.action, event);
 			}
-			this.maybeNavigate_(event.delegateTarget.href, event);
-		};
+		}, {
+			key: 'onLoad_',
+			value: function onLoad_() {
+				var _this7 = this;
 
-		App.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
-			var form = event.delegateTarget;
-			if (form.method === 'get') {
-				void 0;
-				return;
+				this.skipLoadPopstate = true;
+				setTimeout(function () {
+					// The timeout ensures that popstate events will be unblocked right
+					// after the load event occured, but not in the same event-loop cycle.
+					_this7.skipLoadPopstate = false;
+				}, 0);
+				// Try to reposition scroll to the hashed anchor when page loads.
+				this.maybeRepositionScrollToHashedAnchor();
 			}
-			event.capturedFormElement = form;
-			this.maybeNavigate_(form.action, event);
-		};
+		}, {
+			key: 'onPopstate_',
+			value: function onPopstate_(event) {
+				if (this.skipLoadPopstate) {
+					return;
+				}
 
-		App.prototype.onLoad_ = function onLoad_() {
-			var _this6 = this;
+				var state = event.state;
 
-			this.skipLoadPopstate = true;
-			setTimeout(function () {
-				// The timeout ensures that popstate events will be unblocked right
-				// after the load event occured, but not in the same event-loop cycle.
-				_this6.skipLoadPopstate = false;
-			}, 0);
-			// Try to reposition scroll to the hashed anchor when page loads.
-			this.maybeRepositionScrollToHashedAnchor();
-		};
-
-		App.prototype.onPopstate_ = function onPopstate_(event) {
-			if (this.skipLoadPopstate) {
-				return;
-			}
-
-			var state = event.state;
-
-			if (!state) {
-				if (_globals2.default.window.location.hash) {
-					// If senna is on an redirect path and a hash popstate happens
-					// to a different url, reload the browser. This behavior doesn't
-					// require senna to route hashed links and is closer to native
-					// browser behavior.
-					if (this.redirectPath && !_utils2.default.isCurrentBrowserPath(this.redirectPath)) {
+				if (!state) {
+					if (_globals2.default.window.location.hash) {
+						// If senna is on an redirect path and a hash popstate happens
+						// to a different url, reload the browser. This behavior doesn't
+						// require senna to route hashed links and is closer to native
+						// browser behavior.
+						if (this.redirectPath && !_utils2.default.isCurrentBrowserPath(this.redirectPath)) {
+							this.reloadPage();
+						}
+						// Always try to reposition scroll to the hashed anchor when
+						// hash popstate happens.
+						this.maybeRepositionScrollToHashedAnchor();
+					} else {
 						this.reloadPage();
 					}
-					// Always try to reposition scroll to the hashed anchor when
-					// hash popstate happens.
-					this.maybeRepositionScrollToHashedAnchor();
+					return;
+				}
+
+				if (state.senna) {
+					void 0;
+					this.popstateScrollTop = state.scrollTop;
+					this.popstateScrollLeft = state.scrollLeft;
+					if (!this.nativeScrollRestorationSupported) {
+						this.lockHistoryScrollPosition_();
+					}
+					this.navigate(state.path, true);
+				}
+			}
+		}, {
+			key: 'onScroll_',
+			value: function onScroll_() {
+				if (this.captureScrollPositionFromScrollEvent) {
+					this.saveHistoryCurrentPageScrollPosition_();
+				}
+			}
+		}, {
+			key: 'onStartNavigate_',
+			value: function onStartNavigate_(event) {
+				var _this8 = this;
+
+				this.maybeDisableNativeScrollRestoration();
+				this.captureScrollPositionFromScrollEvent = false;
+				_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
+
+				var endNavigatePayload = {
+					form: event.form,
+					path: event.path
+				};
+
+				this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
+					endNavigatePayload.error = reason;
+					throw reason;
+				}).thenAlways(function () {
+					if (!_this8.pendingNavigate) {
+						_dom2.default.removeClasses(_globals2.default.document.documentElement, _this8.loadingCssClass);
+						_this8.maybeRestoreNativeScrollRestoration();
+						_this8.captureScrollPositionFromScrollEvent = true;
+					}
+					_this8.emit('endNavigate', endNavigatePayload);
+				});
+
+				this.pendingNavigate.path = event.path;
+			}
+		}, {
+			key: 'prefetch',
+			value: function prefetch(path) {
+				var _this9 = this;
+
+				var route = this.findRoute(path);
+				if (!route) {
+					return _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
+				}
+
+				void 0;
+
+				var nextScreen = this.createScreenInstance(path, route);
+
+				return nextScreen.load(path).then(function () {
+					return _this9.screens[path] = nextScreen;
+				}).catch(function (reason) {
+					_this9.handleNavigateError_(path, nextScreen, reason);
+					throw reason;
+				});
+			}
+		}, {
+			key: 'prepareNavigateHistory_',
+			value: function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
+				var title = nextScreen.getTitle();
+				if (!_metal.core.isString(title)) {
+					title = this.getDefaultTitle();
+				}
+				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
+				var historyState = {
+					form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
+					redirectPath: redirectPath,
+					path: path,
+					senna: true,
+					scrollTop: 0,
+					scrollLeft: 0
+				};
+				if (opt_replaceHistory) {
+					historyState.scrollTop = this.popstateScrollTop;
+					historyState.scrollLeft = this.popstateScrollLeft;
+				}
+				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+				this.redirectPath = redirectPath;
+			}
+		}, {
+			key: 'prepareNavigateSurfaces_',
+			value: function prepareNavigateSurfaces_(nextScreen, surfaces, params) {
+				Object.keys(surfaces).forEach(function (id) {
+					var surfaceContent = nextScreen.getSurfaceContent(id, params);
+					surfaces[id].addContent(nextScreen.getId(), surfaceContent);
+					void 0;
+				});
+			}
+		}, {
+			key: 'reloadPage',
+			value: function reloadPage() {
+				_globals2.default.window.location.reload();
+			}
+		}, {
+			key: 'removeRoute',
+			value: function removeRoute(route) {
+				return _metal.array.remove(this.routes, route);
+			}
+		}, {
+			key: 'removeScreen',
+			value: function removeScreen(path) {
+				var _this10 = this;
+
+				var screen = this.screens[path];
+				if (screen) {
+					Object.keys(this.surfaces).forEach(function (surfaceId) {
+						return _this10.surfaces[surfaceId].remove(screen.getId());
+					});
+					screen.dispose();
+					delete this.screens[path];
+				}
+			}
+		}, {
+			key: 'saveHistoryCurrentPageScrollPosition_',
+			value: function saveHistoryCurrentPageScrollPosition_() {
+				var state = _globals2.default.window.history.state;
+				if (state && state.senna) {
+					state.scrollTop = _globals2.default.window.pageYOffset;
+					state.scrollLeft = _globals2.default.window.pageXOffset;
+					_globals2.default.window.history.replaceState(state, null, null);
+				}
+			}
+		}, {
+			key: 'setAllowPreventNavigate',
+			value: function setAllowPreventNavigate(allowPreventNavigate) {
+				this.allowPreventNavigate = allowPreventNavigate;
+			}
+		}, {
+			key: 'setBasePath',
+			value: function setBasePath(basePath) {
+				this.basePath = basePath;
+			}
+		}, {
+			key: 'setDefaultTitle',
+			value: function setDefaultTitle(defaultTitle) {
+				this.defaultTitle = defaultTitle;
+			}
+		}, {
+			key: 'setFormSelector',
+			value: function setFormSelector(formSelector) {
+				this.formSelector = formSelector;
+				if (this.formEventHandler_) {
+					this.formEventHandler_.removeListener();
+				}
+				this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+			}
+		}, {
+			key: 'setLinkSelector',
+			value: function setLinkSelector(linkSelector) {
+				this.linkSelector = linkSelector;
+				if (this.linkEventHandler_) {
+					this.linkEventHandler_.removeListener();
+				}
+				this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
+			}
+		}, {
+			key: 'setLoadingCssClass',
+			value: function setLoadingCssClass(loadingCssClass) {
+				this.loadingCssClass = loadingCssClass;
+			}
+		}, {
+			key: 'setUpdateScrollPosition',
+			value: function setUpdateScrollPosition(updateScrollPosition) {
+				this.updateScrollPosition = updateScrollPosition;
+			}
+		}, {
+			key: 'stopPendingNavigate_',
+			value: function stopPendingNavigate_() {
+				if (this.pendingNavigate) {
+					this.pendingNavigate.cancel('Cancel pending navigation');
+					this.pendingNavigate = null;
+				}
+			}
+		}, {
+			key: 'syncScrollPositionSyncThenAsync_',
+			value: function syncScrollPositionSyncThenAsync_() {
+				var _this11 = this;
+
+				var state = _globals2.default.window.history.state;
+				if (!state) {
+					return;
+				}
+
+				var scrollTop = state.scrollTop;
+				var scrollLeft = state.scrollLeft;
+
+				var sync = function sync() {
+					if (_this11.updateScrollPosition) {
+						_globals2.default.window.scrollTo(scrollLeft, scrollTop);
+					}
+				};
+
+				return new _Promise2.default(function (resolve) {
+					return sync() & _metal.async.nextTick(function () {
+						return sync() & resolve();
+					});
+				});
+			}
+		}, {
+			key: 'updateHistory_',
+			value: function updateHistory_(title, path, state, opt_replaceHistory) {
+				if (opt_replaceHistory) {
+					_globals2.default.window.history.replaceState(state, title, path);
 				} else {
-					this.reloadPage();
+					_globals2.default.window.history.pushState(state, title, path);
 				}
-				return;
+				_globals2.default.document.title = title;
 			}
-
-			if (state.senna) {
-				void 0;
-				this.popstateScrollTop = state.scrollTop;
-				this.popstateScrollLeft = state.scrollLeft;
-				if (!this.nativeScrollRestorationSupported) {
-					this.lockHistoryScrollPosition_();
-				}
-				this.navigate(state.path, true);
-			}
-		};
-
-		App.prototype.onScroll_ = function onScroll_() {
-			if (this.captureScrollPositionFromScrollEvent) {
-				this.saveHistoryCurrentPageScrollPosition_();
-			}
-		};
-
-		App.prototype.onStartNavigate_ = function onStartNavigate_(event) {
-			var _this7 = this;
-
-			this.maybeDisableNativeScrollRestoration();
-			this.captureScrollPositionFromScrollEvent = false;
-			_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
-
-			var endNavigatePayload = {
-				form: event.form,
-				path: event.path
-			};
-
-			this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
-				endNavigatePayload.error = reason;
-				throw reason;
-			}).thenAlways(function () {
-				if (!_this7.pendingNavigate) {
-					_dom2.default.removeClasses(_globals2.default.document.documentElement, _this7.loadingCssClass);
-					_this7.maybeRestoreNativeScrollRestoration();
-					_this7.captureScrollPositionFromScrollEvent = true;
-				}
-				_this7.emit('endNavigate', endNavigatePayload);
-			});
-
-			this.pendingNavigate.path = event.path;
-		};
-
-		App.prototype.prefetch = function prefetch(path) {
-			var _this8 = this;
-
-			var route = this.findRoute(path);
-			if (!route) {
-				return _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
-			}
-
-			void 0;
-
-			var nextScreen = this.createScreenInstance(path, route);
-
-			return nextScreen.load(path).then(function () {
-				return _this8.screens[path] = nextScreen;
-			}).catch(function (reason) {
-				_this8.handleNavigateError_(path, nextScreen, reason);
-				throw reason;
-			});
-		};
-
-		App.prototype.prepareNavigateHistory_ = function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
-			var title = nextScreen.getTitle();
-			if (!_metal.core.isString(title)) {
-				title = this.getDefaultTitle();
-			}
-			var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
-			var historyState = {
-				form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
-				redirectPath: redirectPath,
-				path: path,
-				senna: true,
-				scrollTop: 0,
-				scrollLeft: 0
-			};
-			if (opt_replaceHistory) {
-				historyState.scrollTop = this.popstateScrollTop;
-				historyState.scrollLeft = this.popstateScrollLeft;
-			}
-			this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
-			this.redirectPath = redirectPath;
-		};
-
-		App.prototype.prepareNavigateSurfaces_ = function prepareNavigateSurfaces_(nextScreen, surfaces) {
-			Object.keys(surfaces).forEach(function (id) {
-				var surfaceContent = nextScreen.getSurfaceContent(id);
-				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-				void 0;
-			});
-		};
-
-		App.prototype.reloadPage = function reloadPage() {
-			_globals2.default.window.location.reload();
-		};
-
-		App.prototype.removeRoute = function removeRoute(route) {
-			return _metal.array.remove(this.routes, route);
-		};
-
-		App.prototype.removeScreen = function removeScreen(path) {
-			var _this9 = this;
-
-			var screen = this.screens[path];
-			if (screen) {
-				Object.keys(this.surfaces).forEach(function (surfaceId) {
-					return _this9.surfaces[surfaceId].remove(screen.getId());
-				});
-				screen.dispose();
-				delete this.screens[path];
-			}
-		};
-
-		App.prototype.saveHistoryCurrentPageScrollPosition_ = function saveHistoryCurrentPageScrollPosition_() {
-			var state = _globals2.default.window.history.state;
-			if (state && state.senna) {
-				state.scrollTop = _globals2.default.window.pageYOffset;
-				state.scrollLeft = _globals2.default.window.pageXOffset;
-				_globals2.default.window.history.replaceState(state, null, null);
-			}
-		};
-
-		App.prototype.setAllowPreventNavigate = function setAllowPreventNavigate(allowPreventNavigate) {
-			this.allowPreventNavigate = allowPreventNavigate;
-		};
-
-		App.prototype.setBasePath = function setBasePath(basePath) {
-			this.basePath = basePath;
-		};
-
-		App.prototype.setDefaultTitle = function setDefaultTitle(defaultTitle) {
-			this.defaultTitle = defaultTitle;
-		};
-
-		App.prototype.setFormSelector = function setFormSelector(formSelector) {
-			this.formSelector = formSelector;
-			if (this.formEventHandler_) {
-				this.formEventHandler_.removeListener();
-			}
-			this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
-		};
-
-		App.prototype.setLinkSelector = function setLinkSelector(linkSelector) {
-			this.linkSelector = linkSelector;
-			if (this.linkEventHandler_) {
-				this.linkEventHandler_.removeListener();
-			}
-			this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
-		};
-
-		App.prototype.setLoadingCssClass = function setLoadingCssClass(loadingCssClass) {
-			this.loadingCssClass = loadingCssClass;
-		};
-
-		App.prototype.setUpdateScrollPosition = function setUpdateScrollPosition(updateScrollPosition) {
-			this.updateScrollPosition = updateScrollPosition;
-		};
-
-		App.prototype.stopPendingNavigate_ = function stopPendingNavigate_() {
-			if (this.pendingNavigate) {
-				this.pendingNavigate.cancel('Cancel pending navigation');
-				this.pendingNavigate = null;
-			}
-		};
-
-		App.prototype.syncScrollPositionSyncThenAsync_ = function syncScrollPositionSyncThenAsync_() {
-			var _this10 = this;
-
-			var state = _globals2.default.window.history.state;
-			if (!state) {
-				return;
-			}
-
-			var scrollTop = state.scrollTop;
-			var scrollLeft = state.scrollLeft;
-
-			var sync = function sync() {
-				if (_this10.updateScrollPosition) {
-					_globals2.default.window.scrollTo(scrollLeft, scrollTop);
-				}
-			};
-
-			return new _Promise2.default(function (resolve) {
-				return sync() & _metal.async.nextTick(function () {
-					return sync() & resolve();
-				});
-			});
-		};
-
-		App.prototype.updateHistory_ = function updateHistory_(title, path, state, opt_replaceHistory) {
-			if (opt_replaceHistory) {
-				_globals2.default.window.history.replaceState(state, title, path);
-			} else {
-				_globals2.default.window.history.pushState(state, title, path);
-			}
-			_globals2.default.document.title = title;
-		};
+		}]);
 
 		return App;
 	}(_events.EventEmitter);

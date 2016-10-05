@@ -11,6 +11,24 @@ define(['exports'], function (exports) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var METAL_DATA = '__metal_data__';
 
 	var domData = function () {
@@ -18,15 +36,18 @@ define(['exports'], function (exports) {
 			_classCallCheck(this, domData);
 		}
 
-		domData.get = function get(element) {
-			if (!element[METAL_DATA]) {
-				element[METAL_DATA] = {
-					delegating: {},
-					listeners: {}
-				};
+		_createClass(domData, null, [{
+			key: 'get',
+			value: function get(element) {
+				if (!element[METAL_DATA]) {
+					element[METAL_DATA] = {
+						delegating: {},
+						listeners: {}
+					};
+				}
+				return element[METAL_DATA];
 			}
-			return element[METAL_DATA];
-		};
+		}]);
 
 		return domData;
 	}();

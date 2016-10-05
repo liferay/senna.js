@@ -4,9 +4,18 @@ define(['exports', './core', './array/array', './async/async', './disposable/Dis
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.string = exports.object = exports.Disposable = exports.async = exports.array = exports.core = undefined;
+  exports.core = exports.string = exports.object = exports.Disposable = exports.async = exports.array = undefined;
+  Object.keys(_core).forEach(function (key) {
+    if (key === "default" || key === "__esModule") return;
+    Object.defineProperty(exports, key, {
+      enumerable: true,
+      get: function () {
+        return _core[key];
+      }
+    });
+  });
 
-  var _core2 = _interopRequireDefault(_core);
+  var core = _interopRequireWildcard(_core);
 
   var _array2 = _interopRequireDefault(_array);
 
@@ -24,12 +33,29 @@ define(['exports', './core', './array/array', './async/async', './disposable/Dis
     };
   }
 
-  exports.default = _core2.default;
-  exports.core = _core2.default;
+  function _interopRequireWildcard(obj) {
+    if (obj && obj.__esModule) {
+      return obj;
+    } else {
+      var newObj = {};
+
+      if (obj != null) {
+        for (var key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+        }
+      }
+
+      newObj.default = obj;
+      return newObj;
+    }
+  }
+
   exports.array = _array2.default;
   exports.async = _async2.default;
   exports.Disposable = _Disposable2.default;
   exports.object = _object2.default;
   exports.string = _string2.default;
+  exports.default = core;
+  exports.core = core;
 });
 //# sourceMappingURL=metal.js.map

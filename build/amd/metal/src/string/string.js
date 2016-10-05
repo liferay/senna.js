@@ -11,36 +11,61 @@ define(['exports'], function (exports) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var string = function () {
 		function string() {
 			_classCallCheck(this, string);
 		}
 
-		string.collapseBreakingSpaces = function collapseBreakingSpaces(str) {
-			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
-		};
-
-		string.escapeRegex = function escapeRegex(str) {
-			return String(str).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
-		};
-
-		string.getRandomString = function getRandomString() {
-			var x = 2147483648;
-			return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);
-		};
-
-		string.hashCode = function hashCode(val) {
-			var hash = 0;
-			for (var i = 0, len = val.length; i < len; i++) {
-				hash = 31 * hash + val.charCodeAt(i);
-				hash %= 0x100000000;
+		_createClass(string, null, [{
+			key: 'collapseBreakingSpaces',
+			value: function collapseBreakingSpaces(str) {
+				return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
 			}
-			return hash;
-		};
-
-		string.replaceInterval = function replaceInterval(str, start, end, value) {
-			return str.substring(0, start) + value + str.substring(end);
-		};
+		}, {
+			key: 'escapeRegex',
+			value: function escapeRegex(str) {
+				return String(str).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
+			}
+		}, {
+			key: 'getRandomString',
+			value: function getRandomString() {
+				var x = 2147483648;
+				return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);
+			}
+		}, {
+			key: 'hashCode',
+			value: function hashCode(val) {
+				var hash = 0;
+				for (var i = 0, len = val.length; i < len; i++) {
+					hash = 31 * hash + val.charCodeAt(i);
+					hash %= 0x100000000;
+				}
+				return hash;
+			}
+		}, {
+			key: 'replaceInterval',
+			value: function replaceInterval(str, start, end, value) {
+				return str.substring(0, start) + value + str.substring(end);
+			}
+		}]);
 
 		return string;
 	}();

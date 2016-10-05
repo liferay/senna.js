@@ -11,6 +11,24 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -47,11 +65,10 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
    *   during capture phase, instead of during the bubbling phase. Defaults to false.
    * @constructor
    */
-
 		function DomEventHandle(emitter, event, listener, opt_capture) {
 			_classCallCheck(this, DomEventHandle);
 
-			var _this = _possibleConstructorReturn(this, _EventHandle.call(this, emitter, event, listener));
+			var _this = _possibleConstructorReturn(this, (DomEventHandle.__proto__ || Object.getPrototypeOf(DomEventHandle)).call(this, emitter, event, listener));
 
 			_this.capture_ = opt_capture;
 			return _this;
@@ -62,9 +79,12 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
    */
 
 
-		DomEventHandle.prototype.removeListener = function removeListener() {
-			this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
-		};
+		_createClass(DomEventHandle, [{
+			key: 'removeListener',
+			value: function removeListener() {
+				this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
+			}
+		}]);
 
 		return DomEventHandle;
 	}(_events.EventHandle);

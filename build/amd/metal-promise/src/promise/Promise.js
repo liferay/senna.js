@@ -5,8 +5,8 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
    *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
    *
    * NOTE(eduardo): Promise support is not ready on all supported browsers,
-   * therefore core.js is temporarily using Google's promises as polyfill. It
-   * supports cancellable promises and has clean and fast implementation.
+   * therefore metal-promise is temporarily using Google's promises as polyfill.
+   * It supports cancellable promises and has clean and fast implementation.
    */
 
   'use strict';
@@ -440,7 +440,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
    * @override
    */
   CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
-    return this.addChildPromise_(_metal.core.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, _metal.core.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+    return this.addChildPromise_((0, _metal.isFunction)(opt_onFulfilled) ? opt_onFulfilled : null, (0, _metal.isFunction)(opt_onRejected) ? opt_onRejected : null, opt_context);
   };
   Thenable.addImplementation(CancellablePromise);
 
@@ -649,7 +649,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
       callbackEntry.onRejected = onRejected ? function (reason) {
         try {
           var result = onRejected.call(opt_context, reason);
-          if (!_metal.core.isDef(result) && reason.IS_CANCELLATION_ERROR) {
+          if (!(0, _metal.isDef)(result) && reason.IS_CANCELLATION_ERROR) {
             // Propagate cancellation to children if no other result is returned.
             reject(reason);
           } else {
@@ -725,10 +725,10 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
       this.state_ = CancellablePromise.State_.BLOCKED;
       x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
       return;
-    } else if (_metal.core.isObject(x)) {
+    } else if ((0, _metal.isObject)(x)) {
       try {
         var then = x.then;
-        if (_metal.core.isFunction(then)) {
+        if ((0, _metal.isFunction)(then)) {
           this.tryThen_(x, then);
           return;
         }
@@ -932,7 +932,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     function _class(opt_message) {
       _classCallCheck(this, _class);
 
-      var _this = _possibleConstructorReturn(this, _Error.call(this, opt_message));
+      var _this = _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, opt_message));
 
       if (opt_message) {
         _this.message = opt_message;

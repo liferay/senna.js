@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal'], function (exports, _metal) {
+define(['exports', 'metal/src/metal', 'metal-path-parser/src/pathParser'], function (exports, _metal, _pathParser) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -11,6 +11,24 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var Route = function () {
 
 		/**
@@ -19,7 +37,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
    * @param {!Function} handler
    * @constructor
    */
-
 		function Route(path, handler) {
 			_classCallCheck(this, Route);
 
@@ -47,34 +64,58 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}
 
 		/**
-   * Gets the route handler.
-   * @return {!Function}
-   */
+  * Builds parsed data (regex and tokens) for this route.
+  * @return {!Object}
+  * @protected
+  */
 
 
-		Route.prototype.getHandler = function getHandler() {
-			return this.handler;
-		};
-
-		Route.prototype.getPath = function getPath() {
-			return this.path;
-		};
-
-		Route.prototype.matchesPath = function matchesPath(value) {
-			var path = this.path;
-
-			if (_metal.core.isString(path)) {
-				return value === path;
+		_createClass(Route, [{
+			key: 'buildParsedData_',
+			value: function buildParsedData_() {
+				if (!this.parsedData_) {
+					var tokens = (0, _pathParser.parse)(this.path);
+					var regex = (0, _pathParser.toRegex)(tokens);
+					this.parsedData_ = {
+						regex: regex,
+						tokens: tokens
+					};
+				}
+				return this.parsedData_;
 			}
-			if (_metal.core.isFunction(path)) {
-				return path(value);
+		}, {
+			key: 'extractParams',
+			value: function extractParams(path) {
+				return (0, _pathParser.extractData)(this.buildParsedData_().tokens, path);
 			}
-			if (path instanceof RegExp) {
-				return value.search(path) > -1;
+		}, {
+			key: 'getHandler',
+			value: function getHandler() {
+				return this.handler;
 			}
+		}, {
+			key: 'getPath',
+			value: function getPath() {
+				return this.path;
+			}
+		}, {
+			key: 'matchesPath',
+			value: function matchesPath(value) {
+				var path = this.path;
 
-			return false;
-		};
+				if (_metal.core.isFunction(path)) {
+					return path(value);
+				}
+				if (_metal.core.isString(path)) {
+					path = this.buildParsedData_().regex;
+				}
+				if (path instanceof RegExp) {
+					return value.search(path) > -1;
+				}
+
+				return false;
+			}
+		}]);
 
 		return Route;
 	}();

@@ -11,6 +11,24 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -42,11 +60,10 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
    * Abstract class for defining cacheable behavior.
    * @constructor
    */
-
 		function Cacheable() {
 			_classCallCheck(this, Cacheable);
 
-			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
+			var _this = _possibleConstructorReturn(this, (Cacheable.__proto__ || Object.getPrototypeOf(Cacheable)).call(this));
 
 			/**
     * Holds the cached data.
@@ -73,36 +90,44 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
    */
 
 
-		Cacheable.prototype.addCache = function addCache(content) {
-			if (this.cacheable) {
-				this.cache = content;
+		_createClass(Cacheable, [{
+			key: 'addCache',
+			value: function addCache(content) {
+				if (this.cacheable) {
+					this.cache = content;
+				}
+				return this;
 			}
-			return this;
-		};
-
-		Cacheable.prototype.clearCache = function clearCache() {
-			this.cache = null;
-			return this;
-		};
-
-		Cacheable.prototype.disposeInternal = function disposeInternal() {
-			this.clearCache();
-		};
-
-		Cacheable.prototype.getCache = function getCache() {
-			return this.cache;
-		};
-
-		Cacheable.prototype.isCacheable = function isCacheable() {
-			return this.cacheable;
-		};
-
-		Cacheable.prototype.setCacheable = function setCacheable(cacheable) {
-			if (!cacheable) {
+		}, {
+			key: 'clearCache',
+			value: function clearCache() {
+				this.cache = null;
+				return this;
+			}
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
 				this.clearCache();
 			}
-			this.cacheable = cacheable;
-		};
+		}, {
+			key: 'getCache',
+			value: function getCache() {
+				return this.cache;
+			}
+		}, {
+			key: 'isCacheable',
+			value: function isCacheable() {
+				return this.cacheable;
+			}
+		}, {
+			key: 'setCacheable',
+			value: function setCacheable(cacheable) {
+				if (!cacheable) {
+					this.clearCache();
+				}
+				this.cacheable = cacheable;
+			}
+		}]);
 
 		return Cacheable;
 	}(_metal.Disposable);

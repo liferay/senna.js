@@ -23,6 +23,24 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -56,11 +74,10 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
    * @param {string} id
    * @constructor
    */
-
 		function Surface(id) {
 			_classCallCheck(this, Surface);
 
-			var _this = _possibleConstructorReturn(this, _Disposable.call(this));
+			var _this = _possibleConstructorReturn(this, (Surface.__proto__ || Object.getPrototypeOf(Surface)).call(this));
 
 			if (!id) {
 				throw new Error('Surface element id not specified. A surface element requires a valid id.');
@@ -125,108 +142,124 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
    */
 
 
-		Surface.prototype.addContent = function addContent(screenId, opt_content) {
-			var child = this.defaultChild;
+		_createClass(Surface, [{
+			key: 'addContent',
+			value: function addContent(screenId, opt_content) {
+				var child = this.defaultChild;
 
-			if (_metal.core.isDefAndNotNull(opt_content)) {
-				child = this.getChild(screenId);
-				if (child) {
-					_dom2.default.removeChildren(child);
-				} else {
-					child = this.createChild(screenId);
-					this.transition(child, null);
+				if (_metal.core.isDefAndNotNull(opt_content)) {
+					child = this.getChild(screenId);
+					if (child) {
+						_dom2.default.removeChildren(child);
+					} else {
+						child = this.createChild(screenId);
+						this.transition(child, null);
+					}
+					_dom2.default.append(child, opt_content);
 				}
-				_dom2.default.append(child, opt_content);
+
+				var element = this.getElement();
+
+				if (element && child) {
+					_dom2.default.append(element, child);
+				}
+
+				return child;
 			}
-
-			var element = this.getElement();
-
-			if (element && child) {
-				_dom2.default.append(element, child);
+		}, {
+			key: 'createChild',
+			value: function createChild(screenId) {
+				var child = _globals2.default.document.createElement('div');
+				child.setAttribute('id', this.makeId_(screenId));
+				return child;
 			}
-
-			return child;
-		};
-
-		Surface.prototype.createChild = function createChild(screenId) {
-			var child = _globals2.default.document.createElement('div');
-			child.setAttribute('id', this.makeId_(screenId));
-			return child;
-		};
-
-		Surface.prototype.getChild = function getChild(screenId) {
-			return _globals2.default.document.getElementById(this.makeId_(screenId));
-		};
-
-		Surface.prototype.getElement = function getElement() {
-			if (this.element) {
+		}, {
+			key: 'getChild',
+			value: function getChild(screenId) {
+				return _globals2.default.document.getElementById(this.makeId_(screenId));
+			}
+		}, {
+			key: 'getElement',
+			value: function getElement() {
+				if (this.element) {
+					return this.element;
+				}
+				this.element = _globals2.default.document.getElementById(this.id);
 				return this.element;
 			}
-			this.element = _globals2.default.document.getElementById(this.id);
-			return this.element;
-		};
-
-		Surface.prototype.getId = function getId() {
-			return this.id;
-		};
-
-		Surface.prototype.getTransitionFn = function getTransitionFn() {
-			return this.transitionFn;
-		};
-
-		Surface.prototype.makeId_ = function makeId_(screenId) {
-			return this.id + '-' + screenId;
-		};
-
-		Surface.prototype.maybeWrapContentAsDefault_ = function maybeWrapContentAsDefault_() {
-			var element = this.getElement();
-			if (element && !this.defaultChild) {
-				var fragment = _globals2.default.document.createDocumentFragment();
-				while (element.firstChild) {
-					fragment.appendChild(element.firstChild);
+		}, {
+			key: 'getId',
+			value: function getId() {
+				return this.id;
+			}
+		}, {
+			key: 'getTransitionFn',
+			value: function getTransitionFn() {
+				return this.transitionFn;
+			}
+		}, {
+			key: 'makeId_',
+			value: function makeId_(screenId) {
+				return this.id + '-' + screenId;
+			}
+		}, {
+			key: 'maybeWrapContentAsDefault_',
+			value: function maybeWrapContentAsDefault_() {
+				var element = this.getElement();
+				if (element && !this.defaultChild) {
+					var fragment = _globals2.default.document.createDocumentFragment();
+					while (element.firstChild) {
+						fragment.appendChild(element.firstChild);
+					}
+					this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
+					this.transition(null, this.defaultChild);
 				}
-				this.defaultChild = this.addContent(Surface.DEFAULT, fragment);
-				this.transition(null, this.defaultChild);
 			}
-		};
-
-		Surface.prototype.setId = function setId(id) {
-			this.id = id;
-		};
-
-		Surface.prototype.setTransitionFn = function setTransitionFn(transitionFn) {
-			this.transitionFn = transitionFn;
-		};
-
-		Surface.prototype.show = function show(screenId) {
-			var from = this.activeChild;
-			var to = this.getChild(screenId);
-			if (!to) {
-				to = this.defaultChild;
+		}, {
+			key: 'setId',
+			value: function setId(id) {
+				this.id = id;
 			}
-			this.activeChild = to;
-			return this.transition(from, to).thenAlways(function () {
-				if (from && from !== to) {
-					_dom2.default.exitDocument(from);
+		}, {
+			key: 'setTransitionFn',
+			value: function setTransitionFn(transitionFn) {
+				this.transitionFn = transitionFn;
+			}
+		}, {
+			key: 'show',
+			value: function show(screenId) {
+				var from = this.activeChild;
+				var to = this.getChild(screenId);
+				if (!to) {
+					to = this.defaultChild;
 				}
-			});
-		};
-
-		Surface.prototype.remove = function remove(screenId) {
-			var child = this.getChild(screenId);
-			if (child) {
-				_dom2.default.exitDocument(child);
+				this.activeChild = to;
+				return this.transition(from, to).thenAlways(function () {
+					if (from && from !== to) {
+						_dom2.default.exitDocument(from);
+					}
+				});
 			}
-		};
-
-		Surface.prototype.toString = function toString() {
-			return this.id;
-		};
-
-		Surface.prototype.transition = function transition(from, to) {
-			var transitionFn = this.transitionFn || Surface.defaultTransition;
-			return _Promise2.default.resolve(transitionFn.call(this, from, to));
-		};
+		}, {
+			key: 'remove',
+			value: function remove(screenId) {
+				var child = this.getChild(screenId);
+				if (child) {
+					_dom2.default.exitDocument(child);
+				}
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return this.id;
+			}
+		}, {
+			key: 'transition',
+			value: function transition(from, to) {
+				var transitionFn = this.transitionFn || Surface.defaultTransition;
+				return _Promise2.default.resolve(transitionFn.call(this, from, to));
+			}
+		}]);
 
 		return Surface;
 	}(_metal.Disposable);

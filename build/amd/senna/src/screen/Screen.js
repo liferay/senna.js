@@ -21,6 +21,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	function _possibleConstructorReturn(self, call) {
 		if (!self) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -28,6 +46,31 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 
 		return call && (typeof call === "object" || typeof call === "function") ? call : self;
 	}
+
+	var _get = function get(object, property, receiver) {
+		if (object === null) object = Function.prototype;
+		var desc = Object.getOwnPropertyDescriptor(object, property);
+
+		if (desc === undefined) {
+			var parent = Object.getPrototypeOf(object);
+
+			if (parent === null) {
+				return undefined;
+			} else {
+				return get(parent, property, receiver);
+			}
+		} else if ("value" in desc) {
+			return desc.value;
+		} else {
+			var getter = desc.get;
+
+			if (getter === undefined) {
+				return undefined;
+			}
+
+			return getter.call(receiver);
+		}
+	};
 
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
@@ -55,11 +98,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
    * @constructor
    * @extends {Cacheable}
    */
-
 		function Screen() {
 			_classCallCheck(this, Screen);
 
-			var _this = _possibleConstructorReturn(this, _Cacheable.call(this));
+			var _this = _possibleConstructorReturn(this, (Screen.__proto__ || Object.getPrototypeOf(Screen)).call(this));
 
 			/**
     * Holds the screen id.
@@ -85,92 +127,111 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
    */
 
 
-		Screen.prototype.activate = function activate() {
-			void 0;
-		};
+		_createClass(Screen, [{
+			key: 'activate',
+			value: function activate() {
+				void 0;
+			}
+		}, {
+			key: 'beforeDeactivate',
+			value: function beforeDeactivate() {
+				void 0;
+			}
+		}, {
+			key: 'beforeUpdateHistoryPath',
+			value: function beforeUpdateHistoryPath(path) {
+				return path;
+			}
+		}, {
+			key: 'beforeUpdateHistoryState',
+			value: function beforeUpdateHistoryState(state) {
+				return state;
+			}
+		}, {
+			key: 'deactivate',
+			value: function deactivate() {
+				void 0;
+			}
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				_get(Screen.prototype.__proto__ || Object.getPrototypeOf(Screen.prototype), 'disposeInternal', this).call(this);
+				void 0;
+			}
+		}, {
+			key: 'evaluateScripts',
+			value: function evaluateScripts(surfaces) {
+				Object.keys(surfaces).forEach(function (sId) {
+					if (surfaces[sId].activeChild) {
+						_dom.globalEval.runScriptsInElement(surfaces[sId].activeChild);
+					}
+				});
+				return _Promise2.default.resolve();
+			}
+		}, {
+			key: 'evaluateStyles',
+			value: function evaluateStyles() {
+				return _Promise2.default.resolve();
+			}
+		}, {
+			key: 'flip',
+			value: function flip(surfaces) {
+				var _this2 = this;
 
-		Screen.prototype.beforeDeactivate = function beforeDeactivate() {
-			void 0;
-		};
+				void 0;
 
-		Screen.prototype.beforeUpdateHistoryPath = function beforeUpdateHistoryPath(path) {
-			return path;
-		};
+				var transitions = [];
 
-		Screen.prototype.beforeUpdateHistoryState = function beforeUpdateHistoryState(state) {
-			return state;
-		};
+				Object.keys(surfaces).forEach(function (sId) {
+					var surface = surfaces[sId];
+					var deferred = surface.show(_this2.id);
+					transitions.push(deferred);
+				});
 
-		Screen.prototype.deactivate = function deactivate() {
-			void 0;
-		};
-
-		Screen.prototype.disposeInternal = function disposeInternal() {
-			_Cacheable.prototype.disposeInternal.call(this);
-			void 0;
-		};
-
-		Screen.prototype.evaluateScripts = function evaluateScripts(surfaces) {
-			Object.keys(surfaces).forEach(function (sId) {
-				if (surfaces[sId].activeChild) {
-					_dom.globalEval.runScriptsInElement(surfaces[sId].activeChild);
-				}
-			});
-			return _Promise2.default.resolve();
-		};
-
-		Screen.prototype.evaluateStyles = function evaluateStyles() {
-			return _Promise2.default.resolve();
-		};
-
-		Screen.prototype.flip = function flip(surfaces) {
-			var _this2 = this;
-
-			void 0;
-
-			var transitions = [];
-
-			Object.keys(surfaces).forEach(function (sId) {
-				var surface = surfaces[sId];
-				var deferred = surface.show(_this2.id);
-				transitions.push(deferred);
-			});
-
-			return _Promise2.default.all(transitions);
-		};
-
-		Screen.prototype.getId = function getId() {
-			return this.id;
-		};
-
-		Screen.prototype.getSurfaceContent = function getSurfaceContent() {
-			void 0;
-		};
-
-		Screen.prototype.getTitle = function getTitle() {
-			return this.title;
-		};
-
-		Screen.prototype.load = function load() {
-			void 0;
-			return _Promise2.default.resolve();
-		};
-
-		Screen.prototype.makeId_ = function makeId_(id) {
-			return 'screen_' + id;
-		};
-
-		Screen.prototype.setId = function setId(id) {
-			this.id = id;
-		};
-
-		Screen.prototype.setTitle = function setTitle(title) {
-			this.title = title;
-		};
-
-		Screen.prototype.toString = function toString() {
-			return this.id;
-		};
+				return _Promise2.default.all(transitions);
+			}
+		}, {
+			key: 'getId',
+			value: function getId() {
+				return this.id;
+			}
+		}, {
+			key: 'getSurfaceContent',
+			value: function getSurfaceContent() {
+				void 0;
+			}
+		}, {
+			key: 'getTitle',
+			value: function getTitle() {
+				return this.title;
+			}
+		}, {
+			key: 'load',
+			value: function load() {
+				void 0;
+				return _Promise2.default.resolve();
+			}
+		}, {
+			key: 'makeId_',
+			value: function makeId_(id) {
+				return 'screen_' + id;
+			}
+		}, {
+			key: 'setId',
+			value: function setId(id) {
+				this.id = id;
+			}
+		}, {
+			key: 'setTitle',
+			value: function setTitle(title) {
+				this.title = title;
+			}
+		}, {
+			key: 'toString',
+			value: function toString() {
+				return this.id;
+			}
+		}]);
 
 		return Screen;
 	}(_Cacheable3.default);

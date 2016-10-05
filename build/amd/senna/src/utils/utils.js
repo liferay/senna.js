@@ -21,51 +21,79 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 		}
 	}
 
+	var _createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
 	var utils = function () {
 		function utils() {
 			_classCallCheck(this, utils);
 		}
 
-		utils.copyNodeAttributes = function copyNodeAttributes(source, target) {
-			Array.prototype.slice.call(source.attributes).forEach(function (attribute) {
-				return target.setAttribute(attribute.name, attribute.value);
-			});
-		};
-
-		utils.getCurrentBrowserPath = function getCurrentBrowserPath() {
-			return this.getCurrentBrowserPathWithoutHash() + _globals2.default.window.location.hash;
-		};
-
-		utils.getCurrentBrowserPathWithoutHash = function getCurrentBrowserPathWithoutHash() {
-			return _globals2.default.window.location.pathname + _globals2.default.window.location.search;
-		};
-
-		utils.getUrlPath = function getUrlPath(url) {
-			var uri = new _Uri2.default(url);
-			return uri.getPathname() + uri.getSearch() + uri.getHash();
-		};
-
-		utils.getUrlPathWithoutHash = function getUrlPathWithoutHash(url) {
-			var uri = new _Uri2.default(url);
-			return uri.getPathname() + uri.getSearch();
-		};
-
-		utils.isCurrentBrowserPath = function isCurrentBrowserPath(url) {
-			if (url) {
-				return utils.getUrlPathWithoutHash(url) === this.getCurrentBrowserPathWithoutHash();
+		_createClass(utils, null, [{
+			key: 'copyNodeAttributes',
+			value: function copyNodeAttributes(source, target) {
+				Array.prototype.slice.call(source.attributes).forEach(function (attribute) {
+					return target.setAttribute(attribute.name, attribute.value);
+				});
 			}
-			return false;
-		};
-
-		utils.isHtml5HistorySupported = function isHtml5HistorySupported() {
-			return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
-		};
-
-		utils.clearNodeAttributes = function clearNodeAttributes(node) {
-			Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
-				return node.removeAttribute(attribute.name);
-			});
-		};
+		}, {
+			key: 'getCurrentBrowserPath',
+			value: function getCurrentBrowserPath() {
+				return this.getCurrentBrowserPathWithoutHash() + _globals2.default.window.location.hash;
+			}
+		}, {
+			key: 'getCurrentBrowserPathWithoutHash',
+			value: function getCurrentBrowserPathWithoutHash() {
+				return _globals2.default.window.location.pathname + _globals2.default.window.location.search;
+			}
+		}, {
+			key: 'getUrlPath',
+			value: function getUrlPath(url) {
+				var uri = new _Uri2.default(url);
+				return uri.getPathname() + uri.getSearch() + uri.getHash();
+			}
+		}, {
+			key: 'getUrlPathWithoutHash',
+			value: function getUrlPathWithoutHash(url) {
+				var uri = new _Uri2.default(url);
+				return uri.getPathname() + uri.getSearch();
+			}
+		}, {
+			key: 'isCurrentBrowserPath',
+			value: function isCurrentBrowserPath(url) {
+				if (url) {
+					return utils.getUrlPathWithoutHash(url) === this.getCurrentBrowserPathWithoutHash();
+				}
+				return false;
+			}
+		}, {
+			key: 'isHtml5HistorySupported',
+			value: function isHtml5HistorySupported() {
+				return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
+			}
+		}, {
+			key: 'clearNodeAttributes',
+			value: function clearNodeAttributes(node) {
+				Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
+					return node.removeAttribute(attribute.name);
+				});
+			}
+		}]);
 
 		return utils;
 	}();
