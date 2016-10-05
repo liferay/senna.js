@@ -34,7 +34,7 @@ class Route {
 		 */
 		this.path = path;
 	}
-	
+
 	/**
 	* Builds parsed data (regex and tokens) for this route.
 	* @return {!Object}
@@ -51,7 +51,7 @@ class Route {
 		}
 		return this.parsedData_;
 	}
-	
+
 	/**
 	 * Extracts param data from the given path, according to this route.
 	 * @param {string} path The url path to extract params from.
@@ -59,7 +59,10 @@ class Route {
 	 *     null otherwise.
 	 */
 	extractParams(path) {
-		return extractData(this.buildParsedData_().tokens, path);
+		if (core.isString(this.path)) {
+			return extractData(this.buildParsedData_().tokens, path);
+		}
+		return {};
 	}
 
 	/**
@@ -77,7 +80,7 @@ class Route {
 	getPath() {
 		return this.path;
 	}
-	
+
 	/**
  	 * Matches if the router can handle the tested path.
  	 * @param {!string} value Path to test (may contain the querystring part).

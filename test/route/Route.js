@@ -102,5 +102,11 @@ describe('Route', function() {
       var params = route.extractParams('/path/abc/123');
       assert.strictEqual(null, params);
     });
+
+    it('should return empty object if trying to extract params from path given as function', () => {
+      var route = new Route(core.nullFunction, core.nullFunction);
+      var params = route.extractParams('/path/123/abc');
+      assert.deepEqual({}, params);
+    });
   });
 });
