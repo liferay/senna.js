@@ -140,8 +140,6 @@ gulp.task('server', ['default'], function() {
 	});
 });
 
-gulp.task('build:globals:js', function(done) {
-  buildRollup(options, function() {
-    done();
-  });
+gulp.task('build:globals:js', function() {
+  return buildRollup(options);
 });
