@@ -7,8 +7,6 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 
 	var _globals2 = _interopRequireDefault(_globals);
 
-	var _dom2 = _interopRequireDefault(_dom);
-
 	var _Promise2 = _interopRequireDefault(_Promise);
 
 	function _interopRequireDefault(obj) {
@@ -147,21 +145,21 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 			value: function addContent(screenId, opt_content) {
 				var child = this.defaultChild;
 
-				if (_metal.core.isDefAndNotNull(opt_content)) {
+				if ((0, _metal.isDefAndNotNull)(opt_content)) {
 					child = this.getChild(screenId);
 					if (child) {
-						_dom2.default.removeChildren(child);
+						(0, _dom.removeChildren)(child);
 					} else {
 						child = this.createChild(screenId);
 						this.transition(child, null);
 					}
-					_dom2.default.append(child, opt_content);
+					(0, _dom.append)(child, opt_content);
 				}
 
 				var element = this.getElement();
 
 				if (element && child) {
-					_dom2.default.append(element, child);
+					(0, _dom.append)(element, child);
 				}
 
 				return child;
@@ -236,7 +234,7 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 				this.activeChild = to;
 				return this.transition(from, to).thenAlways(function () {
 					if (from && from !== to) {
-						_dom2.default.exitDocument(from);
+						(0, _dom.exitDocument)(from);
 					}
 				});
 			}
@@ -245,7 +243,7 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 			value: function remove(screenId) {
 				var child = this.getChild(screenId);
 				if (child) {
-					_dom2.default.exitDocument(child);
+					(0, _dom.exitDocument)(child);
 				}
 			}
 		}, {
