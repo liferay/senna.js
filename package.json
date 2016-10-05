@@ -1,6 +1,6 @@
 {
   "name": "senna",
-  "version": "1.5.3",
+  "version": "2.0.0",
   "description": "A blazing-fast Single Page Application engine",
   "license": "BSD-3-Clause",
   "repository": "liferay/senna.js",
@@ -33,7 +33,6 @@
     "metal-debounce": "^2.0.0",
     "metal-dom": "^2.0.0",
     "metal-events": "^2.0.0",
-    "metal-debounce": "^2.0.0",
     "metal-structs": "^1.0.0",
     "metal-path-parser": "^1.0.0",
     "metal-promise": "^2.0.0",
