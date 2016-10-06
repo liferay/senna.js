@@ -1,5 +1,6 @@
 'use strict';
 
+var buildRollup = require('metal-tools-build-rollup');
 var connect = require('gulp-connect');
 var gulp = require('gulp');
 var header = require('gulp-header');
@@ -11,7 +12,9 @@ var stripDebug = require('gulp-strip-debug');
 
 // Metal -----------------------------------------------------------------------
 
-metal.registerTasks({
+var options = {
+  dest: 'build/globals',
+  src: 'src/senna.js',
 	bundleCssFileName: 'senna.css',
 	bundleFileName: 'senna.js',
 	globalName: 'senna',
@@ -75,7 +78,9 @@ metal.registerTasks({
 			version: '5.0'
 		}
 	}
-});
+}
+
+metal.registerTasks(options);
 
 // Helpers ---------------------------------------------------------------------
 
@@ -133,4 +138,8 @@ gulp.task('server', ['default'], function() {
 	connect.server({
 		port: 8888
 	});
+});
+
+gulp.task('build:globals:js', function() {
+  return buildRollup(options);
 });

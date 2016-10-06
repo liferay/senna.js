@@ -1,6 +1,6 @@
 'use strict';
 
-import { core, object, Disposable } from 'metal';
+import { getUid, isDefAndNotNull, isElement, object, Disposable } from 'metal';
 import dataAttributes from './dataAttributes';
 import globals from '../globals/globals';
 import App from './App';
@@ -37,7 +37,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * Inits application based on information scanned from document.
 	 */
 	handle() {
-		if (!core.isElement(this.baseElement)) {
+		if (!isElement(this.baseElement)) {
 			throw new Error('Senna data attribute handler base element ' +
 				'not set or invalid, try setting a valid element that ' +
 				'contains a `data-senna` attribute.');
@@ -142,7 +142,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	maybeParseLinkRouteHandler_(link) {
 		var handler = link.getAttribute('type');
-		if (core.isDefAndNotNull(handler)) {
+		if (isDefAndNotNull(handler)) {
 			handler = object.getObjectByName(handler);
 		}
 		return handler;
@@ -155,7 +155,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	maybeParseLinkRoutePath_(link) {
 		var path = link.getAttribute('href');
-		if (core.isDefAndNotNull(path)) {
+		if (isDefAndNotNull(path)) {
 			if (path.indexOf('regex:') === 0) {
 				path = new RegExp(path.substring(6));
 			}
@@ -168,7 +168,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	maybeSetBasePath_() {
 		var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
-		if (core.isDefAndNotNull(basePath)) {
+		if (isDefAndNotNull(basePath)) {
 			this.app.setBasePath(basePath);
 			console.log('Senna scanned base path ' + basePath);
 		}
@@ -180,7 +180,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	maybeSetLinkSelector_() {
 		var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
-		if (core.isDefAndNotNull(linkSelector)) {
+		if (isDefAndNotNull(linkSelector)) {
 			this.app.setLinkSelector(linkSelector);
 			console.log('Senna scanned link selector ' + linkSelector);
 		}
@@ -192,7 +192,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	maybeSetLoadingCssClass_() {
 		var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
-		if (core.isDefAndNotNull(loadingCssClass)) {
+		if (isDefAndNotNull(loadingCssClass)) {
 			this.app.setLoadingCssClass(loadingCssClass);
 			console.log('Senna scanned loading css class ' + loadingCssClass);
 		}
@@ -204,7 +204,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	maybeSetUpdateScrollPosition_() {
 		var updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
-		if (core.isDefAndNotNull(updateScrollPosition)) {
+		if (isDefAndNotNull(updateScrollPosition)) {
 			if (updateScrollPosition === 'false') {
 				this.app.setUpdateScrollPosition(false);
 			} else {
@@ -231,7 +231,7 @@ class AppDataAttributeHandler extends Disposable {
 	 */
 	updateElementIdIfSpecialSurface_(element) {
 		if (!element.id && element === globals.document.body) {
-			element.id = 'senna_surface_' + core.getUid();
+			element.id = 'senna_surface_' + getUid();
 		}
 	}
 

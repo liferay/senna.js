@@ -1,7 +1,13 @@
 'use strict';
 
-import { core } from 'metal';
-import { dom, globalEval, globalEvalStyles } from 'metal-dom';
+import { getUid } from 'metal';
+import {
+	buildFragment,
+	exitDocument,
+	globalEval,
+	globalEvalStyles,
+	match
+} from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
@@ -62,7 +68,7 @@ class HtmlScreen extends RequestScreen {
 	 * @param {Element} newStyle
 	 */
 	appendStyleIntoDocument_(newStyle) {
-		var isTemporaryStyle = dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
+		var isTemporaryStyle = match(newStyle, HtmlScreen.selectors.stylesTemporary);
 		if (isTemporaryStyle) {
 			this.pendingStyles.push(newStyle);
 		}
@@ -83,7 +89,7 @@ class HtmlScreen extends RequestScreen {
 	assertSameBodyIdInVirtualDocument() {
 		var bodySurface = this.virtualDocument.querySelector('body');
 		if (!globals.document.body.id) {
-			globals.document.body.id = 'senna_surface_' + core.getUid();
+			globals.document.body.id = 'senna_surface_' + getUid();
 		}
 		if (bodySurface) {
 			bodySurface.id = globals.document.body.id;
@@ -117,7 +123,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	disposePendingStyles() {
 		if (this.pendingStyles) {
-			this.pendingStyles.forEach((style) => dom.exitDocument(style));
+			this.pendingStyles.forEach((style) => exitDocument(style));
 		}
 	}
 
@@ -173,7 +179,7 @@ class HtmlScreen extends RequestScreen {
 			}
 		});
 
-		var frag = dom.buildFragment();
+		var frag = buildFragment();
 		tracked.forEach((resource) => {
 			var resourceKey = this.getResourceKey_(resource);
 			// Do not load permanent resources if already in document.
@@ -181,14 +187,14 @@ class HtmlScreen extends RequestScreen {
 				frag.appendChild(resource);
 			}
 			// If resource has key and is permanent add to cache.
-			if (resourceKey && dom.match(resource, selectorPermanent)) {
+			if (resourceKey && match(resource, selectorPermanent)) {
 				HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
 			}
 		});
 
 		return new CancellablePromise((resolve) => {
 			evaluatorFn(frag, () => {
-				temporariesInDoc.forEach((resource) => dom.exitDocument(resource));
+				temporariesInDoc.forEach((resource) => exitDocument(resource));
 				resolve();
 			}, opt_appendResourceFn);
 		});

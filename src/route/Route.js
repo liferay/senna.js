@@ -1,7 +1,7 @@
 'use strict';
 
-import { core } from 'metal';
 import { extractData, parse, toRegex } from 'metal-path-parser';
+import { isDefAndNotNull, isFunction, isString } from 'metal';
 
 class Route {
 
@@ -12,10 +12,10 @@ class Route {
 	 * @constructor
 	 */
 	constructor(path, handler) {
-		if (!core.isDefAndNotNull(path)) {
+		if (!isDefAndNotNull(path)) {
 			throw new Error('Route path not specified.');
 		}
-		if (!core.isFunction(handler)) {
+		if (!isFunction(handler)) {
 			throw new Error('Route handler is not a function.');
 		}
 
@@ -89,10 +89,10 @@ class Route {
 	matchesPath(value) {
 		var path = this.path;
 
-		if (core.isFunction(path)) {
+		if (isFunction(path)) {
 			return path(value);
 		}
-		if (core.isString(path)) {
+		if (isString(path)) {
 			path = this.buildParsedData_().regex;
 		}
 		if (path instanceof RegExp) {

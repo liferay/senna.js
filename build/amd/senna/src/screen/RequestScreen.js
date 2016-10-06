@@ -237,7 +237,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				var _this2 = this;
 
 				var cache = this.getCache();
-				if (_metal.core.isDefAndNotNull(cache)) {
+				if ((0, _metal.isDefAndNotNull)(cache)) {
 					return _Promise2.default.resolve(cache);
 				}
 

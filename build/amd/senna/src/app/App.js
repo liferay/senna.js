@@ -7,8 +7,6 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 	var _debounce2 = _interopRequireDefault(_debounce);
 
-	var _dom2 = _interopRequireDefault(_dom);
-
 	var _Promise2 = _interopRequireDefault(_Promise);
 
 	var _utils2 = _interopRequireDefault(_utils);
@@ -288,7 +286,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 			_this.appEventHandlers_ = new _events.EventHandler();
 
-			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 100)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add((0, _dom.on)(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 100)), (0, _dom.on)(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), (0, _dom.on)(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);
@@ -345,7 +343,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					surfaces = [surfaces];
 				}
 				surfaces.forEach(function (surface) {
-					if (_metal.core.isString(surface)) {
+					if ((0, _metal.isString)(surface)) {
 						surface = new _Surface2.default(surface);
 					}
 					_this3.surfaces[surface.getId()] = surface;
@@ -777,7 +775,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 				this.maybeDisableNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = false;
-				_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
+				(0, _dom.addClasses)(_globals2.default.document.documentElement, this.loadingCssClass);
 
 				var endNavigatePayload = {
 					form: event.form,
@@ -789,7 +787,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					throw reason;
 				}).thenAlways(function () {
 					if (!_this8.pendingNavigate) {
-						_dom2.default.removeClasses(_globals2.default.document.documentElement, _this8.loadingCssClass);
+						(0, _dom.removeClasses)(_globals2.default.document.documentElement, _this8.loadingCssClass);
 						_this8.maybeRestoreNativeScrollRestoration();
 						_this8.captureScrollPositionFromScrollEvent = true;
 					}
@@ -823,12 +821,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			key: 'prepareNavigateHistory_',
 			value: function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 				var title = nextScreen.getTitle();
-				if (!_metal.core.isString(title)) {
+				if (!(0, _metal.isString)(title)) {
 					title = this.getDefaultTitle();
 				}
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 				var historyState = {
-					form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
+					form: (0, _metal.isDefAndNotNull)(_globals2.default.capturedFormElement),
 					redirectPath: redirectPath,
 					path: path,
 					senna: true,
@@ -907,7 +905,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				if (this.formEventHandler_) {
 					this.formEventHandler_.removeListener();
 				}
-				this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+				this.formEventHandler_ = (0, _dom.delegate)(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
 			}
 		}, {
 			key: 'setLinkSelector',
@@ -916,7 +914,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				if (this.linkEventHandler_) {
 					this.linkEventHandler_.removeListener();
 				}
-				this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
+				this.linkEventHandler_ = (0, _dom.delegate)(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
 			}
 		}, {
 			key: 'setLoadingCssClass',
