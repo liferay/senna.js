@@ -86,7 +86,10 @@ define(['exports', 'metal/src/metal', 'metal-path-parser/src/pathParser'], funct
 		}, {
 			key: 'extractParams',
 			value: function extractParams(path) {
-				return (0, _pathParser.extractData)(this.buildParsedData_().tokens, path);
+				if (_metal.core.isString(this.path)) {
+					return (0, _pathParser.extractData)(this.buildParsedData_().tokens, path);
+				}
+				return {};
 			}
 		}, {
 			key: 'getHandler',

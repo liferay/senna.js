@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v1.5.3
+ * @version v2.0.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -127,6 +127,16 @@ babelHelpers.slicedToArray = function () {
 }();
 
 babelHelpers;
+"use strict";
+
+(function () {
+	var globals = {
+		document: document,
+		window: window
+	};
+
+	this["senna"]["globals"] = globals;
+}).call(this);
 'use strict';
 
 /**
@@ -151,31 +161,31 @@ babelHelpers;
    */
   var UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
 
-  this['sennaNamed']['core'] = this['sennaNamed']['core'] || {};
-  this['sennaNamed']['core']['UID_PROPERTY'] = UID_PROPERTY; /**
-                                                              * When defining a class Foo with an abstract method bar(), you can do:
-                                                              * Foo.prototype.bar = abstractMethod
-                                                              *
-                                                              * Now if a subclass of Foo fails to override bar(), an error will be thrown
-                                                              * when bar() is invoked.
-                                                              *
-                                                              * @type {!Function}
-                                                              * @throws {Error} when invoked to indicate the method should be overridden.
-                                                              */
+  this['sennaNamed']['coreNamed'] = this['sennaNamed']['coreNamed'] || {};
+  this['sennaNamed']['coreNamed']['UID_PROPERTY'] = UID_PROPERTY; /**
+                                                                   * When defining a class Foo with an abstract method bar(), you can do:
+                                                                   * Foo.prototype.bar = abstractMethod
+                                                                   *
+                                                                   * Now if a subclass of Foo fails to override bar(), an error will be thrown
+                                                                   * when bar() is invoked.
+                                                                   *
+                                                                   * @type {!Function}
+                                                                   * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                   */
 
   function abstractMethod() {
     throw Error('Unimplemented abstract method');
   }
 
-  this['sennaNamed']['core']['abstractMethod'] = abstractMethod; /**
-                                                                  * Loops constructor super classes collecting its properties values. If
-                                                                  * property is not available on the super class `undefined` will be
-                                                                  * collected as value for the class hierarchy position.
-                                                                  * @param {!function()} constructor Class constructor.
-                                                                  * @param {string} propertyName Property name to be collected.
-                                                                  * @return {Array.<*>} Array of collected values.
-                                                                  * TODO(*): Rethink superclass loop.
-                                                                  */
+  this['sennaNamed']['coreNamed']['abstractMethod'] = abstractMethod; /**
+                                                                       * Loops constructor super classes collecting its properties values. If
+                                                                       * property is not available on the super class `undefined` will be
+                                                                       * collected as value for the class hierarchy position.
+                                                                       * @param {!function()} constructor Class constructor.
+                                                                       * @param {string} propertyName Property name to be collected.
+                                                                       * @return {Array.<*>} Array of collected values.
+                                                                       * TODO(*): Rethink superclass loop.
+                                                                       */
 
   function collectSuperClassesProperty(constructor, propertyName) {
     var propertyValues = [constructor[propertyName]];
@@ -186,30 +196,30 @@ babelHelpers;
     return propertyValues;
   }
 
-  this['sennaNamed']['core']['collectSuperClassesProperty'] = collectSuperClassesProperty; /**
-                                                                                            * Disables Metal.js's compatibility mode.
-                                                                                            */
+  this['sennaNamed']['coreNamed']['collectSuperClassesProperty'] = collectSuperClassesProperty; /**
+                                                                                                 * Disables Metal.js's compatibility mode.
+                                                                                                 */
 
   function disableCompatibilityMode() {
     compatibilityModeData_ = null;
   }
 
-  this['sennaNamed']['core']['disableCompatibilityMode'] = disableCompatibilityMode; /**
-                                                                                      * Enables Metal.js's compatibility mode with the following features from rc
-                                                                                      * and 1.x versions:
-                                                                                      *     - Using "key" to reference component instances. In the current version
-                                                                                      *       this should be done via "ref" instead. This allows old code still
-                                                                                      *       using "key" to keep working like before. NOTE: this may cause
-                                                                                      *       problems, since "key" is meant to be used differently. Only use this
-                                                                                      *       if it's not possible to upgrade the code to use "ref" instead.
-                                                                                      * @param {Object=} opt_data Optional object with data to specify more
-                                                                                      *     details, such as:
-                                                                                      *         - renderers {Array} the template renderers that should be in
-                                                                                      *           compatibility mode, either their constructors or strings
-                                                                                      *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
-                                                                                      *           that extend from IncrementalDomRenderer.
-                                                                                      * @type {Object}
-                                                                                      */
+  this['sennaNamed']['coreNamed']['disableCompatibilityMode'] = disableCompatibilityMode; /**
+                                                                                           * Enables Metal.js's compatibility mode with the following features from rc
+                                                                                           * and 1.x versions:
+                                                                                           *     - Using "key" to reference component instances. In the current version
+                                                                                           *       this should be done via "ref" instead. This allows old code still
+                                                                                           *       using "key" to keep working like before. NOTE: this may cause
+                                                                                           *       problems, since "key" is meant to be used differently. Only use this
+                                                                                           *       if it's not possible to upgrade the code to use "ref" instead.
+                                                                                           * @param {Object=} opt_data Optional object with data to specify more
+                                                                                           *     details, such as:
+                                                                                           *         - renderers {Array} the template renderers that should be in
+                                                                                           *           compatibility mode, either their constructors or strings
+                                                                                           *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
+                                                                                           *           that extend from IncrementalDomRenderer.
+                                                                                           * @type {Object}
+                                                                                           */
 
   function enableCompatibilityMode() {
     var opt_data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -217,11 +227,11 @@ babelHelpers;
     compatibilityModeData_ = opt_data;
   }
 
-  this['sennaNamed']['core']['enableCompatibilityMode'] = enableCompatibilityMode; /**
-                                                                                    * Returns the data used for compatibility mode, or nothing if it hasn't been
-                                                                                    * enabled.
-                                                                                    * @return {Object}
-                                                                                    */
+  this['sennaNamed']['coreNamed']['enableCompatibilityMode'] = enableCompatibilityMode; /**
+                                                                                         * Returns the data used for compatibility mode, or nothing if it hasn't been
+                                                                                         * enabled.
+                                                                                         * @return {Object}
+                                                                                         */
 
   function getCompatibilityModeData() {
     // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
@@ -233,13 +243,13 @@ babelHelpers;
     return compatibilityModeData_;
   }
 
-  this['sennaNamed']['core']['getCompatibilityModeData'] = getCompatibilityModeData; /**
-                                                                                      * Gets the name of the given function. If the current browser doesn't
-                                                                                      * support the `name` property, this will calculate it from the function's
-                                                                                      * content string.
-                                                                                      * @param {!function()} fn
-                                                                                      * @return {string}
-                                                                                      */
+  this['sennaNamed']['coreNamed']['getCompatibilityModeData'] = getCompatibilityModeData; /**
+                                                                                           * Gets the name of the given function. If the current browser doesn't
+                                                                                           * support the `name` property, this will calculate it from the function's
+                                                                                           * content string.
+                                                                                           * @param {!function()} fn
+                                                                                           * @return {string}
+                                                                                           */
 
   function getFunctionName(fn) {
     if (!fn.name) {
@@ -249,17 +259,17 @@ babelHelpers;
     return fn.name;
   }
 
-  this['sennaNamed']['core']['getFunctionName'] = getFunctionName; /**
-                                                                    * Gets an unique id. If `opt_object` argument is passed, the object is
-                                                                    * mutated with an unique id. Consecutive calls with the same object
-                                                                    * reference won't mutate the object again, instead the current object uid
-                                                                    * returns. See {@link UID_PROPERTY}.
-                                                                    * @param {Object=} opt_object Optional object to be mutated with the uid. If
-                                                                    *     not specified this method only returns the uid.
-                                                                    * @param {boolean=} opt_noInheritance Optional flag indicating if this
-                                                                    *     object's uid property can be inherited from parents or not.
-                                                                    * @throws {Error} when invoked to indicate the method should be overridden.
-                                                                    */
+  this['sennaNamed']['coreNamed']['getFunctionName'] = getFunctionName; /**
+                                                                         * Gets an unique id. If `opt_object` argument is passed, the object is
+                                                                         * mutated with an unique id. Consecutive calls with the same object
+                                                                         * reference won't mutate the object again, instead the current object uid
+                                                                         * returns. See {@link UID_PROPERTY}.
+                                                                         * @param {Object=} opt_object Optional object to be mutated with the uid. If
+                                                                         *     not specified this method only returns the uid.
+                                                                         * @param {boolean=} opt_noInheritance Optional flag indicating if this
+                                                                         *     object's uid property can be inherited from parents or not.
+                                                                         * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                         */
 
   function getUid(opt_object, opt_noInheritance) {
     if (opt_object) {
@@ -272,150 +282,150 @@ babelHelpers;
     return uniqueIdCounter_++;
   }
 
-  this['sennaNamed']['core']['getUid'] = getUid; /**
-                                                  * The identity function. Returns its first argument.
-                                                  * @param {*=} opt_returnValue The single value that will be returned.
-                                                  * @return {?} The first argument.
-                                                  */
+  this['sennaNamed']['coreNamed']['getUid'] = getUid; /**
+                                                       * The identity function. Returns its first argument.
+                                                       * @param {*=} opt_returnValue The single value that will be returned.
+                                                       * @return {?} The first argument.
+                                                       */
 
   function identityFunction(opt_returnValue) {
     return opt_returnValue;
   }
 
-  this['sennaNamed']['core']['identityFunction'] = identityFunction; /**
-                                                                      * Returns true if the specified value is a boolean.
-                                                                      * @param {?} val Variable to test.
-                                                                      * @return {boolean} Whether variable is boolean.
-                                                                      */
+  this['sennaNamed']['coreNamed']['identityFunction'] = identityFunction; /**
+                                                                           * Returns true if the specified value is a boolean.
+                                                                           * @param {?} val Variable to test.
+                                                                           * @return {boolean} Whether variable is boolean.
+                                                                           */
 
   function isBoolean(val) {
     return typeof val === 'boolean';
   }
 
-  this['sennaNamed']['core']['isBoolean'] = isBoolean; /**
-                                                        * Returns true if the specified value is not undefined.
-                                                        * @param {?} val Variable to test.
-                                                        * @return {boolean} Whether variable is defined.
-                                                        */
+  this['sennaNamed']['coreNamed']['isBoolean'] = isBoolean; /**
+                                                             * Returns true if the specified value is not undefined.
+                                                             * @param {?} val Variable to test.
+                                                             * @return {boolean} Whether variable is defined.
+                                                             */
 
   function isDef(val) {
     return val !== undefined;
   }
 
-  this['sennaNamed']['core']['isDef'] = isDef; /**
-                                                * Returns true if value is not undefined or null.
-                                                * @param {*} val
-                                                * @return {boolean}
-                                                */
+  this['sennaNamed']['coreNamed']['isDef'] = isDef; /**
+                                                     * Returns true if value is not undefined or null.
+                                                     * @param {*} val
+                                                     * @return {boolean}
+                                                     */
 
   function isDefAndNotNull(val) {
     return isDef(val) && !isNull(val);
   }
 
-  this['sennaNamed']['core']['isDefAndNotNull'] = isDefAndNotNull; /**
-                                                                    * Returns true if value is a document.
-                                                                    * @param {*} val
-                                                                    * @return {boolean}
-                                                                    */
+  this['sennaNamed']['coreNamed']['isDefAndNotNull'] = isDefAndNotNull; /**
+                                                                         * Returns true if value is a document.
+                                                                         * @param {*} val
+                                                                         * @return {boolean}
+                                                                         */
 
   function isDocument(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 9;
   }
 
-  this['sennaNamed']['core']['isDocument'] = isDocument; /**
-                                                          * Returns true if value is a dom element.
-                                                          * @param {*} val
-                                                          * @return {boolean}
-                                                          */
+  this['sennaNamed']['coreNamed']['isDocument'] = isDocument; /**
+                                                               * Returns true if value is a dom element.
+                                                               * @param {*} val
+                                                               * @return {boolean}
+                                                               */
 
   function isElement(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
   }
 
-  this['sennaNamed']['core']['isElement'] = isElement; /**
-                                                        * Returns true if the specified value is a function.
-                                                        * @param {?} val Variable to test.
-                                                        * @return {boolean} Whether variable is a function.
-                                                        */
+  this['sennaNamed']['coreNamed']['isElement'] = isElement; /**
+                                                             * Returns true if the specified value is a function.
+                                                             * @param {?} val Variable to test.
+                                                             * @return {boolean} Whether variable is a function.
+                                                             */
 
   function isFunction(val) {
     return typeof val === 'function';
   }
 
-  this['sennaNamed']['core']['isFunction'] = isFunction; /**
-                                                          * Returns true if value is null.
-                                                          * @param {*} val
-                                                          * @return {boolean}
-                                                          */
+  this['sennaNamed']['coreNamed']['isFunction'] = isFunction; /**
+                                                               * Returns true if value is null.
+                                                               * @param {*} val
+                                                               * @return {boolean}
+                                                               */
 
   function isNull(val) {
     return val === null;
   }
 
-  this['sennaNamed']['core']['isNull'] = isNull; /**
-                                                  * Returns true if the specified value is a number.
-                                                  * @param {?} val Variable to test.
-                                                  * @return {boolean} Whether variable is a number.
-                                                  */
+  this['sennaNamed']['coreNamed']['isNull'] = isNull; /**
+                                                       * Returns true if the specified value is a number.
+                                                       * @param {?} val Variable to test.
+                                                       * @return {boolean} Whether variable is a number.
+                                                       */
 
   function isNumber(val) {
     return typeof val === 'number';
   }
 
-  this['sennaNamed']['core']['isNumber'] = isNumber; /**
-                                                      * Returns true if value is a window.
-                                                      * @param {*} val
-                                                      * @return {boolean}
-                                                      */
+  this['sennaNamed']['coreNamed']['isNumber'] = isNumber; /**
+                                                           * Returns true if value is a window.
+                                                           * @param {*} val
+                                                           * @return {boolean}
+                                                           */
 
   function isWindow(val) {
     return val !== null && val === val.window;
   }
 
-  this['sennaNamed']['core']['isWindow'] = isWindow; /**
-                                                      * Returns true if the specified value is an object. This includes arrays
-                                                      * and functions.
-                                                      * @param {?} val Variable to test.
-                                                      * @return {boolean} Whether variable is an object.
-                                                      */
+  this['sennaNamed']['coreNamed']['isWindow'] = isWindow; /**
+                                                           * Returns true if the specified value is an object. This includes arrays
+                                                           * and functions.
+                                                           * @param {?} val Variable to test.
+                                                           * @return {boolean} Whether variable is an object.
+                                                           */
 
   function isObject(val) {
     var type = typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val);
     return type === 'object' && val !== null || type === 'function';
   }
 
-  this['sennaNamed']['core']['isObject'] = isObject; /**
-                                                      * Returns true if value is a Promise.
-                                                      * @param {*} val
-                                                      * @return {boolean}
-                                                      */
+  this['sennaNamed']['coreNamed']['isObject'] = isObject; /**
+                                                           * Returns true if value is a Promise.
+                                                           * @param {*} val
+                                                           * @return {boolean}
+                                                           */
 
   function isPromise(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && typeof val.then === 'function';
   }
 
-  this['sennaNamed']['core']['isPromise'] = isPromise; /**
-                                                        * Returns true if value is a string.
-                                                        * @param {*} val
-                                                        * @return {boolean}
-                                                        */
+  this['sennaNamed']['coreNamed']['isPromise'] = isPromise; /**
+                                                             * Returns true if value is a string.
+                                                             * @param {*} val
+                                                             * @return {boolean}
+                                                             */
 
   function isString(val) {
     return typeof val === 'string' || val instanceof String;
   }
 
-  this['sennaNamed']['core']['isString'] = isString; /**
-                                                      * Merges the values of a export function property a class with the values of that
-                                                      * property for all its super classes, and stores it as a new static
-                                                      * property of that class. If the export function property already existed, it won't
-                                                      * be recalculated.
-                                                      * @param {!function()} constructor Class constructor.
-                                                      * @param {string} propertyName Property name to be collected.
-                                                      * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
-                                                      *   with the values of the property for the current class and all its super classes.
-                                                      *   Should return the merged value to be stored on the current class.
-                                                      * @return {boolean} Returns true if merge happens, false otherwise.
-                                                      */
+  this['sennaNamed']['coreNamed']['isString'] = isString; /**
+                                                           * Merges the values of a export function property a class with the values of that
+                                                           * property for all its super classes, and stores it as a new static
+                                                           * property of that class. If the export function property already existed, it won't
+                                                           * be recalculated.
+                                                           * @param {!function()} constructor Class constructor.
+                                                           * @param {string} propertyName Property name to be collected.
+                                                           * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
+                                                           *   with the values of the property for the current class and all its super classes.
+                                                           *   Should return the merged value to be stored on the current class.
+                                                           * @return {boolean} Returns true if merge happens, false otherwise.
+                                                           */
 
   function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
     var mergedName = propertyName + '_MERGED';
@@ -431,13 +441,29 @@ babelHelpers;
     return true;
   }
 
-  this['sennaNamed']['core']['mergeSuperClassesProperty'] = mergeSuperClassesProperty; /**
-                                                                                        * Null function used for default values of callbacks, etc.
-                                                                                        * @return {void} Nothing.
-                                                                                        */
+  this['sennaNamed']['coreNamed']['mergeSuperClassesProperty'] = mergeSuperClassesProperty; /**
+                                                                                             * Null function used for default values of callbacks, etc.
+                                                                                             * @return {void} Nothing.
+                                                                                             */
 
   function nullFunction() {}
-  this['sennaNamed']['core']['nullFunction'] = nullFunction;
+  this['sennaNamed']['coreNamed']['nullFunction'] = nullFunction;
+}).call(this);
+'use strict';
+
+// This file exists just for backwards compatibility, making sure that old
+// default imports for this file still work. It's best to use the named exports
+// for each function instead though, since that allows bundlers like Rollup to
+// reduce the bundle size by removing unused code.
+
+(function () {
+  var core = this['sennaNamed']['coreNamed'];
+  this['senna']['core'] = core;
+  this['sennaNamed']['core'] = this['sennaNamed']['core'] || {};
+  this['sennaNamed']['core']['core'] = core;
+  Object.keys(this['sennaNamed']['coreNamed']).forEach(function (key) {
+    this['sennaNamed']['core'][key] = this['sennaNamed']['coreNamed'][key];
+  });
 }).call(this);
 'use strict';
 
@@ -1055,7 +1081,7 @@ babelHelpers;
 'use strict';
 
 (function () {
-  var core = this['sennaNamed']['core'];
+  var core = this['senna']['core'];
   var array = this['senna']['array'];
   var async = this['senna']['async'];
   var Disposable = this['senna']['Disposable'];
@@ -1070,3282 +1096,7 @@ babelHelpers;
   this['sennaNamed']['metal']['Disposable'] = Disposable;
   this['sennaNamed']['metal']['object'] = object;
   this['sennaNamed']['metal']['string'] = string;
-
-  // This is for backwards compatibility, making sure that old imports for the
-  // "core" object still work. It's best to use the named exports for each
-  // function instead though, since that allows bundlers like Rollup to reduce the
-  // bundle size by removing unused code.
-
   this['senna']['metal'] = core;
-  this['sennaNamed']['metal']['core'] = core;
-}).call(this);
-'use strict';
-
-/**
-  * Debounces function execution.
-  * @param {!function()} fn
-  * @param {number} delay
-  * @return {!function()}
-  */
-
-(function () {
-	function debounce(fn, delay) {
-		return function debounced() {
-			var args = arguments;
-			cancelDebounce(debounced);
-			debounced.id = setTimeout(function () {
-				fn.apply(null, args);
-			}, delay);
-		};
-	}
-
-	/**
-  * Cancels the scheduled debounced function.
-  */
-	function cancelDebounce(debounced) {
-		clearTimeout(debounced.id);
-	}
-
-	this['senna']['debounce'] = debounce;
-	this['sennaNamed']['debounce'] = this['sennaNamed']['debounce'] || {};
-	this['sennaNamed']['debounce']['cancelDebounce'] = cancelDebounce;
-	this['sennaNamed']['debounce']['debounce'] = debounce;
-}).call(this);
-'use strict';
-
-(function () {
-	var METAL_DATA = '__metal_data__';
-
-	var domData = function () {
-		function domData() {
-			babelHelpers.classCallCheck(this, domData);
-		}
-
-		babelHelpers.createClass(domData, null, [{
-			key: 'get',
-
-			/**
-    * Gets Metal.js's data for the given element.
-    * @param {!Element} element
-    * @return {!Object}
-    */
-			value: function get(element) {
-				if (!element[METAL_DATA]) {
-					element[METAL_DATA] = {
-						delegating: {},
-						listeners: {}
-					};
-				}
-				return element[METAL_DATA];
-			}
-		}]);
-		return domData;
-	}();
-
-	this['senna']['domData'] = domData;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this['sennaNamed']['metal']['Disposable'];
-
-	/**
-  * EventHandle utility. Holds information about an event subscription, and
-  * allows removing them easily.
-  * EventHandle is a Disposable, but it's important to note that the
-  * EventEmitter that created it is not the one responsible for disposing it.
-  * That responsibility is for the code that holds a reference to it.
-  * @param {!EventEmitter} emitter Emitter the event was subscribed to.
-  * @param {string} event The name of the event that was subscribed to.
-  * @param {!Function} listener The listener subscribed to the event.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventHandle = function (_Disposable) {
-		babelHelpers.inherits(EventHandle, _Disposable);
-
-		function EventHandle(emitter, event, listener) {
-			babelHelpers.classCallCheck(this, EventHandle);
-
-			/**
-    * The EventEmitter instance that the event was subscribed to.
-    * @type {EventEmitter}
-    * @protected
-    */
-			var _this = babelHelpers.possibleConstructorReturn(this, (EventHandle.__proto__ || Object.getPrototypeOf(EventHandle)).call(this));
-
-			_this.emitter_ = emitter;
-
-			/**
-    * The name of the event that was subscribed to.
-    * @type {string}
-    * @protected
-    */
-			_this.event_ = event;
-
-			/**
-    * The listener subscribed to the event.
-    * @type {Function}
-    * @protected
-    */
-			_this.listener_ = listener;
-			return _this;
-		}
-
-		/**
-   * Disposes of this instance's object references.
-   * @override
-   */
-
-
-		babelHelpers.createClass(EventHandle, [{
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.removeListener();
-				this.emitter_ = null;
-				this.listener_ = null;
-			}
-
-			/**
-    * Removes the listener subscription from the emitter.
-    */
-
-		}, {
-			key: 'removeListener',
-			value: function removeListener() {
-				if (!this.emitter_.isDisposed()) {
-					this.emitter_.removeListener(this.event_, this.listener_);
-				}
-			}
-		}]);
-		return EventHandle;
-	}(Disposable);
-
-	this['senna']['EventHandle'] = EventHandle;
-}).call(this);
-'use strict';
-
-(function () {
-	var array = this['sennaNamed']['metal']['array'];
-	var Disposable = this['sennaNamed']['metal']['Disposable'];
-	var isFunction = this['sennaNamed']['metal']['isFunction'];
-	var isString = this['sennaNamed']['metal']['isString'];
-	var EventHandle = this['senna']['EventHandle'];
-
-	/**
-  * EventEmitter utility.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventEmitter = function (_Disposable) {
-		babelHelpers.inherits(EventEmitter, _Disposable);
-
-		function EventEmitter() {
-			babelHelpers.classCallCheck(this, EventEmitter);
-
-			/**
-    * Holds event listeners scoped by event type.
-    * @type {!Object<string, !Array<!function()>>}
-    * @protected
-    */
-			var _this = babelHelpers.possibleConstructorReturn(this, (EventEmitter.__proto__ || Object.getPrototypeOf(EventEmitter)).call(this));
-
-			_this.events_ = [];
-
-			/**
-    * The maximum number of listeners allowed for each event type. If the number
-    * becomes higher than the max, a warning will be issued.
-    * @type {number}
-    * @protected
-    */
-			_this.maxListeners_ = 10;
-
-			/**
-    * Configuration option which determines if an event facade should be sent
-    * as a param of listeners when emitting events. If set to true, the facade
-    * will be passed as the first argument of the listener.
-    * @type {boolean}
-    * @protected
-    */
-			_this.shouldUseFacade_ = false;
-			return _this;
-		}
-
-		/**
-   * Adds a listener to the end of the listeners array for the specified events.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @param {boolean} opt_default Flag indicating if this listener is a default
-   *   action for this event. Default actions are run last, and only if no previous
-   *   listener call `preventDefault()` on the received event facade.
-   * @return {!EventHandle} Can be used to remove the listener.
-   */
-
-
-		babelHelpers.createClass(EventEmitter, [{
-			key: 'addListener',
-			value: function addListener(events, listener, opt_default) {
-				this.validateListener_(listener);
-
-				events = this.normalizeEvents_(events);
-				for (var i = 0; i < events.length; i++) {
-					this.addSingleListener_(events[i], listener, opt_default);
-				}
-
-				return new EventHandle(this, events, listener);
-			}
-
-			/**
-    * Adds a listener to the end of the listeners array for a single event.
-    * @param {string} event
-    * @param {!Function} listener
-    * @param {boolean} opt_default Flag indicating if this listener is a default
-    *   action for this event. Default actions are run last, and only if no previous
-    *   listener call `preventDefault()` on the received event facade.
-    * @return {!EventHandle} Can be used to remove the listener.
-    * @param {Function=} opt_origin The original function that was added as a
-    *   listener, if there is any.
-    * @protected
-    */
-
-		}, {
-			key: 'addSingleListener_',
-			value: function addSingleListener_(event, listener, opt_default, opt_origin) {
-				this.emit('newListener', event, listener);
-
-				if (!this.events_[event]) {
-					this.events_[event] = [];
-				}
-				this.events_[event].push({
-					default: opt_default,
-					fn: listener,
-					origin: opt_origin
-				});
-
-				var listeners = this.events_[event];
-				if (listeners.length > this.maxListeners_ && !listeners.warned) {
-					console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
-					listeners.warned = true;
-				}
-			}
-
-			/**
-    * Disposes of this instance's object references.
-    * @override
-    */
-
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.events_ = [];
-			}
-
-			/**
-    * Execute each of the listeners in order with the supplied arguments.
-    * @param {string} event
-    * @param {*} opt_args [arg1], [arg2], [...]
-    * @return {boolean} Returns true if event had listeners, false otherwise.
-    */
-
-		}, {
-			key: 'emit',
-			value: function emit(event) {
-				var args = array.slice(arguments, 1);
-				var listeners = (this.events_[event] || []).concat();
-
-				var facade;
-				if (this.getShouldUseFacade()) {
-					facade = {
-						preventDefault: function preventDefault() {
-							facade.preventedDefault = true;
-						},
-						target: this,
-						type: event
-					};
-					args.push(facade);
-				}
-
-				var defaultListeners = [];
-				for (var i = 0; i < listeners.length; i++) {
-					if (listeners[i].default) {
-						defaultListeners.push(listeners[i]);
-					} else {
-						listeners[i].fn.apply(this, args);
-					}
-				}
-				if (!facade || !facade.preventedDefault) {
-					for (var j = 0; j < defaultListeners.length; j++) {
-						defaultListeners[j].fn.apply(this, args);
-					}
-				}
-
-				if (event !== '*') {
-					this.emit.apply(this, ['*', event].concat(args));
-				}
-
-				return listeners.length > 0;
-			}
-
-			/**
-    * Gets the configuration option which determines if an event facade should
-    * be sent as a param of listeners when emitting events. If set to true, the
-    * facade will be passed as the first argument of the listener.
-    * @return {boolean}
-    */
-
-		}, {
-			key: 'getShouldUseFacade',
-			value: function getShouldUseFacade() {
-				return this.shouldUseFacade_;
-			}
-
-			/**
-    * Returns an array of listeners for the specified event.
-    * @param {string} event
-    * @return {Array} Array of listeners.
-    */
-
-		}, {
-			key: 'listeners',
-			value: function listeners(event) {
-				return (this.events_[event] || []).map(function (listener) {
-					return listener.fn;
-				});
-			}
-
-			/**
-    * Adds a listener that will be invoked a fixed number of times for the
-    * events. After each event is triggered the specified amount of times, the
-    * listener is removed for it.
-    * @param {!(Array|string)} events
-    * @param {number} amount The amount of times this event should be listened
-    * to.
-    * @param {!Function} listener
-    * @return {!EventHandle} Can be used to remove the listener.
-    */
-
-		}, {
-			key: 'many',
-			value: function many(events, amount, listener) {
-				events = this.normalizeEvents_(events);
-				for (var i = 0; i < events.length; i++) {
-					this.many_(events[i], amount, listener);
-				}
-
-				return new EventHandle(this, events, listener);
-			}
-
-			/**
-    * Adds a listener that will be invoked a fixed number of times for a single
-    * event. After the event is triggered the specified amount of times, the
-    * listener is removed.
-    * @param {string} event
-    * @param {number} amount The amount of times this event should be listened
-    * to.
-    * @param {!Function} listener
-    * @protected
-    */
-
-		}, {
-			key: 'many_',
-			value: function many_(event, amount, listener) {
-				var self = this;
-
-				if (amount <= 0) {
-					return;
-				}
-
-				function handlerInternal() {
-					if (--amount === 0) {
-						self.removeListener(event, handlerInternal);
-					}
-					listener.apply(self, arguments);
-				}
-
-				self.addSingleListener_(event, handlerInternal, false, listener);
-			}
-
-			/**
-    * Checks if a listener object matches the given listener function. To match,
-    * it needs to either point to that listener or have it as its origin.
-    * @param {!Object} listenerObj
-    * @param {!Function} listener
-    * @return {boolean}
-    * @protected
-    */
-
-		}, {
-			key: 'matchesListener_',
-			value: function matchesListener_(listenerObj, listener) {
-				return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
-			}
-
-			/**
-    * Converts the parameter to an array if only one event is given.
-    * @param  {!(Array|string)} events
-    * @return {!Array}
-    * @protected
-    */
-
-		}, {
-			key: 'normalizeEvents_',
-			value: function normalizeEvents_(events) {
-				return isString(events) ? [events] : events;
-			}
-
-			/**
-    * Removes a listener for the specified events.
-    * Caution: changes array indices in the listener array behind the listener.
-    * @param {!(Array|string)} events
-    * @param {!Function} listener
-    * @return {!Object} Returns emitter, so calls can be chained.
-    */
-
-		}, {
-			key: 'off',
-			value: function off(events, listener) {
-				this.validateListener_(listener);
-
-				events = this.normalizeEvents_(events);
-				for (var i = 0; i < events.length; i++) {
-					var listenerObjs = this.events_[events[i]] || [];
-					this.removeMatchingListenerObjs_(listenerObjs, listener);
-				}
-
-				return this;
-			}
-
-			/**
-    * Adds a listener to the end of the listeners array for the specified events.
-    * @param {!(Array|string)} events
-    * @param {!Function} listener
-    * @return {!EventHandle} Can be used to remove the listener.
-    */
-
-		}, {
-			key: 'on',
-			value: function on() {
-				return this.addListener.apply(this, arguments);
-			}
-
-			/**
-    * Adds a one time listener for the events. This listener is invoked only the
-    * next time each event is fired, after which it is removed.
-    * @param {!(Array|string)} events
-    * @param {!Function} listener
-    * @return {!EventHandle} Can be used to remove the listener.
-    */
-
-		}, {
-			key: 'once',
-			value: function once(events, listener) {
-				return this.many(events, 1, listener);
-			}
-
-			/**
-    * Removes all listeners, or those of the specified events. It's not a good
-    * idea to remove listeners that were added elsewhere in the code,
-    * especially when it's on an emitter that you didn't create.
-    * @param {(Array|string)=} opt_events
-    * @return {!Object} Returns emitter, so calls can be chained.
-    */
-
-		}, {
-			key: 'removeAllListeners',
-			value: function removeAllListeners(opt_events) {
-				if (opt_events) {
-					var events = this.normalizeEvents_(opt_events);
-					for (var i = 0; i < events.length; i++) {
-						this.events_[events[i]] = null;
-					}
-				} else {
-					this.events_ = {};
-				}
-				return this;
-			}
-
-			/**
-    * Removes all listener objects from the given array that match the given
-    * listener function.
-    * @param {!Array.<Object>} listenerObjs
-    * @param {!Function} listener
-    * @protected
-    */
-
-		}, {
-			key: 'removeMatchingListenerObjs_',
-			value: function removeMatchingListenerObjs_(listenerObjs, listener) {
-				for (var i = listenerObjs.length - 1; i >= 0; i--) {
-					if (this.matchesListener_(listenerObjs[i], listener)) {
-						listenerObjs.splice(i, 1);
-					}
-				}
-			}
-
-			/**
-    * Removes a listener for the specified events.
-    * Caution: changes array indices in the listener array behind the listener.
-    * @param {!(Array|string)} events
-    * @param {!Function} listener
-    * @return {!Object} Returns emitter, so calls can be chained.
-    */
-
-		}, {
-			key: 'removeListener',
-			value: function removeListener() {
-				return this.off.apply(this, arguments);
-			}
-
-			/**
-    * By default EventEmitters will print a warning if more than 10 listeners
-    * are added for a particular event. This is a useful default which helps
-    * finding memory leaks. Obviously not all Emitters should be limited to 10.
-    * This function allows that to be increased. Set to zero for unlimited.
-    * @param {number} max The maximum number of listeners.
-    * @return {!Object} Returns emitter, so calls can be chained.
-    */
-
-		}, {
-			key: 'setMaxListeners',
-			value: function setMaxListeners(max) {
-				this.maxListeners_ = max;
-				return this;
-			}
-
-			/**
-    * Sets the configuration option which determines if an event facade should
-    * be sent as a param of listeners when emitting events. If set to true, the
-    * facade will be passed as the first argument of the listener.
-    * @param {boolean} shouldUseFacade
-    * @return {!Object} Returns emitter, so calls can be chained.
-    */
-
-		}, {
-			key: 'setShouldUseFacade',
-			value: function setShouldUseFacade(shouldUseFacade) {
-				this.shouldUseFacade_ = shouldUseFacade;
-				return this;
-			}
-
-			/**
-    * Checks if the given listener is valid, throwing an exception when it's not.
-    * @param  {*} listener
-    * @protected
-    */
-
-		}, {
-			key: 'validateListener_',
-			value: function validateListener_(listener) {
-				if (!isFunction(listener)) {
-					throw new TypeError('Listener must be a function');
-				}
-			}
-		}]);
-		return EventEmitter;
-	}(Disposable);
-
-	this['senna']['EventEmitter'] = EventEmitter;
-}).call(this);
-'use strict';
-
-(function () {
-	var array = this['sennaNamed']['metal']['array'];
-	var object = this['sennaNamed']['metal']['object'];
-	var Disposable = this['sennaNamed']['metal']['Disposable'];
-
-	/**
-  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
-  * instances together, emitting events from the first emitter through the
-  * second one. That means that listening to a supported event on the target
-  * emitter will mean listening to it on the origin emitter as well.
-  * @param {EventEmitter} originEmitter Events originated on this emitter
-  *   will be fired for the target emitter's listeners as well.
-  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
-  *   will also be triggered when the event is fired by the origin emitter.
-  * @param {Object} opt_blacklist Optional blacklist of events that should not be
-  *   proxied.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventEmitterProxy = function (_Disposable) {
-		babelHelpers.inherits(EventEmitterProxy, _Disposable);
-
-		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
-			babelHelpers.classCallCheck(this, EventEmitterProxy);
-
-			/**
-    * Map of events that should not be proxied.
-    * @type {Object}
-    * @protected
-    */
-			var _this = babelHelpers.possibleConstructorReturn(this, (EventEmitterProxy.__proto__ || Object.getPrototypeOf(EventEmitterProxy)).call(this));
-
-			_this.blacklist_ = object.mixin({
-				newListener: true
-			}, opt_blacklist);
-
-			/**
-    * The origin emitter. This emitter's events will be proxied through the
-    * target emitter.
-    * @type {EventEmitter}
-    * @protected
-    */
-			_this.originEmitter_ = originEmitter;
-
-			/**
-    * A list of events that are pending to be listened by an actual origin
-    * emitter. Events are stored here when the origin doesn't exist, so they
-    * can be set on a new origin when one is set.
-    * @type {!Array}
-    * @protected
-    */
-			_this.pendingEvents_ = [];
-
-			/**
-    * Holds a map of events from the origin emitter that are already being proxied.
-    * @type {Object<string, !EventHandle>}
-    * @protected
-    */
-			_this.proxiedEvents_ = {};
-
-			/**
-    * The target emitter. This emitter will emit all events that come from
-    * the origin emitter.
-    * @type {EventEmitter}
-    * @protected
-    */
-			_this.targetEmitter_ = targetEmitter;
-
-			/**
-    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
-    * @type {Object}
-    * @protected
-    */
-			_this.whitelist_ = opt_whitelist;
-
-			_this.startProxy_();
-			return _this;
-		}
-
-		/**
-   * Adds the given listener for the given event.
-   * @param {string} event
-   * @param {!function()} listener
-   * @return {!EventHandle} The listened event's handle.
-   * @protected
-   */
-
-
-		babelHelpers.createClass(EventEmitterProxy, [{
-			key: 'addListener_',
-			value: function addListener_(event, listener) {
-				return this.originEmitter_.on(event, listener);
-			}
-
-			/**
-    * Adds the proxy listener for the given event.
-    * @param {string} event
-    * @return {!EventHandle} The listened event's handle.
-    * @protected
-    */
-
-		}, {
-			key: 'addListenerForEvent_',
-			value: function addListenerForEvent_(event) {
-				return this.addListener_(event, this.emitOnTarget_.bind(this, event));
-			}
-
-			/**
-    * @inheritDoc
-    */
-
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.removeListeners_();
-				this.proxiedEvents_ = null;
-				this.originEmitter_ = null;
-				this.targetEmitter_ = null;
-			}
-
-			/**
-    * Emits the specified event type on the target emitter.
-    * @param {string} eventType
-    * @protected
-    */
-
-		}, {
-			key: 'emitOnTarget_',
-			value: function emitOnTarget_(eventType) {
-				var args = [eventType].concat(array.slice(arguments, 1));
-				this.targetEmitter_.emit.apply(this.targetEmitter_, args);
-			}
-
-			/**
-    * Proxies the given event from the origin to the target emitter.
-    * @param {string} event
-    */
-
-		}, {
-			key: 'proxyEvent',
-			value: function proxyEvent(event) {
-				if (this.shouldProxyEvent_(event)) {
-					this.tryToAddListener_(event);
-				}
-			}
-
-			/**
-    * Removes the proxy listener for all events.
-    * @protected
-    */
-
-		}, {
-			key: 'removeListeners_',
-			value: function removeListeners_() {
-				var events = Object.keys(this.proxiedEvents_);
-				for (var i = 0; i < events.length; i++) {
-					this.proxiedEvents_[events[i]].removeListener();
-				}
-				this.proxiedEvents_ = {};
-				this.pendingEvents_ = [];
-			}
-
-			/**
-    * Changes the origin emitter. This automatically detaches any events that
-    * were already being proxied from the previous emitter, and starts proxying
-    * them on the new emitter instead.
-    * @param {!EventEmitter} originEmitter
-    */
-
-		}, {
-			key: 'setOriginEmitter',
-			value: function setOriginEmitter(originEmitter) {
-				var _this2 = this;
-
-				var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
-				this.removeListeners_();
-				this.originEmitter_ = originEmitter;
-				events.forEach(function (event) {
-					return _this2.proxyEvent(event);
-				});
-			}
-
-			/**
-    * Checks if the given event should be proxied.
-    * @param {string} event
-    * @return {boolean}
-    * @protected
-    */
-
-		}, {
-			key: 'shouldProxyEvent_',
-			value: function shouldProxyEvent_(event) {
-				if (this.whitelist_ && !this.whitelist_[event]) {
-					return false;
-				}
-				if (this.blacklist_[event]) {
-					return false;
-				}
-				return !this.proxiedEvents_[event];
-			}
-
-			/**
-    * Starts proxying all events from the origin to the target emitter.
-    * @protected
-    */
-
-		}, {
-			key: 'startProxy_',
-			value: function startProxy_() {
-				this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
-			}
-
-			/**
-    * Adds a listener to the origin emitter, if it exists. Otherwise, stores
-    * the pending listener so it can be used on a future origin emitter.
-    * @param {string} event
-    * @protected
-    */
-
-		}, {
-			key: 'tryToAddListener_',
-			value: function tryToAddListener_(event) {
-				if (this.originEmitter_) {
-					this.proxiedEvents_[event] = this.addListenerForEvent_(event);
-				} else {
-					this.pendingEvents_.push(event);
-				}
-			}
-		}]);
-		return EventEmitterProxy;
-	}(Disposable);
-
-	this['senna']['EventEmitterProxy'] = EventEmitterProxy;
-}).call(this);
-'use strict';
-
-(function () {
-	var Disposable = this['sennaNamed']['metal']['Disposable'];
-
-	/**
-  * EventHandler utility. It's useful for easily removing a group of
-  * listeners from different EventEmitter instances.
-  * @constructor
-  * @extends {Disposable}
-  */
-
-	var EventHandler = function (_Disposable) {
-		babelHelpers.inherits(EventHandler, _Disposable);
-
-		function EventHandler() {
-			babelHelpers.classCallCheck(this, EventHandler);
-
-			/**
-    * An array that holds the added event handles, so the listeners can be
-    * removed later.
-    * @type {Array.<EventHandle>}
-    * @protected
-    */
-			var _this = babelHelpers.possibleConstructorReturn(this, (EventHandler.__proto__ || Object.getPrototypeOf(EventHandler)).call(this));
-
-			_this.eventHandles_ = [];
-			return _this;
-		}
-
-		/**
-   * Adds event handles to be removed later through the `removeAllListeners`
-   * method.
-   * @param {...(!EventHandle)} var_args
-   */
-
-
-		babelHelpers.createClass(EventHandler, [{
-			key: 'add',
-			value: function add() {
-				for (var i = 0; i < arguments.length; i++) {
-					this.eventHandles_.push(arguments[i]);
-				}
-			}
-
-			/**
-    * Disposes of this instance's object references.
-    * @override
-    */
-
-		}, {
-			key: 'disposeInternal',
-			value: function disposeInternal() {
-				this.eventHandles_ = null;
-			}
-
-			/**
-    * Removes all listeners that have been added through the `add` method.
-    */
-
-		}, {
-			key: 'removeAllListeners',
-			value: function removeAllListeners() {
-				for (var i = 0; i < this.eventHandles_.length; i++) {
-					this.eventHandles_[i].removeListener();
-				}
-
-				this.eventHandles_ = [];
-			}
-		}]);
-		return EventHandler;
-	}(Disposable);
-
-	this['senna']['EventHandler'] = EventHandler;
-}).call(this);
-'use strict';
-
-(function () {
-  var EventEmitter = this['senna']['EventEmitter'];
-  var EventEmitterProxy = this['senna']['EventEmitterProxy'];
-  var EventHandle = this['senna']['EventHandle'];
-  var EventHandler = this['senna']['EventHandler'];
-  this['senna']['events'] = EventEmitter;
-  this['sennaNamed']['events'] = this['sennaNamed']['events'] || {};
-  this['sennaNamed']['events']['EventEmitter'] = EventEmitter;
-  this['sennaNamed']['events']['EventEmitterProxy'] = EventEmitterProxy;
-  this['sennaNamed']['events']['EventHandle'] = EventHandle;
-  this['sennaNamed']['events']['EventHandler'] = EventHandler;
-}).call(this);
-'use strict';
-
-(function () {
-	var array = this['sennaNamed']['metal']['array'];
-	var isString = this['sennaNamed']['metal']['isString'];
-	var domData = this['senna']['domData'];
-	var EventHandle = this['sennaNamed']['events']['EventHandle'];
-
-	/**
-  * This is a special EventHandle, that is responsible for dom delegated events
-  * (only the ones that receive a target element, not a selector string).
-  * @extends {EventHandle}
-  */
-
-	var DomDelegatedEventHandle = function (_EventHandle) {
-		babelHelpers.inherits(DomDelegatedEventHandle, _EventHandle);
-
-		/**
-   * The constructor for `DomDelegatedEventHandle`.
-   * @param {!Event} emitter Element the event was subscribed to.
-   * @param {string} event The name of the event that was subscribed to.
-   * @param {!Function} listener The listener subscribed to the event.
-   * @param {string=} opt_selector An optional selector used when delegating
-   *     the event.
-   * @constructor
-   */
-		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
-			babelHelpers.classCallCheck(this, DomDelegatedEventHandle);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, (DomDelegatedEventHandle.__proto__ || Object.getPrototypeOf(DomDelegatedEventHandle)).call(this, emitter, event, listener));
-
-			_this.selector_ = opt_selector;
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-
-		babelHelpers.createClass(DomDelegatedEventHandle, [{
-			key: 'removeListener',
-			value: function removeListener() {
-				var data = domData.get(this.emitter_);
-				var selector = this.selector_;
-				var arr = isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
-				var key = isString(selector) ? selector : this.event_;
-
-				array.remove(arr[key] || [], this.listener_);
-				if (arr[key] && arr[key].length === 0) {
-					delete arr[key];
-				}
-			}
-		}]);
-		return DomDelegatedEventHandle;
-	}(EventHandle);
-
-	this['senna']['DomDelegatedEventHandle'] = DomDelegatedEventHandle;
-}).call(this);
-'use strict';
-
-(function () {
-	var EventHandle = this['sennaNamed']['events']['EventHandle'];
-
-	/**
-  * This is a special EventHandle, that is responsible for dom events, instead
-  * of EventEmitter events.
-  * @extends {EventHandle}
-  */
-
-	var DomEventHandle = function (_EventHandle) {
-		babelHelpers.inherits(DomEventHandle, _EventHandle);
-
-		/**
-   * The constructor for `DomEventHandle`.
-   * @param {!EventEmitter} emitter Emitter the event was subscribed to.
-   * @param {string} event The name of the event that was subscribed to.
-   * @param {!Function} listener The listener subscribed to the event.
-   * @param {boolean} opt_capture Flag indicating if listener should be triggered
-   *   during capture phase, instead of during the bubbling phase. Defaults to false.
-   * @constructor
-   */
-		function DomEventHandle(emitter, event, listener, opt_capture) {
-			babelHelpers.classCallCheck(this, DomEventHandle);
-
-			var _this = babelHelpers.possibleConstructorReturn(this, (DomEventHandle.__proto__ || Object.getPrototypeOf(DomEventHandle)).call(this, emitter, event, listener));
-
-			_this.capture_ = opt_capture;
-			return _this;
-		}
-
-		/**
-   * @inheritDoc
-   */
-
-
-		babelHelpers.createClass(DomEventHandle, [{
-			key: 'removeListener',
-			value: function removeListener() {
-				this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
-			}
-		}]);
-		return DomEventHandle;
-	}(EventHandle);
-
-	this['senna']['DomEventHandle'] = DomEventHandle;
-}).call(this);
-'use strict';
-
-(function () {
-	var isDef = this['sennaNamed']['metal']['isDef'];
-	var isDocument = this['sennaNamed']['metal']['isDocument'];
-	var isElement = this['sennaNamed']['metal']['isElement'];
-	var isObject = this['sennaNamed']['metal']['isObject'];
-	var isString = this['sennaNamed']['metal']['isString'];
-	var object = this['sennaNamed']['metal']['object'];
-	var domData = this['senna']['domData'];
-	var DomDelegatedEventHandle = this['senna']['DomDelegatedEventHandle'];
-	var DomEventHandle = this['senna']['DomEventHandle'];
-
-
-	var elementsByTag_ = {};
-	var customEvents = {};
-
-	this['sennaNamed']['dom'] = this['sennaNamed']['dom'] || {};
-	this['sennaNamed']['dom']['customEvents'] = customEvents;
-	var NEXT_TARGET = '__metal_next_target__';
-	var USE_CAPTURE = {
-		blur: true,
-		error: true,
-		focus: true,
-		invalid: true,
-		load: true,
-		scroll: true
-	};
-
-	/**
-  * Adds the requested CSS classes to an element.
-  * @param {!Element|!Nodelist} elements The element or elements to add CSS classes to.
-  * @param {string} classes CSS classes to add.
-  */
-	function addClasses(elements, classes) {
-		if (!isObject(elements) || !isString(classes)) {
-			return;
-		}
-
-		if (!elements.length) {
-			elements = [elements];
-		}
-
-		for (var i = 0; i < elements.length; i++) {
-			if ('classList' in elements[i]) {
-				addClassesWithNative_(elements[i], classes);
-			} else {
-				addClassesWithoutNative_(elements[i], classes);
-			}
-		}
-	}
-
-	this['sennaNamed']['dom']['addClasses'] = addClasses; /**
-                                                        * Adds the requested CSS classes to an element using classList.
-                                                        * @param {!Element} element The element to add CSS classes to.
-                                                        * @param {string} classes CSS classes to add.
-                                                        * @private
-                                                        */
-
-	function addClassesWithNative_(element, classes) {
-		classes.split(' ').forEach(function (className) {
-			if (className) {
-				element.classList.add(className);
-			}
-		});
-	}
-
-	/**
-  * Adds the requested CSS classes to an element without using classList.
-  * @param {!Element} element The element to add CSS classes to.
-  * @param {string} classes CSS classes to add.
-  * @private
-  */
-	function addClassesWithoutNative_(element, classes) {
-		var elementClassName = ' ' + element.className + ' ';
-		var classesToAppend = '';
-
-		classes = classes.split(' ');
-
-		for (var i = 0; i < classes.length; i++) {
-			var className = classes[i];
-
-			if (elementClassName.indexOf(' ' + className + ' ') === -1) {
-				classesToAppend += ' ' + className;
-			}
-		}
-
-		if (classesToAppend) {
-			element.className = element.className + classesToAppend;
-		}
-	}
-
-	/**
-  * Adds an event listener to the given element, to be triggered via delegate.
-  * @param {!Element} element
-  * @param {string} eventName
-  * @param {!function()} listener
-  * @private
-  */
-	function addElementListener_(element, eventName, listener) {
-		var data = domData.get(element);
-		addToArr_(data.listeners, eventName, listener);
-	}
-
-	/**
-  * Adds an event listener to the given element, to be triggered via delegate
-  * selectors.
-  * @param {!Element} element
-  * @param {string} eventName
-  * @param {string} selector
-  * @param {!function()} listener
-  * @private
-  */
-	function addSelectorListener_(element, eventName, selector, listener) {
-		var data = domData.get(element);
-		addToArr_(data.delegating[eventName].selectors, selector, listener);
-	}
-
-	/**
-  * Adds a value to an array inside an object, creating it first if it doesn't
-  * yet exist.
-  * @param {!Array} arr
-  * @param {string} key
-  * @param {*} value
-  * @private
-  */
-	function addToArr_(arr, key, value) {
-		if (!arr[key]) {
-			arr[key] = [];
-		}
-		arr[key].push(value);
-	}
-
-	/**
-  * Attaches a delegate listener, unless there's already one attached.
-  * @param {!Element} element
-  * @param {string} eventName
-  * @private
-  */
-	function attachDelegateEvent_(element, eventName) {
-		var data = domData.get(element);
-		if (!data.delegating[eventName]) {
-			data.delegating[eventName] = {
-				handle: on(element, eventName, handleDelegateEvent_, !!USE_CAPTURE[eventName]),
-				selectors: {}
-			};
-		}
-	}
-
-	/**
-  * Gets the closest element up the tree from the given element (including
-  * itself) that matches the specified selector, or null if none match.
-  * @param {Element} element
-  * @param {string} selector
-  * @return {Element}
-  */
-	function closest(element, selector) {
-		while (element && !match(element, selector)) {
-			element = element.parentNode;
-		}
-		return element;
-	}
-
-	this['sennaNamed']['dom']['closest'] = closest; /**
-                                                  * Appends a child node with text or other nodes to a parent node. If
-                                                  * child is a HTML string it will be automatically converted to a document
-                                                  * fragment before appending it to the parent.
-                                                  * @param {!Element} parent The node to append nodes to.
-                                                  * @param {!(Element|NodeList|string)} child The thing to append to the parent.
-                                                  * @return {!Element} The appended child.
-                                                  */
-
-	function append(parent, child) {
-		if (isString(child)) {
-			child = buildFragment(child);
-		}
-		if (child instanceof NodeList) {
-			var childArr = Array.prototype.slice.call(child);
-			for (var i = 0; i < childArr.length; i++) {
-				parent.appendChild(childArr[i]);
-			}
-		} else {
-			parent.appendChild(child);
-		}
-		return child;
-	}
-
-	this['sennaNamed']['dom']['append'] = append; /**
-                                                * Helper for converting a HTML string into a document fragment.
-                                                * @param {string} htmlString The HTML string to convert.
-                                                * @return {!Element} The resulting document fragment.
-                                                */
-
-	function buildFragment(htmlString) {
-		var tempDiv = document.createElement('div');
-		tempDiv.innerHTML = '<br>' + htmlString;
-		tempDiv.removeChild(tempDiv.firstChild);
-
-		var fragment = document.createDocumentFragment();
-		while (tempDiv.firstChild) {
-			fragment.appendChild(tempDiv.firstChild);
-		}
-		return fragment;
-	}
-
-	this['sennaNamed']['dom']['buildFragment'] = buildFragment; /**
-                                                              * Checks if the first element contains the second one.
-                                                              * @param {!Element} element1
-                                                              * @param {!Element} element2
-                                                              * @return {boolean}
-                                                              */
-
-	function contains(element1, element2) {
-		if (isDocument(element1)) {
-			// document.contains is not defined on IE9, so call it on documentElement instead.
-			return element1.documentElement.contains(element2);
-		} else {
-			return element1.contains(element2);
-		}
-	}
-
-	this['sennaNamed']['dom']['contains'] = contains; /**
-                                                    * Listens to the specified event on the given DOM element, but only calls the
-                                                    * given callback listener when it's triggered by elements that match the
-                                                    * given selector or target element.
-                                                    * @param {!Element} element The DOM element the event should be listened on.
-                                                    * @param {string} eventName The name of the event to listen to.
-                                                    * @param {!Element|string} selectorOrTarget Either an element or css selector
-                                                    *     that should match the event for the listener to be triggered.
-                                                    * @param {!function(!Object)} callback Function to be called when the event
-                                                    *     is triggered. It will receive the normalized event object.
-                                                    * @param {boolean=} opt_default Optional flag indicating if this is a default
-                                                    *     listener. That means that it would only be executed after all non
-                                                    *     default listeners, and only if the event isn't prevented via
-                                                    *     `preventDefault`.
-                                                    * @return {!EventHandle} Can be used to remove the listener.
-                                                    */
-
-	function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
-		var customConfig = customEvents[eventName];
-		if (customConfig && customConfig.delegate) {
-			eventName = customConfig.originalEvent;
-			callback = customConfig.handler.bind(customConfig, callback);
-		}
-
-		if (opt_default) {
-			// Wrap callback so we don't set property directly on it.
-			callback = callback.bind();
-			callback.defaultListener_ = true;
-		}
-
-		attachDelegateEvent_(element, eventName);
-		if (isString(selectorOrTarget)) {
-			addSelectorListener_(element, eventName, selectorOrTarget, callback);
-		} else {
-			addElementListener_(selectorOrTarget, eventName, callback);
-		}
-
-		return new DomDelegatedEventHandle(isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, isString(selectorOrTarget) ? selectorOrTarget : null);
-	}
-
-	this['sennaNamed']['dom']['delegate'] = delegate; /**
-                                                    * Verifies if the element is able to trigger the Click event,
-                                                    * simulating browsers behaviour, avoiding event listeners to be called by triggerEvent method.
-                                                    * @param {Element} node Element to be checked.
-                                                    * @param {string} eventName The event name.
-                                                    * @private
-                                                    */
-
-	function isAbleToInteractWith_(node, eventName) {
-		var currElement = node;
-		var isAble = true;
-		var matchesSelector = 'button, input, select, textarea, fieldset';
-
-		if (eventName === 'click') {
-			while (currElement) {
-				if (currElement.disabled && match(currElement, matchesSelector)) {
-					isAble = false;
-					break;
-				}
-
-				currElement = currElement.parentNode;
-			}
-		}
-
-		return isAble;
-	}
-
-	/**
-  * Inserts node in document as last element.
-  * @param {Element} node Element to remove children from.
-  */
-	function enterDocument(node) {
-		node && append(document.body, node);
-	}
-
-	this['sennaNamed']['dom']['enterDocument'] = enterDocument; /**
-                                                              * Removes node from document.
-                                                              * @param {Element} node Element to remove children from.
-                                                              */
-
-	function exitDocument(node) {
-		if (node && node.parentNode) {
-			node.parentNode.removeChild(node);
-		}
-	}
-
-	this['sennaNamed']['dom']['exitDocument'] = exitDocument; /**
-                                                            * This is called when an event is triggered by a delegate listener. All
-                                                            * matching listeners of this event type from `target` to `currentTarget` will
-                                                            * be triggered.
-                                                            * @param {!Event} event The event payload.
-                                                            * @return {boolean} False if at least one of the triggered callbacks returns
-                                                            *     false, or true otherwise.
-                                                            * @private
-                                                            */
-
-	function handleDelegateEvent_(event) {
-		normalizeDelegateEvent_(event);
-		var currElement = isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
-		var ret = true;
-		var container = event.currentTarget;
-		var limit = event.currentTarget.parentNode;
-		var defFns = [];
-
-		while (currElement && currElement !== limit && !event.stopped) {
-			event.delegateTarget = currElement;
-			ret &= triggerMatchedListeners_(container, currElement, event, defFns);
-			currElement = currElement.parentNode;
-		}
-
-		for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
-			event.delegateTarget = defFns[i].element;
-			ret &= defFns[i].fn(event);
-		}
-
-		event.delegateTarget = null;
-		event[NEXT_TARGET] = limit;
-		return ret;
-	}
-
-	/**
-  * Checks if the given element has the requested css class.
-  * @param {!Element} element
-  * @param {string} className
-  * @return {boolean}
-  */
-	function hasClass(element, className) {
-		if ('classList' in element) {
-			return hasClassWithNative_(element, className);
-		} else {
-			return hasClassWithoutNative_(element, className);
-		}
-	}
-
-	this['sennaNamed']['dom']['hasClass'] = hasClass; /**
-                                                    * Checks if the given element has the requested css class using classList.
-                                                    * @param {!Element} element
-                                                    * @param {string} className
-                                                    * @return {boolean}
-                                                    * @private
-                                                    */
-
-	function hasClassWithNative_(element, className) {
-		return element.classList.contains(className);
-	}
-
-	/**
-  * Checks if the given element has the requested css class without using classList.
-  * @param {!Element} element
-  * @param {string} className
-  * @return {boolean}
-  * @private
-  */
-	function hasClassWithoutNative_(element, className) {
-		return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0;
-	}
-
-	/**
-  * Checks if the given element is empty or not.
-  * @param {!Element} element
-  * @return {boolean}
-  */
-	function isEmpty(element) {
-		return element.childNodes.length === 0;
-	}
-
-	this['sennaNamed']['dom']['isEmpty'] = isEmpty; /**
-                                                  * Check if an element matches a given selector.
-                                                  * @param {Element} element
-                                                  * @param {string} selector
-                                                  * @return {boolean}
-                                                  */
-
-	function match(element, selector) {
-		if (!element || element.nodeType !== 1) {
-			return false;
-		}
-
-		var p = Element.prototype;
-		var m = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector;
-		if (m) {
-			return m.call(element, selector);
-		}
-
-		return matchFallback_(element, selector);
-	}
-
-	this['sennaNamed']['dom']['match'] = match; /**
-                                              * Check if an element matches a given selector, using an internal implementation
-                                              * instead of calling existing javascript functions.
-                                              * @param {Element} element
-                                              * @param {string} selector
-                                              * @return {boolean}
-                                              * @private
-                                              */
-
-	function matchFallback_(element, selector) {
-		var nodes = document.querySelectorAll(selector, element.parentNode);
-		for (var i = 0; i < nodes.length; ++i) {
-			if (nodes[i] === element) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-  * Returns the next sibling of the given element that matches the specified
-  * selector, or null if there is none.
-  * @param {!Element} element
-  * @param {?string} selector
-  */
-	function next(element, selector) {
-		do {
-			element = element.nextSibling;
-			if (element && match(element, selector)) {
-				return element;
-			}
-		} while (element);
-		return null;
-	}
-
-	this['sennaNamed']['dom']['next'] = next; /**
-                                            * Normalizes the event payload for delegate listeners.
-                                            * @param {!Event} event
-                                            * @private
-                                            */
-
-	function normalizeDelegateEvent_(event) {
-		event.stopPropagation = stopPropagation_;
-		event.stopImmediatePropagation = stopImmediatePropagation_;
-	}
-
-	/**
-  * Listens to the specified event on the given DOM element. This function normalizes
-  * DOM event payloads and functions so they'll work the same way on all supported
-  * browsers.
-  * @param {!Element|string} element The DOM element to listen to the event on, or
-  *   a selector that should be delegated on the entire document.
-  * @param {string} eventName The name of the event to listen to.
-  * @param {!function(!Object)} callback Function to be called when the event is
-  *   triggered. It will receive the normalized event object.
-  * @param {boolean} opt_capture Flag indicating if listener should be triggered
-  *   during capture phase, instead of during the bubbling phase. Defaults to false.
-  * @return {!DomEventHandle} Can be used to remove the listener.
-  */
-	function on(element, eventName, callback, opt_capture) {
-		if (isString(element)) {
-			return delegate(document, eventName, element, callback);
-		}
-		var customConfig = customEvents[eventName];
-		if (customConfig && customConfig.event) {
-			eventName = customConfig.originalEvent;
-			callback = customConfig.handler.bind(customConfig, callback);
-		}
-		element.addEventListener(eventName, callback, opt_capture);
-		return new DomEventHandle(element, eventName, callback, opt_capture);
-	}
-
-	this['sennaNamed']['dom']['on'] = on; /**
-                                        * Listens to the specified event on the given DOM element once. This
-                                        * function normalizes DOM event payloads and functions so they'll work the
-                                        * same way on all supported browsers.
-                                        * @param {!Element} element The DOM element to listen to the event on.
-                                        * @param {string} eventName The name of the event to listen to.
-                                        * @param {!function(!Object)} callback Function to be called when the event
-                                        *   is triggered. It will receive the normalized event object.
-                                        * @return {!DomEventHandle} Can be used to remove the listener.
-                                        */
-
-	function once(element, eventName, callback) {
-		var domEventHandle = on(element, eventName, function () {
-			domEventHandle.removeListener();
-			return callback.apply(this, arguments);
-		});
-		return domEventHandle;
-	}
-
-	this['sennaNamed']['dom']['once'] = once; /**
-                                            * Gets the first parent from the given element that matches the specified
-                                            * selector, or null if none match.
-                                            * @param {!Element} element
-                                            * @param {string} selector
-                                            * @return {Element}
-                                            */
-
-	function parent(element, selector) {
-		return closest(element.parentNode, selector);
-	}
-
-	this['sennaNamed']['dom']['parent'] = parent; /**
-                                                * Registers a custom event.
-                                                * @param {string} eventName The name of the custom event.
-                                                * @param {!Object} customConfig An object with information about how the event
-                                                *   should be handled.
-                                                */
-
-	function registerCustomEvent(eventName, customConfig) {
-		customEvents[eventName] = customConfig;
-	}
-
-	this['sennaNamed']['dom']['registerCustomEvent'] = registerCustomEvent; /**
-                                                                          * Removes all the child nodes on a DOM node.
-                                                                          * @param {Element} node Element to remove children from.
-                                                                          */
-
-	function removeChildren(node) {
-		var child;
-		while (child = node.firstChild) {
-			node.removeChild(child);
-		}
-	}
-
-	this['sennaNamed']['dom']['removeChildren'] = removeChildren; /**
-                                                                * Removes the requested CSS classes from an element.
-                                                                * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
-                                                                * @param {string} classes CSS classes to remove.
-                                                                */
-
-	function removeClasses(elements, classes) {
-		if (!isObject(elements) || !isString(classes)) {
-			return;
-		}
-
-		if (!elements.length) {
-			elements = [elements];
-		}
-
-		for (var i = 0; i < elements.length; i++) {
-			if ('classList' in elements[i]) {
-				removeClassesWithNative_(elements[i], classes);
-			} else {
-				removeClassesWithoutNative_(elements[i], classes);
-			}
-		}
-	}
-
-	this['sennaNamed']['dom']['removeClasses'] = removeClasses; /**
-                                                              * Removes the requested CSS classes from an element using classList.
-                                                              * @param {!Element} element The element to remove CSS classes from.
-                                                              * @param {string} classes CSS classes to remove.
-                                                              * @private
-                                                              */
-
-	function removeClassesWithNative_(element, classes) {
-		classes.split(' ').forEach(function (className) {
-			if (className) {
-				element.classList.remove(className);
-			}
-		});
-	}
-
-	/**
-  * Removes the requested CSS classes from an element without using classList.
-  * @param {!Element} element The element to remove CSS classes from.
-  * @param {string} classes CSS classes to remove.
-  * @private
-  */
-	function removeClassesWithoutNative_(element, classes) {
-		var elementClassName = ' ' + element.className + ' ';
-
-		classes = classes.split(' ');
-
-		for (var i = 0; i < classes.length; i++) {
-			elementClassName = elementClassName.replace(' ' + classes[i] + ' ', ' ');
-		}
-
-		element.className = elementClassName.trim();
-	}
-
-	/**
-  * Replaces the first element with the second.
-  * @param {Element} element1
-  * @param {Element} element2
-  */
-	function replace(element1, element2) {
-		if (element1 && element2 && element1 !== element2 && element1.parentNode) {
-			element1.parentNode.insertBefore(element2, element1);
-			element1.parentNode.removeChild(element1);
-		}
-	}
-
-	this['sennaNamed']['dom']['replace'] = replace; /**
-                                                  * The function that replaces `stopImmediatePropagation_` for events.
-                                                  * @private
-                                                  */
-
-	function stopImmediatePropagation_() {
-		var event = this; // jshint ignore:line
-		event.stopped = true;
-		event.stoppedImmediate = true;
-		Event.prototype.stopImmediatePropagation.call(event);
-	}
-
-	/**
-  * The function that replaces `stopPropagation` for events.
-  * @private
-  */
-	function stopPropagation_() {
-		var event = this; // jshint ignore:line
-		event.stopped = true;
-		Event.prototype.stopPropagation.call(event);
-	}
-
-	/**
-  * Checks if the given element supports the given event type.
-  * @param {!Element|string} element The DOM element or element tag name to check.
-  * @param {string} eventName The name of the event to check.
-  * @return {boolean}
-  */
-	function supportsEvent(element, eventName) {
-		if (customEvents[eventName]) {
-			return true;
-		}
-
-		if (isString(element)) {
-			if (!elementsByTag_[element]) {
-				elementsByTag_[element] = document.createElement(element);
-			}
-			element = elementsByTag_[element];
-		}
-		return 'on' + eventName in element;
-	}
-
-	this['sennaNamed']['dom']['supportsEvent'] = supportsEvent; /**
-                                                              * Converts the given argument to a DOM element. Strings are assumed to
-                                                              * be selectors, and so a matched element will be returned. If the arg
-                                                              * is already a DOM element it will be the return value.
-                                                              * @param {string|Element|Document} selectorOrElement
-                                                              * @return {Element} The converted element, or null if none was found.
-                                                              */
-
-	function toElement(selectorOrElement) {
-		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
-			return selectorOrElement;
-		} else if (isString(selectorOrElement)) {
-			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
-				return document.getElementById(selectorOrElement.substr(1));
-			} else {
-				return document.querySelector(selectorOrElement);
-			}
-		} else {
-			return null;
-		}
-	}
-
-	this['sennaNamed']['dom']['toElement'] = toElement; /**
-                                                      * Adds or removes one or more classes from an element. If any of the classes
-                                                      * is present, it will be removed from the element, or added otherwise.
-                                                      * @param {!Element} element The element which classes will be toggled.
-                                                      * @param {string} classes The classes which have to added or removed from the element.
-                                                      */
-
-	function toggleClasses(element, classes) {
-		if (!isObject(element) || !isString(classes)) {
-			return;
-		}
-
-		if ('classList' in element) {
-			toggleClassesWithNative_(element, classes);
-		} else {
-			toggleClassesWithoutNative_(element, classes);
-		}
-	}
-
-	this['sennaNamed']['dom']['toggleClasses'] = toggleClasses; /**
-                                                              * Adds or removes one or more classes from an element using classList.
-                                                              * If any of the classes is present, it will be removed from the element,
-                                                              * or added otherwise.
-                                                              * @param {!Element} element The element which classes will be toggled.
-                                                              * @param {string} classes The classes which have to added or removed from the element.
-                                                              * @private
-                                                              */
-
-	function toggleClassesWithNative_(element, classes) {
-		classes.split(' ').forEach(function (className) {
-			element.classList.toggle(className);
-		});
-	}
-
-	/**
-  * Adds or removes one or more classes from an element without using classList.
-  * If any of the classes is present, it will be removed from the element,
-  * or added otherwise.
-  * @param {!Element} element The element which classes will be toggled.
-  * @param {string} classes The classes which have to added or removed from the element.
-  * @private
-  */
-	function toggleClassesWithoutNative_(element, classes) {
-		var elementClassName = ' ' + element.className + ' ';
-
-		classes = classes.split(' ');
-
-		for (var i = 0; i < classes.length; i++) {
-			var className = ' ' + classes[i] + ' ';
-			var classIndex = elementClassName.indexOf(className);
-
-			if (classIndex === -1) {
-				elementClassName = elementClassName + classes[i] + ' ';
-			} else {
-				elementClassName = elementClassName.substring(0, classIndex) + ' ' + elementClassName.substring(classIndex + className.length);
-			}
-		}
-
-		element.className = elementClassName.trim();
-	}
-
-	/**
-  * Triggers the specified event on the given element.
-  * NOTE: This should mostly be used for testing, not on real code.
-  * @param {!Element} element The node that should trigger the event.
-  * @param {string} eventName The name of the event to be triggred.
-  * @param {Object=} opt_eventObj An object with data that should be on the
-  *   triggered event's payload.
-  */
-	function triggerEvent(element, eventName, opt_eventObj) {
-		if (isAbleToInteractWith_(element, eventName)) {
-			var eventObj = document.createEvent('HTMLEvents');
-			eventObj.initEvent(eventName, true, true);
-			object.mixin(eventObj, opt_eventObj);
-			element.dispatchEvent(eventObj);
-		}
-	}
-
-	this['sennaNamed']['dom']['triggerEvent'] = triggerEvent; /**
-                                                            * Triggers the given listeners array.
-                                                            * @param {Array<!function()>} listeners
-                                                            * @param {!Event} event
-                                                            * @param {!Element} element
-                                                            * @param {!Array} defaultFns Array to collect default listeners in, instead
-                                                            *     of running them.
-                                                            * @return {boolean} False if at least one of the triggered callbacks returns
-                                                            *     false, or true otherwise.
-                                                            * @private
-                                                            */
-
-	function triggerListeners_(listeners, event, element, defaultFns) {
-		var ret = true;
-		listeners = listeners || [];
-		for (var i = 0; i < listeners.length && !event.stoppedImmediate; i++) {
-			if (listeners[i].defaultListener_) {
-				defaultFns.push({
-					element: element,
-					fn: listeners[i]
-				});
-			} else {
-				ret &= listeners[i](event);
-			}
-		}
-		return ret;
-	}
-
-	/**
-  * Triggers all listeners for the given event type that are stored in the
-  * specified element.
-  * @param {!Element} container
-  * @param {!Element} element
-  * @param {!Event} event
-  * @param {!Array} defaultFns Array to collect default listeners in, instead
-  *     of running them.
-  * @return {boolean} False if at least one of the triggered callbacks returns
-  *     false, or true otherwise.
-  * @private
-  */
-	function triggerMatchedListeners_(container, element, event, defaultFns) {
-		if (event.type === 'click' && event.button === 2) {
-			// Firefox triggers "click" events on the document for right clicks. This
-			// causes our delegate logic to trigger it for regular elements too, which
-			// shouldn't happen. Ignoring them here.
-			return;
-		}
-
-		var data = domData.get(element);
-		var listeners = data.listeners[event.type];
-		var ret = triggerListeners_(listeners, event, element, defaultFns);
-
-		var selectorsMap = domData.get(container).delegating[event.type].selectors;
-		var selectors = Object.keys(selectorsMap);
-		for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
-			if (match(element, selectors[i])) {
-				listeners = selectorsMap[selectors[i]];
-				ret &= triggerListeners_(listeners, event, element, defaultFns);
-			}
-		}
-
-		return ret;
-	}
-}).call(this);
-'use strict';
-
-(function () {
-	var delegate = this['sennaNamed']['dom']['delegate'];
-	var on = this['sennaNamed']['dom']['on'];
-	var supportsEvent = this['sennaNamed']['dom']['supportsEvent'];
-	var EventEmitterProxy = this['sennaNamed']['events']['EventEmitterProxy'];
-
-	/**
-  * DomEventEmitterProxy utility. It extends `EventEmitterProxy` to also accept
-  * dom elements as origin emitters.
-  * @extends {EventEmitterProxy}
-  */
-
-	var DomEventEmitterProxy = function (_EventEmitterProxy) {
-		babelHelpers.inherits(DomEventEmitterProxy, _EventEmitterProxy);
-
-		function DomEventEmitterProxy() {
-			babelHelpers.classCallCheck(this, DomEventEmitterProxy);
-			return babelHelpers.possibleConstructorReturn(this, (DomEventEmitterProxy.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy)).apply(this, arguments));
-		}
-
-		babelHelpers.createClass(DomEventEmitterProxy, [{
-			key: 'addListener_',
-
-			/**
-    * Adds the given listener for the given event.
-    * @param {string} event
-    * @param {!function()} listener
-    * @return {!EventHandle} The listened event's handle.
-    * @protected
-    * @override
-    */
-			value: function addListener_(event, listener) {
-				if (this.originEmitter_.addEventListener) {
-					if (this.isDelegateEvent_(event)) {
-						var index = event.indexOf(':', 9);
-						var eventName = event.substring(9, index);
-						var selector = event.substring(index + 1);
-						return delegate(this.originEmitter_, eventName, selector, listener);
-					} else {
-						return on(this.originEmitter_, event, listener);
-					}
-				} else {
-					return babelHelpers.get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'addListener_', this).call(this, event, listener);
-				}
-			}
-
-			/**
-    * Checks if the given event is of the delegate type.
-    * @param {string} event
-    * @return {boolean}
-    * @protected
-    */
-
-		}, {
-			key: 'isDelegateEvent_',
-			value: function isDelegateEvent_(event) {
-				return event.substr(0, 9) === 'delegate:';
-			}
-
-			/**
-    * Checks if the given event is supported by the origin element.
-    * @param {string} event
-    * @protected
-    */
-
-		}, {
-			key: 'isSupportedDomEvent_',
-			value: function isSupportedDomEvent_(event) {
-				if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
-					return true;
-				}
-				return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || supportsEvent(this.originEmitter_, event);
-			}
-
-			/**
-    * Checks if the given event should be proxied.
-    * @param {string} event
-    * @return {boolean}
-    * @protected
-    * @override
-    */
-
-		}, {
-			key: 'shouldProxyEvent_',
-			value: function shouldProxyEvent_(event) {
-				return babelHelpers.get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'shouldProxyEvent_', this).call(this, event) && this.isSupportedDomEvent_(event);
-			}
-		}]);
-		return DomEventEmitterProxy;
-	}(EventEmitterProxy);
-
-	this['senna']['DomEventEmitterProxy'] = DomEventEmitterProxy;
-}).call(this);
-'use strict';
-
-(function () {
-	var append = this['sennaNamed']['dom']['append'];
-	var string = this['sennaNamed']['metal']['string'];
-
-	/**
-  * Class with static methods responsible for doing browser feature checks.
-  */
-
-	var features = function () {
-		function features() {
-			babelHelpers.classCallCheck(this, features);
-		}
-
-		babelHelpers.createClass(features, null, [{
-			key: 'checkAnimationEventName',
-
-			/**
-    * Some browsers still supports prefixed animation events. This method can
-    * be used to retrieve the current browser event name for both, animation
-    * and transition.
-    * @return {object}
-    */
-			value: function checkAnimationEventName() {
-				if (features.animationEventName_ === undefined) {
-					features.animationEventName_ = {
-						animation: features.checkAnimationEventName_('animation'),
-						transition: features.checkAnimationEventName_('transition')
-					};
-				}
-				return features.animationEventName_;
-			}
-
-			/**
-    * @protected
-    * @param {string} type Type to test: animation, transition.
-    * @return {string} Browser event name.
-    */
-
-		}, {
-			key: 'checkAnimationEventName_',
-			value: function checkAnimationEventName_(type) {
-				var prefixes = ['Webkit', 'MS', 'O', ''];
-				var typeTitleCase = string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
-				var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
-				for (var i = 0; i < prefixes.length; i++) {
-					if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
-						return prefixes[i].toLowerCase() + suffixes[i];
-					}
-				}
-				return type + 'end';
-			}
-
-			/**
-    * Some browsers (like IE9) change the order of element attributes, when html
-    * is rendered. This method can be used to check if this behavior happens on
-    * the current browser.
-    * @return {boolean}
-    */
-
-		}, {
-			key: 'checkAttrOrderChange',
-			value: function checkAttrOrderChange() {
-				if (features.attrOrderChange_ === undefined) {
-					var originalContent = '<div data-component="" data-ref=""></div>';
-					var element = document.createElement('div');
-					append(element, originalContent);
-					features.attrOrderChange_ = originalContent !== element.innerHTML;
-				}
-				return features.attrOrderChange_;
-			}
-		}]);
-		return features;
-	}();
-
-	features.animationElement_ = document.createElement('div');
-	features.animationEventName_ = undefined;
-	features.attrOrderChange_ = undefined;
-
-	this['senna']['features'] = features;
-}).call(this);
-'use strict';
-
-(function () {
-	var async = this['sennaNamed']['metal']['async'];
-	var exitDocument = this['sennaNamed']['dom']['exitDocument'];
-	var once = this['sennaNamed']['dom']['once'];
-
-	/**
-  * Utility functions for running javascript code in the global scope.
-  */
-
-	var globalEval = function () {
-		function globalEval() {
-			babelHelpers.classCallCheck(this, globalEval);
-		}
-
-		babelHelpers.createClass(globalEval, null, [{
-			key: 'run',
-
-			/**
-    * Evaluates the given string in the global scope.
-    * @param {string} text
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    * @return {Element} script
-    */
-			value: function run(text, opt_appendFn) {
-				var script = document.createElement('script');
-				script.text = text;
-				if (opt_appendFn) {
-					opt_appendFn(script);
-				} else {
-					document.head.appendChild(script);
-				}
-				exitDocument(script);
-				return script;
-			}
-
-			/**
-    * Evaluates the given javascript file in the global scope.
-    * @param {string} src The file's path.
-    * @param {function()=} opt_callback Optional function to be called
-    *   when the script has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    * @return {Element} script
-    */
-
-		}, {
-			key: 'runFile',
-			value: function runFile(src, opt_callback, opt_appendFn) {
-				var script = document.createElement('script');
-				script.src = src;
-
-				var callback = function callback() {
-					exitDocument(script);
-					opt_callback && opt_callback();
-				};
-				once(script, 'load', callback);
-				once(script, 'error', callback);
-
-				if (opt_appendFn) {
-					opt_appendFn(script);
-				} else {
-					document.head.appendChild(script);
-				}
-
-				return script;
-			}
-
-			/**
-    * Evaluates the code referenced by the given script element.
-    * @param {!Element} script
-    * @param {function()=} opt_callback Optional function to be called
-    *   when the script has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    * @return {Element} script
-    */
-
-		}, {
-			key: 'runScript',
-			value: function runScript(script, opt_callback, opt_appendFn) {
-				var callback = function callback() {
-					opt_callback && opt_callback();
-				};
-				if (script.type && script.type !== 'text/javascript') {
-					async.nextTick(callback);
-					return;
-				}
-				exitDocument(script);
-				if (script.src) {
-					return globalEval.runFile(script.src, opt_callback, opt_appendFn);
-				} else {
-					async.nextTick(callback);
-					return globalEval.run(script.text, opt_appendFn);
-				}
-			}
-
-			/**
-    * Evaluates any script tags present in the given element.
-    * @param {!Element} element
-    * @param {function()=} opt_callback Optional function to be called
-    *   when the script has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    */
-
-		}, {
-			key: 'runScriptsInElement',
-			value: function runScriptsInElement(element, opt_callback, opt_appendFn) {
-				var scripts = element.querySelectorAll('script');
-				if (scripts.length) {
-					globalEval.runScriptsInOrder(scripts, 0, opt_callback, opt_appendFn);
-				} else if (opt_callback) {
-					async.nextTick(opt_callback);
-				}
-			}
-
-			/**
-    * Runs the given scripts elements in the order that they appear.
-    * @param {!NodeList} scripts
-    * @param {number} index
-    * @param {function()=} opt_callback Optional function to be called
-    *   when the script has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    */
-
-		}, {
-			key: 'runScriptsInOrder',
-			value: function runScriptsInOrder(scripts, index, opt_callback, opt_appendFn) {
-				globalEval.runScript(scripts.item(index), function () {
-					if (index < scripts.length - 1) {
-						globalEval.runScriptsInOrder(scripts, index + 1, opt_callback, opt_appendFn);
-					} else if (opt_callback) {
-						async.nextTick(opt_callback);
-					}
-				}, opt_appendFn);
-			}
-		}]);
-		return globalEval;
-	}();
-
-	this['senna']['globalEval'] = globalEval;
-}).call(this);
-'use strict';
-
-(function () {
-	var async = this['sennaNamed']['metal']['async'];
-	var once = this['sennaNamed']['dom']['once'];
-
-	/**
-  * Utility functions for running styles.
-  */
-
-	var globalEvalStyles = function () {
-		function globalEvalStyles() {
-			babelHelpers.classCallCheck(this, globalEvalStyles);
-		}
-
-		babelHelpers.createClass(globalEvalStyles, null, [{
-			key: 'run',
-
-			/**
-    * Evaluates the given style.
-    * @param {string} text
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    * @return {Element} style
-    */
-			value: function run(text, opt_appendFn) {
-				var style = document.createElement('style');
-				style.innerHTML = text;
-				if (opt_appendFn) {
-					opt_appendFn(style);
-				} else {
-					document.head.appendChild(style);
-				}
-				return style;
-			}
-
-			/**
-    * Evaluates the given style file.
-    * @param {string} href The file's path.
-    * @param {function()=} opt_callback Optional function to be called
-    *   when the styles has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    * @return {Element} style
-    */
-
-		}, {
-			key: 'runFile',
-			value: function runFile(href, opt_callback, opt_appendFn) {
-				var link = document.createElement('link');
-				link.rel = 'stylesheet';
-				link.href = href;
-				globalEvalStyles.runStyle(link, opt_callback, opt_appendFn);
-				return link;
-			}
-
-			/**
-    * Evaluates the code referenced by the given style/link element.
-    * @param {!Element} style
-    * @param {function()=} opt_callback Optional function to be called
-    *   when the script has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    *  @return {Element} style
-    */
-
-		}, {
-			key: 'runStyle',
-			value: function runStyle(style, opt_callback, opt_appendFn) {
-				var callback = function callback() {
-					opt_callback && opt_callback();
-				};
-				if (style.rel && style.rel !== 'stylesheet') {
-					async.nextTick(callback);
-					return;
-				}
-
-				if (style.tagName === 'STYLE') {
-					async.nextTick(callback);
-				} else {
-					once(style, 'load', callback);
-					once(style, 'error', callback);
-				}
-
-				if (opt_appendFn) {
-					opt_appendFn(style);
-				} else {
-					document.head.appendChild(style);
-				}
-
-				return style;
-			}
-
-			/**
-    * Evaluates any style present in the given element.
-    * @param {!Element} element
-    * @param {function()=} opt_callback Optional function to be called when the
-    *   style has been run.
-    * @param {function()=} opt_appendFn Optional function to append the node
-    *   into document.
-    */
-
-		}, {
-			key: 'runStylesInElement',
-			value: function runStylesInElement(element, opt_callback, opt_appendFn) {
-				var styles = element.querySelectorAll('style,link');
-				if (styles.length === 0 && opt_callback) {
-					async.nextTick(opt_callback);
-					return;
-				}
-
-				var loadCount = 0;
-				var callback = function callback() {
-					if (opt_callback && ++loadCount === styles.length) {
-						async.nextTick(opt_callback);
-					}
-				};
-				for (var i = 0; i < styles.length; i++) {
-					globalEvalStyles.runStyle(styles[i], callback, opt_appendFn);
-				}
-			}
-		}]);
-		return globalEvalStyles;
-	}();
-
-	this['senna']['globalEvalStyles'] = globalEvalStyles;
-}).call(this);
-'use strict';
-
-(function () {
-	var registerCustomEvent = this['sennaNamed']['dom']['registerCustomEvent'];
-	var features = this['senna']['features'];
-
-
-	var mouseEventMap = {
-		mouseenter: 'mouseover',
-		mouseleave: 'mouseout',
-		pointerenter: 'pointerover',
-		pointerleave: 'pointerout'
-	};
-	Object.keys(mouseEventMap).forEach(function (eventName) {
-		registerCustomEvent(eventName, {
-			delegate: true,
-			handler: function handler(callback, event) {
-				var related = event.relatedTarget;
-				var target = event.delegateTarget;
-				if (!related || related !== target && !target.contains(related)) {
-					event.customType = eventName;
-					return callback(event);
-				}
-			},
-			originalEvent: mouseEventMap[eventName]
-		});
-	});
-
-	var animationEventMap = {
-		animation: 'animationend',
-		transition: 'transitionend'
-	};
-	Object.keys(animationEventMap).forEach(function (eventType) {
-		var eventName = animationEventMap[eventType];
-		registerCustomEvent(eventName, {
-			event: true,
-			delegate: true,
-			handler: function handler(callback, event) {
-				event.customType = eventName;
-				return callback(event);
-			},
-			originalEvent: features.checkAnimationEventName()[eventType]
-		});
-	});
-}).call(this);
-'use strict';
-
-(function () {
-  var dom = this['sennaNamed']['dom'];
-  var domData = this['senna']['domData'];
-  var DomEventEmitterProxy = this['senna']['DomEventEmitterProxy'];
-  var DomEventHandle = this['senna']['DomEventHandle'];
-  var features = this['senna']['features'];
-  var globalEval = this['senna']['globalEval'];
-  var globalEvalStyles = this['senna']['globalEvalStyles'];
-  this['sennaNamed']['dom'] = this['sennaNamed']['dom'] || {};
-  Object.keys(this['sennaNamed']['dom']).forEach(function (key) {
-    this['sennaNamed']['dom'][key] = this['sennaNamed']['dom'][key];
-  });
-  this['sennaNamed']['dom']['domData'] = domData;
-  this['sennaNamed']['dom']['DomEventEmitterProxy'] = DomEventEmitterProxy;
-  this['sennaNamed']['dom']['DomEventHandle'] = DomEventHandle;
-  this['sennaNamed']['dom']['features'] = features;
-  this['sennaNamed']['dom']['globalEval'] = globalEval;
-  this['sennaNamed']['dom']['globalEvalStyles'] = globalEvalStyles;
-
-  // This is for backwards compatibility, making sure that old imports for the
-  // "dom" object still work. It's best to use the named exports for each function
-  // instead though, since that allows bundlers like Rollup to reduce the bundle
-  // size by removing unused code.
-
-  this['senna']['dom'] = dom;
-  this['sennaNamed']['dom']['dom'] = dom;
-}).call(this);
-/*!
- * Promises polyfill from Google's Closure Library.
- *
- *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
- *
- * NOTE(eduardo): Promise support is not ready on all supported browsers,
- * therefore metal-promise is temporarily using Google's promises as polyfill.
- * It supports cancellable promises and has clean and fast implementation.
- */
-
-'use strict';
-
-(function () {
-  var isDef = this['sennaNamed']['metal']['isDef'];
-  var isFunction = this['sennaNamed']['metal']['isFunction'];
-  var isObject = this['sennaNamed']['metal']['isObject'];
-  var async = this['sennaNamed']['metal']['async'];
-
-  /**
-   * Provides a more strict interface for Thenables in terms of
-   * http://promisesaplus.com for interop with {@see CancellablePromise}.
-   *
-   * @interface
-   * @extends {IThenable.<TYPE>}
-   * @template TYPE
-   */
-
-  var Thenable = function Thenable() {};
-
-  /**
-   * Adds callbacks that will operate on the result of the Thenable, returning a
-   * new child Promise.
-   *
-   * If the Thenable is fulfilled, the {@code onFulfilled} callback will be
-   * invoked with the fulfillment value as argument, and the child Promise will
-   * be fulfilled with the return value of the callback. If the callback throws
-   * an exception, the child Promise will be rejected with the thrown value
-   * instead.
-   *
-   * If the Thenable is rejected, the {@code onRejected} callback will be invoked
-   * with the rejection reason as argument, and the child Promise will be rejected
-   * with the return value of the callback or thrown value.
-   *
-   * @param {?(function(this:THIS, TYPE):
-   *             (RESULT|IThenable.<RESULT>|Thenable))=} opt_onFulfilled A
-   *     function that will be invoked with the fulfillment value if the Promise
-   *     is fullfilled.
-   * @param {?(function(*): *)=} opt_onRejected A function that will be invoked
-   *     with the rejection reason if the Promise is rejected.
-   * @param {THIS=} opt_context An optional context object that will be the
-   *     execution context for the callbacks. By default, functions are executed
-   *     with the default this.
-   * @return {!CancellablePromise.<RESULT>} A new Promise that will receive the
-   *     result of the fulfillment or rejection callback.
-   * @template RESULT,THIS
-   */
-  Thenable.prototype.then = function () {};
-
-  /**
-   * An expando property to indicate that an object implements
-   * {@code Thenable}.
-   *
-   * {@see addImplementation}.
-   *
-   * @const
-   */
-  Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
-
-  /**
-   * Marks a given class (constructor) as an implementation of Thenable, so
-   * that we can query that fact at runtime. The class must have already
-   * implemented the interface.
-   * Exports a 'then' method on the constructor prototype, so that the objects
-   * also implement the extern {@see Thenable} interface for interop with
-   * other Promise implementations.
-   * @param {function(new:Thenable,...[?])} ctor The class constructor. The
-   *     corresponding class must have already implemented the interface.
-   */
-  Thenable.addImplementation = function (ctor) {
-    ctor.prototype.then = ctor.prototype.then;
-    ctor.prototype.$goog_Thenable = true;
-  };
-
-  /**
-   * @param {*} object
-   * @return {boolean} Whether a given instance implements {@code Thenable}.
-   *     The class/superclass of the instance must call {@code addImplementation}.
-   */
-  Thenable.isImplementedBy = function (object) {
-    if (!object) {
-      return false;
-    }
-    try {
-      return !!object.$goog_Thenable;
-    } catch (e) {
-      // Property access seems to be forbidden.
-      return false;
-    }
-  };
-
-  /**
-   * Like bind(), except that a 'this object' is not required. Useful when the
-   * target function is already bound.
-   *
-   * Usage:
-   * var g = partial(f, arg1, arg2);
-   * g(arg3, arg4);
-   *
-   * @param {Function} fn A function to partially apply.
-   * @param {...*} var_args Additional arguments that are partially applied to fn.
-   * @return {!Function} A partially-applied form of the function bind() was
-   *     invoked as a method of.
-   */
-  var partial = function partial(fn) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    return function () {
-      // Clone the array (with slice()) and append additional arguments
-      // to the existing arguments.
-      var newArgs = args.slice();
-      newArgs.push.apply(newArgs, arguments);
-      return fn.apply(this, newArgs);
-    };
-  };
-
-  /**
-   * Promises provide a result that may be resolved asynchronously. A Promise may
-   * be resolved by being fulfilled or rejected with a value, which will be known
-   * as the fulfillment value or the rejection reason. Whether fulfilled or
-   * rejected, the Promise result is immutable once it is set.
-   *
-   * Promises may represent results of any type, including undefined. Rejection
-   * reasons are typically Errors, but may also be of any type. Closure Promises
-   * allow for optional type annotations that enforce that fulfillment values are
-   * of the appropriate types at compile time.
-   *
-   * The result of a Promise is accessible by calling {@code then} and registering
-   * {@code onFulfilled} and {@code onRejected} callbacks. Once the Promise
-   * resolves, the relevant callbacks are invoked with the fulfillment value or
-   * rejection reason as argument. Callbacks are always invoked in the order they
-   * were registered, even when additional {@code then} calls are made from inside
-   * another callback. A callback is always run asynchronously sometime after the
-   * scope containing the registering {@code then} invocation has returned.
-   *
-   * If a Promise is resolved with another Promise, the first Promise will block
-   * until the second is resolved, and then assumes the same result as the second
-   * Promise. This allows Promises to depend on the results of other Promises,
-   * linking together multiple asynchronous operations.
-   *
-   * This implementation is compatible with the Promises/A+ specification and
-   * passes that specification's conformance test suite. A Closure Promise may be
-   * resolved with a Promise instance (or sufficiently compatible Promise-like
-   * object) created by other Promise implementations. From the specification,
-   * Promise-like objects are known as "Thenables".
-   *
-   * @see http://promisesaplus.com/
-   *
-   * @param {function(
-   *             this:RESOLVER_CONTEXT,
-   *             function((TYPE|IThenable.<TYPE>|Thenable)),
-   *             function(*)): void} resolver
-   *     Initialization function that is invoked immediately with {@code resolve}
-   *     and {@code reject} functions as arguments. The Promise is resolved or
-   *     rejected with the first argument passed to either function.
-   * @param {RESOLVER_CONTEXT=} opt_context An optional context for executing the
-   *     resolver function. If unspecified, the resolver function will be executed
-   *     in the default scope.
-   * @constructor
-   * @struct
-   * @final
-   * @implements {Thenable.<TYPE>}
-   * @template TYPE,RESOLVER_CONTEXT
-   */
-  var CancellablePromise = function CancellablePromise(resolver, opt_context) {
-    /**
-     * The internal state of this Promise. Either PENDING, FULFILLED, REJECTED, or
-     * BLOCKED.
-     * @private {CancellablePromise.State_}
-     */
-    this.state_ = CancellablePromise.State_.PENDING;
-
-    /**
-     * The resolved result of the Promise. Immutable once set with either a
-     * fulfillment value or rejection reason.
-     * @private {*}
-     */
-    this.result_ = undefined;
-
-    /**
-     * For Promises created by calling {@code then()}, the originating parent.
-     * @private {CancellablePromise}
-     */
-    this.parent_ = null;
-
-    /**
-     * The list of {@code onFulfilled} and {@code onRejected} callbacks added to
-     * this Promise by calls to {@code then()}.
-     * @private {Array.<CancellablePromise.CallbackEntry_>}
-     */
-    this.callbackEntries_ = null;
-
-    /**
-     * Whether the Promise is in the queue of Promises to execute.
-     * @private {boolean}
-     */
-    this.executing_ = false;
-
-    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
-      /**
-       * A timeout ID used when the {@code UNHANDLED_REJECTION_DELAY} is greater
-       * than 0 milliseconds. The ID is set when the Promise is rejected, and
-       * cleared only if an {@code onRejected} callback is invoked for the
-       * Promise (or one of its descendants) before the delay is exceeded.
-       *
-       * If the rejection is not handled before the timeout completes, the
-       * rejection reason is passed to the unhandled rejection handler.
-       * @private {number}
-       */
-      this.unhandledRejectionId_ = 0;
-    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
-      /**
-       * When the {@code UNHANDLED_REJECTION_DELAY} is set to 0 milliseconds, a
-       * boolean that is set if the Promise is rejected, and reset to false if an
-       * {@code onRejected} callback is invoked for the Promise (or one of its
-       * descendants). If the rejection is not handled before the next timestep,
-       * the rejection reason is passed to the unhandled rejection handler.
-       * @private {boolean}
-       */
-      this.hadUnhandledRejection_ = false;
-    }
-
-    try {
-      var self = this;
-      resolver.call(opt_context, function (value) {
-        self.resolve_(CancellablePromise.State_.FULFILLED, value);
-      }, function (reason) {
-        self.resolve_(CancellablePromise.State_.REJECTED, reason);
-      });
-    } catch (e) {
-      this.resolve_(CancellablePromise.State_.REJECTED, e);
-    }
-  };
-
-  /**
-   * The delay in milliseconds before a rejected Promise's reason is passed to
-   * the rejection handler. By default, the rejection handler rethrows the
-   * rejection reason so that it appears in the developer console or
-   * {@code window.onerror} handler.
-   * Rejections are rethrown as quickly as possible by default. A negative value
-   * disables rejection handling entirely.
-   * @type {number}
-   */
-  CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
-
-  /**
-   * The possible internal states for a Promise. These states are not directly
-   * observable to external callers.
-   * @enum {number}
-   * @private
-   */
-  CancellablePromise.State_ = {
-    /** The Promise is waiting for resolution. */
-    PENDING: 0,
-
-    /** The Promise is blocked waiting for the result of another Thenable. */
-    BLOCKED: 1,
-
-    /** The Promise has been resolved with a fulfillment value. */
-    FULFILLED: 2,
-
-    /** The Promise has been resolved with a rejection reason. */
-    REJECTED: 3
-  };
-
-  /**
-   * Typedef for entries in the callback chain. Each call to {@code then},
-   * {@code thenCatch}, or {@code thenAlways} creates an entry containing the
-   * functions that may be invoked once the Promise is resolved.
-   *
-   * @typedef {{
-   *   child: CancellablePromise,
-   *   onFulfilled: function(*),
-   *   onRejected: function(*)
-   * }}
-   * @private
-   */
-  CancellablePromise.CallbackEntry_ = null;
-
-  /**
-   * @param {(TYPE|Thenable.<TYPE>|Thenable)=} opt_value
-   * @return {!CancellablePromise.<TYPE>} A new Promise that is immediately resolved
-   *     with the given value.
-   * @template TYPE
-   */
-  CancellablePromise.resolve = function (opt_value) {
-    return new CancellablePromise(function (resolve) {
-      resolve(opt_value);
-    });
-  };
-
-  /**
-   * @param {*=} opt_reason
-   * @return {!CancellablePromise} A new Promise that is immediately rejected with the
-   *     given reason.
-   */
-  CancellablePromise.reject = function (opt_reason) {
-    return new CancellablePromise(function (resolve, reject) {
-      reject(opt_reason);
-    });
-  };
-
-  /**
-   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
-   * @return {!CancellablePromise.<TYPE>} A Promise that receives the result of the
-   *     first Promise (or Promise-like) input to complete.
-   * @template TYPE
-   */
-  CancellablePromise.race = function (promises) {
-    return new CancellablePromise(function (resolve, reject) {
-      if (!promises.length) {
-        resolve(undefined);
-      }
-      for (var i = 0, promise; promise = promises[i]; i++) {
-        promise.then(resolve, reject);
-      }
-    });
-  };
-
-  /**
-   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
-   * @return {!CancellablePromise.<!Array.<TYPE>>} A Promise that receives a list of
-   *     every fulfilled value once every input Promise (or Promise-like) is
-   *     successfully fulfilled, or is rejected by the first rejection result.
-   * @template TYPE
-   */
-  CancellablePromise.all = function (promises) {
-    return new CancellablePromise(function (resolve, reject) {
-      var toFulfill = promises.length;
-      var values = [];
-
-      if (!toFulfill) {
-        resolve(values);
-        return;
-      }
-
-      var onFulfill = function onFulfill(index, value) {
-        toFulfill--;
-        values[index] = value;
-        if (toFulfill === 0) {
-          resolve(values);
-        }
-      };
-
-      var onReject = function onReject(reason) {
-        reject(reason);
-      };
-
-      for (var i = 0, promise; promise = promises[i]; i++) {
-        promise.then(partial(onFulfill, i), onReject);
-      }
-    });
-  };
-
-  /**
-   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
-   * @return {!CancellablePromise.<TYPE>} A Promise that receives the value of
-   *     the first input to be fulfilled, or is rejected with a list of every
-   *     rejection reason if all inputs are rejected.
-   * @template TYPE
-   */
-  CancellablePromise.firstFulfilled = function (promises) {
-    return new CancellablePromise(function (resolve, reject) {
-      var toReject = promises.length;
-      var reasons = [];
-
-      if (!toReject) {
-        resolve(undefined);
-        return;
-      }
-
-      var onFulfill = function onFulfill(value) {
-        resolve(value);
-      };
-
-      var onReject = function onReject(index, reason) {
-        toReject--;
-        reasons[index] = reason;
-        if (toReject === 0) {
-          reject(reasons);
-        }
-      };
-
-      for (var i = 0, promise; promise = promises[i]; i++) {
-        promise.then(onFulfill, partial(onReject, i));
-      }
-    });
-  };
-
-  /**
-   * Adds callbacks that will operate on the result of the Promise, returning a
-   * new child Promise.
-   *
-   * If the Promise is fulfilled, the {@code onFulfilled} callback will be invoked
-   * with the fulfillment value as argument, and the child Promise will be
-   * fulfilled with the return value of the callback. If the callback throws an
-   * exception, the child Promise will be rejected with the thrown value instead.
-   *
-   * If the Promise is rejected, the {@code onRejected} callback will be invoked
-   * with the rejection reason as argument, and the child Promise will be rejected
-   * with the return value (or thrown value) of the callback.
-   *
-   * @override
-   */
-  CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
-    return this.addChildPromise_(isFunction(opt_onFulfilled) ? opt_onFulfilled : null, isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
-  };
-  Thenable.addImplementation(CancellablePromise);
-
-  /**
-   * Adds a callback that will be invoked whether the Promise is fulfilled or
-   * rejected. The callback receives no argument, and no new child Promise is
-   * created. This is useful for ensuring that cleanup takes place after certain
-   * asynchronous operations. Callbacks added with {@code thenAlways} will be
-   * executed in the same order with other calls to {@code then},
-   * {@code thenAlways}, or {@code thenCatch}.
-   *
-   * Since it does not produce a new child Promise, cancellation propagation is
-   * not prevented by adding callbacks with {@code thenAlways}. A Promise that has
-   * a cleanup handler added with {@code thenAlways} will be canceled if all of
-   * its children created by {@code then} (or {@code thenCatch}) are canceled.
-   *
-   * @param {function(this:THIS): void} onResolved A function that will be invoked
-   *     when the Promise is resolved.
-   * @param {THIS=} opt_context An optional context object that will be the
-   *     execution context for the callbacks. By default, functions are executed
-   *     in the global scope.
-   * @return {!CancellablePromise.<TYPE>} This Promise, for chaining additional calls.
-   * @template THIS
-   */
-  CancellablePromise.prototype.thenAlways = function (onResolved, opt_context) {
-    var callback = function callback() {
-      try {
-        // Ensure that no arguments are passed to onResolved.
-        onResolved.call(opt_context);
-      } catch (err) {
-        CancellablePromise.handleRejection_.call(null, err);
-      }
-    };
-
-    this.addCallbackEntry_({
-      child: null,
-      onRejected: callback,
-      onFulfilled: callback
-    });
-    return this;
-  };
-
-  /**
-   * Adds a callback that will be invoked only if the Promise is rejected. This
-   * is equivalent to {@code then(null, onRejected)}.
-   *
-   * @param {!function(this:THIS, *): *} onRejected A function that will be
-   *     invoked with the rejection reason if the Promise is rejected.
-   * @param {THIS=} opt_context An optional context object that will be the
-   *     execution context for the callbacks. By default, functions are executed
-   *     in the global scope.
-   * @return {!CancellablePromise} A new Promise that will receive the result of the
-   *     callback.
-   * @template THIS
-   */
-  CancellablePromise.prototype.thenCatch = function (onRejected, opt_context) {
-    return this.addChildPromise_(null, onRejected, opt_context);
-  };
-
-  /**
-   * Alias of {@link CancellablePromise.prototype.thenCatch}
-   */
-  CancellablePromise.prototype.catch = CancellablePromise.prototype.thenCatch;
-
-  /**
-   * Cancels the Promise if it is still pending by rejecting it with a cancel
-   * Error. No action is performed if the Promise is already resolved.
-   *
-   * All child Promises of the canceled Promise will be rejected with the same
-   * cancel error, as with normal Promise rejection. If the Promise to be canceled
-   * is the only child of a pending Promise, the parent Promise will also be
-   * canceled. Cancellation may propagate upward through multiple generations.
-   *
-   * @param {string=} opt_message An optional debugging message for describing the
-   *     cancellation reason.
-   */
-  CancellablePromise.prototype.cancel = function (opt_message) {
-    if (this.state_ === CancellablePromise.State_.PENDING) {
-      async.run(function () {
-        var err = new CancellablePromise.CancellationError(opt_message);
-        err.IS_CANCELLATION_ERROR = true;
-        this.cancelInternal_(err);
-      }, this);
-    }
-  };
-
-  /**
-   * Cancels this Promise with the given error.
-   *
-   * @param {!Error} err The cancellation error.
-   * @private
-   */
-  CancellablePromise.prototype.cancelInternal_ = function (err) {
-    if (this.state_ === CancellablePromise.State_.PENDING) {
-      if (this.parent_) {
-        // Cancel the Promise and remove it from the parent's child list.
-        this.parent_.cancelChild_(this, err);
-      } else {
-        this.resolve_(CancellablePromise.State_.REJECTED, err);
-      }
-    }
-  };
-
-  /**
-   * Cancels a child Promise from the list of callback entries. If the Promise has
-   * not already been resolved, reject it with a cancel error. If there are no
-   * other children in the list of callback entries, propagate the cancellation
-   * by canceling this Promise as well.
-   *
-   * @param {!CancellablePromise} childPromise The Promise to cancel.
-   * @param {!Error} err The cancel error to use for rejecting the Promise.
-   * @private
-   */
-  CancellablePromise.prototype.cancelChild_ = function (childPromise, err) {
-    if (!this.callbackEntries_) {
-      return;
-    }
-    var childCount = 0;
-    var childIndex = -1;
-
-    // Find the callback entry for the childPromise, and count whether there are
-    // additional child Promises.
-    for (var i = 0, entry; entry = this.callbackEntries_[i]; i++) {
-      var child = entry.child;
-      if (child) {
-        childCount++;
-        if (child === childPromise) {
-          childIndex = i;
-        }
-        if (childIndex >= 0 && childCount > 1) {
-          break;
-        }
-      }
-    }
-
-    // If the child Promise was the only child, cancel this Promise as well.
-    // Otherwise, reject only the child Promise with the cancel error.
-    if (childIndex >= 0) {
-      if (this.state_ === CancellablePromise.State_.PENDING && childCount === 1) {
-        this.cancelInternal_(err);
-      } else {
-        var callbackEntry = this.callbackEntries_.splice(childIndex, 1)[0];
-        this.executeCallback_(callbackEntry, CancellablePromise.State_.REJECTED, err);
-      }
-    }
-  };
-
-  /**
-   * Adds a callback entry to the current Promise, and schedules callback
-   * execution if the Promise has already been resolved.
-   *
-   * @param {CancellablePromise.CallbackEntry_} callbackEntry Record containing
-   *     {@code onFulfilled} and {@code onRejected} callbacks to execute after
-   *     the Promise is resolved.
-   * @private
-   */
-  CancellablePromise.prototype.addCallbackEntry_ = function (callbackEntry) {
-    if ((!this.callbackEntries_ || !this.callbackEntries_.length) && (this.state_ === CancellablePromise.State_.FULFILLED || this.state_ === CancellablePromise.State_.REJECTED)) {
-      this.scheduleCallbacks_();
-    }
-    if (!this.callbackEntries_) {
-      this.callbackEntries_ = [];
-    }
-    this.callbackEntries_.push(callbackEntry);
-  };
-
-  /**
-   * Creates a child Promise and adds it to the callback entry list. The result of
-   * the child Promise is determined by the state of the parent Promise and the
-   * result of the {@code onFulfilled} or {@code onRejected} callbacks as
-   * specified in the Promise resolution procedure.
-   *
-   * @see http://promisesaplus.com/#the__method
-   *
-   * @param {?function(this:THIS, TYPE):
-   *          (RESULT|CancellablePromise.<RESULT>|Thenable)} onFulfilled A callback that
-   *     will be invoked if the Promise is fullfilled, or null.
-   * @param {?function(this:THIS, *): *} onRejected A callback that will be
-   *     invoked if the Promise is rejected, or null.
-   * @param {THIS=} opt_context An optional execution context for the callbacks.
-   *     in the default calling context.
-   * @return {!CancellablePromise} The child Promise.
-   * @template RESULT,THIS
-   * @private
-   */
-  CancellablePromise.prototype.addChildPromise_ = function (onFulfilled, onRejected, opt_context) {
-
-    var callbackEntry = {
-      child: null,
-      onFulfilled: null,
-      onRejected: null
-    };
-
-    callbackEntry.child = new CancellablePromise(function (resolve, reject) {
-      // Invoke onFulfilled, or resolve with the parent's value if absent.
-      callbackEntry.onFulfilled = onFulfilled ? function (value) {
-        try {
-          var result = onFulfilled.call(opt_context, value);
-          resolve(result);
-        } catch (err) {
-          reject(err);
-        }
-      } : resolve;
-
-      // Invoke onRejected, or reject with the parent's reason if absent.
-      callbackEntry.onRejected = onRejected ? function (reason) {
-        try {
-          var result = onRejected.call(opt_context, reason);
-          if (!isDef(result) && reason.IS_CANCELLATION_ERROR) {
-            // Propagate cancellation to children if no other result is returned.
-            reject(reason);
-          } else {
-            resolve(result);
-          }
-        } catch (err) {
-          reject(err);
-        }
-      } : reject;
-    });
-
-    callbackEntry.child.parent_ = this;
-    this.addCallbackEntry_(
-    /** @type {CancellablePromise.CallbackEntry_} */callbackEntry);
-    return callbackEntry.child;
-  };
-
-  /**
-   * Unblocks the Promise and fulfills it with the given value.
-   *
-   * @param {TYPE} value
-   * @private
-   */
-  CancellablePromise.prototype.unblockAndFulfill_ = function (value) {
-    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
-      throw new Error('CancellablePromise is not blocked.');
-    }
-    this.state_ = CancellablePromise.State_.PENDING;
-    this.resolve_(CancellablePromise.State_.FULFILLED, value);
-  };
-
-  /**
-   * Unblocks the Promise and rejects it with the given rejection reason.
-   *
-   * @param {*} reason
-   * @private
-   */
-  CancellablePromise.prototype.unblockAndReject_ = function (reason) {
-    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
-      throw new Error('CancellablePromise is not blocked.');
-    }
-    this.state_ = CancellablePromise.State_.PENDING;
-    this.resolve_(CancellablePromise.State_.REJECTED, reason);
-  };
-
-  /**
-   * Attempts to resolve a Promise with a given resolution state and value. This
-   * is a no-op if the given Promise has already been resolved.
-   *
-   * If the given result is a Thenable (such as another Promise), the Promise will
-   * be resolved with the same state and result as the Thenable once it is itself
-   * resolved.
-   *
-   * If the given result is not a Thenable, the Promise will be fulfilled or
-   * rejected with that result based on the given state.
-   *
-   * @see http://promisesaplus.com/#the_promise_resolution_procedure
-   *
-   * @param {CancellablePromise.State_} state
-   * @param {*} x The result to apply to the Promise.
-   * @private
-   */
-  CancellablePromise.prototype.resolve_ = function (state, x) {
-    if (this.state_ !== CancellablePromise.State_.PENDING) {
-      return;
-    }
-
-    if (this === x) {
-      state = CancellablePromise.State_.REJECTED;
-      x = new TypeError('CancellablePromise cannot resolve to itself');
-    } else if (Thenable.isImplementedBy(x)) {
-      x = /** @type {!Thenable} */x;
-      this.state_ = CancellablePromise.State_.BLOCKED;
-      x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
-      return;
-    } else if (isObject(x)) {
-      try {
-        var then = x.then;
-        if (isFunction(then)) {
-          this.tryThen_(x, then);
-          return;
-        }
-      } catch (e) {
-        state = CancellablePromise.State_.REJECTED;
-        x = e;
-      }
-    }
-
-    this.result_ = x;
-    this.state_ = state;
-    this.scheduleCallbacks_();
-
-    if (state === CancellablePromise.State_.REJECTED && !x.IS_CANCELLATION_ERROR) {
-      CancellablePromise.addUnhandledRejection_(this, x);
-    }
-  };
-
-  /**
-   * Attempts to call the {@code then} method on an object in the hopes that it is
-   * a Promise-compatible instance. This allows interoperation between different
-   * Promise implementations, however a non-compliant object may cause a Promise
-   * to hang indefinitely. If the {@code then} method throws an exception, the
-   * dependent Promise will be rejected with the thrown value.
-   *
-   * @see http://promisesaplus.com/#point-70
-   *
-   * @param {Thenable} thenable An object with a {@code then} method that may be
-   *     compatible with the Promise/A+ specification.
-   * @param {!Function} then The {@code then} method of the Thenable object.
-   * @private
-   */
-  CancellablePromise.prototype.tryThen_ = function (thenable, then) {
-    this.state_ = CancellablePromise.State_.BLOCKED;
-    var promise = this;
-    var called = false;
-
-    var resolve = function resolve(value) {
-      if (!called) {
-        called = true;
-        promise.unblockAndFulfill_(value);
-      }
-    };
-
-    var reject = function reject(reason) {
-      if (!called) {
-        called = true;
-        promise.unblockAndReject_(reason);
-      }
-    };
-
-    try {
-      then.call(thenable, resolve, reject);
-    } catch (e) {
-      reject(e);
-    }
-  };
-
-  /**
-   * Executes the pending callbacks of a resolved Promise after a timeout.
-   *
-   * Section 2.2.4 of the Promises/A+ specification requires that Promise
-   * callbacks must only be invoked from a call stack that only contains Promise
-   * implementation code, which we accomplish by invoking callback execution after
-   * a timeout. If {@code startExecution_} is called multiple times for the same
-   * Promise, the callback chain will be evaluated only once. Additional callbacks
-   * may be added during the evaluation phase, and will be executed in the same
-   * event loop.
-   *
-   * All Promises added to the waiting list during the same browser event loop
-   * will be executed in one batch to avoid using a separate timeout per Promise.
-   *
-   * @private
-   */
-  CancellablePromise.prototype.scheduleCallbacks_ = function () {
-    if (!this.executing_) {
-      this.executing_ = true;
-      async.run(this.executeCallbacks_, this);
-    }
-  };
-
-  /**
-   * Executes all pending callbacks for this Promise.
-   *
-   * @private
-   */
-  CancellablePromise.prototype.executeCallbacks_ = function () {
-    while (this.callbackEntries_ && this.callbackEntries_.length) {
-      var entries = this.callbackEntries_;
-      this.callbackEntries_ = [];
-
-      for (var i = 0; i < entries.length; i++) {
-        this.executeCallback_(entries[i], this.state_, this.result_);
-      }
-    }
-    this.executing_ = false;
-  };
-
-  /**
-   * Executes a pending callback for this Promise. Invokes an {@code onFulfilled}
-   * or {@code onRejected} callback based on the resolved state of the Promise.
-   *
-   * @param {!CancellablePromise.CallbackEntry_} callbackEntry An entry containing the
-   *     onFulfilled and/or onRejected callbacks for this step.
-   * @param {CancellablePromise.State_} state The resolution status of the Promise,
-   *     either FULFILLED or REJECTED.
-   * @param {*} result The resolved result of the Promise.
-   * @private
-   */
-  CancellablePromise.prototype.executeCallback_ = function (callbackEntry, state, result) {
-    if (state === CancellablePromise.State_.FULFILLED) {
-      callbackEntry.onFulfilled(result);
-    } else {
-      this.removeUnhandledRejection_();
-      callbackEntry.onRejected(result);
-    }
-  };
-
-  /**
-   * Marks this rejected Promise as having being handled. Also marks any parent
-   * Promises in the rejected state as handled. The rejection handler will no
-   * longer be invoked for this Promise (if it has not been called already).
-   *
-   * @private
-   */
-  CancellablePromise.prototype.removeUnhandledRejection_ = function () {
-    var p;
-    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
-      for (p = this; p && p.unhandledRejectionId_; p = p.parent_) {
-        clearTimeout(p.unhandledRejectionId_);
-        p.unhandledRejectionId_ = 0;
-      }
-    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
-      for (p = this; p && p.hadUnhandledRejection_; p = p.parent_) {
-        p.hadUnhandledRejection_ = false;
-      }
-    }
-  };
-
-  /**
-   * Marks this rejected Promise as unhandled. If no {@code onRejected} callback
-   * is called for this Promise before the {@code UNHANDLED_REJECTION_DELAY}
-   * expires, the reason will be passed to the unhandled rejection handler. The
-   * handler typically rethrows the rejection reason so that it becomes visible in
-   * the developer console.
-   *
-   * @param {!CancellablePromise} promise The rejected Promise.
-   * @param {*} reason The Promise rejection reason.
-   * @private
-   */
-  CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
-    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
-      promise.unhandledRejectionId_ = setTimeout(function () {
-        CancellablePromise.handleRejection_.call(null, reason);
-      }, CancellablePromise.UNHANDLED_REJECTION_DELAY);
-    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
-      promise.hadUnhandledRejection_ = true;
-      async.run(function () {
-        if (promise.hadUnhandledRejection_) {
-          CancellablePromise.handleRejection_.call(null, reason);
-        }
-      });
-    }
-  };
-
-  /**
-   * A method that is invoked with the rejection reasons for Promises that are
-   * rejected but have no {@code onRejected} callbacks registered yet.
-   * @type {function(*)}
-   * @private
-   */
-  CancellablePromise.handleRejection_ = async.throwException;
-
-  /**
-   * Sets a handler that will be called with reasons from unhandled rejected
-   * Promises. If the rejected Promise (or one of its descendants) has an
-   * {@code onRejected} callback registered, the rejection will be considered
-   * handled, and the rejection handler will not be called.
-   *
-   * By default, unhandled rejections are rethrown so that the error may be
-   * captured by the developer console or a {@code window.onerror} handler.
-   *
-   * @param {function(*)} handler A function that will be called with reasons from
-   *     rejected Promises. Defaults to {@code async.throwException}.
-   */
-  CancellablePromise.setUnhandledRejectionHandler = function (handler) {
-    CancellablePromise.handleRejection_ = handler;
-  };
-
-  /**
-   * Error used as a rejection reason for canceled Promises.
-   *
-   * @param {string=} opt_message
-   * @constructor
-   * @extends {Error}
-   * @final
-   */
-  CancellablePromise.CancellationError = function (_Error) {
-    babelHelpers.inherits(_class, _Error);
-
-    function _class(opt_message) {
-      babelHelpers.classCallCheck(this, _class);
-
-      var _this = babelHelpers.possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, opt_message));
-
-      if (opt_message) {
-        _this.message = opt_message;
-      }
-      return _this;
-    }
-
-    return _class;
-  }(Error);
-
-  /** @override */
-  CancellablePromise.CancellationError.prototype.name = 'cancel';
-
-  this['sennaNamed']['Promise'] = this['sennaNamed']['Promise'] || {};
-  this['sennaNamed']['Promise']['CancellablePromise'] = CancellablePromise;
-  this['senna']['Promise'] = CancellablePromise;
-}).call(this);
-"use strict";
-
-(function () {
-	var globals = {
-		document: document,
-		window: window
-	};
-
-	this["senna"]["globals"] = globals;
 }).call(this);
 'use strict';
 
@@ -5627,6 +2378,3300 @@ babelHelpers;
 }).call(this);
 'use strict';
 
+/**
+  * Debounces function execution.
+  * @param {!function()} fn
+  * @param {number} delay
+  * @return {!function()}
+  */
+
+(function () {
+	function debounce(fn, delay) {
+		return function debounced() {
+			var args = arguments;
+			cancelDebounce(debounced);
+			debounced.id = setTimeout(function () {
+				fn.apply(null, args);
+			}, delay);
+		};
+	}
+
+	/**
+  * Cancels the scheduled debounced function.
+  */
+	function cancelDebounce(debounced) {
+		clearTimeout(debounced.id);
+	}
+
+	this['senna']['debounce'] = debounce;
+	this['sennaNamed']['debounce'] = this['sennaNamed']['debounce'] || {};
+	this['sennaNamed']['debounce']['cancelDebounce'] = cancelDebounce;
+	this['sennaNamed']['debounce']['debounce'] = debounce;
+}).call(this);
+'use strict';
+
+(function () {
+	var METAL_DATA = '__metal_data__';
+
+	var domData = function () {
+		function domData() {
+			babelHelpers.classCallCheck(this, domData);
+		}
+
+		babelHelpers.createClass(domData, null, [{
+			key: 'get',
+
+			/**
+    * Gets Metal.js's data for the given element.
+    * @param {!Element} element
+    * @return {!Object}
+    */
+			value: function get(element) {
+				if (!element[METAL_DATA]) {
+					element[METAL_DATA] = {
+						delegating: {},
+						listeners: {}
+					};
+				}
+				return element[METAL_DATA];
+			}
+		}]);
+		return domData;
+	}();
+
+	this['senna']['domData'] = domData;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this['sennaNamed']['metal']['Disposable'];
+
+	/**
+  * EventHandle utility. Holds information about an event subscription, and
+  * allows removing them easily.
+  * EventHandle is a Disposable, but it's important to note that the
+  * EventEmitter that created it is not the one responsible for disposing it.
+  * That responsibility is for the code that holds a reference to it.
+  * @param {!EventEmitter} emitter Emitter the event was subscribed to.
+  * @param {string} event The name of the event that was subscribed to.
+  * @param {!Function} listener The listener subscribed to the event.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventHandle = function (_Disposable) {
+		babelHelpers.inherits(EventHandle, _Disposable);
+
+		function EventHandle(emitter, event, listener) {
+			babelHelpers.classCallCheck(this, EventHandle);
+
+			/**
+    * The EventEmitter instance that the event was subscribed to.
+    * @type {EventEmitter}
+    * @protected
+    */
+			var _this = babelHelpers.possibleConstructorReturn(this, (EventHandle.__proto__ || Object.getPrototypeOf(EventHandle)).call(this));
+
+			_this.emitter_ = emitter;
+
+			/**
+    * The name of the event that was subscribed to.
+    * @type {string}
+    * @protected
+    */
+			_this.event_ = event;
+
+			/**
+    * The listener subscribed to the event.
+    * @type {Function}
+    * @protected
+    */
+			_this.listener_ = listener;
+			return _this;
+		}
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+
+		babelHelpers.createClass(EventHandle, [{
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.removeListener();
+				this.emitter_ = null;
+				this.listener_ = null;
+			}
+
+			/**
+    * Removes the listener subscription from the emitter.
+    */
+
+		}, {
+			key: 'removeListener',
+			value: function removeListener() {
+				if (!this.emitter_.isDisposed()) {
+					this.emitter_.removeListener(this.event_, this.listener_);
+				}
+			}
+		}]);
+		return EventHandle;
+	}(Disposable);
+
+	this['senna']['EventHandle'] = EventHandle;
+}).call(this);
+'use strict';
+
+(function () {
+	var array = this['sennaNamed']['metal']['array'];
+	var Disposable = this['sennaNamed']['metal']['Disposable'];
+	var isFunction = this['sennaNamed']['metal']['isFunction'];
+	var isString = this['sennaNamed']['metal']['isString'];
+	var EventHandle = this['senna']['EventHandle'];
+
+	/**
+  * EventEmitter utility.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventEmitter = function (_Disposable) {
+		babelHelpers.inherits(EventEmitter, _Disposable);
+
+		function EventEmitter() {
+			babelHelpers.classCallCheck(this, EventEmitter);
+
+			/**
+    * Holds event listeners scoped by event type.
+    * @type {!Object<string, !Array<!function()>>}
+    * @protected
+    */
+			var _this = babelHelpers.possibleConstructorReturn(this, (EventEmitter.__proto__ || Object.getPrototypeOf(EventEmitter)).call(this));
+
+			_this.events_ = [];
+
+			/**
+    * The maximum number of listeners allowed for each event type. If the number
+    * becomes higher than the max, a warning will be issued.
+    * @type {number}
+    * @protected
+    */
+			_this.maxListeners_ = 10;
+
+			/**
+    * Configuration option which determines if an event facade should be sent
+    * as a param of listeners when emitting events. If set to true, the facade
+    * will be passed as the first argument of the listener.
+    * @type {boolean}
+    * @protected
+    */
+			_this.shouldUseFacade_ = false;
+			return _this;
+		}
+
+		/**
+   * Adds a listener to the end of the listeners array for the specified events.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @param {boolean} opt_default Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+
+		babelHelpers.createClass(EventEmitter, [{
+			key: 'addListener',
+			value: function addListener(events, listener, opt_default) {
+				this.validateListener_(listener);
+
+				events = this.normalizeEvents_(events);
+				for (var i = 0; i < events.length; i++) {
+					this.addSingleListener_(events[i], listener, opt_default);
+				}
+
+				return new EventHandle(this, events, listener);
+			}
+
+			/**
+    * Adds a listener to the end of the listeners array for a single event.
+    * @param {string} event
+    * @param {!Function} listener
+    * @param {boolean} opt_default Flag indicating if this listener is a default
+    *   action for this event. Default actions are run last, and only if no previous
+    *   listener call `preventDefault()` on the received event facade.
+    * @return {!EventHandle} Can be used to remove the listener.
+    * @param {Function=} opt_origin The original function that was added as a
+    *   listener, if there is any.
+    * @protected
+    */
+
+		}, {
+			key: 'addSingleListener_',
+			value: function addSingleListener_(event, listener, opt_default, opt_origin) {
+				this.emit('newListener', event, listener);
+
+				if (!this.events_[event]) {
+					this.events_[event] = [];
+				}
+				this.events_[event].push({
+					default: opt_default,
+					fn: listener,
+					origin: opt_origin
+				});
+
+				var listeners = this.events_[event];
+				if (listeners.length > this.maxListeners_ && !listeners.warned) {
+					console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
+					listeners.warned = true;
+				}
+			}
+
+			/**
+    * Disposes of this instance's object references.
+    * @override
+    */
+
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.events_ = [];
+			}
+
+			/**
+    * Execute each of the listeners in order with the supplied arguments.
+    * @param {string} event
+    * @param {*} opt_args [arg1], [arg2], [...]
+    * @return {boolean} Returns true if event had listeners, false otherwise.
+    */
+
+		}, {
+			key: 'emit',
+			value: function emit(event) {
+				var args = array.slice(arguments, 1);
+				var listeners = (this.events_[event] || []).concat();
+
+				var facade;
+				if (this.getShouldUseFacade()) {
+					facade = {
+						preventDefault: function preventDefault() {
+							facade.preventedDefault = true;
+						},
+						target: this,
+						type: event
+					};
+					args.push(facade);
+				}
+
+				var defaultListeners = [];
+				for (var i = 0; i < listeners.length; i++) {
+					if (listeners[i].default) {
+						defaultListeners.push(listeners[i]);
+					} else {
+						listeners[i].fn.apply(this, args);
+					}
+				}
+				if (!facade || !facade.preventedDefault) {
+					for (var j = 0; j < defaultListeners.length; j++) {
+						defaultListeners[j].fn.apply(this, args);
+					}
+				}
+
+				if (event !== '*') {
+					this.emit.apply(this, ['*', event].concat(args));
+				}
+
+				return listeners.length > 0;
+			}
+
+			/**
+    * Gets the configuration option which determines if an event facade should
+    * be sent as a param of listeners when emitting events. If set to true, the
+    * facade will be passed as the first argument of the listener.
+    * @return {boolean}
+    */
+
+		}, {
+			key: 'getShouldUseFacade',
+			value: function getShouldUseFacade() {
+				return this.shouldUseFacade_;
+			}
+
+			/**
+    * Returns an array of listeners for the specified event.
+    * @param {string} event
+    * @return {Array} Array of listeners.
+    */
+
+		}, {
+			key: 'listeners',
+			value: function listeners(event) {
+				return (this.events_[event] || []).map(function (listener) {
+					return listener.fn;
+				});
+			}
+
+			/**
+    * Adds a listener that will be invoked a fixed number of times for the
+    * events. After each event is triggered the specified amount of times, the
+    * listener is removed for it.
+    * @param {!(Array|string)} events
+    * @param {number} amount The amount of times this event should be listened
+    * to.
+    * @param {!Function} listener
+    * @return {!EventHandle} Can be used to remove the listener.
+    */
+
+		}, {
+			key: 'many',
+			value: function many(events, amount, listener) {
+				events = this.normalizeEvents_(events);
+				for (var i = 0; i < events.length; i++) {
+					this.many_(events[i], amount, listener);
+				}
+
+				return new EventHandle(this, events, listener);
+			}
+
+			/**
+    * Adds a listener that will be invoked a fixed number of times for a single
+    * event. After the event is triggered the specified amount of times, the
+    * listener is removed.
+    * @param {string} event
+    * @param {number} amount The amount of times this event should be listened
+    * to.
+    * @param {!Function} listener
+    * @protected
+    */
+
+		}, {
+			key: 'many_',
+			value: function many_(event, amount, listener) {
+				var self = this;
+
+				if (amount <= 0) {
+					return;
+				}
+
+				function handlerInternal() {
+					if (--amount === 0) {
+						self.removeListener(event, handlerInternal);
+					}
+					listener.apply(self, arguments);
+				}
+
+				self.addSingleListener_(event, handlerInternal, false, listener);
+			}
+
+			/**
+    * Checks if a listener object matches the given listener function. To match,
+    * it needs to either point to that listener or have it as its origin.
+    * @param {!Object} listenerObj
+    * @param {!Function} listener
+    * @return {boolean}
+    * @protected
+    */
+
+		}, {
+			key: 'matchesListener_',
+			value: function matchesListener_(listenerObj, listener) {
+				return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
+			}
+
+			/**
+    * Converts the parameter to an array if only one event is given.
+    * @param  {!(Array|string)} events
+    * @return {!Array}
+    * @protected
+    */
+
+		}, {
+			key: 'normalizeEvents_',
+			value: function normalizeEvents_(events) {
+				return isString(events) ? [events] : events;
+			}
+
+			/**
+    * Removes a listener for the specified events.
+    * Caution: changes array indices in the listener array behind the listener.
+    * @param {!(Array|string)} events
+    * @param {!Function} listener
+    * @return {!Object} Returns emitter, so calls can be chained.
+    */
+
+		}, {
+			key: 'off',
+			value: function off(events, listener) {
+				this.validateListener_(listener);
+
+				events = this.normalizeEvents_(events);
+				for (var i = 0; i < events.length; i++) {
+					var listenerObjs = this.events_[events[i]] || [];
+					this.removeMatchingListenerObjs_(listenerObjs, listener);
+				}
+
+				return this;
+			}
+
+			/**
+    * Adds a listener to the end of the listeners array for the specified events.
+    * @param {!(Array|string)} events
+    * @param {!Function} listener
+    * @return {!EventHandle} Can be used to remove the listener.
+    */
+
+		}, {
+			key: 'on',
+			value: function on() {
+				return this.addListener.apply(this, arguments);
+			}
+
+			/**
+    * Adds a one time listener for the events. This listener is invoked only the
+    * next time each event is fired, after which it is removed.
+    * @param {!(Array|string)} events
+    * @param {!Function} listener
+    * @return {!EventHandle} Can be used to remove the listener.
+    */
+
+		}, {
+			key: 'once',
+			value: function once(events, listener) {
+				return this.many(events, 1, listener);
+			}
+
+			/**
+    * Removes all listeners, or those of the specified events. It's not a good
+    * idea to remove listeners that were added elsewhere in the code,
+    * especially when it's on an emitter that you didn't create.
+    * @param {(Array|string)=} opt_events
+    * @return {!Object} Returns emitter, so calls can be chained.
+    */
+
+		}, {
+			key: 'removeAllListeners',
+			value: function removeAllListeners(opt_events) {
+				if (opt_events) {
+					var events = this.normalizeEvents_(opt_events);
+					for (var i = 0; i < events.length; i++) {
+						this.events_[events[i]] = null;
+					}
+				} else {
+					this.events_ = {};
+				}
+				return this;
+			}
+
+			/**
+    * Removes all listener objects from the given array that match the given
+    * listener function.
+    * @param {!Array.<Object>} listenerObjs
+    * @param {!Function} listener
+    * @protected
+    */
+
+		}, {
+			key: 'removeMatchingListenerObjs_',
+			value: function removeMatchingListenerObjs_(listenerObjs, listener) {
+				for (var i = listenerObjs.length - 1; i >= 0; i--) {
+					if (this.matchesListener_(listenerObjs[i], listener)) {
+						listenerObjs.splice(i, 1);
+					}
+				}
+			}
+
+			/**
+    * Removes a listener for the specified events.
+    * Caution: changes array indices in the listener array behind the listener.
+    * @param {!(Array|string)} events
+    * @param {!Function} listener
+    * @return {!Object} Returns emitter, so calls can be chained.
+    */
+
+		}, {
+			key: 'removeListener',
+			value: function removeListener() {
+				return this.off.apply(this, arguments);
+			}
+
+			/**
+    * By default EventEmitters will print a warning if more than 10 listeners
+    * are added for a particular event. This is a useful default which helps
+    * finding memory leaks. Obviously not all Emitters should be limited to 10.
+    * This function allows that to be increased. Set to zero for unlimited.
+    * @param {number} max The maximum number of listeners.
+    * @return {!Object} Returns emitter, so calls can be chained.
+    */
+
+		}, {
+			key: 'setMaxListeners',
+			value: function setMaxListeners(max) {
+				this.maxListeners_ = max;
+				return this;
+			}
+
+			/**
+    * Sets the configuration option which determines if an event facade should
+    * be sent as a param of listeners when emitting events. If set to true, the
+    * facade will be passed as the first argument of the listener.
+    * @param {boolean} shouldUseFacade
+    * @return {!Object} Returns emitter, so calls can be chained.
+    */
+
+		}, {
+			key: 'setShouldUseFacade',
+			value: function setShouldUseFacade(shouldUseFacade) {
+				this.shouldUseFacade_ = shouldUseFacade;
+				return this;
+			}
+
+			/**
+    * Checks if the given listener is valid, throwing an exception when it's not.
+    * @param  {*} listener
+    * @protected
+    */
+
+		}, {
+			key: 'validateListener_',
+			value: function validateListener_(listener) {
+				if (!isFunction(listener)) {
+					throw new TypeError('Listener must be a function');
+				}
+			}
+		}]);
+		return EventEmitter;
+	}(Disposable);
+
+	this['senna']['EventEmitter'] = EventEmitter;
+}).call(this);
+'use strict';
+
+(function () {
+	var array = this['sennaNamed']['metal']['array'];
+	var object = this['sennaNamed']['metal']['object'];
+	var Disposable = this['sennaNamed']['metal']['Disposable'];
+
+	/**
+  * EventEmitterProxy utility. It's responsible for linking two EventEmitter
+  * instances together, emitting events from the first emitter through the
+  * second one. That means that listening to a supported event on the target
+  * emitter will mean listening to it on the origin emitter as well.
+  * @param {EventEmitter} originEmitter Events originated on this emitter
+  *   will be fired for the target emitter's listeners as well.
+  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
+  *   will also be triggered when the event is fired by the origin emitter.
+  * @param {Object} opt_blacklist Optional blacklist of events that should not be
+  *   proxied.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventEmitterProxy = function (_Disposable) {
+		babelHelpers.inherits(EventEmitterProxy, _Disposable);
+
+		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
+			babelHelpers.classCallCheck(this, EventEmitterProxy);
+
+			/**
+    * Map of events that should not be proxied.
+    * @type {Object}
+    * @protected
+    */
+			var _this = babelHelpers.possibleConstructorReturn(this, (EventEmitterProxy.__proto__ || Object.getPrototypeOf(EventEmitterProxy)).call(this));
+
+			_this.blacklist_ = object.mixin({
+				newListener: true
+			}, opt_blacklist);
+
+			/**
+    * The origin emitter. This emitter's events will be proxied through the
+    * target emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.originEmitter_ = originEmitter;
+
+			/**
+    * A list of events that are pending to be listened by an actual origin
+    * emitter. Events are stored here when the origin doesn't exist, so they
+    * can be set on a new origin when one is set.
+    * @type {!Array}
+    * @protected
+    */
+			_this.pendingEvents_ = [];
+
+			/**
+    * Holds a map of events from the origin emitter that are already being proxied.
+    * @type {Object<string, !EventHandle>}
+    * @protected
+    */
+			_this.proxiedEvents_ = {};
+
+			/**
+    * The target emitter. This emitter will emit all events that come from
+    * the origin emitter.
+    * @type {EventEmitter}
+    * @protected
+    */
+			_this.targetEmitter_ = targetEmitter;
+
+			/**
+    * Map of events that should be proxied. If whitelist is set blacklist is ignored.
+    * @type {Object}
+    * @protected
+    */
+			_this.whitelist_ = opt_whitelist;
+
+			_this.startProxy_();
+			return _this;
+		}
+
+		/**
+   * Adds the given listener for the given event.
+   * @param {string} event
+   * @param {!function()} listener
+   * @return {!EventHandle} The listened event's handle.
+   * @protected
+   */
+
+
+		babelHelpers.createClass(EventEmitterProxy, [{
+			key: 'addListener_',
+			value: function addListener_(event, listener) {
+				return this.originEmitter_.on(event, listener);
+			}
+
+			/**
+    * Adds the proxy listener for the given event.
+    * @param {string} event
+    * @return {!EventHandle} The listened event's handle.
+    * @protected
+    */
+
+		}, {
+			key: 'addListenerForEvent_',
+			value: function addListenerForEvent_(event) {
+				return this.addListener_(event, this.emitOnTarget_.bind(this, event));
+			}
+
+			/**
+    * @inheritDoc
+    */
+
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.removeListeners_();
+				this.proxiedEvents_ = null;
+				this.originEmitter_ = null;
+				this.targetEmitter_ = null;
+			}
+
+			/**
+    * Emits the specified event type on the target emitter.
+    * @param {string} eventType
+    * @protected
+    */
+
+		}, {
+			key: 'emitOnTarget_',
+			value: function emitOnTarget_(eventType) {
+				var args = [eventType].concat(array.slice(arguments, 1));
+				this.targetEmitter_.emit.apply(this.targetEmitter_, args);
+			}
+
+			/**
+    * Proxies the given event from the origin to the target emitter.
+    * @param {string} event
+    */
+
+		}, {
+			key: 'proxyEvent',
+			value: function proxyEvent(event) {
+				if (this.shouldProxyEvent_(event)) {
+					this.tryToAddListener_(event);
+				}
+			}
+
+			/**
+    * Removes the proxy listener for all events.
+    * @protected
+    */
+
+		}, {
+			key: 'removeListeners_',
+			value: function removeListeners_() {
+				var events = Object.keys(this.proxiedEvents_);
+				for (var i = 0; i < events.length; i++) {
+					this.proxiedEvents_[events[i]].removeListener();
+				}
+				this.proxiedEvents_ = {};
+				this.pendingEvents_ = [];
+			}
+
+			/**
+    * Changes the origin emitter. This automatically detaches any events that
+    * were already being proxied from the previous emitter, and starts proxying
+    * them on the new emitter instead.
+    * @param {!EventEmitter} originEmitter
+    */
+
+		}, {
+			key: 'setOriginEmitter',
+			value: function setOriginEmitter(originEmitter) {
+				var _this2 = this;
+
+				var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
+				this.removeListeners_();
+				this.originEmitter_ = originEmitter;
+				events.forEach(function (event) {
+					return _this2.proxyEvent(event);
+				});
+			}
+
+			/**
+    * Checks if the given event should be proxied.
+    * @param {string} event
+    * @return {boolean}
+    * @protected
+    */
+
+		}, {
+			key: 'shouldProxyEvent_',
+			value: function shouldProxyEvent_(event) {
+				if (this.whitelist_ && !this.whitelist_[event]) {
+					return false;
+				}
+				if (this.blacklist_[event]) {
+					return false;
+				}
+				return !this.proxiedEvents_[event];
+			}
+
+			/**
+    * Starts proxying all events from the origin to the target emitter.
+    * @protected
+    */
+
+		}, {
+			key: 'startProxy_',
+			value: function startProxy_() {
+				this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
+			}
+
+			/**
+    * Adds a listener to the origin emitter, if it exists. Otherwise, stores
+    * the pending listener so it can be used on a future origin emitter.
+    * @param {string} event
+    * @protected
+    */
+
+		}, {
+			key: 'tryToAddListener_',
+			value: function tryToAddListener_(event) {
+				if (this.originEmitter_) {
+					this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+				} else {
+					this.pendingEvents_.push(event);
+				}
+			}
+		}]);
+		return EventEmitterProxy;
+	}(Disposable);
+
+	this['senna']['EventEmitterProxy'] = EventEmitterProxy;
+}).call(this);
+'use strict';
+
+(function () {
+	var Disposable = this['sennaNamed']['metal']['Disposable'];
+
+	/**
+  * EventHandler utility. It's useful for easily removing a group of
+  * listeners from different EventEmitter instances.
+  * @constructor
+  * @extends {Disposable}
+  */
+
+	var EventHandler = function (_Disposable) {
+		babelHelpers.inherits(EventHandler, _Disposable);
+
+		function EventHandler() {
+			babelHelpers.classCallCheck(this, EventHandler);
+
+			/**
+    * An array that holds the added event handles, so the listeners can be
+    * removed later.
+    * @type {Array.<EventHandle>}
+    * @protected
+    */
+			var _this = babelHelpers.possibleConstructorReturn(this, (EventHandler.__proto__ || Object.getPrototypeOf(EventHandler)).call(this));
+
+			_this.eventHandles_ = [];
+			return _this;
+		}
+
+		/**
+   * Adds event handles to be removed later through the `removeAllListeners`
+   * method.
+   * @param {...(!EventHandle)} var_args
+   */
+
+
+		babelHelpers.createClass(EventHandler, [{
+			key: 'add',
+			value: function add() {
+				for (var i = 0; i < arguments.length; i++) {
+					this.eventHandles_.push(arguments[i]);
+				}
+			}
+
+			/**
+    * Disposes of this instance's object references.
+    * @override
+    */
+
+		}, {
+			key: 'disposeInternal',
+			value: function disposeInternal() {
+				this.eventHandles_ = null;
+			}
+
+			/**
+    * Removes all listeners that have been added through the `add` method.
+    */
+
+		}, {
+			key: 'removeAllListeners',
+			value: function removeAllListeners() {
+				for (var i = 0; i < this.eventHandles_.length; i++) {
+					this.eventHandles_[i].removeListener();
+				}
+
+				this.eventHandles_ = [];
+			}
+		}]);
+		return EventHandler;
+	}(Disposable);
+
+	this['senna']['EventHandler'] = EventHandler;
+}).call(this);
+'use strict';
+
+(function () {
+  var EventEmitter = this['senna']['EventEmitter'];
+  var EventEmitterProxy = this['senna']['EventEmitterProxy'];
+  var EventHandle = this['senna']['EventHandle'];
+  var EventHandler = this['senna']['EventHandler'];
+  this['senna']['events'] = EventEmitter;
+  this['sennaNamed']['events'] = this['sennaNamed']['events'] || {};
+  this['sennaNamed']['events']['EventEmitter'] = EventEmitter;
+  this['sennaNamed']['events']['EventEmitterProxy'] = EventEmitterProxy;
+  this['sennaNamed']['events']['EventHandle'] = EventHandle;
+  this['sennaNamed']['events']['EventHandler'] = EventHandler;
+}).call(this);
+'use strict';
+
+(function () {
+	var array = this['sennaNamed']['metal']['array'];
+	var isString = this['sennaNamed']['metal']['isString'];
+	var domData = this['senna']['domData'];
+	var EventHandle = this['sennaNamed']['events']['EventHandle'];
+
+	/**
+  * This is a special EventHandle, that is responsible for dom delegated events
+  * (only the ones that receive a target element, not a selector string).
+  * @extends {EventHandle}
+  */
+
+	var DomDelegatedEventHandle = function (_EventHandle) {
+		babelHelpers.inherits(DomDelegatedEventHandle, _EventHandle);
+
+		/**
+   * The constructor for `DomDelegatedEventHandle`.
+   * @param {!Event} emitter Element the event was subscribed to.
+   * @param {string} event The name of the event that was subscribed to.
+   * @param {!Function} listener The listener subscribed to the event.
+   * @param {string=} opt_selector An optional selector used when delegating
+   *     the event.
+   * @constructor
+   */
+		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
+			babelHelpers.classCallCheck(this, DomDelegatedEventHandle);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, (DomDelegatedEventHandle.__proto__ || Object.getPrototypeOf(DomDelegatedEventHandle)).call(this, emitter, event, listener));
+
+			_this.selector_ = opt_selector;
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		babelHelpers.createClass(DomDelegatedEventHandle, [{
+			key: 'removeListener',
+			value: function removeListener() {
+				var data = domData.get(this.emitter_);
+				var selector = this.selector_;
+				var arr = isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
+				var key = isString(selector) ? selector : this.event_;
+
+				array.remove(arr[key] || [], this.listener_);
+				if (arr[key] && arr[key].length === 0) {
+					delete arr[key];
+				}
+			}
+		}]);
+		return DomDelegatedEventHandle;
+	}(EventHandle);
+
+	this['senna']['DomDelegatedEventHandle'] = DomDelegatedEventHandle;
+}).call(this);
+'use strict';
+
+(function () {
+	var EventHandle = this['sennaNamed']['events']['EventHandle'];
+
+	/**
+  * This is a special EventHandle, that is responsible for dom events, instead
+  * of EventEmitter events.
+  * @extends {EventHandle}
+  */
+
+	var DomEventHandle = function (_EventHandle) {
+		babelHelpers.inherits(DomEventHandle, _EventHandle);
+
+		/**
+   * The constructor for `DomEventHandle`.
+   * @param {!EventEmitter} emitter Emitter the event was subscribed to.
+   * @param {string} event The name of the event that was subscribed to.
+   * @param {!Function} listener The listener subscribed to the event.
+   * @param {boolean} opt_capture Flag indicating if listener should be triggered
+   *   during capture phase, instead of during the bubbling phase. Defaults to false.
+   * @constructor
+   */
+		function DomEventHandle(emitter, event, listener, opt_capture) {
+			babelHelpers.classCallCheck(this, DomEventHandle);
+
+			var _this = babelHelpers.possibleConstructorReturn(this, (DomEventHandle.__proto__ || Object.getPrototypeOf(DomEventHandle)).call(this, emitter, event, listener));
+
+			_this.capture_ = opt_capture;
+			return _this;
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+
+		babelHelpers.createClass(DomEventHandle, [{
+			key: 'removeListener',
+			value: function removeListener() {
+				this.emitter_.removeEventListener(this.event_, this.listener_, this.capture_);
+			}
+		}]);
+		return DomEventHandle;
+	}(EventHandle);
+
+	this['senna']['DomEventHandle'] = DomEventHandle;
+}).call(this);
+'use strict';
+
+(function () {
+	var isDef = this['sennaNamed']['metal']['isDef'];
+	var isDocument = this['sennaNamed']['metal']['isDocument'];
+	var isElement = this['sennaNamed']['metal']['isElement'];
+	var isObject = this['sennaNamed']['metal']['isObject'];
+	var isString = this['sennaNamed']['metal']['isString'];
+	var object = this['sennaNamed']['metal']['object'];
+	var domData = this['senna']['domData'];
+	var DomDelegatedEventHandle = this['senna']['DomDelegatedEventHandle'];
+	var DomEventHandle = this['senna']['DomEventHandle'];
+
+
+	var elementsByTag_ = {};
+	var customEvents = {};
+
+	this['sennaNamed']['domNamed'] = this['sennaNamed']['domNamed'] || {};
+	this['sennaNamed']['domNamed']['customEvents'] = customEvents;
+	var NEXT_TARGET = '__metal_next_target__';
+	var USE_CAPTURE = {
+		blur: true,
+		error: true,
+		focus: true,
+		invalid: true,
+		load: true,
+		scroll: true
+	};
+
+	/**
+  * Adds the requested CSS classes to an element.
+  * @param {!Element|!Nodelist} elements The element or elements to add CSS classes to.
+  * @param {string} classes CSS classes to add.
+  */
+	function addClasses(elements, classes) {
+		if (!isObject(elements) || !isString(classes)) {
+			return;
+		}
+
+		if (!elements.length) {
+			elements = [elements];
+		}
+
+		for (var i = 0; i < elements.length; i++) {
+			if ('classList' in elements[i]) {
+				addClassesWithNative_(elements[i], classes);
+			} else {
+				addClassesWithoutNative_(elements[i], classes);
+			}
+		}
+	}
+
+	this['sennaNamed']['domNamed']['addClasses'] = addClasses; /**
+                                                             * Adds the requested CSS classes to an element using classList.
+                                                             * @param {!Element} element The element to add CSS classes to.
+                                                             * @param {string} classes CSS classes to add.
+                                                             * @private
+                                                             */
+
+	function addClassesWithNative_(element, classes) {
+		classes.split(' ').forEach(function (className) {
+			if (className) {
+				element.classList.add(className);
+			}
+		});
+	}
+
+	/**
+  * Adds the requested CSS classes to an element without using classList.
+  * @param {!Element} element The element to add CSS classes to.
+  * @param {string} classes CSS classes to add.
+  * @private
+  */
+	function addClassesWithoutNative_(element, classes) {
+		var elementClassName = ' ' + element.className + ' ';
+		var classesToAppend = '';
+
+		classes = classes.split(' ');
+
+		for (var i = 0; i < classes.length; i++) {
+			var className = classes[i];
+
+			if (elementClassName.indexOf(' ' + className + ' ') === -1) {
+				classesToAppend += ' ' + className;
+			}
+		}
+
+		if (classesToAppend) {
+			element.className = element.className + classesToAppend;
+		}
+	}
+
+	/**
+  * Adds an event listener to the given element, to be triggered via delegate.
+  * @param {!Element} element
+  * @param {string} eventName
+  * @param {!function()} listener
+  * @private
+  */
+	function addElementListener_(element, eventName, listener) {
+		var data = domData.get(element);
+		addToArr_(data.listeners, eventName, listener);
+	}
+
+	/**
+  * Adds an event listener to the given element, to be triggered via delegate
+  * selectors.
+  * @param {!Element} element
+  * @param {string} eventName
+  * @param {string} selector
+  * @param {!function()} listener
+  * @private
+  */
+	function addSelectorListener_(element, eventName, selector, listener) {
+		var data = domData.get(element);
+		addToArr_(data.delegating[eventName].selectors, selector, listener);
+	}
+
+	/**
+  * Adds a value to an array inside an object, creating it first if it doesn't
+  * yet exist.
+  * @param {!Array} arr
+  * @param {string} key
+  * @param {*} value
+  * @private
+  */
+	function addToArr_(arr, key, value) {
+		if (!arr[key]) {
+			arr[key] = [];
+		}
+		arr[key].push(value);
+	}
+
+	/**
+  * Attaches a delegate listener, unless there's already one attached.
+  * @param {!Element} element
+  * @param {string} eventName
+  * @private
+  */
+	function attachDelegateEvent_(element, eventName) {
+		var data = domData.get(element);
+		if (!data.delegating[eventName]) {
+			data.delegating[eventName] = {
+				handle: on(element, eventName, handleDelegateEvent_, !!USE_CAPTURE[eventName]),
+				selectors: {}
+			};
+		}
+	}
+
+	/**
+  * Gets the closest element up the tree from the given element (including
+  * itself) that matches the specified selector, or null if none match.
+  * @param {Element} element
+  * @param {string} selector
+  * @return {Element}
+  */
+	function closest(element, selector) {
+		while (element && !match(element, selector)) {
+			element = element.parentNode;
+		}
+		return element;
+	}
+
+	this['sennaNamed']['domNamed']['closest'] = closest; /**
+                                                       * Appends a child node with text or other nodes to a parent node. If
+                                                       * child is a HTML string it will be automatically converted to a document
+                                                       * fragment before appending it to the parent.
+                                                       * @param {!Element} parent The node to append nodes to.
+                                                       * @param {!(Element|NodeList|string)} child The thing to append to the parent.
+                                                       * @return {!Element} The appended child.
+                                                       */
+
+	function append(parent, child) {
+		if (isString(child)) {
+			child = buildFragment(child);
+		}
+		if (child instanceof NodeList) {
+			var childArr = Array.prototype.slice.call(child);
+			for (var i = 0; i < childArr.length; i++) {
+				parent.appendChild(childArr[i]);
+			}
+		} else {
+			parent.appendChild(child);
+		}
+		return child;
+	}
+
+	this['sennaNamed']['domNamed']['append'] = append; /**
+                                                     * Helper for converting a HTML string into a document fragment.
+                                                     * @param {string} htmlString The HTML string to convert.
+                                                     * @return {!Element} The resulting document fragment.
+                                                     */
+
+	function buildFragment(htmlString) {
+		var tempDiv = document.createElement('div');
+		tempDiv.innerHTML = '<br>' + htmlString;
+		tempDiv.removeChild(tempDiv.firstChild);
+
+		var fragment = document.createDocumentFragment();
+		while (tempDiv.firstChild) {
+			fragment.appendChild(tempDiv.firstChild);
+		}
+		return fragment;
+	}
+
+	this['sennaNamed']['domNamed']['buildFragment'] = buildFragment; /**
+                                                                   * Checks if the first element contains the second one.
+                                                                   * @param {!Element} element1
+                                                                   * @param {!Element} element2
+                                                                   * @return {boolean}
+                                                                   */
+
+	function contains(element1, element2) {
+		if (isDocument(element1)) {
+			// document.contains is not defined on IE9, so call it on documentElement instead.
+			return element1.documentElement.contains(element2);
+		} else {
+			return element1.contains(element2);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['contains'] = contains; /**
+                                                         * Listens to the specified event on the given DOM element, but only calls the
+                                                         * given callback listener when it's triggered by elements that match the
+                                                         * given selector or target element.
+                                                         * @param {!Element} element The DOM element the event should be listened on.
+                                                         * @param {string} eventName The name of the event to listen to.
+                                                         * @param {!Element|string} selectorOrTarget Either an element or css selector
+                                                         *     that should match the event for the listener to be triggered.
+                                                         * @param {!function(!Object)} callback Function to be called when the event
+                                                         *     is triggered. It will receive the normalized event object.
+                                                         * @param {boolean=} opt_default Optional flag indicating if this is a default
+                                                         *     listener. That means that it would only be executed after all non
+                                                         *     default listeners, and only if the event isn't prevented via
+                                                         *     `preventDefault`.
+                                                         * @return {!EventHandle} Can be used to remove the listener.
+                                                         */
+
+	function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
+		var customConfig = customEvents[eventName];
+		if (customConfig && customConfig.delegate) {
+			eventName = customConfig.originalEvent;
+			callback = customConfig.handler.bind(customConfig, callback);
+		}
+
+		if (opt_default) {
+			// Wrap callback so we don't set property directly on it.
+			callback = callback.bind();
+			callback.defaultListener_ = true;
+		}
+
+		attachDelegateEvent_(element, eventName);
+		if (isString(selectorOrTarget)) {
+			addSelectorListener_(element, eventName, selectorOrTarget, callback);
+		} else {
+			addElementListener_(selectorOrTarget, eventName, callback);
+		}
+
+		return new DomDelegatedEventHandle(isString(selectorOrTarget) ? element : selectorOrTarget, eventName, callback, isString(selectorOrTarget) ? selectorOrTarget : null);
+	}
+
+	this['sennaNamed']['domNamed']['delegate'] = delegate; /**
+                                                         * Verifies if the element is able to trigger the Click event,
+                                                         * simulating browsers behaviour, avoiding event listeners to be called by triggerEvent method.
+                                                         * @param {Element} node Element to be checked.
+                                                         * @param {string} eventName The event name.
+                                                         * @private
+                                                         */
+
+	function isAbleToInteractWith_(node, eventName, opt_eventObj) {
+		if (opt_eventObj && eventName === 'click' && opt_eventObj.button === 2) {
+			// Firefox triggers "click" events on the document for right clicks. This
+			// causes our delegate logic to trigger it for regular elements too, which
+			// shouldn't happen. Ignoring them here.
+			return false;
+		}
+
+		var matchesSelector = ['BUTTON', 'INPUT', 'SELECT', 'TEXTAREA', 'FIELDSET'];
+		if (eventName === 'click' && matchesSelector.indexOf(node.tagName) > -1) {
+			return !(node.disabled || parent(node, 'fieldset[disabled]'));
+		}
+		return true;
+	}
+
+	/**
+  * Inserts node in document as last element.
+  * @param {Element} node Element to remove children from.
+  */
+	function enterDocument(node) {
+		node && append(document.body, node);
+	}
+
+	this['sennaNamed']['domNamed']['enterDocument'] = enterDocument; /**
+                                                                   * Removes node from document.
+                                                                   * @param {Element} node Element to remove children from.
+                                                                   */
+
+	function exitDocument(node) {
+		if (node && node.parentNode) {
+			node.parentNode.removeChild(node);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['exitDocument'] = exitDocument; /**
+                                                                 * This is called when an event is triggered by a delegate listener. All
+                                                                 * matching listeners of this event type from `target` to `currentTarget` will
+                                                                 * be triggered.
+                                                                 * @param {!Event} event The event payload.
+                                                                 * @return {boolean} False if at least one of the triggered callbacks returns
+                                                                 *     false, or true otherwise.
+                                                                 * @private
+                                                                 */
+
+	function handleDelegateEvent_(event) {
+		normalizeDelegateEvent_(event);
+		var currElement = isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
+		var ret = true;
+		var container = event.currentTarget;
+		var limit = event.currentTarget.parentNode;
+		var defFns = [];
+
+		ret &= triggerDelegatedListeners_(container, currElement, event, limit, defFns);
+		ret &= triggerDefaultDelegatedListeners_(defFns, event);
+
+		event.delegateTarget = null;
+		event[NEXT_TARGET] = limit;
+		return ret;
+	}
+
+	/**
+  * Checks if the given element has the requested css class.
+  * @param {!Element} element
+  * @param {string} className
+  * @return {boolean}
+  */
+	function hasClass(element, className) {
+		if ('classList' in element) {
+			return hasClassWithNative_(element, className);
+		} else {
+			return hasClassWithoutNative_(element, className);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['hasClass'] = hasClass; /**
+                                                         * Checks if the given element has the requested css class using classList.
+                                                         * @param {!Element} element
+                                                         * @param {string} className
+                                                         * @return {boolean}
+                                                         * @private
+                                                         */
+
+	function hasClassWithNative_(element, className) {
+		return element.classList.contains(className);
+	}
+
+	/**
+  * Checks if the given element has the requested css class without using classList.
+  * @param {!Element} element
+  * @param {string} className
+  * @return {boolean}
+  * @private
+  */
+	function hasClassWithoutNative_(element, className) {
+		return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0;
+	}
+
+	/**
+  * Checks if the given element is empty or not.
+  * @param {!Element} element
+  * @return {boolean}
+  */
+	function isEmpty(element) {
+		return element.childNodes.length === 0;
+	}
+
+	this['sennaNamed']['domNamed']['isEmpty'] = isEmpty; /**
+                                                       * Check if an element matches a given selector.
+                                                       * @param {Element} element
+                                                       * @param {string} selector
+                                                       * @return {boolean}
+                                                       */
+
+	function match(element, selector) {
+		if (!element || element.nodeType !== 1) {
+			return false;
+		}
+
+		var p = Element.prototype;
+		var m = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || p.oMatchesSelector;
+		if (m) {
+			return m.call(element, selector);
+		}
+
+		return matchFallback_(element, selector);
+	}
+
+	this['sennaNamed']['domNamed']['match'] = match; /**
+                                                   * Check if an element matches a given selector, using an internal implementation
+                                                   * instead of calling existing javascript functions.
+                                                   * @param {Element} element
+                                                   * @param {string} selector
+                                                   * @return {boolean}
+                                                   * @private
+                                                   */
+
+	function matchFallback_(element, selector) {
+		var nodes = document.querySelectorAll(selector, element.parentNode);
+		for (var i = 0; i < nodes.length; ++i) {
+			if (nodes[i] === element) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+  * Returns the next sibling of the given element that matches the specified
+  * selector, or null if there is none.
+  * @param {!Element} element
+  * @param {?string} selector
+  */
+	function next(element, selector) {
+		do {
+			element = element.nextSibling;
+			if (element && match(element, selector)) {
+				return element;
+			}
+		} while (element);
+		return null;
+	}
+
+	this['sennaNamed']['domNamed']['next'] = next; /**
+                                                 * Normalizes the event payload for delegate listeners.
+                                                 * @param {!Event} event
+                                                 * @private
+                                                 */
+
+	function normalizeDelegateEvent_(event) {
+		event.stopPropagation = stopPropagation_;
+		event.stopImmediatePropagation = stopImmediatePropagation_;
+	}
+
+	/**
+  * Listens to the specified event on the given DOM element. This function normalizes
+  * DOM event payloads and functions so they'll work the same way on all supported
+  * browsers.
+  * @param {!Element|string} element The DOM element to listen to the event on, or
+  *   a selector that should be delegated on the entire document.
+  * @param {string} eventName The name of the event to listen to.
+  * @param {!function(!Object)} callback Function to be called when the event is
+  *   triggered. It will receive the normalized event object.
+  * @param {boolean} opt_capture Flag indicating if listener should be triggered
+  *   during capture phase, instead of during the bubbling phase. Defaults to false.
+  * @return {!DomEventHandle} Can be used to remove the listener.
+  */
+	function on(element, eventName, callback, opt_capture) {
+		if (isString(element)) {
+			return delegate(document, eventName, element, callback);
+		}
+		var customConfig = customEvents[eventName];
+		if (customConfig && customConfig.event) {
+			eventName = customConfig.originalEvent;
+			callback = customConfig.handler.bind(customConfig, callback);
+		}
+		element.addEventListener(eventName, callback, opt_capture);
+		return new DomEventHandle(element, eventName, callback, opt_capture);
+	}
+
+	this['sennaNamed']['domNamed']['on'] = on; /**
+                                             * Listens to the specified event on the given DOM element once. This
+                                             * function normalizes DOM event payloads and functions so they'll work the
+                                             * same way on all supported browsers.
+                                             * @param {!Element} element The DOM element to listen to the event on.
+                                             * @param {string} eventName The name of the event to listen to.
+                                             * @param {!function(!Object)} callback Function to be called when the event
+                                             *   is triggered. It will receive the normalized event object.
+                                             * @return {!DomEventHandle} Can be used to remove the listener.
+                                             */
+
+	function once(element, eventName, callback) {
+		var domEventHandle = on(element, eventName, function () {
+			domEventHandle.removeListener();
+			return callback.apply(this, arguments);
+		});
+		return domEventHandle;
+	}
+
+	this['sennaNamed']['domNamed']['once'] = once; /**
+                                                 * Gets the first parent from the given element that matches the specified
+                                                 * selector, or null if none match.
+                                                 * @param {!Element} element
+                                                 * @param {string} selector
+                                                 * @return {Element}
+                                                 */
+
+	function parent(element, selector) {
+		return closest(element.parentNode, selector);
+	}
+
+	this['sennaNamed']['domNamed']['parent'] = parent; /**
+                                                     * Registers a custom event.
+                                                     * @param {string} eventName The name of the custom event.
+                                                     * @param {!Object} customConfig An object with information about how the event
+                                                     *   should be handled.
+                                                     */
+
+	function registerCustomEvent(eventName, customConfig) {
+		customEvents[eventName] = customConfig;
+	}
+
+	this['sennaNamed']['domNamed']['registerCustomEvent'] = registerCustomEvent; /**
+                                                                               * Removes all the child nodes on a DOM node.
+                                                                               * @param {Element} node Element to remove children from.
+                                                                               */
+
+	function removeChildren(node) {
+		var child;
+		while (child = node.firstChild) {
+			node.removeChild(child);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['removeChildren'] = removeChildren; /**
+                                                                     * Removes the requested CSS classes from an element.
+                                                                     * @param {!Element|!NodeList} elements The element or elements to remove CSS classes from.
+                                                                     * @param {string} classes CSS classes to remove.
+                                                                     */
+
+	function removeClasses(elements, classes) {
+		if (!isObject(elements) || !isString(classes)) {
+			return;
+		}
+
+		if (!elements.length) {
+			elements = [elements];
+		}
+
+		for (var i = 0; i < elements.length; i++) {
+			if ('classList' in elements[i]) {
+				removeClassesWithNative_(elements[i], classes);
+			} else {
+				removeClassesWithoutNative_(elements[i], classes);
+			}
+		}
+	}
+
+	this['sennaNamed']['domNamed']['removeClasses'] = removeClasses; /**
+                                                                   * Removes the requested CSS classes from an element using classList.
+                                                                   * @param {!Element} element The element to remove CSS classes from.
+                                                                   * @param {string} classes CSS classes to remove.
+                                                                   * @private
+                                                                   */
+
+	function removeClassesWithNative_(element, classes) {
+		classes.split(' ').forEach(function (className) {
+			if (className) {
+				element.classList.remove(className);
+			}
+		});
+	}
+
+	/**
+  * Removes the requested CSS classes from an element without using classList.
+  * @param {!Element} element The element to remove CSS classes from.
+  * @param {string} classes CSS classes to remove.
+  * @private
+  */
+	function removeClassesWithoutNative_(element, classes) {
+		var elementClassName = ' ' + element.className + ' ';
+
+		classes = classes.split(' ');
+
+		for (var i = 0; i < classes.length; i++) {
+			elementClassName = elementClassName.replace(' ' + classes[i] + ' ', ' ');
+		}
+
+		element.className = elementClassName.trim();
+	}
+
+	/**
+  * Replaces the first element with the second.
+  * @param {Element} element1
+  * @param {Element} element2
+  */
+	function replace(element1, element2) {
+		if (element1 && element2 && element1 !== element2 && element1.parentNode) {
+			element1.parentNode.insertBefore(element2, element1);
+			element1.parentNode.removeChild(element1);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['replace'] = replace; /**
+                                                       * The function that replaces `stopImmediatePropagation_` for events.
+                                                       * @private
+                                                       */
+
+	function stopImmediatePropagation_() {
+		var event = this; // jshint ignore:line
+		event.stopped = true;
+		event.stoppedImmediate = true;
+		Event.prototype.stopImmediatePropagation.call(event);
+	}
+
+	/**
+  * The function that replaces `stopPropagation` for events.
+  * @private
+  */
+	function stopPropagation_() {
+		var event = this; // jshint ignore:line
+		event.stopped = true;
+		Event.prototype.stopPropagation.call(event);
+	}
+
+	/**
+  * Checks if the given element supports the given event type.
+  * @param {!Element|string} element The DOM element or element tag name to check.
+  * @param {string} eventName The name of the event to check.
+  * @return {boolean}
+  */
+	function supportsEvent(element, eventName) {
+		if (customEvents[eventName]) {
+			return true;
+		}
+
+		if (isString(element)) {
+			if (!elementsByTag_[element]) {
+				elementsByTag_[element] = document.createElement(element);
+			}
+			element = elementsByTag_[element];
+		}
+		return 'on' + eventName in element;
+	}
+
+	this['sennaNamed']['domNamed']['supportsEvent'] = supportsEvent; /**
+                                                                   * This triggers all default matched delegated listeners of a given event type.
+                                                                   * @param {!Array} defaultFns Array to collect default listeners in, instead
+                                                                   * @param {!Event} event
+                                                                   * @return {boolean} False if at least one of the triggered callbacks returns
+                                                                   *     false, or true otherwise.
+                                                                   * @private
+                                                                   */
+
+	function triggerDefaultDelegatedListeners_(defFns, event) {
+		var ret = true;
+
+		for (var i = 0; i < defFns.length && !event.defaultPrevented; i++) {
+			event.delegateTarget = defFns[i].element;
+			ret &= defFns[i].fn(event);
+		}
+
+		return ret;
+	}
+
+	/**
+  * This triggers all matched delegated listeners of a given event type when its
+  * delegated target is able to interact.
+  * @param {!Element} container
+  * @param {!Element} currElement
+  * @param {!Event} event
+  * @param {!Element} limit the fartest parent of the given element
+  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  *     of running them.
+  * @return {boolean} False if at least one of the triggered callbacks returns
+  *     false, or true otherwise.
+  * @private
+  */
+	function triggerDelegatedListeners_(container, currElement, event, limit, defaultFns) {
+		var ret = true;
+
+		while (currElement && currElement !== limit && !event.stopped) {
+			if (isAbleToInteractWith_(currElement, event.type, event)) {
+				event.delegateTarget = currElement;
+				ret &= triggerMatchedListeners_(container, currElement, event, defaultFns);
+			}
+			currElement = currElement.parentNode;
+		}
+
+		return ret;
+	}
+
+	/**
+  * Converts the given argument to a DOM element. Strings are assumed to
+  * be selectors, and so a matched element will be returned. If the arg
+  * is already a DOM element it will be the return value.
+  * @param {string|Element|Document} selectorOrElement
+  * @return {Element} The converted element, or null if none was found.
+  */
+	function toElement(selectorOrElement) {
+		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
+			return selectorOrElement;
+		} else if (isString(selectorOrElement)) {
+			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
+				return document.getElementById(selectorOrElement.substr(1));
+			} else {
+				return document.querySelector(selectorOrElement);
+			}
+		} else {
+			return null;
+		}
+	}
+
+	this['sennaNamed']['domNamed']['toElement'] = toElement; /**
+                                                           * Adds or removes one or more classes from an element. If any of the classes
+                                                           * is present, it will be removed from the element, or added otherwise.
+                                                           * @param {!Element} element The element which classes will be toggled.
+                                                           * @param {string} classes The classes which have to added or removed from the element.
+                                                           */
+
+	function toggleClasses(element, classes) {
+		if (!isObject(element) || !isString(classes)) {
+			return;
+		}
+
+		if ('classList' in element) {
+			toggleClassesWithNative_(element, classes);
+		} else {
+			toggleClassesWithoutNative_(element, classes);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['toggleClasses'] = toggleClasses; /**
+                                                                   * Adds or removes one or more classes from an element using classList.
+                                                                   * If any of the classes is present, it will be removed from the element,
+                                                                   * or added otherwise.
+                                                                   * @param {!Element} element The element which classes will be toggled.
+                                                                   * @param {string} classes The classes which have to added or removed from the element.
+                                                                   * @private
+                                                                   */
+
+	function toggleClassesWithNative_(element, classes) {
+		classes.split(' ').forEach(function (className) {
+			element.classList.toggle(className);
+		});
+	}
+
+	/**
+  * Adds or removes one or more classes from an element without using classList.
+  * If any of the classes is present, it will be removed from the element,
+  * or added otherwise.
+  * @param {!Element} element The element which classes will be toggled.
+  * @param {string} classes The classes which have to added or removed from the element.
+  * @private
+  */
+	function toggleClassesWithoutNative_(element, classes) {
+		var elementClassName = ' ' + element.className + ' ';
+
+		classes = classes.split(' ');
+
+		for (var i = 0; i < classes.length; i++) {
+			var className = ' ' + classes[i] + ' ';
+			var classIndex = elementClassName.indexOf(className);
+
+			if (classIndex === -1) {
+				elementClassName = elementClassName + classes[i] + ' ';
+			} else {
+				elementClassName = elementClassName.substring(0, classIndex) + ' ' + elementClassName.substring(classIndex + className.length);
+			}
+		}
+
+		element.className = elementClassName.trim();
+	}
+
+	/**
+  * Triggers the specified event on the given element.
+  * NOTE: This should mostly be used for testing, not on real code.
+  * @param {!Element} element The node that should trigger the event.
+  * @param {string} eventName The name of the event to be triggred.
+  * @param {Object=} opt_eventObj An object with data that should be on the
+  *   triggered event's payload.
+  */
+	function triggerEvent(element, eventName, opt_eventObj) {
+		if (isAbleToInteractWith_(element, eventName, opt_eventObj)) {
+			var eventObj = document.createEvent('HTMLEvents');
+			eventObj.initEvent(eventName, true, true);
+			object.mixin(eventObj, opt_eventObj);
+			element.dispatchEvent(eventObj);
+		}
+	}
+
+	this['sennaNamed']['domNamed']['triggerEvent'] = triggerEvent; /**
+                                                                 * Triggers the given listeners array.
+                                                                 * @param {Array<!function()>} listeners
+                                                                 * @param {!Event} event
+                                                                 * @param {!Element} element
+                                                                 * @param {!Array} defaultFns Array to collect default listeners in, instead
+                                                                 *     of running them.
+                                                                 * @return {boolean} False if at least one of the triggered callbacks returns
+                                                                 *     false, or true otherwise.
+                                                                 * @private
+                                                                 */
+
+	function triggerListeners_(listeners, event, element, defaultFns) {
+		var ret = true;
+		listeners = listeners || [];
+		for (var i = 0; i < listeners.length && !event.stoppedImmediate; i++) {
+			if (listeners[i].defaultListener_) {
+				defaultFns.push({
+					element: element,
+					fn: listeners[i]
+				});
+			} else {
+				ret &= listeners[i](event);
+			}
+		}
+		return ret;
+	}
+
+	/**
+  * Triggers all listeners for the given event type that are stored in the
+  * specified element.
+  * @param {!Element} container
+  * @param {!Element} element
+  * @param {!Event} event
+  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  *     of running them.
+  * @return {boolean} False if at least one of the triggered callbacks returns
+  *     false, or true otherwise.
+  * @private
+  */
+	function triggerMatchedListeners_(container, element, event, defaultFns) {
+		var data = domData.get(element);
+		var listeners = data.listeners[event.type];
+		var ret = triggerListeners_(listeners, event, element, defaultFns);
+
+		var selectorsMap = domData.get(container).delegating[event.type].selectors;
+		var selectors = Object.keys(selectorsMap);
+		for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
+			if (match(element, selectors[i])) {
+				listeners = selectorsMap[selectors[i]];
+				ret &= triggerListeners_(listeners, event, element, defaultFns);
+			}
+		}
+
+		return ret;
+	}
+}).call(this);
+'use strict';
+
+// This file exists just for backwards compatibility, making sure that old
+// default imports for this file still work. It's best to use the named exports
+// for each function instead though, since that allows bundlers like Rollup to
+// reduce the bundle size by removing unused code.
+
+(function () {
+  var dom = this['sennaNamed']['domNamed'];
+  this['senna']['dom'] = dom;
+  this['sennaNamed']['dom'] = this['sennaNamed']['dom'] || {};
+  this['sennaNamed']['dom']['dom'] = dom;
+  Object.keys(this['sennaNamed']['domNamed']).forEach(function (key) {
+    this['sennaNamed']['dom'][key] = this['sennaNamed']['domNamed'][key];
+  });
+}).call(this);
+'use strict';
+
+(function () {
+	var delegate = this['sennaNamed']['dom']['delegate'];
+	var on = this['sennaNamed']['dom']['on'];
+	var supportsEvent = this['sennaNamed']['dom']['supportsEvent'];
+	var EventEmitterProxy = this['sennaNamed']['events']['EventEmitterProxy'];
+
+	/**
+  * DomEventEmitterProxy utility. It extends `EventEmitterProxy` to also accept
+  * dom elements as origin emitters.
+  * @extends {EventEmitterProxy}
+  */
+
+	var DomEventEmitterProxy = function (_EventEmitterProxy) {
+		babelHelpers.inherits(DomEventEmitterProxy, _EventEmitterProxy);
+
+		function DomEventEmitterProxy() {
+			babelHelpers.classCallCheck(this, DomEventEmitterProxy);
+			return babelHelpers.possibleConstructorReturn(this, (DomEventEmitterProxy.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy)).apply(this, arguments));
+		}
+
+		babelHelpers.createClass(DomEventEmitterProxy, [{
+			key: 'addListener_',
+
+			/**
+    * Adds the given listener for the given event.
+    * @param {string} event
+    * @param {!function()} listener
+    * @return {!EventHandle} The listened event's handle.
+    * @protected
+    * @override
+    */
+			value: function addListener_(event, listener) {
+				if (this.originEmitter_.addEventListener) {
+					if (this.isDelegateEvent_(event)) {
+						var index = event.indexOf(':', 9);
+						var eventName = event.substring(9, index);
+						var selector = event.substring(index + 1);
+						return delegate(this.originEmitter_, eventName, selector, listener);
+					} else {
+						return on(this.originEmitter_, event, listener);
+					}
+				} else {
+					return babelHelpers.get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'addListener_', this).call(this, event, listener);
+				}
+			}
+
+			/**
+    * Checks if the given event is of the delegate type.
+    * @param {string} event
+    * @return {boolean}
+    * @protected
+    */
+
+		}, {
+			key: 'isDelegateEvent_',
+			value: function isDelegateEvent_(event) {
+				return event.substr(0, 9) === 'delegate:';
+			}
+
+			/**
+    * Checks if the given event is supported by the origin element.
+    * @param {string} event
+    * @protected
+    */
+
+		}, {
+			key: 'isSupportedDomEvent_',
+			value: function isSupportedDomEvent_(event) {
+				if (!this.originEmitter_ || !this.originEmitter_.addEventListener) {
+					return true;
+				}
+				return this.isDelegateEvent_(event) && event.indexOf(':', 9) !== -1 || supportsEvent(this.originEmitter_, event);
+			}
+
+			/**
+    * Checks if the given event should be proxied.
+    * @param {string} event
+    * @return {boolean}
+    * @protected
+    * @override
+    */
+
+		}, {
+			key: 'shouldProxyEvent_',
+			value: function shouldProxyEvent_(event) {
+				return babelHelpers.get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'shouldProxyEvent_', this).call(this, event) && this.isSupportedDomEvent_(event);
+			}
+		}]);
+		return DomEventEmitterProxy;
+	}(EventEmitterProxy);
+
+	this['senna']['DomEventEmitterProxy'] = DomEventEmitterProxy;
+}).call(this);
+'use strict';
+
+(function () {
+	var append = this['sennaNamed']['dom']['append'];
+	var string = this['sennaNamed']['metal']['string'];
+
+	/**
+  * Class with static methods responsible for doing browser feature checks.
+  */
+
+	var features = function () {
+		function features() {
+			babelHelpers.classCallCheck(this, features);
+		}
+
+		babelHelpers.createClass(features, null, [{
+			key: 'checkAnimationEventName',
+
+			/**
+    * Some browsers still supports prefixed animation events. This method can
+    * be used to retrieve the current browser event name for both, animation
+    * and transition.
+    * @return {object}
+    */
+			value: function checkAnimationEventName() {
+				if (features.animationEventName_ === undefined) {
+					features.animationEventName_ = {
+						animation: features.checkAnimationEventName_('animation'),
+						transition: features.checkAnimationEventName_('transition')
+					};
+				}
+				return features.animationEventName_;
+			}
+
+			/**
+    * @protected
+    * @param {string} type Type to test: animation, transition.
+    * @return {string} Browser event name.
+    */
+
+		}, {
+			key: 'checkAnimationEventName_',
+			value: function checkAnimationEventName_(type) {
+				var prefixes = ['Webkit', 'MS', 'O', ''];
+				var typeTitleCase = string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
+				var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
+				for (var i = 0; i < prefixes.length; i++) {
+					if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
+						return prefixes[i].toLowerCase() + suffixes[i];
+					}
+				}
+				return type + 'end';
+			}
+
+			/**
+    * Some browsers (like IE9) change the order of element attributes, when html
+    * is rendered. This method can be used to check if this behavior happens on
+    * the current browser.
+    * @return {boolean}
+    */
+
+		}, {
+			key: 'checkAttrOrderChange',
+			value: function checkAttrOrderChange() {
+				if (features.attrOrderChange_ === undefined) {
+					var originalContent = '<div data-component="" data-ref=""></div>';
+					var element = document.createElement('div');
+					append(element, originalContent);
+					features.attrOrderChange_ = originalContent !== element.innerHTML;
+				}
+				return features.attrOrderChange_;
+			}
+		}]);
+		return features;
+	}();
+
+	features.animationElement_ = document.createElement('div');
+	features.animationEventName_ = undefined;
+	features.attrOrderChange_ = undefined;
+
+	this['senna']['features'] = features;
+}).call(this);
+'use strict';
+
+(function () {
+	var async = this['sennaNamed']['metal']['async'];
+	var exitDocument = this['sennaNamed']['dom']['exitDocument'];
+	var once = this['sennaNamed']['dom']['once'];
+
+	/**
+  * Utility functions for running javascript code in the global scope.
+  */
+
+	var globalEval = function () {
+		function globalEval() {
+			babelHelpers.classCallCheck(this, globalEval);
+		}
+
+		babelHelpers.createClass(globalEval, null, [{
+			key: 'run',
+
+			/**
+    * Evaluates the given string in the global scope.
+    * @param {string} text
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    * @return {Element} script
+    */
+			value: function run(text, opt_appendFn) {
+				var script = document.createElement('script');
+				script.text = text;
+				if (opt_appendFn) {
+					opt_appendFn(script);
+				} else {
+					document.head.appendChild(script);
+				}
+				exitDocument(script);
+				return script;
+			}
+
+			/**
+    * Evaluates the given javascript file in the global scope.
+    * @param {string} src The file's path.
+    * @param {function()=} opt_callback Optional function to be called
+    *   when the script has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    * @return {Element} script
+    */
+
+		}, {
+			key: 'runFile',
+			value: function runFile(src, opt_callback, opt_appendFn) {
+				var script = document.createElement('script');
+				script.src = src;
+
+				var callback = function callback() {
+					exitDocument(script);
+					opt_callback && opt_callback();
+				};
+				once(script, 'load', callback);
+				once(script, 'error', callback);
+
+				if (opt_appendFn) {
+					opt_appendFn(script);
+				} else {
+					document.head.appendChild(script);
+				}
+
+				return script;
+			}
+
+			/**
+    * Evaluates the code referenced by the given script element.
+    * @param {!Element} script
+    * @param {function()=} opt_callback Optional function to be called
+    *   when the script has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    * @return {Element} script
+    */
+
+		}, {
+			key: 'runScript',
+			value: function runScript(script, opt_callback, opt_appendFn) {
+				var callback = function callback() {
+					opt_callback && opt_callback();
+				};
+				if (script.type && script.type !== 'text/javascript') {
+					async.nextTick(callback);
+					return;
+				}
+				exitDocument(script);
+				if (script.src) {
+					return globalEval.runFile(script.src, opt_callback, opt_appendFn);
+				} else {
+					async.nextTick(callback);
+					return globalEval.run(script.text, opt_appendFn);
+				}
+			}
+
+			/**
+    * Evaluates any script tags present in the given element.
+    * @param {!Element} element
+    * @param {function()=} opt_callback Optional function to be called
+    *   when the script has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    */
+
+		}, {
+			key: 'runScriptsInElement',
+			value: function runScriptsInElement(element, opt_callback, opt_appendFn) {
+				var scripts = element.querySelectorAll('script');
+				if (scripts.length) {
+					globalEval.runScriptsInOrder(scripts, 0, opt_callback, opt_appendFn);
+				} else if (opt_callback) {
+					async.nextTick(opt_callback);
+				}
+			}
+
+			/**
+    * Runs the given scripts elements in the order that they appear.
+    * @param {!NodeList} scripts
+    * @param {number} index
+    * @param {function()=} opt_callback Optional function to be called
+    *   when the script has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    */
+
+		}, {
+			key: 'runScriptsInOrder',
+			value: function runScriptsInOrder(scripts, index, opt_callback, opt_appendFn) {
+				globalEval.runScript(scripts.item(index), function () {
+					if (index < scripts.length - 1) {
+						globalEval.runScriptsInOrder(scripts, index + 1, opt_callback, opt_appendFn);
+					} else if (opt_callback) {
+						async.nextTick(opt_callback);
+					}
+				}, opt_appendFn);
+			}
+		}]);
+		return globalEval;
+	}();
+
+	this['senna']['globalEval'] = globalEval;
+}).call(this);
+'use strict';
+
+(function () {
+	var async = this['sennaNamed']['metal']['async'];
+	var once = this['sennaNamed']['dom']['once'];
+
+	/**
+  * Utility functions for running styles.
+  */
+
+	var globalEvalStyles = function () {
+		function globalEvalStyles() {
+			babelHelpers.classCallCheck(this, globalEvalStyles);
+		}
+
+		babelHelpers.createClass(globalEvalStyles, null, [{
+			key: 'run',
+
+			/**
+    * Evaluates the given style.
+    * @param {string} text
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    * @return {Element} style
+    */
+			value: function run(text, opt_appendFn) {
+				var style = document.createElement('style');
+				style.innerHTML = text;
+				if (opt_appendFn) {
+					opt_appendFn(style);
+				} else {
+					document.head.appendChild(style);
+				}
+				return style;
+			}
+
+			/**
+    * Evaluates the given style file.
+    * @param {string} href The file's path.
+    * @param {function()=} opt_callback Optional function to be called
+    *   when the styles has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    * @return {Element} style
+    */
+
+		}, {
+			key: 'runFile',
+			value: function runFile(href, opt_callback, opt_appendFn) {
+				var link = document.createElement('link');
+				link.rel = 'stylesheet';
+				link.href = href;
+				globalEvalStyles.runStyle(link, opt_callback, opt_appendFn);
+				return link;
+			}
+
+			/**
+    * Evaluates the code referenced by the given style/link element.
+    * @param {!Element} style
+    * @param {function()=} opt_callback Optional function to be called
+    *   when the script has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    *  @return {Element} style
+    */
+
+		}, {
+			key: 'runStyle',
+			value: function runStyle(style, opt_callback, opt_appendFn) {
+				var callback = function callback() {
+					opt_callback && opt_callback();
+				};
+				if (style.rel && style.rel !== 'stylesheet') {
+					async.nextTick(callback);
+					return;
+				}
+
+				if (style.tagName === 'STYLE') {
+					async.nextTick(callback);
+				} else {
+					once(style, 'load', callback);
+					once(style, 'error', callback);
+				}
+
+				if (opt_appendFn) {
+					opt_appendFn(style);
+				} else {
+					document.head.appendChild(style);
+				}
+
+				return style;
+			}
+
+			/**
+    * Evaluates any style present in the given element.
+    * @param {!Element} element
+    * @param {function()=} opt_callback Optional function to be called when the
+    *   style has been run.
+    * @param {function()=} opt_appendFn Optional function to append the node
+    *   into document.
+    */
+
+		}, {
+			key: 'runStylesInElement',
+			value: function runStylesInElement(element, opt_callback, opt_appendFn) {
+				var styles = element.querySelectorAll('style,link');
+				if (styles.length === 0 && opt_callback) {
+					async.nextTick(opt_callback);
+					return;
+				}
+
+				var loadCount = 0;
+				var callback = function callback() {
+					if (opt_callback && ++loadCount === styles.length) {
+						async.nextTick(opt_callback);
+					}
+				};
+				for (var i = 0; i < styles.length; i++) {
+					globalEvalStyles.runStyle(styles[i], callback, opt_appendFn);
+				}
+			}
+		}]);
+		return globalEvalStyles;
+	}();
+
+	this['senna']['globalEvalStyles'] = globalEvalStyles;
+}).call(this);
+'use strict';
+
+(function () {
+	var registerCustomEvent = this['sennaNamed']['dom']['registerCustomEvent'];
+	var features = this['senna']['features'];
+
+
+	var mouseEventMap = {
+		mouseenter: 'mouseover',
+		mouseleave: 'mouseout',
+		pointerenter: 'pointerover',
+		pointerleave: 'pointerout'
+	};
+	Object.keys(mouseEventMap).forEach(function (eventName) {
+		registerCustomEvent(eventName, {
+			delegate: true,
+			handler: function handler(callback, event) {
+				var related = event.relatedTarget;
+				var target = event.delegateTarget;
+				if (!related || related !== target && !target.contains(related)) {
+					event.customType = eventName;
+					return callback(event);
+				}
+			},
+			originalEvent: mouseEventMap[eventName]
+		});
+	});
+
+	var animationEventMap = {
+		animation: 'animationend',
+		transition: 'transitionend'
+	};
+	Object.keys(animationEventMap).forEach(function (eventType) {
+		var eventName = animationEventMap[eventType];
+		registerCustomEvent(eventName, {
+			event: true,
+			delegate: true,
+			handler: function handler(callback, event) {
+				event.customType = eventName;
+				return callback(event);
+			},
+			originalEvent: features.checkAnimationEventName()[eventType]
+		});
+	});
+}).call(this);
+'use strict';
+
+(function () {
+  var dom = this['senna']['dom'];
+  var domData = this['senna']['domData'];
+  var DomEventEmitterProxy = this['senna']['DomEventEmitterProxy'];
+  var DomEventHandle = this['senna']['DomEventHandle'];
+  var features = this['senna']['features'];
+  var globalEval = this['senna']['globalEval'];
+  var globalEvalStyles = this['senna']['globalEvalStyles'];
+  this['sennaNamed']['dom'] = this['sennaNamed']['dom'] || {};
+  Object.keys(this['sennaNamed']['dom']).forEach(function (key) {
+    this['sennaNamed']['dom'][key] = this['sennaNamed']['dom'][key];
+  });
+  this['sennaNamed']['dom']['domData'] = domData;
+  this['sennaNamed']['dom']['DomEventEmitterProxy'] = DomEventEmitterProxy;
+  this['sennaNamed']['dom']['DomEventHandle'] = DomEventHandle;
+  this['sennaNamed']['dom']['features'] = features;
+  this['sennaNamed']['dom']['globalEval'] = globalEval;
+  this['sennaNamed']['dom']['globalEvalStyles'] = globalEvalStyles;
+  this['senna']['dom'] = dom;
+}).call(this);
+/*!
+ * Promises polyfill from Google's Closure Library.
+ *
+ *      Copyright 2013 The Closure Library Authors. All Rights Reserved.
+ *
+ * NOTE(eduardo): Promise support is not ready on all supported browsers,
+ * therefore metal-promise is temporarily using Google's promises as polyfill.
+ * It supports cancellable promises and has clean and fast implementation.
+ */
+
+'use strict';
+
+(function () {
+  var isDef = this['sennaNamed']['metal']['isDef'];
+  var isFunction = this['sennaNamed']['metal']['isFunction'];
+  var isObject = this['sennaNamed']['metal']['isObject'];
+  var async = this['sennaNamed']['metal']['async'];
+
+  /**
+   * Provides a more strict interface for Thenables in terms of
+   * http://promisesaplus.com for interop with {@see CancellablePromise}.
+   *
+   * @interface
+   * @extends {IThenable.<TYPE>}
+   * @template TYPE
+   */
+
+  var Thenable = function Thenable() {};
+
+  /**
+   * Adds callbacks that will operate on the result of the Thenable, returning a
+   * new child Promise.
+   *
+   * If the Thenable is fulfilled, the {@code onFulfilled} callback will be
+   * invoked with the fulfillment value as argument, and the child Promise will
+   * be fulfilled with the return value of the callback. If the callback throws
+   * an exception, the child Promise will be rejected with the thrown value
+   * instead.
+   *
+   * If the Thenable is rejected, the {@code onRejected} callback will be invoked
+   * with the rejection reason as argument, and the child Promise will be rejected
+   * with the return value of the callback or thrown value.
+   *
+   * @param {?(function(this:THIS, TYPE):
+   *             (RESULT|IThenable.<RESULT>|Thenable))=} opt_onFulfilled A
+   *     function that will be invoked with the fulfillment value if the Promise
+   *     is fullfilled.
+   * @param {?(function(*): *)=} opt_onRejected A function that will be invoked
+   *     with the rejection reason if the Promise is rejected.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     with the default this.
+   * @return {!CancellablePromise.<RESULT>} A new Promise that will receive the
+   *     result of the fulfillment or rejection callback.
+   * @template RESULT,THIS
+   */
+  Thenable.prototype.then = function () {};
+
+  /**
+   * An expando property to indicate that an object implements
+   * {@code Thenable}.
+   *
+   * {@see addImplementation}.
+   *
+   * @const
+   */
+  Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
+
+  /**
+   * Marks a given class (constructor) as an implementation of Thenable, so
+   * that we can query that fact at runtime. The class must have already
+   * implemented the interface.
+   * Exports a 'then' method on the constructor prototype, so that the objects
+   * also implement the extern {@see Thenable} interface for interop with
+   * other Promise implementations.
+   * @param {function(new:Thenable,...[?])} ctor The class constructor. The
+   *     corresponding class must have already implemented the interface.
+   */
+  Thenable.addImplementation = function (ctor) {
+    ctor.prototype.then = ctor.prototype.then;
+    ctor.prototype.$goog_Thenable = true;
+  };
+
+  /**
+   * @param {*} object
+   * @return {boolean} Whether a given instance implements {@code Thenable}.
+   *     The class/superclass of the instance must call {@code addImplementation}.
+   */
+  Thenable.isImplementedBy = function (object) {
+    if (!object) {
+      return false;
+    }
+    try {
+      return !!object.$goog_Thenable;
+    } catch (e) {
+      // Property access seems to be forbidden.
+      return false;
+    }
+  };
+
+  /**
+   * Like bind(), except that a 'this object' is not required. Useful when the
+   * target function is already bound.
+   *
+   * Usage:
+   * var g = partial(f, arg1, arg2);
+   * g(arg3, arg4);
+   *
+   * @param {Function} fn A function to partially apply.
+   * @param {...*} var_args Additional arguments that are partially applied to fn.
+   * @return {!Function} A partially-applied form of the function bind() was
+   *     invoked as a method of.
+   */
+  var partial = function partial(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return function () {
+      // Clone the array (with slice()) and append additional arguments
+      // to the existing arguments.
+      var newArgs = args.slice();
+      newArgs.push.apply(newArgs, arguments);
+      return fn.apply(this, newArgs);
+    };
+  };
+
+  /**
+   * Promises provide a result that may be resolved asynchronously. A Promise may
+   * be resolved by being fulfilled or rejected with a value, which will be known
+   * as the fulfillment value or the rejection reason. Whether fulfilled or
+   * rejected, the Promise result is immutable once it is set.
+   *
+   * Promises may represent results of any type, including undefined. Rejection
+   * reasons are typically Errors, but may also be of any type. Closure Promises
+   * allow for optional type annotations that enforce that fulfillment values are
+   * of the appropriate types at compile time.
+   *
+   * The result of a Promise is accessible by calling {@code then} and registering
+   * {@code onFulfilled} and {@code onRejected} callbacks. Once the Promise
+   * resolves, the relevant callbacks are invoked with the fulfillment value or
+   * rejection reason as argument. Callbacks are always invoked in the order they
+   * were registered, even when additional {@code then} calls are made from inside
+   * another callback. A callback is always run asynchronously sometime after the
+   * scope containing the registering {@code then} invocation has returned.
+   *
+   * If a Promise is resolved with another Promise, the first Promise will block
+   * until the second is resolved, and then assumes the same result as the second
+   * Promise. This allows Promises to depend on the results of other Promises,
+   * linking together multiple asynchronous operations.
+   *
+   * This implementation is compatible with the Promises/A+ specification and
+   * passes that specification's conformance test suite. A Closure Promise may be
+   * resolved with a Promise instance (or sufficiently compatible Promise-like
+   * object) created by other Promise implementations. From the specification,
+   * Promise-like objects are known as "Thenables".
+   *
+   * @see http://promisesaplus.com/
+   *
+   * @param {function(
+   *             this:RESOLVER_CONTEXT,
+   *             function((TYPE|IThenable.<TYPE>|Thenable)),
+   *             function(*)): void} resolver
+   *     Initialization function that is invoked immediately with {@code resolve}
+   *     and {@code reject} functions as arguments. The Promise is resolved or
+   *     rejected with the first argument passed to either function.
+   * @param {RESOLVER_CONTEXT=} opt_context An optional context for executing the
+   *     resolver function. If unspecified, the resolver function will be executed
+   *     in the default scope.
+   * @constructor
+   * @struct
+   * @final
+   * @implements {Thenable.<TYPE>}
+   * @template TYPE,RESOLVER_CONTEXT
+   */
+  var CancellablePromise = function CancellablePromise(resolver, opt_context) {
+    /**
+     * The internal state of this Promise. Either PENDING, FULFILLED, REJECTED, or
+     * BLOCKED.
+     * @private {CancellablePromise.State_}
+     */
+    this.state_ = CancellablePromise.State_.PENDING;
+
+    /**
+     * The resolved result of the Promise. Immutable once set with either a
+     * fulfillment value or rejection reason.
+     * @private {*}
+     */
+    this.result_ = undefined;
+
+    /**
+     * For Promises created by calling {@code then()}, the originating parent.
+     * @private {CancellablePromise}
+     */
+    this.parent_ = null;
+
+    /**
+     * The list of {@code onFulfilled} and {@code onRejected} callbacks added to
+     * this Promise by calls to {@code then()}.
+     * @private {Array.<CancellablePromise.CallbackEntry_>}
+     */
+    this.callbackEntries_ = null;
+
+    /**
+     * Whether the Promise is in the queue of Promises to execute.
+     * @private {boolean}
+     */
+    this.executing_ = false;
+
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      /**
+       * A timeout ID used when the {@code UNHANDLED_REJECTION_DELAY} is greater
+       * than 0 milliseconds. The ID is set when the Promise is rejected, and
+       * cleared only if an {@code onRejected} callback is invoked for the
+       * Promise (or one of its descendants) before the delay is exceeded.
+       *
+       * If the rejection is not handled before the timeout completes, the
+       * rejection reason is passed to the unhandled rejection handler.
+       * @private {number}
+       */
+      this.unhandledRejectionId_ = 0;
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      /**
+       * When the {@code UNHANDLED_REJECTION_DELAY} is set to 0 milliseconds, a
+       * boolean that is set if the Promise is rejected, and reset to false if an
+       * {@code onRejected} callback is invoked for the Promise (or one of its
+       * descendants). If the rejection is not handled before the next timestep,
+       * the rejection reason is passed to the unhandled rejection handler.
+       * @private {boolean}
+       */
+      this.hadUnhandledRejection_ = false;
+    }
+
+    try {
+      var self = this;
+      resolver.call(opt_context, function (value) {
+        self.resolve_(CancellablePromise.State_.FULFILLED, value);
+      }, function (reason) {
+        self.resolve_(CancellablePromise.State_.REJECTED, reason);
+      });
+    } catch (e) {
+      this.resolve_(CancellablePromise.State_.REJECTED, e);
+    }
+  };
+
+  /**
+   * The delay in milliseconds before a rejected Promise's reason is passed to
+   * the rejection handler. By default, the rejection handler rethrows the
+   * rejection reason so that it appears in the developer console or
+   * {@code window.onerror} handler.
+   * Rejections are rethrown as quickly as possible by default. A negative value
+   * disables rejection handling entirely.
+   * @type {number}
+   */
+  CancellablePromise.UNHANDLED_REJECTION_DELAY = 0;
+
+  /**
+   * The possible internal states for a Promise. These states are not directly
+   * observable to external callers.
+   * @enum {number}
+   * @private
+   */
+  CancellablePromise.State_ = {
+    /** The Promise is waiting for resolution. */
+    PENDING: 0,
+
+    /** The Promise is blocked waiting for the result of another Thenable. */
+    BLOCKED: 1,
+
+    /** The Promise has been resolved with a fulfillment value. */
+    FULFILLED: 2,
+
+    /** The Promise has been resolved with a rejection reason. */
+    REJECTED: 3
+  };
+
+  /**
+   * Typedef for entries in the callback chain. Each call to {@code then},
+   * {@code thenCatch}, or {@code thenAlways} creates an entry containing the
+   * functions that may be invoked once the Promise is resolved.
+   *
+   * @typedef {{
+   *   child: CancellablePromise,
+   *   onFulfilled: function(*),
+   *   onRejected: function(*)
+   * }}
+   * @private
+   */
+  CancellablePromise.CallbackEntry_ = null;
+
+  /**
+   * @param {(TYPE|Thenable.<TYPE>|Thenable)=} opt_value
+   * @return {!CancellablePromise.<TYPE>} A new Promise that is immediately resolved
+   *     with the given value.
+   * @template TYPE
+   */
+  CancellablePromise.resolve = function (opt_value) {
+    return new CancellablePromise(function (resolve) {
+      resolve(opt_value);
+    });
+  };
+
+  /**
+   * @param {*=} opt_reason
+   * @return {!CancellablePromise} A new Promise that is immediately rejected with the
+   *     given reason.
+   */
+  CancellablePromise.reject = function (opt_reason) {
+    return new CancellablePromise(function (resolve, reject) {
+      reject(opt_reason);
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<TYPE>} A Promise that receives the result of the
+   *     first Promise (or Promise-like) input to complete.
+   * @template TYPE
+   */
+  CancellablePromise.race = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      if (!promises.length) {
+        resolve(undefined);
+      }
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(resolve, reject);
+      }
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<!Array.<TYPE>>} A Promise that receives a list of
+   *     every fulfilled value once every input Promise (or Promise-like) is
+   *     successfully fulfilled, or is rejected by the first rejection result.
+   * @template TYPE
+   */
+  CancellablePromise.all = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      var toFulfill = promises.length;
+      var values = [];
+
+      if (!toFulfill) {
+        resolve(values);
+        return;
+      }
+
+      var onFulfill = function onFulfill(index, value) {
+        toFulfill--;
+        values[index] = value;
+        if (toFulfill === 0) {
+          resolve(values);
+        }
+      };
+
+      var onReject = function onReject(reason) {
+        reject(reason);
+      };
+
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(partial(onFulfill, i), onReject);
+      }
+    });
+  };
+
+  /**
+   * @param {!Array.<!(Thenable.<TYPE>|Thenable)>} promises
+   * @return {!CancellablePromise.<TYPE>} A Promise that receives the value of
+   *     the first input to be fulfilled, or is rejected with a list of every
+   *     rejection reason if all inputs are rejected.
+   * @template TYPE
+   */
+  CancellablePromise.firstFulfilled = function (promises) {
+    return new CancellablePromise(function (resolve, reject) {
+      var toReject = promises.length;
+      var reasons = [];
+
+      if (!toReject) {
+        resolve(undefined);
+        return;
+      }
+
+      var onFulfill = function onFulfill(value) {
+        resolve(value);
+      };
+
+      var onReject = function onReject(index, reason) {
+        toReject--;
+        reasons[index] = reason;
+        if (toReject === 0) {
+          reject(reasons);
+        }
+      };
+
+      for (var i = 0, promise; promise = promises[i]; i++) {
+        promise.then(onFulfill, partial(onReject, i));
+      }
+    });
+  };
+
+  /**
+   * Adds callbacks that will operate on the result of the Promise, returning a
+   * new child Promise.
+   *
+   * If the Promise is fulfilled, the {@code onFulfilled} callback will be invoked
+   * with the fulfillment value as argument, and the child Promise will be
+   * fulfilled with the return value of the callback. If the callback throws an
+   * exception, the child Promise will be rejected with the thrown value instead.
+   *
+   * If the Promise is rejected, the {@code onRejected} callback will be invoked
+   * with the rejection reason as argument, and the child Promise will be rejected
+   * with the return value (or thrown value) of the callback.
+   *
+   * @override
+   */
+  CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
+    return this.addChildPromise_(isFunction(opt_onFulfilled) ? opt_onFulfilled : null, isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+  };
+  Thenable.addImplementation(CancellablePromise);
+
+  /**
+   * Adds a callback that will be invoked whether the Promise is fulfilled or
+   * rejected. The callback receives no argument, and no new child Promise is
+   * created. This is useful for ensuring that cleanup takes place after certain
+   * asynchronous operations. Callbacks added with {@code thenAlways} will be
+   * executed in the same order with other calls to {@code then},
+   * {@code thenAlways}, or {@code thenCatch}.
+   *
+   * Since it does not produce a new child Promise, cancellation propagation is
+   * not prevented by adding callbacks with {@code thenAlways}. A Promise that has
+   * a cleanup handler added with {@code thenAlways} will be canceled if all of
+   * its children created by {@code then} (or {@code thenCatch}) are canceled.
+   *
+   * @param {function(this:THIS): void} onResolved A function that will be invoked
+   *     when the Promise is resolved.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     in the global scope.
+   * @return {!CancellablePromise.<TYPE>} This Promise, for chaining additional calls.
+   * @template THIS
+   */
+  CancellablePromise.prototype.thenAlways = function (onResolved, opt_context) {
+    var callback = function callback() {
+      try {
+        // Ensure that no arguments are passed to onResolved.
+        onResolved.call(opt_context);
+      } catch (err) {
+        CancellablePromise.handleRejection_.call(null, err);
+      }
+    };
+
+    this.addCallbackEntry_({
+      child: null,
+      onRejected: callback,
+      onFulfilled: callback
+    });
+    return this;
+  };
+
+  /**
+   * Adds a callback that will be invoked only if the Promise is rejected. This
+   * is equivalent to {@code then(null, onRejected)}.
+   *
+   * @param {!function(this:THIS, *): *} onRejected A function that will be
+   *     invoked with the rejection reason if the Promise is rejected.
+   * @param {THIS=} opt_context An optional context object that will be the
+   *     execution context for the callbacks. By default, functions are executed
+   *     in the global scope.
+   * @return {!CancellablePromise} A new Promise that will receive the result of the
+   *     callback.
+   * @template THIS
+   */
+  CancellablePromise.prototype.thenCatch = function (onRejected, opt_context) {
+    return this.addChildPromise_(null, onRejected, opt_context);
+  };
+
+  /**
+   * Alias of {@link CancellablePromise.prototype.thenCatch}
+   */
+  CancellablePromise.prototype.catch = CancellablePromise.prototype.thenCatch;
+
+  /**
+   * Cancels the Promise if it is still pending by rejecting it with a cancel
+   * Error. No action is performed if the Promise is already resolved.
+   *
+   * All child Promises of the canceled Promise will be rejected with the same
+   * cancel error, as with normal Promise rejection. If the Promise to be canceled
+   * is the only child of a pending Promise, the parent Promise will also be
+   * canceled. Cancellation may propagate upward through multiple generations.
+   *
+   * @param {string=} opt_message An optional debugging message for describing the
+   *     cancellation reason.
+   */
+  CancellablePromise.prototype.cancel = function (opt_message) {
+    if (this.state_ === CancellablePromise.State_.PENDING) {
+      async.run(function () {
+        var err = new CancellablePromise.CancellationError(opt_message);
+        err.IS_CANCELLATION_ERROR = true;
+        this.cancelInternal_(err);
+      }, this);
+    }
+  };
+
+  /**
+   * Cancels this Promise with the given error.
+   *
+   * @param {!Error} err The cancellation error.
+   * @private
+   */
+  CancellablePromise.prototype.cancelInternal_ = function (err) {
+    if (this.state_ === CancellablePromise.State_.PENDING) {
+      if (this.parent_) {
+        // Cancel the Promise and remove it from the parent's child list.
+        this.parent_.cancelChild_(this, err);
+      } else {
+        this.resolve_(CancellablePromise.State_.REJECTED, err);
+      }
+    }
+  };
+
+  /**
+   * Cancels a child Promise from the list of callback entries. If the Promise has
+   * not already been resolved, reject it with a cancel error. If there are no
+   * other children in the list of callback entries, propagate the cancellation
+   * by canceling this Promise as well.
+   *
+   * @param {!CancellablePromise} childPromise The Promise to cancel.
+   * @param {!Error} err The cancel error to use for rejecting the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.cancelChild_ = function (childPromise, err) {
+    if (!this.callbackEntries_) {
+      return;
+    }
+    var childCount = 0;
+    var childIndex = -1;
+
+    // Find the callback entry for the childPromise, and count whether there are
+    // additional child Promises.
+    for (var i = 0, entry; entry = this.callbackEntries_[i]; i++) {
+      var child = entry.child;
+      if (child) {
+        childCount++;
+        if (child === childPromise) {
+          childIndex = i;
+        }
+        if (childIndex >= 0 && childCount > 1) {
+          break;
+        }
+      }
+    }
+
+    // If the child Promise was the only child, cancel this Promise as well.
+    // Otherwise, reject only the child Promise with the cancel error.
+    if (childIndex >= 0) {
+      if (this.state_ === CancellablePromise.State_.PENDING && childCount === 1) {
+        this.cancelInternal_(err);
+      } else {
+        var callbackEntry = this.callbackEntries_.splice(childIndex, 1)[0];
+        this.executeCallback_(callbackEntry, CancellablePromise.State_.REJECTED, err);
+      }
+    }
+  };
+
+  /**
+   * Adds a callback entry to the current Promise, and schedules callback
+   * execution if the Promise has already been resolved.
+   *
+   * @param {CancellablePromise.CallbackEntry_} callbackEntry Record containing
+   *     {@code onFulfilled} and {@code onRejected} callbacks to execute after
+   *     the Promise is resolved.
+   * @private
+   */
+  CancellablePromise.prototype.addCallbackEntry_ = function (callbackEntry) {
+    if ((!this.callbackEntries_ || !this.callbackEntries_.length) && (this.state_ === CancellablePromise.State_.FULFILLED || this.state_ === CancellablePromise.State_.REJECTED)) {
+      this.scheduleCallbacks_();
+    }
+    if (!this.callbackEntries_) {
+      this.callbackEntries_ = [];
+    }
+    this.callbackEntries_.push(callbackEntry);
+  };
+
+  /**
+   * Creates a child Promise and adds it to the callback entry list. The result of
+   * the child Promise is determined by the state of the parent Promise and the
+   * result of the {@code onFulfilled} or {@code onRejected} callbacks as
+   * specified in the Promise resolution procedure.
+   *
+   * @see http://promisesaplus.com/#the__method
+   *
+   * @param {?function(this:THIS, TYPE):
+   *          (RESULT|CancellablePromise.<RESULT>|Thenable)} onFulfilled A callback that
+   *     will be invoked if the Promise is fullfilled, or null.
+   * @param {?function(this:THIS, *): *} onRejected A callback that will be
+   *     invoked if the Promise is rejected, or null.
+   * @param {THIS=} opt_context An optional execution context for the callbacks.
+   *     in the default calling context.
+   * @return {!CancellablePromise} The child Promise.
+   * @template RESULT,THIS
+   * @private
+   */
+  CancellablePromise.prototype.addChildPromise_ = function (onFulfilled, onRejected, opt_context) {
+
+    var callbackEntry = {
+      child: null,
+      onFulfilled: null,
+      onRejected: null
+    };
+
+    callbackEntry.child = new CancellablePromise(function (resolve, reject) {
+      // Invoke onFulfilled, or resolve with the parent's value if absent.
+      callbackEntry.onFulfilled = onFulfilled ? function (value) {
+        try {
+          var result = onFulfilled.call(opt_context, value);
+          resolve(result);
+        } catch (err) {
+          reject(err);
+        }
+      } : resolve;
+
+      // Invoke onRejected, or reject with the parent's reason if absent.
+      callbackEntry.onRejected = onRejected ? function (reason) {
+        try {
+          var result = onRejected.call(opt_context, reason);
+          if (!isDef(result) && reason.IS_CANCELLATION_ERROR) {
+            // Propagate cancellation to children if no other result is returned.
+            reject(reason);
+          } else {
+            resolve(result);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      } : reject;
+    });
+
+    callbackEntry.child.parent_ = this;
+    this.addCallbackEntry_(
+    /** @type {CancellablePromise.CallbackEntry_} */callbackEntry);
+    return callbackEntry.child;
+  };
+
+  /**
+   * Unblocks the Promise and fulfills it with the given value.
+   *
+   * @param {TYPE} value
+   * @private
+   */
+  CancellablePromise.prototype.unblockAndFulfill_ = function (value) {
+    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
+      throw new Error('CancellablePromise is not blocked.');
+    }
+    this.state_ = CancellablePromise.State_.PENDING;
+    this.resolve_(CancellablePromise.State_.FULFILLED, value);
+  };
+
+  /**
+   * Unblocks the Promise and rejects it with the given rejection reason.
+   *
+   * @param {*} reason
+   * @private
+   */
+  CancellablePromise.prototype.unblockAndReject_ = function (reason) {
+    if (this.state_ !== CancellablePromise.State_.BLOCKED) {
+      throw new Error('CancellablePromise is not blocked.');
+    }
+    this.state_ = CancellablePromise.State_.PENDING;
+    this.resolve_(CancellablePromise.State_.REJECTED, reason);
+  };
+
+  /**
+   * Attempts to resolve a Promise with a given resolution state and value. This
+   * is a no-op if the given Promise has already been resolved.
+   *
+   * If the given result is a Thenable (such as another Promise), the Promise will
+   * be resolved with the same state and result as the Thenable once it is itself
+   * resolved.
+   *
+   * If the given result is not a Thenable, the Promise will be fulfilled or
+   * rejected with that result based on the given state.
+   *
+   * @see http://promisesaplus.com/#the_promise_resolution_procedure
+   *
+   * @param {CancellablePromise.State_} state
+   * @param {*} x The result to apply to the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.resolve_ = function (state, x) {
+    if (this.state_ !== CancellablePromise.State_.PENDING) {
+      return;
+    }
+
+    if (this === x) {
+      state = CancellablePromise.State_.REJECTED;
+      x = new TypeError('CancellablePromise cannot resolve to itself');
+    } else if (Thenable.isImplementedBy(x)) {
+      x = /** @type {!Thenable} */x;
+      this.state_ = CancellablePromise.State_.BLOCKED;
+      x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
+      return;
+    } else if (isObject(x)) {
+      try {
+        var then = x.then;
+        if (isFunction(then)) {
+          this.tryThen_(x, then);
+          return;
+        }
+      } catch (e) {
+        state = CancellablePromise.State_.REJECTED;
+        x = e;
+      }
+    }
+
+    this.result_ = x;
+    this.state_ = state;
+    this.scheduleCallbacks_();
+
+    if (state === CancellablePromise.State_.REJECTED && !x.IS_CANCELLATION_ERROR) {
+      CancellablePromise.addUnhandledRejection_(this, x);
+    }
+  };
+
+  /**
+   * Attempts to call the {@code then} method on an object in the hopes that it is
+   * a Promise-compatible instance. This allows interoperation between different
+   * Promise implementations, however a non-compliant object may cause a Promise
+   * to hang indefinitely. If the {@code then} method throws an exception, the
+   * dependent Promise will be rejected with the thrown value.
+   *
+   * @see http://promisesaplus.com/#point-70
+   *
+   * @param {Thenable} thenable An object with a {@code then} method that may be
+   *     compatible with the Promise/A+ specification.
+   * @param {!Function} then The {@code then} method of the Thenable object.
+   * @private
+   */
+  CancellablePromise.prototype.tryThen_ = function (thenable, then) {
+    this.state_ = CancellablePromise.State_.BLOCKED;
+    var promise = this;
+    var called = false;
+
+    var resolve = function resolve(value) {
+      if (!called) {
+        called = true;
+        promise.unblockAndFulfill_(value);
+      }
+    };
+
+    var reject = function reject(reason) {
+      if (!called) {
+        called = true;
+        promise.unblockAndReject_(reason);
+      }
+    };
+
+    try {
+      then.call(thenable, resolve, reject);
+    } catch (e) {
+      reject(e);
+    }
+  };
+
+  /**
+   * Executes the pending callbacks of a resolved Promise after a timeout.
+   *
+   * Section 2.2.4 of the Promises/A+ specification requires that Promise
+   * callbacks must only be invoked from a call stack that only contains Promise
+   * implementation code, which we accomplish by invoking callback execution after
+   * a timeout. If {@code startExecution_} is called multiple times for the same
+   * Promise, the callback chain will be evaluated only once. Additional callbacks
+   * may be added during the evaluation phase, and will be executed in the same
+   * event loop.
+   *
+   * All Promises added to the waiting list during the same browser event loop
+   * will be executed in one batch to avoid using a separate timeout per Promise.
+   *
+   * @private
+   */
+  CancellablePromise.prototype.scheduleCallbacks_ = function () {
+    if (!this.executing_) {
+      this.executing_ = true;
+      async.run(this.executeCallbacks_, this);
+    }
+  };
+
+  /**
+   * Executes all pending callbacks for this Promise.
+   *
+   * @private
+   */
+  CancellablePromise.prototype.executeCallbacks_ = function () {
+    while (this.callbackEntries_ && this.callbackEntries_.length) {
+      var entries = this.callbackEntries_;
+      this.callbackEntries_ = [];
+
+      for (var i = 0; i < entries.length; i++) {
+        this.executeCallback_(entries[i], this.state_, this.result_);
+      }
+    }
+    this.executing_ = false;
+  };
+
+  /**
+   * Executes a pending callback for this Promise. Invokes an {@code onFulfilled}
+   * or {@code onRejected} callback based on the resolved state of the Promise.
+   *
+   * @param {!CancellablePromise.CallbackEntry_} callbackEntry An entry containing the
+   *     onFulfilled and/or onRejected callbacks for this step.
+   * @param {CancellablePromise.State_} state The resolution status of the Promise,
+   *     either FULFILLED or REJECTED.
+   * @param {*} result The resolved result of the Promise.
+   * @private
+   */
+  CancellablePromise.prototype.executeCallback_ = function (callbackEntry, state, result) {
+    if (state === CancellablePromise.State_.FULFILLED) {
+      callbackEntry.onFulfilled(result);
+    } else {
+      this.removeUnhandledRejection_();
+      callbackEntry.onRejected(result);
+    }
+  };
+
+  /**
+   * Marks this rejected Promise as having being handled. Also marks any parent
+   * Promises in the rejected state as handled. The rejection handler will no
+   * longer be invoked for this Promise (if it has not been called already).
+   *
+   * @private
+   */
+  CancellablePromise.prototype.removeUnhandledRejection_ = function () {
+    var p;
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      for (p = this; p && p.unhandledRejectionId_; p = p.parent_) {
+        clearTimeout(p.unhandledRejectionId_);
+        p.unhandledRejectionId_ = 0;
+      }
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      for (p = this; p && p.hadUnhandledRejection_; p = p.parent_) {
+        p.hadUnhandledRejection_ = false;
+      }
+    }
+  };
+
+  /**
+   * Marks this rejected Promise as unhandled. If no {@code onRejected} callback
+   * is called for this Promise before the {@code UNHANDLED_REJECTION_DELAY}
+   * expires, the reason will be passed to the unhandled rejection handler. The
+   * handler typically rethrows the rejection reason so that it becomes visible in
+   * the developer console.
+   *
+   * @param {!CancellablePromise} promise The rejected Promise.
+   * @param {*} reason The Promise rejection reason.
+   * @private
+   */
+  CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
+    if (CancellablePromise.UNHANDLED_REJECTION_DELAY > 0) {
+      promise.unhandledRejectionId_ = setTimeout(function () {
+        CancellablePromise.handleRejection_.call(null, reason);
+      }, CancellablePromise.UNHANDLED_REJECTION_DELAY);
+    } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
+      promise.hadUnhandledRejection_ = true;
+      async.run(function () {
+        if (promise.hadUnhandledRejection_) {
+          CancellablePromise.handleRejection_.call(null, reason);
+        }
+      });
+    }
+  };
+
+  /**
+   * A method that is invoked with the rejection reasons for Promises that are
+   * rejected but have no {@code onRejected} callbacks registered yet.
+   * @type {function(*)}
+   * @private
+   */
+  CancellablePromise.handleRejection_ = async.throwException;
+
+  /**
+   * Sets a handler that will be called with reasons from unhandled rejected
+   * Promises. If the rejected Promise (or one of its descendants) has an
+   * {@code onRejected} callback registered, the rejection will be considered
+   * handled, and the rejection handler will not be called.
+   *
+   * By default, unhandled rejections are rethrown so that the error may be
+   * captured by the developer console or a {@code window.onerror} handler.
+   *
+   * @param {function(*)} handler A function that will be called with reasons from
+   *     rejected Promises. Defaults to {@code async.throwException}.
+   */
+  CancellablePromise.setUnhandledRejectionHandler = function (handler) {
+    CancellablePromise.handleRejection_ = handler;
+  };
+
+  /**
+   * Error used as a rejection reason for canceled Promises.
+   *
+   * @param {string=} opt_message
+   * @constructor
+   * @extends {Error}
+   * @final
+   */
+  CancellablePromise.CancellationError = function (_Error) {
+    babelHelpers.inherits(_class, _Error);
+
+    function _class(opt_message) {
+      babelHelpers.classCallCheck(this, _class);
+
+      var _this = babelHelpers.possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).call(this, opt_message));
+
+      if (opt_message) {
+        _this.message = opt_message;
+      }
+      return _this;
+    }
+
+    return _class;
+  }(Error);
+
+  /** @override */
+  CancellablePromise.CancellationError.prototype.name = 'cancel';
+
+  this['sennaNamed']['Promise'] = this['sennaNamed']['Promise'] || {};
+  this['sennaNamed']['Promise']['CancellablePromise'] = CancellablePromise;
+  this['senna']['Promise'] = CancellablePromise;
+}).call(this);
+'use strict';
+
 (function () {
 	var core = this['senna']['metal'];
 
@@ -5873,7 +5918,10 @@ babelHelpers;
 		}, {
 			key: 'extractParams',
 			value: function extractParams(path) {
-				return extractData(this.buildParsedData_().tokens, path);
+				if (core.isString(this.path)) {
+					return extractData(this.buildParsedData_().tokens, path);
+				}
+				return {};
 			}
 
 			/**
@@ -9119,6 +9167,7 @@ babelHelpers;
 'use strict';
 
 (function () {
+  var utils = this['senna']['utils'];
   var App = this['senna']['App'];
   var HtmlScreen = this['senna']['HtmlScreen'];
   var RequestScreen = this['senna']['RequestScreen'];
@@ -9126,6 +9175,7 @@ babelHelpers;
   var Screen = this['senna']['Screen'];
   this['senna']['senna'] = App;
   this['sennaNamed']['senna'] = this['sennaNamed']['senna'] || {};
+  this['sennaNamed']['senna']['utils'] = utils;
   this['sennaNamed']['senna']['App'] = App;
   this['sennaNamed']['senna']['HtmlScreen'] = HtmlScreen;
   this['sennaNamed']['senna']['Route'] = Route;
