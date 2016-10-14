@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.0.2
+ * @version v2.0.3
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -7159,7 +7159,7 @@ babelHelpers;
 						_this5.activeScreen.deactivate();
 					}
 					_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
-					_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces, route.extractParams(path));
+					_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces, _this5.extractParams(route, path));
 				}).then(function () {
 					return nextScreen.evaluateStyles(_this5.surfaces);
 				}).then(function () {
@@ -7175,6 +7175,19 @@ babelHelpers;
 					_this5.handleNavigateError_(path, nextScreen, reason);
 					throw reason;
 				});
+			}
+
+			/**
+    * Extracts params according to the given path and route.
+    * @param {!Route} route
+    * @param {string} path
+    * @param {!Object}
+    */
+
+		}, {
+			key: 'extractParams',
+			value: function extractParams(route, path) {
+				return route.extractParams(this.getRoutePath(path));
 			}
 
 			/**
@@ -7220,12 +7233,7 @@ babelHelpers;
 					return null;
 				}
 
-				path = utils.getUrlPathWithoutHash(path);
-
-				// Makes sure that the path substring will be in the expected format
-				// (that is, will end with a "/").
-				path = utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
-
+				path = this.getRoutePath(path);
 				for (var i = 0; i < this.routes.length; i++) {
 					var route = this.routes[i];
 					if (route.matchesPath(path)) {
@@ -7300,6 +7308,22 @@ babelHelpers;
 			key: 'getLoadingCssClass',
 			value: function getLoadingCssClass() {
 				return this.loadingCssClass;
+			}
+
+			/**
+    * Returns the given path formatted to be matched by a route. This will, for
+    * example, remove the base path from it.
+    * @param {string} path
+    * @return {string}
+    */
+
+		}, {
+			key: 'getRoutePath',
+			value: function getRoutePath(path) {
+				path = utils.getUrlPathWithoutHash(path);
+				// Makes sure that the path substring will be in the expected format
+				// (that is, will end with a "/"), even after removing the base path.
+				return utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
 			}
 
 			/**

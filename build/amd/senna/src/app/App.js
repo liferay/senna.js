@@ -451,7 +451,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 						_this5.activeScreen.deactivate();
 					}
 					_this5.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
-					_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces, route.extractParams(path));
+					_this5.prepareNavigateSurfaces_(nextScreen, _this5.surfaces, _this5.extractParams(route, path));
 				}).then(function () {
 					return nextScreen.evaluateStyles(_this5.surfaces);
 				}).then(function () {
@@ -467,6 +467,11 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					_this5.handleNavigateError_(path, nextScreen, reason);
 					throw reason;
 				});
+			}
+		}, {
+			key: 'extractParams',
+			value: function extractParams(route, path) {
+				return route.extractParams(this.getRoutePath(path));
 			}
 		}, {
 			key: 'finalizeNavigate_',
@@ -495,12 +500,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					return null;
 				}
 
-				path = _utils2.default.getUrlPathWithoutHash(path);
-
-				// Makes sure that the path substring will be in the expected format
-				// (that is, will end with a "/").
-				path = _utils2.default.getUrlPathWithoutHash(path.substr(this.basePath.length));
-
+				path = this.getRoutePath(path);
 				for (var i = 0; i < this.routes.length; i++) {
 					var route = this.routes[i];
 					if (route.matchesPath(path)) {
@@ -539,6 +539,14 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			key: 'getLoadingCssClass',
 			value: function getLoadingCssClass() {
 				return this.loadingCssClass;
+			}
+		}, {
+			key: 'getRoutePath',
+			value: function getRoutePath(path) {
+				path = _utils2.default.getUrlPathWithoutHash(path);
+				// Makes sure that the path substring will be in the expected format
+				// (that is, will end with a "/"), even after removing the base path.
+				return _utils2.default.getUrlPathWithoutHash(path.substr(this.basePath.length));
 			}
 		}, {
 			key: 'getUpdateScrollPosition',
