@@ -54,7 +54,7 @@ metal.registerTasks({
 			base: 'SauceLabs',
 			browserName: 'microsoftedge',
 			platform: 'Windows 10',
-			version: '20'
+			version: '13'
 		},
 		sl_iphone: {
 			base: 'SauceLabs',
