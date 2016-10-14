@@ -1142,13 +1142,13 @@ describe('App', function() {
 				super();
 				screen = this;
 			}
-			
+
 			getId() {
 				return 'screenId';
 			}
 		}
 		ContentScreen.prototype.getSurfaceContent = sinon.stub();
-		
+
 		var surface = new Surface('surfaceId');
 		this.app = new App();
 		this.app.addRoutes(new Route('/path/:foo(\\d+)/:bar', ContentScreen));
@@ -1156,7 +1156,7 @@ describe('App', function() {
 		this.app.navigate('/path/123/abc').then(() => {
 			assert.strictEqual(1, screen.getSurfaceContent.callCount);
 			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
-			
+
 			var expectedParams = {
 				foo: '123',
 				bar: 'abc'
@@ -1164,6 +1164,50 @@ describe('App', function() {
 			assert.deepEqual(expectedParams, screen.getSurfaceContent.args[0][1]);
 			done();
 		});
+	});
+
+	it('should pass extracted params to "getSurfaceContent" with base path', (done) => {
+		var screen;
+		class ContentScreen extends Screen {
+			constructor() {
+				super();
+				screen = this;
+			}
+
+			getId() {
+				return 'screenId';
+			}
+		}
+		ContentScreen.prototype.getSurfaceContent = sinon.stub();
+
+		var surface = new Surface('surfaceId');
+		this.app = new App();
+		this.app.setBasePath('/path');
+		this.app.addRoutes(new Route('/:foo(\\d+)/:bar', ContentScreen));
+		this.app.addSurfaces(surface);
+		this.app.navigate('/path/123/abc').then(() => {
+			assert.strictEqual(1, screen.getSurfaceContent.callCount);
+			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
+
+			var expectedParams = {
+				foo: '123',
+				bar: 'abc'
+			};
+			assert.deepEqual(expectedParams, screen.getSurfaceContent.args[0][1]);
+			done();
+		});
+	});
+
+	it('should extract params for the given route and path', () => {
+		this.app = new App();
+		this.app.setBasePath('/path');
+		var route = new Route('/:foo(\\d+)/:bar', () => {});
+		var params = this.app.extractParams(route, '/path/123/abc');
+		var expectedParams = {
+			foo: '123',
+			bar: 'abc'
+		};
+		assert.deepEqual(expectedParams, params);
 	});
 
 	it('should render default surface content when not provided by screen', (done) => {

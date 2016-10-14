@@ -382,7 +382,7 @@ class App extends EventEmitter {
 				this.prepareNavigateSurfaces_(
 					nextScreen,
 					this.surfaces,
-					route.extractParams(path)
+					this.extractParams(route, path)
 				);
 			})
 			.then(() => nextScreen.evaluateStyles(this.surfaces))
@@ -395,6 +395,16 @@ class App extends EventEmitter {
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
+	}
+
+	/**
+	 * Extracts params according to the given path and route.
+	 * @param {!Route} route
+	 * @param {string} path
+	 * @param {!Object}
+	 */
+	extractParams(route, path) {
+		return route.extractParams(this.getRoutePath(path));
 	}
 
 	/**
@@ -434,12 +444,7 @@ class App extends EventEmitter {
 			return null;
 		}
 
-		path = utils.getUrlPathWithoutHash(path);
-
-		// Makes sure that the path substring will be in the expected format
-		// (that is, will end with a "/").
-		path = utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
-
+		path = this.getRoutePath(path);
 		for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];
 			if (route.matchesPath(path)) {
@@ -496,6 +501,19 @@ class App extends EventEmitter {
 	 */
 	getLoadingCssClass() {
 		return this.loadingCssClass;
+	}
+
+	/**
+	 * Returns the given path formatted to be matched by a route. This will, for
+	 * example, remove the base path from it.
+	 * @param {string} path
+	 * @return {string}
+	 */
+	getRoutePath(path) {
+		path = utils.getUrlPathWithoutHash(path);
+		// Makes sure that the path substring will be in the expected format
+		// (that is, will end with a "/"), even after removing the base path.
+		return utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
 	}
 
 	/**
