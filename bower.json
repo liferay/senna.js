@@ -4,7 +4,6 @@
   "description": "A blazing-fast Single Page Application engine",
   "homepage": "http://sennajs.com",
   "main": [
-    "build/globals/senna-min.js",
     "build/globals/senna.js",
     "build/senna.css"
   ],
