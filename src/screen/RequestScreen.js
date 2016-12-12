@@ -76,6 +76,7 @@ class RequestScreen extends Screen {
 		if (!this.isValidResponseStatusCode(status)) {
 			var error = new Error(errors.INVALID_STATUS);
 			error.invalidStatus = true;
+			error.statusCode = status;
 			throw error;
 		}
 	}
