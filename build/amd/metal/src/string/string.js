@@ -35,6 +35,20 @@ define(['exports'], function (exports) {
 		}
 
 		_createClass(string, null, [{
+			key: 'caseInsensitiveCompare',
+			value: function caseInsensitiveCompare(str1, str2) {
+				var test1 = String(str1).toLowerCase();
+				var test2 = String(str2).toLowerCase();
+
+				if (test1 < test2) {
+					return -1;
+				} else if (test1 === test2) {
+					return 0;
+				} else {
+					return 1;
+				}
+			}
+		}, {
 			key: 'collapseBreakingSpaces',
 			value: function collapseBreakingSpaces(str) {
 				return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');

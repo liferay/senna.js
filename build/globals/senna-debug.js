@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.0.4
+ * @version v2.0.5
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -178,30 +178,11 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['abstractMethod'] = abstractMethod; /**
-                                                                       * Loops constructor super classes collecting its properties values. If
-                                                                       * property is not available on the super class `undefined` will be
-                                                                       * collected as value for the class hierarchy position.
-                                                                       * @param {!function()} constructor Class constructor.
-                                                                       * @param {string} propertyName Property name to be collected.
-                                                                       * @return {Array.<*>} Array of collected values.
-                                                                       * TODO(*): Rethink superclass loop.
+                                                                       * Disables Metal.js's compatibility mode.
                                                                        */
 
-  function collectSuperClassesProperty(constructor, propertyName) {
-    var propertyValues = [constructor[propertyName]];
-    while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
-      constructor = constructor.__proto__;
-      propertyValues.push(constructor[propertyName]);
-    }
-    return propertyValues;
-  }
-
-  this['sennaNamed']['coreNamed']['collectSuperClassesProperty'] = collectSuperClassesProperty; /**
-                                                                                                 * Disables Metal.js's compatibility mode.
-                                                                                                 */
-
   function disableCompatibilityMode() {
-    compatibilityModeData_ = null;
+    compatibilityModeData_ = undefined;
   }
 
   this['sennaNamed']['coreNamed']['disableCompatibilityMode'] = disableCompatibilityMode; /**
@@ -235,7 +216,7 @@ babelHelpers;
 
   function getCompatibilityModeData() {
     // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
-    if (!compatibilityModeData_) {
+    if (compatibilityModeData_ === undefined) {
       if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
         enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
       }
@@ -244,13 +225,24 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['getCompatibilityModeData'] = getCompatibilityModeData; /**
-                                                                                           * Gets the name of the given function. If the current browser doesn't
-                                                                                           * support the `name` property, this will calculate it from the function's
-                                                                                           * content string.
-                                                                                           * @param {!function()} fn
-                                                                                           * @return {string}
+                                                                                           * Returns the first argument if it's truthy, or the second otherwise.
+                                                                                           * @param {*} a
+                                                                                           * @param {*} b
+                                                                                           * @return {*}
+                                                                                           * @protected
                                                                                            */
 
+  function getFirstTruthy_(a, b) {
+    return a || b;
+  }
+
+  /**
+   * Gets the name of the given function. If the current browser doesn't
+   * support the `name` property, this will calculate it from the function's
+   * content string.
+   * @param {!function()} fn
+   * @return {string}
+   */
   function getFunctionName(fn) {
     if (!fn.name) {
       var str = fn.toString();
@@ -260,16 +252,44 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['getFunctionName'] = getFunctionName; /**
-                                                                         * Gets an unique id. If `opt_object` argument is passed, the object is
-                                                                         * mutated with an unique id. Consecutive calls with the same object
-                                                                         * reference won't mutate the object again, instead the current object uid
-                                                                         * returns. See {@link UID_PROPERTY}.
-                                                                         * @param {Object=} opt_object Optional object to be mutated with the uid. If
-                                                                         *     not specified this method only returns the uid.
-                                                                         * @param {boolean=} opt_noInheritance Optional flag indicating if this
-                                                                         *     object's uid property can be inherited from parents or not.
-                                                                         * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                         * Gets the value of a static property in the given class. The value will be
+                                                                         * inherited from ancestors as expected, unless a custom merge function is given,
+                                                                         * which can change how the super classes' value for that property will be merged
+                                                                         * together.
+                                                                         * The final merged value will be stored in another property, so that it won't
+                                                                         * be recalculated even if this function is called multiple times.
+                                                                         * @param {!function()} ctor Class constructor.
+                                                                         * @param {string} propertyName Property name to be merged.
+                                                                         * @param {function(*, *):*=} opt_mergeFn Function that receives the merged
+                                                                         *     value of the property so far and the next value to be merged to it.
+                                                                         *     Should return these two merged together. If not passed the final property
+                                                                         *     will be the first truthy value among ancestors.
                                                                          */
+
+  function getStaticProperty(ctor, propertyName, opt_mergeFn) {
+    var mergedName = propertyName + '_MERGED';
+    if (!ctor.hasOwnProperty(mergedName)) {
+      var merged = ctor.hasOwnProperty(propertyName) ? ctor[propertyName] : null;
+      if (ctor.__proto__ && !ctor.__proto__.isPrototypeOf(Function)) {
+        var mergeFn = opt_mergeFn || getFirstTruthy_;
+        merged = mergeFn(merged, getStaticProperty(ctor.__proto__, propertyName, mergeFn));
+      }
+      ctor[mergedName] = merged;
+    }
+    return ctor[mergedName];
+  }
+
+  this['sennaNamed']['coreNamed']['getStaticProperty'] = getStaticProperty; /**
+                                                                             * Gets an unique id. If `opt_object` argument is passed, the object is
+                                                                             * mutated with an unique id. Consecutive calls with the same object
+                                                                             * reference won't mutate the object again, instead the current object uid
+                                                                             * returns. See {@link UID_PROPERTY}.
+                                                                             * @param {Object=} opt_object Optional object to be mutated with the uid. If
+                                                                             *     not specified this method only returns the uid.
+                                                                             * @param {boolean=} opt_noInheritance Optional flag indicating if this
+                                                                             *     object's uid property can be inherited from parents or not.
+                                                                             * @throws {Error} when invoked to indicate the method should be overridden.
+                                                                             */
 
   function getUid(opt_object, opt_noInheritance) {
     if (opt_object) {
@@ -415,36 +435,9 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['isString'] = isString; /**
-                                                           * Merges the values of a export function property a class with the values of that
-                                                           * property for all its super classes, and stores it as a new static
-                                                           * property of that class. If the export function property already existed, it won't
-                                                           * be recalculated.
-                                                           * @param {!function()} constructor Class constructor.
-                                                           * @param {string} propertyName Property name to be collected.
-                                                           * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
-                                                           *   with the values of the property for the current class and all its super classes.
-                                                           *   Should return the merged value to be stored on the current class.
-                                                           * @return {boolean} Returns true if merge happens, false otherwise.
+                                                           * Null function used for default values of callbacks, etc.
+                                                           * @return {void} Nothing.
                                                            */
-
-  function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
-    var mergedName = propertyName + '_MERGED';
-    if (constructor.hasOwnProperty(mergedName)) {
-      return false;
-    }
-
-    var merged = collectSuperClassesProperty(constructor, propertyName);
-    if (opt_mergeFn) {
-      merged = opt_mergeFn(merged);
-    }
-    constructor[mergedName] = merged;
-    return true;
-  }
-
-  this['sennaNamed']['coreNamed']['mergeSuperClassesProperty'] = mergeSuperClassesProperty; /**
-                                                                                             * Null function used for default values of callbacks, etc.
-                                                                                             * @return {void} Nothing.
-                                                                                             */
 
   function nullFunction() {}
   this['sennaNamed']['coreNamed']['nullFunction'] = nullFunction;
@@ -998,7 +991,27 @@ babelHelpers;
 		}
 
 		babelHelpers.createClass(string, null, [{
-			key: 'collapseBreakingSpaces',
+			key: 'caseInsensitiveCompare',
+
+			/**
+    * Compares the given strings without taking the case into account.
+    * @param {string|number} str1
+    * @param {string|number} str2
+    * @return {number} Either -1, 0 or 1, according to if the first string is
+    *     "smaller", equal or "bigger" than the second given string.
+    */
+			value: function caseInsensitiveCompare(str1, str2) {
+				var test1 = String(str1).toLowerCase();
+				var test2 = String(str2).toLowerCase();
+
+				if (test1 < test2) {
+					return -1;
+				} else if (test1 === test2) {
+					return 0;
+				} else {
+					return 1;
+				}
+			}
 
 			/**
     * Removes the breaking spaces from the left and right of the string and
@@ -1007,6 +1020,9 @@ babelHelpers;
     * @param {string} str A string in which to collapse spaces.
     * @return {string} Copy of the string with normalized breaking spaces.
     */
+
+		}, {
+			key: 'collapseBreakingSpaces',
 			value: function collapseBreakingSpaces(str) {
 				return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
 			}
@@ -1741,12 +1757,10 @@ babelHelpers;
 				var search = this.url.search;
 				if (search) {
 					search.substring(1).split('&').forEach(function (param) {
-						var _param$split = param.split('=');
-
-						var _param$split2 = babelHelpers.slicedToArray(_param$split, 2);
-
-						var key = _param$split2[0];
-						var value = _param$split2[1];
+						var _param$split = param.split('='),
+						    _param$split2 = babelHelpers.slicedToArray(_param$split, 2),
+						    key = _param$split2[0],
+						    value = _param$split2[1];
 
 						if (isDef(value)) {
 							value = Uri.urlDecode(value);
@@ -2424,16 +2438,34 @@ babelHelpers;
 			/**
     * Gets Metal.js's data for the given element.
     * @param {!Element} element
+    * @param {string=} opt_name Optional property from the data to be returned.
+    * @param {*} opt_initialVal Optinal value to the set the requested property
+    *     to if it doesn't exist yet in the data.
     * @return {!Object}
     */
-			value: function get(element) {
+			value: function get(element, opt_name, opt_initialVal) {
 				if (!element[METAL_DATA]) {
-					element[METAL_DATA] = {
-						delegating: {},
-						listeners: {}
-					};
+					element[METAL_DATA] = {};
 				}
-				return element[METAL_DATA];
+				if (!opt_name) {
+					return element[METAL_DATA];
+				}
+				if (!element[METAL_DATA][opt_name] && opt_initialVal) {
+					element[METAL_DATA][opt_name] = opt_initialVal;
+				}
+				return element[METAL_DATA][opt_name];
+			}
+
+			/**
+    * Checks if the given element has data stored in it.
+    * @param {!Element} element
+    * @return {boolean}
+    */
+
+		}, {
+			key: 'has',
+			value: function has(element) {
+				return !!element[METAL_DATA];
 			}
 		}]);
 		return domData;
@@ -2530,6 +2562,9 @@ babelHelpers;
 	var isString = this['sennaNamed']['metal']['isString'];
 	var EventHandle = this['senna']['EventHandle'];
 
+
+	var singleArray_ = [0];
+
 	/**
   * EventEmitter utility.
   * @constructor
@@ -2544,20 +2579,18 @@ babelHelpers;
 
 			/**
     * Holds event listeners scoped by event type.
-    * @type {!Object<string, !Array<!function()>>}
+    * @type {Object<string, !Array<!function()>>}
     * @protected
     */
 			var _this = babelHelpers.possibleConstructorReturn(this, (EventEmitter.__proto__ || Object.getPrototypeOf(EventEmitter)).call(this));
 
-			_this.events_ = [];
+			_this.events_ = null;
 
 			/**
-    * The maximum number of listeners allowed for each event type. If the number
-    * becomes higher than the max, a warning will be issued.
-    * @type {number}
-    * @protected
+    * Handlers that are triggered when an event is listened to.
+    * @type {Array}
     */
-			_this.maxListeners_ = 10;
+			_this.listenerHandlers_ = null;
 
 			/**
     * Configuration option which determines if an event facade should be sent
@@ -2571,27 +2604,52 @@ babelHelpers;
 		}
 
 		/**
-   * Adds a listener to the end of the listeners array for the specified events.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @param {boolean} opt_default Flag indicating if this listener is a default
-   *   action for this event. Default actions are run last, and only if no previous
-   *   listener call `preventDefault()` on the received event facade.
-   * @return {!EventHandle} Can be used to remove the listener.
+   * Adds a handler to given holder variable. If the holder doesn't have a
+   * value yet, it will receive the handler directly. If the holder is an array,
+   * the value will just be added to it. Otherwise, the holder will be set to a
+   * new array containing its previous value plus the new handler.
+   * @param {*} holder
+   * @param {!function()|Object} handler
+   * @return {*} The holder's new value.
+   * @protected
    */
 
 
 		babelHelpers.createClass(EventEmitter, [{
+			key: 'addHandler_',
+			value: function addHandler_(holder, handler) {
+				if (!holder) {
+					holder = handler;
+				} else {
+					if (!Array.isArray(holder)) {
+						holder = [holder];
+					}
+					holder.push(handler);
+				}
+				return holder;
+			}
+
+			/**
+    * Adds a listener to the end of the listeners array for the specified events.
+    * @param {!(Array|string)} event
+    * @param {!Function} listener
+    * @param {boolean} opt_default Flag indicating if this listener is a default
+    *   action for this event. Default actions are run last, and only if no previous
+    *   listener call `preventDefault()` on the received event facade.
+    * @return {!EventHandle} Can be used to remove the listener.
+    */
+
+		}, {
 			key: 'addListener',
-			value: function addListener(events, listener, opt_default) {
+			value: function addListener(event, listener, opt_default) {
 				this.validateListener_(listener);
 
-				events = this.normalizeEvents_(events);
+				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
 					this.addSingleListener_(events[i], listener, opt_default);
 				}
 
-				return new EventHandle(this, events, listener);
+				return new EventHandle(this, event, listener);
 			}
 
 			/**
@@ -2610,21 +2668,45 @@ babelHelpers;
 		}, {
 			key: 'addSingleListener_',
 			value: function addSingleListener_(event, listener, opt_default, opt_origin) {
-				this.emit('newListener', event, listener);
-
-				if (!this.events_[event]) {
-					this.events_[event] = [];
+				this.runListenerHandlers_(event);
+				if (opt_default || opt_origin) {
+					listener = {
+						default: opt_default,
+						fn: listener,
+						origin: opt_origin
+					};
 				}
-				this.events_[event].push({
-					default: opt_default,
-					fn: listener,
-					origin: opt_origin
-				});
+				this.events_ = this.events_ || {};
+				this.events_[event] = this.addHandler_(this.events_[event], listener);
+			}
 
-				var listeners = this.events_[event];
-				if (listeners.length > this.maxListeners_ && !listeners.warned) {
-					console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
-					listeners.warned = true;
+			/**
+    * Builds facade for the given event.
+    * @param {string} event
+    * @return {Object}
+    * @protected
+    */
+
+		}, {
+			key: 'buildFacade_',
+			value: function buildFacade_(event) {
+				var _this2 = this;
+
+				if (this.getShouldUseFacade()) {
+					var _ret = function () {
+						var facade = {
+							preventDefault: function preventDefault() {
+								facade.preventedDefault = true;
+							},
+							target: _this2,
+							type: event
+						};
+						return {
+							v: facade
+						};
+					}();
+
+					if ((typeof _ret === 'undefined' ? 'undefined' : babelHelpers.typeof(_ret)) === "object") return _ret.v;
 				}
 			}
 
@@ -2636,7 +2718,7 @@ babelHelpers;
 		}, {
 			key: 'disposeInternal',
 			value: function disposeInternal() {
-				this.events_ = [];
+				this.events_ = null;
 			}
 
 			/**
@@ -2649,40 +2731,27 @@ babelHelpers;
 		}, {
 			key: 'emit',
 			value: function emit(event) {
+				var listeners = toArray(this.getRawListeners_(event)).concat();
+				if (listeners.length === 0) {
+					return false;
+				}
+
 				var args = array.slice(arguments, 1);
-				var listeners = (this.events_[event] || []).concat();
+				this.runListeners_(listeners, args, this.buildFacade_(event));
+				return true;
+			}
 
-				var facade;
-				if (this.getShouldUseFacade()) {
-					facade = {
-						preventDefault: function preventDefault() {
-							facade.preventedDefault = true;
-						},
-						target: this,
-						type: event
-					};
-					args.push(facade);
-				}
+			/**
+    * Gets the listener objects for the given event, if there are any.
+    * @param {string} event
+    * @return {Array}
+    * @protected
+    */
 
-				var defaultListeners = [];
-				for (var i = 0; i < listeners.length; i++) {
-					if (listeners[i].default) {
-						defaultListeners.push(listeners[i]);
-					} else {
-						listeners[i].fn.apply(this, args);
-					}
-				}
-				if (!facade || !facade.preventedDefault) {
-					for (var j = 0; j < defaultListeners.length; j++) {
-						defaultListeners[j].fn.apply(this, args);
-					}
-				}
-
-				if (event !== '*') {
-					this.emit.apply(this, ['*', event].concat(args));
-				}
-
-				return listeners.length > 0;
+		}, {
+			key: 'getRawListeners_',
+			value: function getRawListeners_(event) {
+				return this.events_ && this.events_[event];
 			}
 
 			/**
@@ -2707,8 +2776,8 @@ babelHelpers;
 		}, {
 			key: 'listeners',
 			value: function listeners(event) {
-				return (this.events_[event] || []).map(function (listener) {
-					return listener.fn;
+				return toArray(this.getRawListeners_(event)).map(function (listener) {
+					return listener.fn ? listener.fn : listener;
 				});
 			}
 
@@ -2716,7 +2785,7 @@ babelHelpers;
     * Adds a listener that will be invoked a fixed number of times for the
     * events. After each event is triggered the specified amount of times, the
     * listener is removed for it.
-    * @param {!(Array|string)} events
+    * @param {!(Array|string)} event
     * @param {number} amount The amount of times this event should be listened
     * to.
     * @param {!Function} listener
@@ -2725,13 +2794,13 @@ babelHelpers;
 
 		}, {
 			key: 'many',
-			value: function many(events, amount, listener) {
-				events = this.normalizeEvents_(events);
+			value: function many(event, amount, listener) {
+				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
 					this.many_(events[i], amount, listener);
 				}
 
-				return new EventHandle(this, events, listener);
+				return new EventHandle(this, event, listener);
 			}
 
 			/**
@@ -2776,20 +2845,8 @@ babelHelpers;
 		}, {
 			key: 'matchesListener_',
 			value: function matchesListener_(listenerObj, listener) {
-				return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
-			}
-
-			/**
-    * Converts the parameter to an array if only one event is given.
-    * @param  {!(Array|string)} events
-    * @return {!Array}
-    * @protected
-    */
-
-		}, {
-			key: 'normalizeEvents_',
-			value: function normalizeEvents_(events) {
-				return isString(events) ? [events] : events;
+				var fn = listenerObj.fn || listenerObj;
+				return fn === listener || listenerObj.origin && listenerObj.origin === listener;
 			}
 
 			/**
@@ -2802,13 +2859,15 @@ babelHelpers;
 
 		}, {
 			key: 'off',
-			value: function off(events, listener) {
+			value: function off(event, listener) {
 				this.validateListener_(listener);
+				if (!this.events_) {
+					return this;
+				}
 
-				events = this.normalizeEvents_(events);
+				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
-					var listenerObjs = this.events_[events[i]] || [];
-					this.removeMatchingListenerObjs_(listenerObjs, listener);
+					this.events_[events[i]] = this.removeMatchingListenerObjs_(toArray(this.events_[events[i]]), listener);
 				}
 
 				return this;
@@ -2825,6 +2884,18 @@ babelHelpers;
 			key: 'on',
 			value: function on() {
 				return this.addListener.apply(this, arguments);
+			}
+
+			/**
+    * Adds handler that gets triggered when an event is listened to on this
+    * instance.
+    * @param {!function()}
+    */
+
+		}, {
+			key: 'onListener',
+			value: function onListener(handler) {
+				this.listenerHandlers_ = this.addHandler_(this.listenerHandlers_, handler);
 			}
 
 			/**
@@ -2852,13 +2923,15 @@ babelHelpers;
 		}, {
 			key: 'removeAllListeners',
 			value: function removeAllListeners(opt_events) {
-				if (opt_events) {
-					var events = this.normalizeEvents_(opt_events);
-					for (var i = 0; i < events.length; i++) {
-						this.events_[events[i]] = null;
+				if (this.events_) {
+					if (opt_events) {
+						var events = this.toEventsArray_(opt_events);
+						for (var i = 0; i < events.length; i++) {
+							this.events_[events[i]] = null;
+						}
+					} else {
+						this.events_ = null;
 					}
-				} else {
-					this.events_ = {};
 				}
 				return this;
 			}
@@ -2866,19 +2939,22 @@ babelHelpers;
 			/**
     * Removes all listener objects from the given array that match the given
     * listener function.
-    * @param {!Array.<Object>} listenerObjs
+    * @param {Array.<Object>} listenerObjs
     * @param {!Function} listener
+    * @return {Array.<Object>|Object} The new listeners array for this event.
     * @protected
     */
 
 		}, {
 			key: 'removeMatchingListenerObjs_',
 			value: function removeMatchingListenerObjs_(listenerObjs, listener) {
-				for (var i = listenerObjs.length - 1; i >= 0; i--) {
-					if (this.matchesListener_(listenerObjs[i], listener)) {
-						listenerObjs.splice(i, 1);
+				var finalListeners = [];
+				for (var i = 0; i < listenerObjs.length; i++) {
+					if (!this.matchesListener_(listenerObjs[i], listener)) {
+						finalListeners.push(listenerObjs[i]);
 					}
 				}
+				return finalListeners.length > 0 ? finalListeners : null;
 			}
 
 			/**
@@ -2896,19 +2972,52 @@ babelHelpers;
 			}
 
 			/**
-    * By default EventEmitters will print a warning if more than 10 listeners
-    * are added for a particular event. This is a useful default which helps
-    * finding memory leaks. Obviously not all Emitters should be limited to 10.
-    * This function allows that to be increased. Set to zero for unlimited.
-    * @param {number} max The maximum number of listeners.
-    * @return {!Object} Returns emitter, so calls can be chained.
+    * Runs the handlers when an event is listened to.
+    * @param {string} event
+    * @protected
     */
 
 		}, {
-			key: 'setMaxListeners',
-			value: function setMaxListeners(max) {
-				this.maxListeners_ = max;
-				return this;
+			key: 'runListenerHandlers_',
+			value: function runListenerHandlers_(event) {
+				var handlers = this.listenerHandlers_;
+				if (handlers) {
+					handlers = toArray(handlers);
+					for (var i = 0; i < handlers.length; i++) {
+						handlers[i](event);
+					}
+				}
+			}
+
+			/**
+    * Runs the given listeners.
+    * @param {!Array} listeners
+    * @param {!Array} args
+    * @param (Object) facade
+    * @protected
+    */
+
+		}, {
+			key: 'runListeners_',
+			value: function runListeners_(listeners, args, facade) {
+				if (facade) {
+					args.push(facade);
+				}
+
+				var defaultListeners = [];
+				for (var i = 0; i < listeners.length; i++) {
+					var listener = listeners[i].fn || listeners[i];
+					if (listeners[i].default) {
+						defaultListeners.push(listener);
+					} else {
+						listener.apply(this, args);
+					}
+				}
+				if (!facade || !facade.preventedDefault) {
+					for (var j = 0; j < defaultListeners.length; j++) {
+						defaultListeners[j].apply(this, args);
+					}
+				}
 			}
 
 			/**
@@ -2924,6 +3033,25 @@ babelHelpers;
 			value: function setShouldUseFacade(shouldUseFacade) {
 				this.shouldUseFacade_ = shouldUseFacade;
 				return this;
+			}
+
+			/**
+    * Converts the parameter to an array if only one event is given. Reuses the
+    * same array each time this conversion is done, to avoid using more memory
+    * than necessary.
+    * @param  {!(Array|string)} events
+    * @return {!Array}
+    * @protected
+    */
+
+		}, {
+			key: 'toEventsArray_',
+			value: function toEventsArray_(events) {
+				if (isString(events)) {
+					singleArray_[0] = events;
+					events = singleArray_;
+				}
+				return events;
 			}
 
 			/**
@@ -2943,13 +3071,16 @@ babelHelpers;
 		return EventEmitter;
 	}(Disposable);
 
+	function toArray(val) {
+		val = val || [];
+		return Array.isArray(val) ? val : [val];
+	}
+
 	this['senna']['EventEmitter'] = EventEmitter;
 }).call(this);
 'use strict';
 
 (function () {
-	var array = this['sennaNamed']['metal']['array'];
-	var object = this['sennaNamed']['metal']['object'];
 	var Disposable = this['sennaNamed']['metal']['Disposable'];
 
 	/**
@@ -2980,9 +3111,7 @@ babelHelpers;
     */
 			var _this = babelHelpers.possibleConstructorReturn(this, (EventEmitterProxy.__proto__ || Object.getPrototypeOf(EventEmitterProxy)).call(this));
 
-			_this.blacklist_ = object.mixin({
-				newListener: true
-			}, opt_blacklist);
+			_this.blacklist_ = opt_blacklist;
 
 			/**
     * The origin emitter. This emitter's events will be proxied through the
@@ -2996,17 +3125,17 @@ babelHelpers;
     * A list of events that are pending to be listened by an actual origin
     * emitter. Events are stored here when the origin doesn't exist, so they
     * can be set on a new origin when one is set.
-    * @type {!Array}
+    * @type {Array}
     * @protected
     */
-			_this.pendingEvents_ = [];
+			_this.pendingEvents_ = null;
 
 			/**
     * Holds a map of events from the origin emitter that are already being proxied.
     * @type {Object<string, !EventHandle>}
     * @protected
     */
-			_this.proxiedEvents_ = {};
+			_this.proxiedEvents_ = null;
 
 			/**
     * The target emitter. This emitter will emit all events that come from
@@ -3043,19 +3172,6 @@ babelHelpers;
 			}
 
 			/**
-    * Adds the proxy listener for the given event.
-    * @param {string} event
-    * @return {!EventHandle} The listened event's handle.
-    * @protected
-    */
-
-		}, {
-			key: 'addListenerForEvent_',
-			value: function addListenerForEvent_(event) {
-				return this.addListener_(event, this.emitOnTarget_.bind(this, event));
-			}
-
-			/**
     * @inheritDoc
     */
 
@@ -3070,15 +3186,13 @@ babelHelpers;
 
 			/**
     * Emits the specified event type on the target emitter.
-    * @param {string} eventType
     * @protected
     */
 
 		}, {
 			key: 'emitOnTarget_',
-			value: function emitOnTarget_(eventType) {
-				var args = [eventType].concat(array.slice(arguments, 1));
-				this.targetEmitter_.emit.apply(this.targetEmitter_, args);
+			value: function emitOnTarget_() {
+				this.targetEmitter_.emit.apply(this.targetEmitter_, arguments);
 			}
 
 			/**
@@ -3102,12 +3216,14 @@ babelHelpers;
 		}, {
 			key: 'removeListeners_',
 			value: function removeListeners_() {
-				var events = Object.keys(this.proxiedEvents_);
-				for (var i = 0; i < events.length; i++) {
-					this.proxiedEvents_[events[i]].removeListener();
+				if (this.proxiedEvents_) {
+					var events = Object.keys(this.proxiedEvents_);
+					for (var i = 0; i < events.length; i++) {
+						this.proxiedEvents_[events[i]].removeListener();
+					}
+					this.proxiedEvents_ = null;
 				}
-				this.proxiedEvents_ = {};
-				this.pendingEvents_ = [];
+				this.pendingEvents_ = null;
 			}
 
 			/**
@@ -3122,12 +3238,14 @@ babelHelpers;
 			value: function setOriginEmitter(originEmitter) {
 				var _this2 = this;
 
-				var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
-				this.removeListeners_();
+				var events = this.originEmitter_ && this.proxiedEvents_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
 				this.originEmitter_ = originEmitter;
-				events.forEach(function (event) {
-					return _this2.proxyEvent(event);
-				});
+				if (events) {
+					this.removeListeners_();
+					events.forEach(function (event) {
+						return _this2.proxyEvent(event);
+					});
+				}
 			}
 
 			/**
@@ -3143,10 +3261,10 @@ babelHelpers;
 				if (this.whitelist_ && !this.whitelist_[event]) {
 					return false;
 				}
-				if (this.blacklist_[event]) {
+				if (this.blacklist_ && this.blacklist_[event]) {
 					return false;
 				}
-				return !this.proxiedEvents_[event];
+				return !this.proxiedEvents_ || !this.proxiedEvents_[event];
 			}
 
 			/**
@@ -3157,7 +3275,7 @@ babelHelpers;
 		}, {
 			key: 'startProxy_',
 			value: function startProxy_() {
-				this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
+				this.targetEmitter_.onListener(this.proxyEvent.bind(this));
 			}
 
 			/**
@@ -3171,8 +3289,10 @@ babelHelpers;
 			key: 'tryToAddListener_',
 			value: function tryToAddListener_(event) {
 				if (this.originEmitter_) {
-					this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+					this.proxiedEvents_ = this.proxiedEvents_ || {};
+					this.proxiedEvents_[event] = this.addListener_(event, this.emitOnTarget_.bind(this, event));
 				} else {
+					this.pendingEvents_ = this.pendingEvents_ || [];
 					this.pendingEvents_.push(event);
 				}
 			}
@@ -3314,9 +3434,10 @@ babelHelpers;
 		babelHelpers.createClass(DomDelegatedEventHandle, [{
 			key: 'removeListener',
 			value: function removeListener() {
-				var data = domData.get(this.emitter_);
+				var delegating = domData.get(this.emitter_, 'delegating', {});
+				var listeners = domData.get(this.emitter_, 'listeners', {});
 				var selector = this.selector_;
-				var arr = isString(selector) ? data.delegating[this.event_].selectors : data.listeners;
+				var arr = isString(selector) ? delegating[this.event_].selectors : listeners;
 				var key = isString(selector) ? selector : this.event_;
 
 				array.remove(arr[key] || [], this.listener_);
@@ -3393,11 +3514,12 @@ babelHelpers;
 
 
 	var elementsByTag_ = {};
+	var supportCache_ = {};
 	var customEvents = {};
 
 	this['sennaNamed']['domNamed'] = this['sennaNamed']['domNamed'] || {};
 	this['sennaNamed']['domNamed']['customEvents'] = customEvents;
-	var NEXT_TARGET = '__metal_next_target__';
+	var LAST_CONTAINER = '__metal_last_container__';
 	var USE_CAPTURE = {
 		blur: true,
 		error: true,
@@ -3478,8 +3600,7 @@ babelHelpers;
   * @private
   */
 	function addElementListener_(element, eventName, listener) {
-		var data = domData.get(element);
-		addToArr_(data.listeners, eventName, listener);
+		addToArr_(domData.get(element, 'listeners', {}), eventName, listener);
 	}
 
 	/**
@@ -3492,8 +3613,8 @@ babelHelpers;
   * @private
   */
 	function addSelectorListener_(element, eventName, selector, listener) {
-		var data = domData.get(element);
-		addToArr_(data.delegating[eventName].selectors, selector, listener);
+		var delegatingData = domData.get(element, 'delegating', {});
+		addToArr_(delegatingData[eventName].selectors, selector, listener);
 	}
 
 	/**
@@ -3518,9 +3639,9 @@ babelHelpers;
   * @private
   */
 	function attachDelegateEvent_(element, eventName) {
-		var data = domData.get(element);
-		if (!data.delegating[eventName]) {
-			data.delegating[eventName] = {
+		var delegatingData = domData.get(element, 'delegating', {});
+		if (!delegatingData[eventName]) {
+			delegatingData[eventName] = {
 				handle: on(element, eventName, handleDelegateEvent_, !!USE_CAPTURE[eventName]),
 				selectors: {}
 			};
@@ -3693,17 +3814,15 @@ babelHelpers;
 
 	function handleDelegateEvent_(event) {
 		normalizeDelegateEvent_(event);
-		var currElement = isDef(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
 		var ret = true;
 		var container = event.currentTarget;
-		var limit = event.currentTarget.parentNode;
 		var defFns = [];
 
-		ret &= triggerDelegatedListeners_(container, currElement, event, limit, defFns);
+		ret &= triggerDelegatedListeners_(container, event, defFns);
 		ret &= triggerDefaultDelegatedListeners_(defFns, event);
 
 		event.delegateTarget = null;
-		event[NEXT_TARGET] = limit;
+		event[LAST_CONTAINER] = container;
 		return ret;
 	}
 
@@ -4008,7 +4127,13 @@ babelHelpers;
 			}
 			element = elementsByTag_[element];
 		}
-		return 'on' + eventName in element;
+
+		var tag = element.tagName;
+		if (!supportCache_[tag] || !supportCache_[tag].hasOwnProperty(eventName)) {
+			supportCache_[tag] = supportCache_[tag] || {};
+			supportCache_[tag][eventName] = 'on' + eventName in element;
+		}
+		return supportCache_[tag][eventName];
 	}
 
 	this['sennaNamed']['domNamed']['supportsEvent'] = supportsEvent; /**
@@ -4035,22 +4160,23 @@ babelHelpers;
   * This triggers all matched delegated listeners of a given event type when its
   * delegated target is able to interact.
   * @param {!Element} container
-  * @param {!Element} currElement
   * @param {!Event} event
-  * @param {!Element} limit the fartest parent of the given element
   * @param {!Array} defaultFns Array to collect default listeners in, instead
   *     of running them.
   * @return {boolean} False if at least one of the triggered callbacks returns
   *     false, or true otherwise.
   * @private
   */
-	function triggerDelegatedListeners_(container, currElement, event, limit, defaultFns) {
+	function triggerDelegatedListeners_(container, event, defaultFns) {
 		var ret = true;
+		var currElement = event.target;
+		var limit = container.parentNode;
 
 		while (currElement && currElement !== limit && !event.stopped) {
 			if (isAbleToInteractWith_(currElement, event.type, event)) {
 				event.delegateTarget = currElement;
-				ret &= triggerMatchedListeners_(container, currElement, event, defaultFns);
+				ret &= triggerElementListeners_(currElement, event, defaultFns);
+				ret &= triggerSelectorListeners_(container, currElement, event, defaultFns);
 			}
 			currElement = currElement.parentNode;
 		}
@@ -4141,6 +4267,26 @@ babelHelpers;
 	}
 
 	/**
+  * Triggers all listeners for the given event type that are stored in the
+  * specified element.
+  * @param {!Element} element
+  * @param {!Event} event
+  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  *     of running them.
+  * @return {boolean} False if at least one of the triggered callbacks returns
+  *     false, or true otherwise.
+  * @private
+  */
+	function triggerElementListeners_(element, event, defaultFns) {
+		var lastContainer = event[LAST_CONTAINER];
+		if (!isDef(lastContainer) || !contains(lastContainer, element)) {
+			var listeners = domData.get(element, 'listeners', {})[event.type];
+			return triggerListeners_(listeners, event, element, defaultFns);
+		}
+		return true;
+	}
+
+	/**
   * Triggers the specified event on the given element.
   * NOTE: This should mostly be used for testing, not on real code.
   * @param {!Element} element The node that should trigger the event.
@@ -4186,8 +4332,7 @@ babelHelpers;
 	}
 
 	/**
-  * Triggers all listeners for the given event type that are stored in the
-  * specified element.
+  * Triggers all selector listeners for the given event.
   * @param {!Element} container
   * @param {!Element} element
   * @param {!Event} event
@@ -4197,20 +4342,17 @@ babelHelpers;
   *     false, or true otherwise.
   * @private
   */
-	function triggerMatchedListeners_(container, element, event, defaultFns) {
-		var data = domData.get(element);
-		var listeners = data.listeners[event.type];
-		var ret = triggerListeners_(listeners, event, element, defaultFns);
-
-		var selectorsMap = domData.get(container).delegating[event.type].selectors;
-		var selectors = Object.keys(selectorsMap);
+	function triggerSelectorListeners_(container, element, event, defaultFns) {
+		var ret = true;
+		var data = domData.get(container, 'delegating', {});
+		var map = data[event.type].selectors;
+		var selectors = Object.keys(map);
 		for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
 			if (match(element, selectors[i])) {
-				listeners = selectorsMap[selectors[i]];
+				var listeners = map[selectors[i]];
 				ret &= triggerListeners_(listeners, event, element, defaultFns);
 			}
 		}
-
 		return ret;
 	}
 }).call(this);
@@ -8459,6 +8601,7 @@ babelHelpers;
 				if (!this.isValidResponseStatusCode(status)) {
 					var error = new Error(errors.INVALID_STATUS);
 					error.invalidStatus = true;
+					error.statusCode = status;
 					throw error;
 				}
 			}

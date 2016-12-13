@@ -66,9 +66,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     * @type {Object}
     * @protected
     */
-			_this.blacklist_ = _metal.object.mixin({
-				newListener: true
-			}, opt_blacklist);
+			_this.blacklist_ = opt_blacklist;
 
 			/**
     * The origin emitter. This emitter's events will be proxied through the
@@ -82,17 +80,17 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     * A list of events that are pending to be listened by an actual origin
     * emitter. Events are stored here when the origin doesn't exist, so they
     * can be set on a new origin when one is set.
-    * @type {!Array}
+    * @type {Array}
     * @protected
     */
-			_this.pendingEvents_ = [];
+			_this.pendingEvents_ = null;
 
 			/**
     * Holds a map of events from the origin emitter that are already being proxied.
     * @type {Object<string, !EventHandle>}
     * @protected
     */
-			_this.proxiedEvents_ = {};
+			_this.proxiedEvents_ = null;
 
 			/**
     * The target emitter. This emitter will emit all events that come from
@@ -128,11 +126,6 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 				return this.originEmitter_.on(event, listener);
 			}
 		}, {
-			key: 'addListenerForEvent_',
-			value: function addListenerForEvent_(event) {
-				return this.addListener_(event, this.emitOnTarget_.bind(this, event));
-			}
-		}, {
 			key: 'disposeInternal',
 			value: function disposeInternal() {
 				this.removeListeners_();
@@ -142,9 +135,8 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 			}
 		}, {
 			key: 'emitOnTarget_',
-			value: function emitOnTarget_(eventType) {
-				var args = [eventType].concat(_metal.array.slice(arguments, 1));
-				this.targetEmitter_.emit.apply(this.targetEmitter_, args);
+			value: function emitOnTarget_() {
+				this.targetEmitter_.emit.apply(this.targetEmitter_, arguments);
 			}
 		}, {
 			key: 'proxyEvent',
@@ -156,24 +148,28 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}, {
 			key: 'removeListeners_',
 			value: function removeListeners_() {
-				var events = Object.keys(this.proxiedEvents_);
-				for (var i = 0; i < events.length; i++) {
-					this.proxiedEvents_[events[i]].removeListener();
+				if (this.proxiedEvents_) {
+					var events = Object.keys(this.proxiedEvents_);
+					for (var i = 0; i < events.length; i++) {
+						this.proxiedEvents_[events[i]].removeListener();
+					}
+					this.proxiedEvents_ = null;
 				}
-				this.proxiedEvents_ = {};
-				this.pendingEvents_ = [];
+				this.pendingEvents_ = null;
 			}
 		}, {
 			key: 'setOriginEmitter',
 			value: function setOriginEmitter(originEmitter) {
 				var _this2 = this;
 
-				var events = this.originEmitter_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
-				this.removeListeners_();
+				var events = this.originEmitter_ && this.proxiedEvents_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
 				this.originEmitter_ = originEmitter;
-				events.forEach(function (event) {
-					return _this2.proxyEvent(event);
-				});
+				if (events) {
+					this.removeListeners_();
+					events.forEach(function (event) {
+						return _this2.proxyEvent(event);
+					});
+				}
 			}
 		}, {
 			key: 'shouldProxyEvent_',
@@ -181,22 +177,24 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 				if (this.whitelist_ && !this.whitelist_[event]) {
 					return false;
 				}
-				if (this.blacklist_[event]) {
+				if (this.blacklist_ && this.blacklist_[event]) {
 					return false;
 				}
-				return !this.proxiedEvents_[event];
+				return !this.proxiedEvents_ || !this.proxiedEvents_[event];
 			}
 		}, {
 			key: 'startProxy_',
 			value: function startProxy_() {
-				this.targetEmitter_.on('newListener', this.proxyEvent.bind(this));
+				this.targetEmitter_.onListener(this.proxyEvent.bind(this));
 			}
 		}, {
 			key: 'tryToAddListener_',
 			value: function tryToAddListener_(event) {
 				if (this.originEmitter_) {
-					this.proxiedEvents_[event] = this.addListenerForEvent_(event);
+					this.proxiedEvents_ = this.proxiedEvents_ || {};
+					this.proxiedEvents_[event] = this.addListener_(event, this.emitOnTarget_.bind(this, event));
 				} else {
+					this.pendingEvents_ = this.pendingEvents_ || [];
 					this.pendingEvents_.push(event);
 				}
 			}

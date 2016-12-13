@@ -13,6 +13,12 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		};
 	}
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+		return typeof obj;
+	} : function (obj) {
+		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+	};
+
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -61,6 +67,14 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
 	}
 
+	var singleArray_ = [0];
+
+	/**
+  * EventEmitter utility.
+  * @constructor
+  * @extends {Disposable}
+  */
+
 	var EventEmitter = function (_Disposable) {
 		_inherits(EventEmitter, _Disposable);
 
@@ -71,18 +85,16 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 			/**
     * Holds event listeners scoped by event type.
-    * @type {!Object<string, !Array<!function()>>}
+    * @type {Object<string, !Array<!function()>>}
     * @protected
     */
-			_this.events_ = [];
+			_this.events_ = null;
 
 			/**
-    * The maximum number of listeners allowed for each event type. If the number
-    * becomes higher than the max, a warning will be issued.
-    * @type {number}
-    * @protected
+    * Handlers that are triggered when an event is listened to.
+    * @type {Array}
     */
-			_this.maxListeners_ = 10;
+			_this.listenerHandlers_ = null;
 
 			/**
     * Configuration option which determines if an event facade should be sent
@@ -96,90 +108,99 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}
 
 		/**
-   * Adds a listener to the end of the listeners array for the specified events.
-   * @param {!(Array|string)} events
-   * @param {!Function} listener
-   * @param {boolean} opt_default Flag indicating if this listener is a default
-   *   action for this event. Default actions are run last, and only if no previous
-   *   listener call `preventDefault()` on the received event facade.
-   * @return {!EventHandle} Can be used to remove the listener.
+   * Adds a handler to given holder variable. If the holder doesn't have a
+   * value yet, it will receive the handler directly. If the holder is an array,
+   * the value will just be added to it. Otherwise, the holder will be set to a
+   * new array containing its previous value plus the new handler.
+   * @param {*} holder
+   * @param {!function()|Object} handler
+   * @return {*} The holder's new value.
+   * @protected
    */
 
 
 		_createClass(EventEmitter, [{
+			key: 'addHandler_',
+			value: function addHandler_(holder, handler) {
+				if (!holder) {
+					holder = handler;
+				} else {
+					if (!Array.isArray(holder)) {
+						holder = [holder];
+					}
+					holder.push(handler);
+				}
+				return holder;
+			}
+		}, {
 			key: 'addListener',
-			value: function addListener(events, listener, opt_default) {
+			value: function addListener(event, listener, opt_default) {
 				this.validateListener_(listener);
 
-				events = this.normalizeEvents_(events);
+				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
 					this.addSingleListener_(events[i], listener, opt_default);
 				}
 
-				return new _EventHandle2.default(this, events, listener);
+				return new _EventHandle2.default(this, event, listener);
 			}
 		}, {
 			key: 'addSingleListener_',
 			value: function addSingleListener_(event, listener, opt_default, opt_origin) {
-				this.emit('newListener', event, listener);
-
-				if (!this.events_[event]) {
-					this.events_[event] = [];
+				this.runListenerHandlers_(event);
+				if (opt_default || opt_origin) {
+					listener = {
+						default: opt_default,
+						fn: listener,
+						origin: opt_origin
+					};
 				}
-				this.events_[event].push({
-					default: opt_default,
-					fn: listener,
-					origin: opt_origin
-				});
+				this.events_ = this.events_ || {};
+				this.events_[event] = this.addHandler_(this.events_[event], listener);
+			}
+		}, {
+			key: 'buildFacade_',
+			value: function buildFacade_(event) {
+				var _this2 = this;
 
-				var listeners = this.events_[event];
-				if (listeners.length > this.maxListeners_ && !listeners.warned) {
-					console.warn('Possible EventEmitter memory leak detected. %d listeners added ' + 'for event %s. Use emitter.setMaxListeners() to increase limit.', listeners.length, event);
-					listeners.warned = true;
+				if (this.getShouldUseFacade()) {
+					var _ret = function () {
+						var facade = {
+							preventDefault: function preventDefault() {
+								facade.preventedDefault = true;
+							},
+							target: _this2,
+							type: event
+						};
+						return {
+							v: facade
+						};
+					}();
+
+					if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
 				}
 			}
 		}, {
 			key: 'disposeInternal',
 			value: function disposeInternal() {
-				this.events_ = [];
+				this.events_ = null;
 			}
 		}, {
 			key: 'emit',
 			value: function emit(event) {
+				var listeners = toArray(this.getRawListeners_(event)).concat();
+				if (listeners.length === 0) {
+					return false;
+				}
+
 				var args = _metal.array.slice(arguments, 1);
-				var listeners = (this.events_[event] || []).concat();
-
-				var facade;
-				if (this.getShouldUseFacade()) {
-					facade = {
-						preventDefault: function preventDefault() {
-							facade.preventedDefault = true;
-						},
-						target: this,
-						type: event
-					};
-					args.push(facade);
-				}
-
-				var defaultListeners = [];
-				for (var i = 0; i < listeners.length; i++) {
-					if (listeners[i].default) {
-						defaultListeners.push(listeners[i]);
-					} else {
-						listeners[i].fn.apply(this, args);
-					}
-				}
-				if (!facade || !facade.preventedDefault) {
-					for (var j = 0; j < defaultListeners.length; j++) {
-						defaultListeners[j].fn.apply(this, args);
-					}
-				}
-
-				if (event !== '*') {
-					this.emit.apply(this, ['*', event].concat(args));
-				}
-
-				return listeners.length > 0;
+				this.runListeners_(listeners, args, this.buildFacade_(event));
+				return true;
+			}
+		}, {
+			key: 'getRawListeners_',
+			value: function getRawListeners_(event) {
+				return this.events_ && this.events_[event];
 			}
 		}, {
 			key: 'getShouldUseFacade',
@@ -189,19 +210,19 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'listeners',
 			value: function listeners(event) {
-				return (this.events_[event] || []).map(function (listener) {
-					return listener.fn;
+				return toArray(this.getRawListeners_(event)).map(function (listener) {
+					return listener.fn ? listener.fn : listener;
 				});
 			}
 		}, {
 			key: 'many',
-			value: function many(events, amount, listener) {
-				events = this.normalizeEvents_(events);
+			value: function many(event, amount, listener) {
+				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
 					this.many_(events[i], amount, listener);
 				}
 
-				return new _EventHandle2.default(this, events, listener);
+				return new _EventHandle2.default(this, event, listener);
 			}
 		}, {
 			key: 'many_',
@@ -224,22 +245,20 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'matchesListener_',
 			value: function matchesListener_(listenerObj, listener) {
-				return listenerObj.fn === listener || listenerObj.origin && listenerObj.origin === listener;
-			}
-		}, {
-			key: 'normalizeEvents_',
-			value: function normalizeEvents_(events) {
-				return (0, _metal.isString)(events) ? [events] : events;
+				var fn = listenerObj.fn || listenerObj;
+				return fn === listener || listenerObj.origin && listenerObj.origin === listener;
 			}
 		}, {
 			key: 'off',
-			value: function off(events, listener) {
+			value: function off(event, listener) {
 				this.validateListener_(listener);
+				if (!this.events_) {
+					return this;
+				}
 
-				events = this.normalizeEvents_(events);
+				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
-					var listenerObjs = this.events_[events[i]] || [];
-					this.removeMatchingListenerObjs_(listenerObjs, listener);
+					this.events_[events[i]] = this.removeMatchingListenerObjs_(toArray(this.events_[events[i]]), listener);
 				}
 
 				return this;
@@ -250,6 +269,11 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 				return this.addListener.apply(this, arguments);
 			}
 		}, {
+			key: 'onListener',
+			value: function onListener(handler) {
+				this.listenerHandlers_ = this.addHandler_(this.listenerHandlers_, handler);
+			}
+		}, {
 			key: 'once',
 			value: function once(events, listener) {
 				return this.many(events, 1, listener);
@@ -257,24 +281,28 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'removeAllListeners',
 			value: function removeAllListeners(opt_events) {
-				if (opt_events) {
-					var events = this.normalizeEvents_(opt_events);
-					for (var i = 0; i < events.length; i++) {
-						this.events_[events[i]] = null;
+				if (this.events_) {
+					if (opt_events) {
+						var events = this.toEventsArray_(opt_events);
+						for (var i = 0; i < events.length; i++) {
+							this.events_[events[i]] = null;
+						}
+					} else {
+						this.events_ = null;
 					}
-				} else {
-					this.events_ = {};
 				}
 				return this;
 			}
 		}, {
 			key: 'removeMatchingListenerObjs_',
 			value: function removeMatchingListenerObjs_(listenerObjs, listener) {
-				for (var i = listenerObjs.length - 1; i >= 0; i--) {
-					if (this.matchesListener_(listenerObjs[i], listener)) {
-						listenerObjs.splice(i, 1);
+				var finalListeners = [];
+				for (var i = 0; i < listenerObjs.length; i++) {
+					if (!this.matchesListener_(listenerObjs[i], listener)) {
+						finalListeners.push(listenerObjs[i]);
 					}
 				}
+				return finalListeners.length > 0 ? finalListeners : null;
 			}
 		}, {
 			key: 'removeListener',
@@ -282,16 +310,52 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 				return this.off.apply(this, arguments);
 			}
 		}, {
-			key: 'setMaxListeners',
-			value: function setMaxListeners(max) {
-				this.maxListeners_ = max;
-				return this;
+			key: 'runListenerHandlers_',
+			value: function runListenerHandlers_(event) {
+				var handlers = this.listenerHandlers_;
+				if (handlers) {
+					handlers = toArray(handlers);
+					for (var i = 0; i < handlers.length; i++) {
+						handlers[i](event);
+					}
+				}
+			}
+		}, {
+			key: 'runListeners_',
+			value: function runListeners_(listeners, args, facade) {
+				if (facade) {
+					args.push(facade);
+				}
+
+				var defaultListeners = [];
+				for (var i = 0; i < listeners.length; i++) {
+					var listener = listeners[i].fn || listeners[i];
+					if (listeners[i].default) {
+						defaultListeners.push(listener);
+					} else {
+						listener.apply(this, args);
+					}
+				}
+				if (!facade || !facade.preventedDefault) {
+					for (var j = 0; j < defaultListeners.length; j++) {
+						defaultListeners[j].apply(this, args);
+					}
+				}
 			}
 		}, {
 			key: 'setShouldUseFacade',
 			value: function setShouldUseFacade(shouldUseFacade) {
 				this.shouldUseFacade_ = shouldUseFacade;
 				return this;
+			}
+		}, {
+			key: 'toEventsArray_',
+			value: function toEventsArray_(events) {
+				if ((0, _metal.isString)(events)) {
+					singleArray_[0] = events;
+					events = singleArray_;
+				}
+				return events;
 			}
 		}, {
 			key: 'validateListener_',
@@ -304,6 +368,11 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 		return EventEmitter;
 	}(_metal.Disposable);
+
+	function toArray(val) {
+		val = val || [];
+		return Array.isArray(val) ? val : [val];
+	}
 
 	exports.default = EventEmitter;
 });

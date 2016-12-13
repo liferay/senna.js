@@ -148,6 +148,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				if (!this.isValidResponseStatusCode(status)) {
 					var error = new Error(_errors2.default.INVALID_STATUS);
 					error.invalidStatus = true;
+					error.statusCode = status;
 					throw error;
 				}
 			}

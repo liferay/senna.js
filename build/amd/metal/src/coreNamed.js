@@ -10,11 +10,11 @@ define(['exports'], function (exports) {
     value: true
   });
   exports.abstractMethod = abstractMethod;
-  exports.collectSuperClassesProperty = collectSuperClassesProperty;
   exports.disableCompatibilityMode = disableCompatibilityMode;
   exports.enableCompatibilityMode = enableCompatibilityMode;
   exports.getCompatibilityModeData = getCompatibilityModeData;
   exports.getFunctionName = getFunctionName;
+  exports.getStaticProperty = getStaticProperty;
   exports.getUid = getUid;
   exports.identityFunction = identityFunction;
   exports.isBoolean = isBoolean;
@@ -29,7 +29,6 @@ define(['exports'], function (exports) {
   exports.isObject = isObject;
   exports.isPromise = isPromise;
   exports.isString = isString;
-  exports.mergeSuperClassesProperty = mergeSuperClassesProperty;
   exports.nullFunction = nullFunction;
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -69,28 +68,10 @@ define(['exports'], function (exports) {
   }
 
   /**
-   * Loops constructor super classes collecting its properties values. If
-   * property is not available on the super class `undefined` will be
-   * collected as value for the class hierarchy position.
-   * @param {!function()} constructor Class constructor.
-   * @param {string} propertyName Property name to be collected.
-   * @return {Array.<*>} Array of collected values.
-   * TODO(*): Rethink superclass loop.
-   */
-  function collectSuperClassesProperty(constructor, propertyName) {
-    var propertyValues = [constructor[propertyName]];
-    while (constructor.__proto__ && !constructor.__proto__.isPrototypeOf(Function)) {
-      constructor = constructor.__proto__;
-      propertyValues.push(constructor[propertyName]);
-    }
-    return propertyValues;
-  }
-
-  /**
    * Disables Metal.js's compatibility mode.
    */
   function disableCompatibilityMode() {
-    compatibilityModeData_ = null;
+    compatibilityModeData_ = undefined;
   }
 
   /**
@@ -122,12 +103,23 @@ define(['exports'], function (exports) {
    */
   function getCompatibilityModeData() {
     // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
-    if (!compatibilityModeData_) {
+    if (compatibilityModeData_ === undefined) {
       if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
         enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
       }
     }
     return compatibilityModeData_;
+  }
+
+  /**
+   * Returns the first argument if it's truthy, or the second otherwise.
+   * @param {*} a
+   * @param {*} b
+   * @return {*}
+   * @protected
+   */
+  function getFirstTruthy_(a, b) {
+    return a || b;
   }
 
   /**
@@ -143,6 +135,33 @@ define(['exports'], function (exports) {
       fn.name = str.substring(9, str.indexOf('('));
     }
     return fn.name;
+  }
+
+  /**
+   * Gets the value of a static property in the given class. The value will be
+   * inherited from ancestors as expected, unless a custom merge function is given,
+   * which can change how the super classes' value for that property will be merged
+   * together.
+   * The final merged value will be stored in another property, so that it won't
+   * be recalculated even if this function is called multiple times.
+   * @param {!function()} ctor Class constructor.
+   * @param {string} propertyName Property name to be merged.
+   * @param {function(*, *):*=} opt_mergeFn Function that receives the merged
+   *     value of the property so far and the next value to be merged to it.
+   *     Should return these two merged together. If not passed the final property
+   *     will be the first truthy value among ancestors.
+   */
+  function getStaticProperty(ctor, propertyName, opt_mergeFn) {
+    var mergedName = propertyName + '_MERGED';
+    if (!ctor.hasOwnProperty(mergedName)) {
+      var merged = ctor.hasOwnProperty(propertyName) ? ctor[propertyName] : null;
+      if (ctor.__proto__ && !ctor.__proto__.isPrototypeOf(Function)) {
+        var mergeFn = opt_mergeFn || getFirstTruthy_;
+        merged = mergeFn(merged, getStaticProperty(ctor.__proto__, propertyName, mergeFn));
+      }
+      ctor[mergedName] = merged;
+    }
+    return ctor[mergedName];
   }
 
   /**
@@ -284,32 +303,6 @@ define(['exports'], function (exports) {
    */
   function isString(val) {
     return typeof val === 'string' || val instanceof String;
-  }
-
-  /**
-   * Merges the values of a export function property a class with the values of that
-   * property for all its super classes, and stores it as a new static
-   * property of that class. If the export function property already existed, it won't
-   * be recalculated.
-   * @param {!function()} constructor Class constructor.
-   * @param {string} propertyName Property name to be collected.
-   * @param {function(*, *):*=} opt_mergeFn Function that receives an array filled
-   *   with the values of the property for the current class and all its super classes.
-   *   Should return the merged value to be stored on the current class.
-   * @return {boolean} Returns true if merge happens, false otherwise.
-   */
-  function mergeSuperClassesProperty(constructor, propertyName, opt_mergeFn) {
-    var mergedName = propertyName + '_MERGED';
-    if (constructor.hasOwnProperty(mergedName)) {
-      return false;
-    }
-
-    var merged = collectSuperClassesProperty(constructor, propertyName);
-    if (opt_mergeFn) {
-      merged = opt_mergeFn(merged);
-    }
-    constructor[mergedName] = merged;
-    return true;
   }
 
   /**

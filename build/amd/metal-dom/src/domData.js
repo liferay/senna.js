@@ -38,14 +38,22 @@ define(['exports'], function (exports) {
 
 		_createClass(domData, null, [{
 			key: 'get',
-			value: function get(element) {
+			value: function get(element, opt_name, opt_initialVal) {
 				if (!element[METAL_DATA]) {
-					element[METAL_DATA] = {
-						delegating: {},
-						listeners: {}
-					};
+					element[METAL_DATA] = {};
 				}
-				return element[METAL_DATA];
+				if (!opt_name) {
+					return element[METAL_DATA];
+				}
+				if (!element[METAL_DATA][opt_name] && opt_initialVal) {
+					element[METAL_DATA][opt_name] = opt_initialVal;
+				}
+				return element[METAL_DATA][opt_name];
+			}
+		}, {
+			key: 'has',
+			value: function has(element) {
+				return !!element[METAL_DATA];
 			}
 		}]);
 

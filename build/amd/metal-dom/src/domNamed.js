@@ -42,9 +42,10 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	var elementsByTag_ = {};
+	var supportCache_ = {};
 	var customEvents = exports.customEvents = {};
 
-	var NEXT_TARGET = '__metal_next_target__';
+	var LAST_CONTAINER = '__metal_last_container__';
 	var USE_CAPTURE = {
 		blur: true,
 		error: true,
@@ -124,8 +125,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function addElementListener_(element, eventName, listener) {
-		var data = _domData2.default.get(element);
-		addToArr_(data.listeners, eventName, listener);
+		addToArr_(_domData2.default.get(element, 'listeners', {}), eventName, listener);
 	}
 
 	/**
@@ -138,8 +138,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function addSelectorListener_(element, eventName, selector, listener) {
-		var data = _domData2.default.get(element);
-		addToArr_(data.delegating[eventName].selectors, selector, listener);
+		var delegatingData = _domData2.default.get(element, 'delegating', {});
+		addToArr_(delegatingData[eventName].selectors, selector, listener);
 	}
 
 	/**
@@ -164,9 +164,9 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function attachDelegateEvent_(element, eventName) {
-		var data = _domData2.default.get(element);
-		if (!data.delegating[eventName]) {
-			data.delegating[eventName] = {
+		var delegatingData = _domData2.default.get(element, 'delegating', {});
+		if (!delegatingData[eventName]) {
+			delegatingData[eventName] = {
 				handle: on(element, eventName, handleDelegateEvent_, !!USE_CAPTURE[eventName]),
 				selectors: {}
 			};
@@ -332,17 +332,15 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   */
 	function handleDelegateEvent_(event) {
 		normalizeDelegateEvent_(event);
-		var currElement = (0, _metal.isDef)(event[NEXT_TARGET]) ? event[NEXT_TARGET] : event.target;
 		var ret = true;
 		var container = event.currentTarget;
-		var limit = event.currentTarget.parentNode;
 		var defFns = [];
 
-		ret &= triggerDelegatedListeners_(container, currElement, event, limit, defFns);
+		ret &= triggerDelegatedListeners_(container, event, defFns);
 		ret &= triggerDefaultDelegatedListeners_(defFns, event);
 
 		event.delegateTarget = null;
-		event[NEXT_TARGET] = limit;
+		event[LAST_CONTAINER] = container;
 		return ret;
 	}
 
@@ -636,7 +634,13 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			}
 			element = elementsByTag_[element];
 		}
-		return 'on' + eventName in element;
+
+		var tag = element.tagName;
+		if (!supportCache_[tag] || !supportCache_[tag].hasOwnProperty(eventName)) {
+			supportCache_[tag] = supportCache_[tag] || {};
+			supportCache_[tag][eventName] = 'on' + eventName in element;
+		}
+		return supportCache_[tag][eventName];
 	}
 
 	/**
@@ -662,22 +666,23 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * This triggers all matched delegated listeners of a given event type when its
   * delegated target is able to interact.
   * @param {!Element} container
-  * @param {!Element} currElement
   * @param {!Event} event
-  * @param {!Element} limit the fartest parent of the given element
   * @param {!Array} defaultFns Array to collect default listeners in, instead
   *     of running them.
   * @return {boolean} False if at least one of the triggered callbacks returns
   *     false, or true otherwise.
   * @private
   */
-	function triggerDelegatedListeners_(container, currElement, event, limit, defaultFns) {
+	function triggerDelegatedListeners_(container, event, defaultFns) {
 		var ret = true;
+		var currElement = event.target;
+		var limit = container.parentNode;
 
 		while (currElement && currElement !== limit && !event.stopped) {
 			if (isAbleToInteractWith_(currElement, event.type, event)) {
 				event.delegateTarget = currElement;
-				ret &= triggerMatchedListeners_(container, currElement, event, defaultFns);
+				ret &= triggerElementListeners_(currElement, event, defaultFns);
+				ret &= triggerSelectorListeners_(container, currElement, event, defaultFns);
 			}
 			currElement = currElement.parentNode;
 		}
@@ -766,6 +771,26 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
+  * Triggers all listeners for the given event type that are stored in the
+  * specified element.
+  * @param {!Element} element
+  * @param {!Event} event
+  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  *     of running them.
+  * @return {boolean} False if at least one of the triggered callbacks returns
+  *     false, or true otherwise.
+  * @private
+  */
+	function triggerElementListeners_(element, event, defaultFns) {
+		var lastContainer = event[LAST_CONTAINER];
+		if (!(0, _metal.isDef)(lastContainer) || !contains(lastContainer, element)) {
+			var listeners = _domData2.default.get(element, 'listeners', {})[event.type];
+			return triggerListeners_(listeners, event, element, defaultFns);
+		}
+		return true;
+	}
+
+	/**
   * Triggers the specified event on the given element.
   * NOTE: This should mostly be used for testing, not on real code.
   * @param {!Element} element The node that should trigger the event.
@@ -810,8 +835,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Triggers all listeners for the given event type that are stored in the
-  * specified element.
+  * Triggers all selector listeners for the given event.
   * @param {!Element} container
   * @param {!Element} element
   * @param {!Event} event
@@ -821,20 +845,17 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   *     false, or true otherwise.
   * @private
   */
-	function triggerMatchedListeners_(container, element, event, defaultFns) {
-		var data = _domData2.default.get(element);
-		var listeners = data.listeners[event.type];
-		var ret = triggerListeners_(listeners, event, element, defaultFns);
-
-		var selectorsMap = _domData2.default.get(container).delegating[event.type].selectors;
-		var selectors = Object.keys(selectorsMap);
+	function triggerSelectorListeners_(container, element, event, defaultFns) {
+		var ret = true;
+		var data = _domData2.default.get(container, 'delegating', {});
+		var map = data[event.type].selectors;
+		var selectors = Object.keys(map);
 		for (var i = 0; i < selectors.length && !event.stoppedImmediate; i++) {
 			if (match(element, selectors[i])) {
-				listeners = selectorsMap[selectors[i]];
+				var listeners = map[selectors[i]];
 				ret &= triggerListeners_(listeners, event, element, defaultFns);
 			}
 		}
-
 		return ret;
 	}
 });

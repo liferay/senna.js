@@ -90,9 +90,10 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
 		_createClass(DomDelegatedEventHandle, [{
 			key: 'removeListener',
 			value: function removeListener() {
-				var data = _domData2.default.get(this.emitter_);
+				var delegating = _domData2.default.get(this.emitter_, 'delegating', {});
+				var listeners = _domData2.default.get(this.emitter_, 'listeners', {});
 				var selector = this.selector_;
-				var arr = (0, _metal.isString)(selector) ? data.delegating[this.event_].selectors : data.listeners;
+				var arr = (0, _metal.isString)(selector) ? delegating[this.event_].selectors : listeners;
 				var key = (0, _metal.isString)(selector) ? selector : this.event_;
 
 				_metal.array.remove(arr[key] || [], this.listener_);

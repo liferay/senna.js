@@ -155,12 +155,10 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
 				var search = this.url.search;
 				if (search) {
 					search.substring(1).split('&').forEach(function (param) {
-						var _param$split = param.split('=');
-
-						var _param$split2 = _slicedToArray(_param$split, 2);
-
-						var key = _param$split2[0];
-						var value = _param$split2[1];
+						var _param$split = param.split('='),
+						    _param$split2 = _slicedToArray(_param$split, 2),
+						    key = _param$split2[0],
+						    value = _param$split2[1];
 
 						if ((0, _metal.isDef)(value)) {
 							value = Uri.urlDecode(value);
