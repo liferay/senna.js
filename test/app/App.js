@@ -1201,7 +1201,8 @@ describe('App', function() {
 	it('should extract params for the given route and path', () => {
 		this.app = new App();
 		this.app.setBasePath('/path');
-		var route = new Route('/:foo(\\d+)/:bar', () => {});
+		var route = new Route('/:foo(\\d+)/:bar', () => {
+		});
 		var params = this.app.extractParams(route, '/path/123/abc');
 		var expectedParams = {
 			foo: '123',
