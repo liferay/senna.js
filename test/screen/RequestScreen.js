@@ -178,6 +178,27 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(404);
 	});
 
+	it('should return the correct http status code for "page not found"', (done) => {
+		new RequestScreen()
+			.load('/url')
+			.catch((error) => {
+				assert.strictEqual(error.statusCode, 404);
+				done();
+			});
+		this.requests[0].respond(404);
+	});
+
+	it('should return the correct http status code for "unauthorised"', (done) => {
+		new RequestScreen()
+			.load('/url')
+			.catch((error) => {
+				assert.strictEqual(error.statusCode, 401);
+				done();
+			});
+		this.requests[0].respond(401);
+	});
+
+
 	it('should fail for request errors response', (done) => {
 		new RequestScreen()
 			.load('/url')
