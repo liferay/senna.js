@@ -77,6 +77,14 @@ class App extends EventEmitter {
 		this.formSelector = 'form[enctype="multipart/form-data"]:not([data-senna-off])';
 
 		/**
+		 * When enabled, the route matching ignores query string from the path.
+		 * @type {boolean}
+		 * @default false
+		 * @protected
+		 */
+		this.ignoreQueryStringFromRoutePath = false;
+
+		/**
 		 * Holds the link selector to define links that are routed.
 		 * @type {!string}
 		 * @default a:not([data-senna-off])
@@ -488,6 +496,14 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Check if route matching is ignoring query string from the route path.
+	 * @return {boolean}
+	 */
+	getIgnoreQueryStringFromRoutePath() {
+		return this.ignoreQueryStringFromRoutePath;
+	}
+
+	/**
 	 * Gets the link selector.
 	 * @return {!string}
 	 */
@@ -504,15 +520,19 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Returns the given path formatted to be matched by a route. This will, for
-	 * example, remove the base path from it.
+	 * Returns the given path formatted to be matched by a route. This will,
+   * for example, remove the base path from it, but make sure it will end
+   * with a '/'.
 	 * @param {string} path
 	 * @return {string}
 	 */
 	getRoutePath(path) {
+		if (this.getIgnoreQueryStringFromRoutePath()) {
+			path = utils.getUrlPathWithoutHashAndSearch(path);
+			return utils.getUrlPathWithoutHashAndSearch(path.substr(this.basePath.length));
+		}
+
 		path = utils.getUrlPathWithoutHash(path);
-		// Makes sure that the path substring will be in the expected format
-		// (that is, will end with a "/"), even after removing the base path.
 		return utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
 	}
 
@@ -996,6 +1016,14 @@ class App extends EventEmitter {
 			this.formEventHandler_.removeListener();
 		}
 		this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+	}
+
+	/**
+	 * Sets if route matching should ignore query string from the route path.
+	 * @param {boolean} ignoreQueryStringFromRoutePath
+	 */
+	setIgnoreQueryStringFromRoutePath(ignoreQueryStringFromRoutePath) {
+		this.ignoreQueryStringFromRoutePath = ignoreQueryStringFromRoutePath;
 	}
 
 	/**

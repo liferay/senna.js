@@ -114,6 +114,19 @@ describe('App', function() {
 		globals.window = window;
 	});
 
+	it('should ignore query string on findRoute when ignoreQueryStringFromRoutePath is enabled', () => {
+		this.app = new App();
+		this.app.setIgnoreQueryStringFromRoutePath(true);
+		this.app.addRoutes(new Route('/path', Screen));
+		assert.ok(this.app.findRoute('/path?foo=1'));
+	});
+
+	it('should not ignore query string on findRoute when ignoreQueryStringFromRoutePath is disabled', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		assert.ok(!this.app.findRoute('/path?foo=1'));
+	});
+
 	it('should add surface', () => {
 		this.app = new App();
 		this.app.addSurfaces(new Surface('surfaceId'));
@@ -177,6 +190,47 @@ describe('App', function() {
 		this.app.activeScreen = screen;
 		var screenRefresh = this.app.createScreenInstance('/path', route);
 		assert.strictEqual(screen, screenRefresh);
+	});
+
+	it('should store screen for path with query string when ignoreQueryStringFromRoutePath is enabled', (done) => {
+		class NoCacheScreen extends Screen {
+			constructor() {
+				super();
+			}
+		}
+
+		this.app = new App();
+		this.app.setIgnoreQueryStringFromRoutePath(true);
+		this.app.addRoutes(new Route('/path', NoCacheScreen));
+
+		this.app.navigate('/path?foo=1').then(() => {
+			assert.ok(this.app.screens['/path?foo=1']);
+			done();
+		});
+	});
+
+	it('should create different screen instance when navigate to same path with different query strings if ignoreQueryStringFromRoutePath is enabled', (done) => {
+		class NoCacheScreen extends Screen {
+			constructor() {
+				super();
+			}
+		}
+
+		this.app = new App();
+		this.app.setIgnoreQueryStringFromRoutePath(true);
+
+		this.app.addRoutes(new Route('/path1', NoCacheScreen));
+		this.app.addRoutes(new Route('/path2', NoCacheScreen));
+
+		this.app.navigate('/path1?foo=1').then(() => {
+			var screenFirstNavigate = this.app.screens['/path1?foo=1'];
+			this.app.navigate('/path2').then(() => {
+				this.app.navigate('/path1?foo=2').then(() => {
+					assert.notStrictEqual(screenFirstNavigate, this.app.screens['/path1?foo=2']);
+					done();
+				});
+			});
+		});
 	});
 
 	it('should create different screen instance navigate when not cacheable', (done) => {

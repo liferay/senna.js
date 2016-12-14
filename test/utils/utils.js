@@ -58,6 +58,10 @@ describe('utils', function() {
 		assert.strictEqual('/path?a=1', utils.getUrlPathWithoutHash('http://hostname/path?a=1#hash'));
 	});
 
+	it('should get path from url excluding hashbang and search', () => {
+		assert.strictEqual('/path', utils.getUrlPathWithoutHashAndSearch('http://hostname/path?a=1#hash'));
+	});
+
 	it('should test if path is current browser path', () => {
 		assert.ok(utils.isCurrentBrowserPath('http://hostname/path?a=1'));
 		assert.ok(utils.isCurrentBrowserPath('http://hostname/path?a=1#hash'));
