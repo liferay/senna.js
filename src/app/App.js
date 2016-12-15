@@ -627,7 +627,7 @@ class App extends EventEmitter {
 
 		var navigateFailed = false;
 		try {
-			this.navigate(utils.getUrlPath(href));
+			this.navigate(utils.getUrlPath(href), false, event);
 		} catch (err) {
 			// Do not prevent link navigation in case some synchronous error occurs
 			navigateFailed = true;
@@ -665,9 +665,10 @@ class App extends EventEmitter {
 	 * Navigates to the specified path if there is a route handler that matches.
 	 * @param {!string} path Path to navigate containing the base path.
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
+	 * @param {Event=} event Optional event object that triggered the navigation.
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
-	navigate(path, opt_replaceHistory) {
+	navigate(path, opt_replaceHistory, opt_event) {
 		if (!utils.isHtml5HistorySupported()) {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 		}
@@ -679,6 +680,7 @@ class App extends EventEmitter {
 		}
 
 		this.emit('beforeNavigate', {
+			event: opt_event,
 			path: path,
 			replaceHistory: !!opt_replaceHistory
 		});

@@ -743,6 +743,32 @@ describe('App', function() {
 		exitDocumentLinkElement();
 	});
 
+	it('should pass original event object to "beforeNavigate" when a link is clicked', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		this.app.on('beforeNavigate', (data) => {
+      assert.ok(data.event);
+      assert.equal('click', data.event.type);
+		});
+    dom.triggerEvent(enterDocumentLinkElement('/path'), 'click');
+		exitDocumentLinkElement();
+
+    assert.notEqual('/path', window.location.pathname);
+	});
+
+	it('should prevent navigation on both senna and the browser via beforeNavigate', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/preventedPath', Screen));
+		this.app.on('beforeNavigate', (data, event) => {
+      data.event.preventDefault();
+      event.preventDefault();
+		});
+    dom.triggerEvent(enterDocumentLinkElement('/preventedPath'), 'click');
+		exitDocumentLinkElement();
+
+    assert.notEqual('/preventedPath', window.location.pathname);
+	});
+
 	it('should not navigate when clicking on external links', () => {
 		var link = enterDocumentLinkElement('http://sennajs.com');
 		this.app = new App();
