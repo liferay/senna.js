@@ -188,7 +188,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'emit',
 			value: function emit(event) {
-				var listeners = toArray(this.getRawListeners_(event)).concat();
+				var listeners = this.getRawListeners_(event);
 				if (listeners.length === 0) {
 					return false;
 				}
@@ -200,7 +200,8 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'getRawListeners_',
 			value: function getRawListeners_(event) {
-				return this.events_ && this.events_[event];
+				var directListeners = toArray(this.events_ && this.events_[event]);
+				return directListeners.concat(toArray(this.events_ && this.events_['*']));
 			}
 		}, {
 			key: 'getShouldUseFacade',
@@ -210,7 +211,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'listeners',
 			value: function listeners(event) {
-				return toArray(this.getRawListeners_(event)).map(function (listener) {
+				return this.getRawListeners_(event).map(function (listener) {
 					return listener.fn ? listener.fn : listener;
 				});
 			}

@@ -170,6 +170,14 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			_this.formSelector = 'form[enctype="multipart/form-data"]:not([data-senna-off])';
 
 			/**
+    * When enabled, the route matching ignores query string from the path.
+    * @type {boolean}
+    * @default false
+    * @protected
+    */
+			_this.ignoreQueryStringFromRoutePath = false;
+
+			/**
     * Holds the link selector to define links that are routed.
     * @type {!string}
     * @default a:not([data-senna-off])
@@ -531,6 +539,11 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				return this.formSelector;
 			}
 		}, {
+			key: 'getIgnoreQueryStringFromRoutePath',
+			value: function getIgnoreQueryStringFromRoutePath() {
+				return this.ignoreQueryStringFromRoutePath;
+			}
+		}, {
 			key: 'getLinkSelector',
 			value: function getLinkSelector() {
 				return this.linkSelector;
@@ -543,9 +556,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'getRoutePath',
 			value: function getRoutePath(path) {
+				if (this.getIgnoreQueryStringFromRoutePath()) {
+					path = _utils2.default.getUrlPathWithoutHashAndSearch(path);
+					return _utils2.default.getUrlPathWithoutHashAndSearch(path.substr(this.basePath.length));
+				}
+
 				path = _utils2.default.getUrlPathWithoutHash(path);
-				// Makes sure that the path substring will be in the expected format
-				// (that is, will end with a "/"), even after removing the base path.
 				return _utils2.default.getUrlPathWithoutHash(path.substr(this.basePath.length));
 			}
 		}, {
@@ -629,7 +645,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 				var navigateFailed = false;
 				try {
-					this.navigate(_utils2.default.getUrlPath(href));
+					this.navigate(_utils2.default.getUrlPath(href), false, event);
 				} catch (err) {
 					// Do not prevent link navigation in case some synchronous error occurs
 					navigateFailed = true;
@@ -659,7 +675,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			}
 		}, {
 			key: 'navigate',
-			value: function navigate(path, opt_replaceHistory) {
+			value: function navigate(path, opt_replaceHistory, opt_event) {
 				if (!_utils2.default.isHtml5HistorySupported()) {
 					throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 				}
@@ -671,6 +687,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 
 				this.emit('beforeNavigate', {
+					event: opt_event,
 					path: path,
 					replaceHistory: !!opt_replaceHistory
 				});
@@ -916,6 +933,11 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					this.formEventHandler_.removeListener();
 				}
 				this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+			}
+		}, {
+			key: 'setIgnoreQueryStringFromRoutePath',
+			value: function setIgnoreQueryStringFromRoutePath(ignoreQueryStringFromRoutePath) {
+				this.ignoreQueryStringFromRoutePath = ignoreQueryStringFromRoutePath;
 			}
 		}, {
 			key: 'setLinkSelector',

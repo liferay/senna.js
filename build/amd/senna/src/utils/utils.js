@@ -74,6 +74,12 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				return uri.getPathname() + uri.getSearch();
 			}
 		}, {
+			key: 'getUrlPathWithoutHashAndSearch',
+			value: function getUrlPathWithoutHashAndSearch(url) {
+				var uri = new _Uri2.default(url);
+				return uri.getPathname();
+			}
+		}, {
 			key: 'isCurrentBrowserPath',
 			value: function isCurrentBrowserPath(url) {
 				if (url) {

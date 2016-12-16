@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.0.5
+ * @version v2.1.0
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -2344,6 +2344,19 @@ babelHelpers;
 			}
 
 			/**
+    * Extracts the path part of an url without hashbang and query search.
+    * @return {!string}
+    * @static
+    */
+
+		}, {
+			key: 'getUrlPathWithoutHashAndSearch',
+			value: function getUrlPathWithoutHashAndSearch(url) {
+				var uri = new Uri(url);
+				return uri.getPathname();
+			}
+
+			/**
     * Checks if url is in the same browser current url excluding the hashbang.
     * @param  {!string} url
     * @return {boolean}
@@ -2731,7 +2744,7 @@ babelHelpers;
 		}, {
 			key: 'emit',
 			value: function emit(event) {
-				var listeners = toArray(this.getRawListeners_(event)).concat();
+				var listeners = this.getRawListeners_(event);
 				if (listeners.length === 0) {
 					return false;
 				}
@@ -2744,14 +2757,15 @@ babelHelpers;
 			/**
     * Gets the listener objects for the given event, if there are any.
     * @param {string} event
-    * @return {Array}
+    * @return {!Array}
     * @protected
     */
 
 		}, {
 			key: 'getRawListeners_',
 			value: function getRawListeners_(event) {
-				return this.events_ && this.events_[event];
+				var directListeners = toArray(this.events_ && this.events_[event]);
+				return directListeners.concat(toArray(this.events_ && this.events_['*']));
 			}
 
 			/**
@@ -2776,7 +2790,7 @@ babelHelpers;
 		}, {
 			key: 'listeners',
 			value: function listeners(event) {
-				return toArray(this.getRawListeners_(event)).map(function (listener) {
+				return this.getRawListeners_(event).map(function (listener) {
 					return listener.fn ? listener.fn : listener;
 				});
 			}
@@ -6970,6 +6984,14 @@ babelHelpers;
 			_this.formSelector = 'form[enctype="multipart/form-data"]:not([data-senna-off])';
 
 			/**
+    * When enabled, the route matching ignores query string from the path.
+    * @type {boolean}
+    * @default false
+    * @protected
+    */
+			_this.ignoreQueryStringFromRoutePath = false;
+
+			/**
     * Holds the link selector to define links that are routed.
     * @type {!string}
     * @default a:not([data-senna-off])
@@ -7431,6 +7453,17 @@ babelHelpers;
 			}
 
 			/**
+    * Check if route matching is ignoring query string from the route path.
+    * @return {boolean}
+    */
+
+		}, {
+			key: 'getIgnoreQueryStringFromRoutePath',
+			value: function getIgnoreQueryStringFromRoutePath() {
+				return this.ignoreQueryStringFromRoutePath;
+			}
+
+			/**
     * Gets the link selector.
     * @return {!string}
     */
@@ -7453,8 +7486,9 @@ babelHelpers;
 			}
 
 			/**
-    * Returns the given path formatted to be matched by a route. This will, for
-    * example, remove the base path from it.
+    * Returns the given path formatted to be matched by a route. This will,
+     * for example, remove the base path from it, but make sure it will end
+     * with a '/'.
     * @param {string} path
     * @return {string}
     */
@@ -7462,9 +7496,12 @@ babelHelpers;
 		}, {
 			key: 'getRoutePath',
 			value: function getRoutePath(path) {
+				if (this.getIgnoreQueryStringFromRoutePath()) {
+					path = utils.getUrlPathWithoutHashAndSearch(path);
+					return utils.getUrlPathWithoutHashAndSearch(path.substr(this.basePath.length));
+				}
+
 				path = utils.getUrlPathWithoutHash(path);
-				// Makes sure that the path substring will be in the expected format
-				// (that is, will end with a "/"), even after removing the base path.
 				return utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
 			}
 
@@ -7607,7 +7644,7 @@ babelHelpers;
 
 				var navigateFailed = false;
 				try {
-					this.navigate(utils.getUrlPath(href));
+					this.navigate(utils.getUrlPath(href), false, event);
 				} catch (err) {
 					// Do not prevent link navigation in case some synchronous error occurs
 					navigateFailed = true;
@@ -7651,12 +7688,13 @@ babelHelpers;
     * Navigates to the specified path if there is a route handler that matches.
     * @param {!string} path Path to navigate containing the base path.
     * @param {boolean=} opt_replaceHistory Replaces browser history.
+    * @param {Event=} event Optional event object that triggered the navigation.
     * @return {CancellablePromise} Returns a pending request cancellable promise.
     */
 
 		}, {
 			key: 'navigate',
-			value: function navigate(path, opt_replaceHistory) {
+			value: function navigate(path, opt_replaceHistory, opt_event) {
 				if (!utils.isHtml5HistorySupported()) {
 					throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 				}
@@ -7668,6 +7706,7 @@ babelHelpers;
 				}
 
 				this.emit('beforeNavigate', {
+					event: opt_event,
 					path: path,
 					replaceHistory: !!opt_replaceHistory
 				});
@@ -8049,6 +8088,17 @@ babelHelpers;
 					this.formEventHandler_.removeListener();
 				}
 				this.formEventHandler_ = dom.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+			}
+
+			/**
+    * Sets if route matching should ignore query string from the route path.
+    * @param {boolean} ignoreQueryStringFromRoutePath
+    */
+
+		}, {
+			key: 'setIgnoreQueryStringFromRoutePath',
+			value: function setIgnoreQueryStringFromRoutePath(ignoreQueryStringFromRoutePath) {
+				this.ignoreQueryStringFromRoutePath = ignoreQueryStringFromRoutePath;
 			}
 
 			/**
