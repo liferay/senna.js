@@ -57,6 +57,16 @@ class utils {
 	}
 
 	/**
+	 * Extracts the path part of an url without hashbang and query search.
+	 * @return {!string}
+	 * @static
+	 */
+	static getUrlPathWithoutHashAndSearch(url) {
+		var uri = new Uri(url);
+		return uri.getPathname();
+	}
+
+	/**
 	 * Checks if url is in the same browser current url excluding the hashbang.
 	 * @param  {!string} url
 	 * @return {boolean}
