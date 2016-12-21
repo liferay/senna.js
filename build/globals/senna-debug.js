@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.0
+ * @version v2.1.1
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -127,15 +127,20 @@ babelHelpers.slicedToArray = function () {
 }();
 
 babelHelpers;
-"use strict";
+'use strict';
 
 (function () {
-	var globals = {
-		document: document,
-		window: window
-	};
+	var globals = globals || {};
 
-	this["senna"]["globals"] = globals;
+	if (typeof window !== 'undefined') {
+		globals.window = window;
+	}
+
+	if (typeof document !== 'undefined') {
+		globals.document = document;
+	}
+
+	this['senna']['globals'] = globals;
 }).call(this);
 'use strict';
 
