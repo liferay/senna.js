@@ -1,3 +1,5 @@
+Fake diff
+
 # Senna.js
 
 [![Build Status](http://img.shields.io/travis/liferay/senna.js/master.svg?style=flat)](https://travis-ci.org/liferay/senna.js)
