@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.1
+ * @version v2.1.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */

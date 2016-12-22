@@ -1,8 +1,4 @@
 /* Loading */
-.senna-loading-bar {
-  background: #2aaae6;
-  background: rgba(255, 255, 255, 0.5); }
-
 .senna-loading .senna-loading-bar {
   -webkit-animation: shift-rightwards 1s ease-in-out infinite;
           animation: shift-rightwards 1s ease-in-out infinite;
