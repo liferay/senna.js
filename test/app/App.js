@@ -801,26 +801,26 @@ describe('App', function() {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.on('beforeNavigate', (data) => {
-      assert.ok(data.event);
-      assert.equal('click', data.event.type);
+			assert.ok(data.event);
+			assert.equal('click', data.event.type);
 		});
-    dom.triggerEvent(enterDocumentLinkElement('/path'), 'click');
+		dom.triggerEvent(enterDocumentLinkElement('/path'), 'click');
 		exitDocumentLinkElement();
 
-    assert.notEqual('/path', window.location.pathname);
+		assert.notEqual('/path', window.location.pathname);
 	});
 
 	it('should prevent navigation on both senna and the browser via beforeNavigate', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/preventedPath', Screen));
 		this.app.on('beforeNavigate', (data, event) => {
-      data.event.preventDefault();
-      event.preventDefault();
+			data.event.preventDefault();
+			event.preventDefault();
 		});
-    dom.triggerEvent(enterDocumentLinkElement('/preventedPath'), 'click');
+		dom.triggerEvent(enterDocumentLinkElement('/preventedPath'), 'click');
 		exitDocumentLinkElement();
 
-    assert.notEqual('/preventedPath', window.location.pathname);
+		assert.notEqual('/preventedPath', window.location.pathname);
 	});
 
 	it('should not navigate when clicking on external links', () => {
