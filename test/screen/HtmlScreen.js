@@ -307,6 +307,25 @@ describe('HtmlScreen', function() {
 		this.requests[0].respond(200, null, '<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">');
 	});
 
+	it('should have correct title', (done) => {
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('<title>left</title>');
+		screen.resolveTitleFromVirtualDocument();
+		screen.flip([]).then(() => {
+			assert.strictEqual('left', screen.getTitle());
+			done();
+		});
+	});
+	
+	it('should have correct title when the title contains html entities', (done) => {
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('<title>left &amp; right</title>');
+		screen.resolveTitleFromVirtualDocument();
+		screen.flip([]).then(() => {
+			assert.strictEqual('left & right', screen.getTitle());
+			done();
+		});
+	});
 });
 
 function enterDocumentSurfaceElement(surfaceId, opt_content) {
