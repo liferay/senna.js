@@ -307,7 +307,7 @@ class HtmlScreen extends RequestScreen {
 	resolveTitleFromVirtualDocument() {
 		var title = this.virtualDocument.querySelector(this.titleSelector);
 		if (title) {
-			this.setTitle(title.innerHTML.trim());
+			this.setTitle(title.textContent.trim());
 		}
 	}
 
