@@ -350,7 +350,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			value: function resolveTitleFromVirtualDocument() {
 				var title = this.virtualDocument.querySelector(this.titleSelector);
 				if (title) {
-					this.setTitle(title.innerHTML.trim());
+					this.setTitle(title.textContent.trim());
 				}
 			}
 		}, {

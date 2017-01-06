@@ -73,7 +73,7 @@ define(['exports', '../core'], function (exports, _core) {
 			key: 'remove',
 			value: function remove(arr, obj) {
 				var i = arr.indexOf(obj);
-				var rv;
+				var rv = void 0;
 				if (rv = i >= 0) {
 					array.removeAt(arr, i);
 				}

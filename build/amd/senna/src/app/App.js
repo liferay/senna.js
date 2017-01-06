@@ -999,7 +999,13 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				} else {
 					_globals2.default.window.history.pushState(state, title, path);
 				}
-				_globals2.default.document.title = title;
+
+				var titleNode = _globals2.default.document.querySelector('title');
+				if (titleNode) {
+					titleNode.innerHTML = title;
+				} else {
+					_globals2.default.document.title = title;
+				}
 			}
 		}]);
 

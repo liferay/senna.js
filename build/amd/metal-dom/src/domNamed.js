@@ -523,7 +523,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @param {Element} node Element to remove children from.
   */
 	function removeChildren(node) {
-		var child;
+		var child = void 0;
 		while (child = node.firstChild) {
 			node.removeChild(child);
 		}
@@ -601,7 +601,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function stopImmediatePropagation_() {
-		var event = this; // jshint ignore:line
+		var event = this; // eslint-disable-line
 		event.stopped = true;
 		event.stoppedImmediate = true;
 		Event.prototype.stopImmediatePropagation.call(event);
@@ -612,7 +612,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function stopPropagation_() {
-		var event = this; // jshint ignore:line
+		var event = this; // eslint-disable-line
 		event.stopped = true;
 		Event.prototype.stopPropagation.call(event);
 	}
@@ -761,9 +761,11 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			var classIndex = elementClassName.indexOf(className);
 
 			if (classIndex === -1) {
-				elementClassName = elementClassName + classes[i] + ' ';
+				elementClassName = '' + elementClassName + classes[i] + ' ';
 			} else {
-				elementClassName = elementClassName.substring(0, classIndex) + ' ' + elementClassName.substring(classIndex + className.length);
+				var before = elementClassName.substring(0, classIndex);
+				var after = elementClassName.substring(classIndex + className.length);
+				elementClassName = before + ' ' + after;
 			}
 		}
 

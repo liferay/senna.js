@@ -37,7 +37,8 @@ define(['exports'], function (exports) {
 		_createClass(object, null, [{
 			key: 'mixin',
 			value: function mixin(target) {
-				var key, source;
+				var key = void 0,
+				    source = void 0;
 				for (var i = 1; i < arguments.length; i++) {
 					source = arguments[i];
 					for (key in source) {

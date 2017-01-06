@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.2
+ * @version v2.1.3
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -543,7 +543,7 @@ babelHelpers;
 			key: 'remove',
 			value: function remove(arr, obj) {
 				var i = arr.indexOf(obj);
-				var rv;
+				var rv = void 0;
 				if (rv = i >= 0) {
 					array.removeAt(arr, i);
 				}
@@ -726,7 +726,7 @@ babelHelpers;
 	async.nextTick.getSetImmediateEmulator_ = function () {
 		// Create a private message channel and use it to postMessage empty messages
 		// to ourselves.
-		var Channel;
+		var Channel = void 0;
 
 		// Verify if variable is defined on the current runtime (i.e., node, browser).
 		// Can't use typeof enclosed in a function (such as core.isFunction) or an
@@ -773,23 +773,29 @@ babelHelpers;
 			};
 		}
 		if (typeof Channel !== 'undefined') {
-			var channel = new Channel();
-			// Use a fifo linked list to call callbacks in the right order.
-			var head = {};
-			var tail = head;
-			channel.port1.onmessage = function () {
-				head = head.next;
-				var cb = head.cb;
-				head.cb = null;
-				cb();
-			};
-			return function (cb) {
-				tail.next = {
-					cb: cb
+			var _ret = function () {
+				var channel = new Channel();
+				// Use a fifo linked list to call callbacks in the right order.
+				var head = {};
+				var tail = head;
+				channel.port1.onmessage = function () {
+					head = head.next;
+					var cb = head.cb;
+					head.cb = null;
+					cb();
 				};
-				tail = tail.next;
-				channel.port2.postMessage(0);
-			};
+				return {
+					v: function v(cb) {
+						tail.next = {
+							cb: cb
+						};
+						tail = tail.next;
+						channel.port2.postMessage(0);
+					}
+				};
+			}();
+
+			if ((typeof _ret === 'undefined' ? 'undefined' : babelHelpers.typeof(_ret)) === "object") return _ret.v;
 		}
 		// Implementation for IE6-8: Script elements fire an asynchronous
 		// onreadystatechange event when inserted into the DOM.
@@ -908,7 +914,8 @@ babelHelpers;
     * @return {Object} Returns the target object reference.
     */
 			value: function mixin(target) {
-				var key, source;
+				var key = void 0,
+				    source = void 0;
 				for (var i = 1; i < arguments.length; i++) {
 					source = arguments[i];
 					for (key in source) {
@@ -4032,7 +4039,7 @@ babelHelpers;
                                                                                */
 
 	function removeChildren(node) {
-		var child;
+		var child = void 0;
 		while (child = node.firstChild) {
 			node.removeChild(child);
 		}
@@ -4113,7 +4120,7 @@ babelHelpers;
                                                        */
 
 	function stopImmediatePropagation_() {
-		var event = this; // jshint ignore:line
+		var event = this; // eslint-disable-line
 		event.stopped = true;
 		event.stoppedImmediate = true;
 		Event.prototype.stopImmediatePropagation.call(event);
@@ -4124,7 +4131,7 @@ babelHelpers;
   * @private
   */
 	function stopPropagation_() {
-		var event = this; // jshint ignore:line
+		var event = this; // eslint-disable-line
 		event.stopped = true;
 		Event.prototype.stopPropagation.call(event);
 	}
@@ -4276,9 +4283,11 @@ babelHelpers;
 			var classIndex = elementClassName.indexOf(className);
 
 			if (classIndex === -1) {
-				elementClassName = elementClassName + classes[i] + ' ';
+				elementClassName = '' + elementClassName + classes[i] + ' ';
 			} else {
-				elementClassName = elementClassName.substring(0, classIndex) + ' ' + elementClassName.substring(classIndex + className.length);
+				var before = elementClassName.substring(0, classIndex);
+				var after = elementClassName.substring(classIndex + className.length);
+				elementClassName = before + ' ' + after;
 			}
 		}
 
@@ -8208,7 +8217,13 @@ babelHelpers;
 				} else {
 					globals.window.history.pushState(state, title, path);
 				}
-				globals.document.title = title;
+
+				var titleNode = globals.document.querySelector('title');
+				if (titleNode) {
+					titleNode.innerHTML = title;
+				} else {
+					globals.document.title = title;
+				}
 			}
 		}]);
 		return App;
@@ -9341,7 +9356,7 @@ babelHelpers;
 			value: function resolveTitleFromVirtualDocument() {
 				var title = this.virtualDocument.querySelector(this.titleSelector);
 				if (title) {
-					this.setTitle(title.innerHTML.trim());
+					this.setTitle(title.textContent.trim());
 				}
 			}
 
