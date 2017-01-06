@@ -1106,7 +1106,14 @@ class App extends EventEmitter {
 		} else {
 			globals.window.history.pushState(state, title, path);
 		}
-		globals.document.title = title;
+
+		let titleNode = globals.document.querySelector('head title');
+		if (titleNode) {
+			titleNode.innerHTML = title;
+		}
+		else {
+			globals.document.title = title;
+		}
 	}
 
 }
