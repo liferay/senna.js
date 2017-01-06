@@ -4,6 +4,8 @@ node_js:
 sudo: false
 addons:
   sauce_connect: true
+  jwt:
+    secure: W3HPVyE0nDpPIu5goFk5hfhQHSQIARtyUP1qNa7r+ontTMygo6a1ZsglLhTvrAscaHGL8PBw2LTUlcivDeGs+HFfk9+Lqiica/bn31kX3z5/bDD3nugHc8vUDfOfoV6aWW0C2y5gVqXUEPVoOvzKRgxZLoTH3UsppTVFs8EIGXY=
 before_install:
   - npm install -g bower
   - bower install
