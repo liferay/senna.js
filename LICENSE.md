@@ -1,6 +1,6 @@
 # Software License Agreement (BSD License)
 
-Copyright (c) 2016, Liferay Inc.
+Copyright (c) 2017, Liferay Inc.
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, with or without modification, are
