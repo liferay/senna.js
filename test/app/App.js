@@ -88,16 +88,33 @@ describe('App', function() {
 		assert.strictEqual(null, this.app.findRoute('/pathOther'));
 	});
 
-	it('should not find route for urls with hashbang when navigate to same basepath', () => {
+	it('should not allow navigation for urls with hashbang when navigating to same basepath', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		globals.window = {
 			location: {
+				hash: '',
+				hostname: '',
 				pathname: '/path',
 				search: ''
 			}
 		};
-		assert.strictEqual(null, this.app.findRoute('/path#hashbang'));
+		assert.strictEqual(false, this.app.canNavigate('/path#hashbang'));
+		globals.window = window;
+	});
+
+	it('should allow navigation for urls with hashbang when navigating to different basepath', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		globals.window = {
+			location: {
+				hash: '',
+				hostname: '',
+				pathname: '/path1',
+				search: ''
+			}
+		};
+		assert.strictEqual(true, this.app.canNavigate('/path#hashbang'));
 		globals.window = window;
 	});
 
@@ -510,6 +527,23 @@ describe('App', function() {
 				this.app.once('endNavigate', () => {
 					assert.strictEqual('/path1', globals.window.location.pathname);
 					assert.notStrictEqual(activeScreen, this.app.activeScreen);
+					done();
+				});
+				globals.window.history.back();
+			});
+	});
+
+	it('should not navigate back on a hash change', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path1#hash'))
+			.then(() => {
+				var startNavigate = sinon.stub();
+				this.app.on('startNavigate', startNavigate);
+				dom.once(globals.window, 'popstate', () => {
+					assert.strictEqual(0, startNavigate.callCount);
 					done();
 				});
 				globals.window.history.back();
@@ -1135,6 +1169,48 @@ describe('App', function() {
 		});
 	});
 
+	it('should update the state with the redirected path', (done) => {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/redirect';
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path').then(() => {
+			assert.strictEqual('/redirect', globals.window.location.pathname);
+			done();
+		});
+	});
+
+	it('should restore hashbang if redirect path is the same as requested path', (done) => {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/path';
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path#hash').then(() => {
+			assert.strictEqual('/path#hash', utils.getCurrentBrowserPath());
+			done();
+		});
+	});
+
+	it('should not restore hashbang if redirect path is not the same as requested path', (done) => {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/redirect';
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path#hash').then(() => {
+			assert.strictEqual('/redirect', utils.getCurrentBrowserPath());
+			done();
+		});
+	});
+
 	it('should skipLoadPopstate before page is loaded', (done) => {
 		this.app = new App();
 		this.app.onLoad_(); // Simulate
@@ -1465,20 +1541,24 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var link = enterDocumentLinkElement('/path1');
+		var link = enterDocumentLinkElement('/path2');
 		link.style.position = 'absolute';
 		link.style.top = '1000px';
 		link.style.left = '1000px';
 		this.app = new App();
 		this.app.addRoutes(new Route('/path1', Screen));
-		this.app.on('endNavigate', () => {
-			assert.strictEqual(1000, window.pageYOffset);
-			assert.strictEqual(1000, window.pageXOffset);
-			hidePageScrollbar();
-			exitDocumentLinkElement();
-			done();
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			this.app.on('endNavigate', () => {
+				assert.strictEqual(1000, window.pageXOffset);
+				assert.strictEqual(1000, window.pageYOffset);
+
+				hidePageScrollbar();
+				exitDocumentLinkElement();
+				done();
+			});
+			this.app.navigate('/path2#link');
 		});
-		this.app.navigate('/path1#link');
 	});
 
 });
