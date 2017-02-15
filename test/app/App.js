@@ -1458,6 +1458,33 @@ describe('App', function() {
 			});
 	});
 
+	it('should scroll to anchor element on navigate', (done) => {
+		if (!canScrollIFrame_) {
+			done();
+			return;
+		}
+
+		showPageScrollbar();
+		var link = enterDocumentLinkElement('/path2');
+		link.style.position = 'absolute';
+		link.style.top = '1000px';
+		link.style.left = '1000px';
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			this.app.on('endNavigate', () => {
+				assert.strictEqual(1000, window.pageXOffset);
+				assert.strictEqual(1000, window.pageYOffset);
+
+				hidePageScrollbar();
+				exitDocumentLinkElement();
+				done();
+			});
+			this.app.navigate('/path2#link');
+		});
+	});
+
 });
 
 var canScrollIFrame_ = false;

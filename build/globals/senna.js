@@ -7343,6 +7343,8 @@ babelHelpers;
 				}).then(function () {
 					return nextScreen.flip(_this5.surfaces);
 				}).then(function () {
+					return _this5.maybeUpdateScrollPositionState(path);
+				}).then(function () {
 					return nextScreen.evaluateScripts(_this5.surfaces);
 				}).then(function () {
 					return _this5.syncScrollPositionSyncThenAsync_();
@@ -7699,6 +7701,24 @@ babelHelpers;
 			}
 
 			/**
+    * Maybe update scroll position in history state to anchor on path.
+    * @param {!string} path Path containing anchor
+    */
+
+		}, {
+			key: 'maybeUpdateScrollPositionState',
+			value: function maybeUpdateScrollPositionState(path) {
+				var state = globals.window.history.state;
+				var hash = new Uri(path).getHash();
+				var anchorElement = globals.document.getElementById(hash.substring(1));
+				if (anchorElement && state && state.senna) {
+					state.scrollTop = anchorElement.offsetTop;
+					state.scrollLeft = anchorElement.offsetLeft;
+					globals.window.history.replaceState(state, null, null);
+				}
+			}
+
+			/**
     * Navigates to the specified path if there is a route handler that matches.
     * @param {!string} path Path to navigate containing the base path.
     * @param {boolean=} opt_replaceHistory Replaces browser history.
@@ -7978,7 +7998,7 @@ babelHelpers;
 					historyState.scrollTop = this.popstateScrollTop;
 					historyState.scrollLeft = this.popstateScrollLeft;
 				}
-				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+				this.updateHistory_(title, path, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 				this.redirectPath = redirectPath;
 			}
 
