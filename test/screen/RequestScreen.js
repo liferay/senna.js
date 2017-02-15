@@ -206,7 +206,7 @@ describe('RequestScreen', function() {
 				assert.ok(error.requestError);
 				done();
 			});
-		this.requests[0].abort();
+		this.requests[0].error();
 	});
 
 	it('should form navigate force post method and request body wrapped in FormData', (done) => {
