@@ -1465,20 +1465,24 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var link = enterDocumentLinkElement('/path1');
+		var link = enterDocumentLinkElement('/path2');
 		link.style.position = 'absolute';
 		link.style.top = '1000px';
 		link.style.left = '1000px';
 		this.app = new App();
 		this.app.addRoutes(new Route('/path1', Screen));
-		this.app.on('endNavigate', () => {
-			assert.strictEqual(1000, window.pageYOffset);
-			assert.strictEqual(1000, window.pageXOffset);
-			hidePageScrollbar();
-			exitDocumentLinkElement();
-			done();
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			this.app.on('endNavigate', () => {
+				assert.strictEqual(1000, window.pageXOffset);
+				assert.strictEqual(1000, window.pageYOffset);
+
+				hidePageScrollbar();
+				exitDocumentLinkElement();
+				done();
+			});
+			this.app.navigate('/path2#link');
 		});
-		this.app.navigate('/path1#link');
 	});
 
 });
