@@ -358,10 +358,20 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['isDocument'] = isDocument; /**
-                                                               * Returns true if value is a dom element.
+                                                               * Returns true if value is a document-fragment.
                                                                * @param {*} val
                                                                * @return {boolean}
                                                                */
+
+  function isDocumentFragment(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 11;
+  }
+
+  this['sennaNamed']['coreNamed']['isDocumentFragment'] = isDocumentFragment; /**
+                                                                               * Returns true if value is a dom element.
+                                                                               * @param {*} val
+                                                                               * @return {boolean}
+                                                                               */
 
   function isElement(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
@@ -483,6 +493,9 @@ babelHelpers;
     * @return {boolean}
     */
 			value: function equal(arr1, arr2) {
+				if (arr1 === arr2) {
+					return true;
+				}
 				if (arr1.length !== arr2.length) {
 					return false;
 				}
@@ -3530,6 +3543,7 @@ babelHelpers;
 (function () {
 	var isDef = this['sennaNamed']['metal']['isDef'];
 	var isDocument = this['sennaNamed']['metal']['isDocument'];
+	var isDocumentFragment = this['sennaNamed']['metal']['isDocumentFragment'];
 	var isElement = this['sennaNamed']['metal']['isElement'];
 	var isObject = this['sennaNamed']['metal']['isObject'];
 	var isString = this['sennaNamed']['metal']['isString'];
@@ -4218,7 +4232,7 @@ babelHelpers;
   * @return {Element} The converted element, or null if none was found.
   */
 	function toElement(selectorOrElement) {
-		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
+		if (isElement(selectorOrElement) || isDocument(selectorOrElement) || isDocumentFragment(selectorOrElement)) {
 			return selectorOrElement;
 		} else if (isString(selectorOrElement)) {
 			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
@@ -7219,6 +7233,10 @@ babelHelpers;
 					void 0;
 					return false;
 				}
+				// Prevents navigation if it's a hash change on the same url.
+				if (uri.getHash() && utils.isCurrentBrowserPath(path)) {
+					return false;
+				}
 				if (!this.findRoute(path)) {
 					void 0;
 					return false;
@@ -7345,6 +7363,8 @@ babelHelpers;
 				}).then(function () {
 					return nextScreen.evaluateScripts(_this5.surfaces);
 				}).then(function () {
+					return _this5.maybeUpdateScrollPositionState_();
+				}).then(function () {
 					return _this5.syncScrollPositionSyncThenAsync_();
 				}).then(function () {
 					return _this5.finalizeNavigate_(path, nextScreen);
@@ -7406,11 +7426,6 @@ babelHelpers;
 		}, {
 			key: 'findRoute',
 			value: function findRoute(path) {
-				// Prevents navigation if it's a hash change on the same url.
-				if (path.lastIndexOf('#') > -1 && utils.isCurrentBrowserPath(path)) {
-					return null;
-				}
-
 				path = this.getRoutePath(path);
 				for (var i = 0; i < this.routes.length; i++) {
 					var route = this.routes[i];
@@ -7699,6 +7714,39 @@ babelHelpers;
 			}
 
 			/**
+    * Maybe restore redirected path hash in case both the current path and
+    * the given path are the same.
+    * @param {!string} path Path before navigation.
+    * @param {!string} redirectPath Path after navigation.
+    * @param {!string} hash Hash to be added to the path.
+    * @return {!string} Returns the path with the hash restored.
+    */
+
+		}, {
+			key: 'maybeRestoreRedirectPathHash_',
+			value: function maybeRestoreRedirectPathHash_(path, redirectPath, hash) {
+				if (redirectPath === utils.getUrlPathWithoutHash(path)) {
+					return redirectPath + hash;
+				}
+				return redirectPath;
+			}
+
+			/**
+    * Maybe update scroll position in history state to anchor on path.
+    * @param {!string} path Path containing anchor
+    */
+
+		}, {
+			key: 'maybeUpdateScrollPositionState_',
+			value: function maybeUpdateScrollPositionState_() {
+				var hash = globals.window.location.hash;
+				var anchorElement = globals.document.getElementById(hash.substring(1));
+				if (anchorElement) {
+					this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+				}
+			}
+
+			/**
     * Navigates to the specified path if there is a route handler that matches.
     * @param {!string} path Path to navigate containing the base path.
     * @param {boolean=} opt_replaceHistory Replaces browser history.
@@ -7838,6 +7886,8 @@ babelHelpers;
 		}, {
 			key: 'onPopstate_',
 			value: function onPopstate_(event) {
+				var _this8 = this;
+
 				if (this.skipLoadPopstate) {
 					return;
 				}
@@ -7863,13 +7913,23 @@ babelHelpers;
 				}
 
 				if (state.senna) {
-					void 0;
-					this.popstateScrollTop = state.scrollTop;
-					this.popstateScrollLeft = state.scrollLeft;
-					if (!this.nativeScrollRestorationSupported) {
-						this.lockHistoryScrollPosition_();
-					}
-					this.navigate(state.path, true);
+					(function () {
+						var isHashChange = false;
+						dom.once(globals.window, 'hashchange', function () {
+							return isHashChange = true;
+						});
+						async.nextTick(function () {
+							if (!isHashChange) {
+								void 0;
+								_this8.popstateScrollTop = state.scrollTop;
+								_this8.popstateScrollLeft = state.scrollLeft;
+								if (!_this8.nativeScrollRestorationSupported) {
+									_this8.lockHistoryScrollPosition_();
+								}
+								_this8.navigate(state.path, true);
+							}
+						});
+					})();
 				}
 			}
 
@@ -7883,7 +7943,7 @@ babelHelpers;
 			key: 'onScroll_',
 			value: function onScroll_() {
 				if (this.captureScrollPositionFromScrollEvent) {
-					this.saveHistoryCurrentPageScrollPosition_();
+					this.saveHistoryCurrentPageScrollPosition_(globals.window.pageYOffset, globals.window.pageXOffset);
 				}
 			}
 
@@ -7897,7 +7957,7 @@ babelHelpers;
 		}, {
 			key: 'onStartNavigate_',
 			value: function onStartNavigate_(event) {
-				var _this8 = this;
+				var _this9 = this;
 
 				this.maybeDisableNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = false;
@@ -7912,12 +7972,12 @@ babelHelpers;
 					endNavigatePayload.error = reason;
 					throw reason;
 				}).thenAlways(function () {
-					if (!_this8.pendingNavigate) {
-						dom.removeClasses(globals.document.documentElement, _this8.loadingCssClass);
-						_this8.maybeRestoreNativeScrollRestoration();
-						_this8.captureScrollPositionFromScrollEvent = true;
+					if (!_this9.pendingNavigate) {
+						dom.removeClasses(globals.document.documentElement, _this9.loadingCssClass);
+						_this9.maybeRestoreNativeScrollRestoration();
+						_this9.captureScrollPositionFromScrollEvent = true;
 					}
-					_this8.emit('endNavigate', endNavigatePayload);
+					_this9.emit('endNavigate', endNavigatePayload);
 				});
 
 				this.pendingNavigate.path = event.path;
@@ -7932,7 +7992,7 @@ babelHelpers;
 		}, {
 			key: 'prefetch',
 			value: function prefetch(path) {
-				var _this9 = this;
+				var _this10 = this;
 
 				var route = this.findRoute(path);
 				if (!route) {
@@ -7944,9 +8004,9 @@ babelHelpers;
 				var nextScreen = this.createScreenInstance(path, route);
 
 				return nextScreen.load(path).then(function () {
-					return _this9.screens[path] = nextScreen;
+					return _this10.screens[path] = nextScreen;
 				}).catch(function (reason) {
-					_this9.handleNavigateError_(path, nextScreen, reason);
+					_this10.handleNavigateError_(path, nextScreen, reason);
 					throw reason;
 				});
 			}
@@ -7968,16 +8028,18 @@ babelHelpers;
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 				var historyState = {
 					form: core.isDefAndNotNull(globals.capturedFormElement),
-					redirectPath: redirectPath,
 					path: path,
-					senna: true,
+					redirectPath: redirectPath,
+					scrollLeft: 0,
 					scrollTop: 0,
-					scrollLeft: 0
+					senna: true
 				};
 				if (opt_replaceHistory) {
 					historyState.scrollTop = this.popstateScrollTop;
 					historyState.scrollLeft = this.popstateScrollLeft;
 				}
+				var hash = new Uri(path).getHash();
+				redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 				this.redirectPath = redirectPath;
 			}
@@ -8029,12 +8091,12 @@ babelHelpers;
 		}, {
 			key: 'removeScreen',
 			value: function removeScreen(path) {
-				var _this10 = this;
+				var _this11 = this;
 
 				var screen = this.screens[path];
 				if (screen) {
 					Object.keys(this.surfaces).forEach(function (surfaceId) {
-						return _this10.surfaces[surfaceId].remove(screen.getId());
+						return _this11.surfaces[surfaceId].remove(screen.getId());
 					});
 					screen.dispose();
 					delete this.screens[path];
@@ -8047,11 +8109,13 @@ babelHelpers;
 
 		}, {
 			key: 'saveHistoryCurrentPageScrollPosition_',
-			value: function saveHistoryCurrentPageScrollPosition_() {
+			value: function saveHistoryCurrentPageScrollPosition_(scrollTop, scrollLeft) {
 				var state = globals.window.history.state;
 				if (state && state.senna) {
-					state.scrollTop = globals.window.pageYOffset;
-					state.scrollLeft = globals.window.pageXOffset;
+					var _ref = [scrollTop, scrollLeft];
+					state.scrollTop = _ref[0];
+					state.scrollLeft = _ref[1];
+
 					globals.window.history.replaceState(state, null, null);
 				}
 			}
@@ -8177,7 +8241,7 @@ babelHelpers;
 		}, {
 			key: 'syncScrollPositionSyncThenAsync_',
 			value: function syncScrollPositionSyncThenAsync_() {
-				var _this11 = this;
+				var _this12 = this;
 
 				var state = globals.window.history.state;
 				if (!state) {
@@ -8188,7 +8252,7 @@ babelHelpers;
 				var scrollLeft = state.scrollLeft;
 
 				var sync = function sync() {
-					if (_this11.updateScrollPosition) {
+					if (_this12.updateScrollPosition) {
 						globals.window.scrollTo(scrollLeft, scrollTop);
 					}
 				};

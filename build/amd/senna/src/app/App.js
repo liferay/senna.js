@@ -374,6 +374,10 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					void 0;
 					return false;
 				}
+				// Prevents navigation if it's a hash change on the same url.
+				if (uri.getHash() && _utils2.default.isCurrentBrowserPath(path)) {
+					return false;
+				}
 				if (!this.findRoute(path)) {
 					void 0;
 					return false;
@@ -467,6 +471,8 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}).then(function () {
 					return nextScreen.evaluateScripts(_this5.surfaces);
 				}).then(function () {
+					return _this5.maybeUpdateScrollPositionState_();
+				}).then(function () {
 					return _this5.syncScrollPositionSyncThenAsync_();
 				}).then(function () {
 					return _this5.finalizeNavigate_(path, nextScreen);
@@ -503,11 +509,6 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'findRoute',
 			value: function findRoute(path) {
-				// Prevents navigation if it's a hash change on the same url.
-				if (path.lastIndexOf('#') > -1 && _utils2.default.isCurrentBrowserPath(path)) {
-					return null;
-				}
-
 				path = this.getRoutePath(path);
 				for (var i = 0; i < this.routes.length; i++) {
 					var route = this.routes[i];
@@ -674,6 +675,23 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 			}
 		}, {
+			key: 'maybeRestoreRedirectPathHash_',
+			value: function maybeRestoreRedirectPathHash_(path, redirectPath, hash) {
+				if (redirectPath === _utils2.default.getUrlPathWithoutHash(path)) {
+					return redirectPath + hash;
+				}
+				return redirectPath;
+			}
+		}, {
+			key: 'maybeUpdateScrollPositionState_',
+			value: function maybeUpdateScrollPositionState_() {
+				var hash = _globals2.default.window.location.hash;
+				var anchorElement = _globals2.default.document.getElementById(hash.substring(1));
+				if (anchorElement) {
+					this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+				}
+			}
+		}, {
 			key: 'navigate',
 			value: function navigate(path, opt_replaceHistory, opt_event) {
 				if (!_utils2.default.isHtml5HistorySupported()) {
@@ -754,6 +772,8 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'onPopstate_',
 			value: function onPopstate_(event) {
+				var _this8 = this;
+
 				if (this.skipLoadPopstate) {
 					return;
 				}
@@ -779,26 +799,36 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 
 				if (state.senna) {
-					void 0;
-					this.popstateScrollTop = state.scrollTop;
-					this.popstateScrollLeft = state.scrollLeft;
-					if (!this.nativeScrollRestorationSupported) {
-						this.lockHistoryScrollPosition_();
-					}
-					this.navigate(state.path, true);
+					(function () {
+						var isHashChange = false;
+						_dom2.default.once(_globals2.default.window, 'hashchange', function () {
+							return isHashChange = true;
+						});
+						_metal.async.nextTick(function () {
+							if (!isHashChange) {
+								void 0;
+								_this8.popstateScrollTop = state.scrollTop;
+								_this8.popstateScrollLeft = state.scrollLeft;
+								if (!_this8.nativeScrollRestorationSupported) {
+									_this8.lockHistoryScrollPosition_();
+								}
+								_this8.navigate(state.path, true);
+							}
+						});
+					})();
 				}
 			}
 		}, {
 			key: 'onScroll_',
 			value: function onScroll_() {
 				if (this.captureScrollPositionFromScrollEvent) {
-					this.saveHistoryCurrentPageScrollPosition_();
+					this.saveHistoryCurrentPageScrollPosition_(_globals2.default.window.pageYOffset, _globals2.default.window.pageXOffset);
 				}
 			}
 		}, {
 			key: 'onStartNavigate_',
 			value: function onStartNavigate_(event) {
-				var _this8 = this;
+				var _this9 = this;
 
 				this.maybeDisableNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = false;
@@ -813,12 +843,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					endNavigatePayload.error = reason;
 					throw reason;
 				}).thenAlways(function () {
-					if (!_this8.pendingNavigate) {
-						_dom2.default.removeClasses(_globals2.default.document.documentElement, _this8.loadingCssClass);
-						_this8.maybeRestoreNativeScrollRestoration();
-						_this8.captureScrollPositionFromScrollEvent = true;
+					if (!_this9.pendingNavigate) {
+						_dom2.default.removeClasses(_globals2.default.document.documentElement, _this9.loadingCssClass);
+						_this9.maybeRestoreNativeScrollRestoration();
+						_this9.captureScrollPositionFromScrollEvent = true;
 					}
-					_this8.emit('endNavigate', endNavigatePayload);
+					_this9.emit('endNavigate', endNavigatePayload);
 				});
 
 				this.pendingNavigate.path = event.path;
@@ -826,7 +856,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'prefetch',
 			value: function prefetch(path) {
-				var _this9 = this;
+				var _this10 = this;
 
 				var route = this.findRoute(path);
 				if (!route) {
@@ -838,9 +868,9 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				var nextScreen = this.createScreenInstance(path, route);
 
 				return nextScreen.load(path).then(function () {
-					return _this9.screens[path] = nextScreen;
+					return _this10.screens[path] = nextScreen;
 				}).catch(function (reason) {
-					_this9.handleNavigateError_(path, nextScreen, reason);
+					_this10.handleNavigateError_(path, nextScreen, reason);
 					throw reason;
 				});
 			}
@@ -854,16 +884,18 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 				var historyState = {
 					form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
-					redirectPath: redirectPath,
 					path: path,
-					senna: true,
+					redirectPath: redirectPath,
+					scrollLeft: 0,
 					scrollTop: 0,
-					scrollLeft: 0
+					senna: true
 				};
 				if (opt_replaceHistory) {
 					historyState.scrollTop = this.popstateScrollTop;
 					historyState.scrollLeft = this.popstateScrollLeft;
 				}
+				var hash = new _Uri2.default(path).getHash();
+				redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 				this.redirectPath = redirectPath;
 			}
@@ -889,12 +921,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'removeScreen',
 			value: function removeScreen(path) {
-				var _this10 = this;
+				var _this11 = this;
 
 				var screen = this.screens[path];
 				if (screen) {
 					Object.keys(this.surfaces).forEach(function (surfaceId) {
-						return _this10.surfaces[surfaceId].remove(screen.getId());
+						return _this11.surfaces[surfaceId].remove(screen.getId());
 					});
 					screen.dispose();
 					delete this.screens[path];
@@ -902,11 +934,13 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			}
 		}, {
 			key: 'saveHistoryCurrentPageScrollPosition_',
-			value: function saveHistoryCurrentPageScrollPosition_() {
+			value: function saveHistoryCurrentPageScrollPosition_(scrollTop, scrollLeft) {
 				var state = _globals2.default.window.history.state;
 				if (state && state.senna) {
-					state.scrollTop = _globals2.default.window.pageYOffset;
-					state.scrollLeft = _globals2.default.window.pageXOffset;
+					var _ref = [scrollTop, scrollLeft];
+					state.scrollTop = _ref[0];
+					state.scrollLeft = _ref[1];
+
 					_globals2.default.window.history.replaceState(state, null, null);
 				}
 			}
@@ -969,7 +1003,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'syncScrollPositionSyncThenAsync_',
 			value: function syncScrollPositionSyncThenAsync_() {
-				var _this11 = this;
+				var _this12 = this;
 
 				var state = _globals2.default.window.history.state;
 				if (!state) {
@@ -980,7 +1014,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				var scrollLeft = state.scrollLeft;
 
 				var sync = function sync() {
-					if (_this11.updateScrollPosition) {
+					if (_this12.updateScrollPosition) {
 						_globals2.default.window.scrollTo(scrollLeft, scrollTop);
 					}
 				};
