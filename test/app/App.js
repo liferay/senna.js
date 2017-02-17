@@ -1135,6 +1135,20 @@ describe('App', function() {
 		});
 	});
 
+	it('should update the state with the redirected path', (done) => {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/redirect';
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path').then(() => {
+			assert.strictEqual('/redirect', globals.window.location.pathname);
+			done();
+		});
+	});
+
 	it('should skipLoadPopstate before page is loaded', (done) => {
 		this.app = new App();
 		this.app.onLoad_(); // Simulate
