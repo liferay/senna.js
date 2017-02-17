@@ -940,7 +940,7 @@ class App extends EventEmitter {
 			historyState.scrollTop = this.popstateScrollTop;
 			historyState.scrollLeft = this.popstateScrollLeft;
 		}
-		this.updateHistory_(title, path, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+		this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 		this.redirectPath = redirectPath;
 	}
 
