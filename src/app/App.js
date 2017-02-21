@@ -682,6 +682,21 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Maybe restore redirected path hash in case both the current path and
+	 * the given path are the same.
+	 * @param {!string} path Path before navigation.
+	 * @param {!string} redirectPath Path after navigation.
+	 * @param {!string} hash Hash to be added to the path.
+	 * @return {!string} Returns the path with the hash restored.
+	 */
+	maybeRestoreRedirectPathHash_(path, redirectPath, hash) {
+		if (redirectPath === utils.getUrlPathWithoutHash(path)) {
+			return redirectPath + hash;
+		}
+		return redirectPath;
+	}
+
+	/**
 	 * Maybe update scroll position in history state to anchor on path.
 	 * @param {!string} path Path containing anchor
 	 */
@@ -919,23 +934,25 @@ class App extends EventEmitter {
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 */
 	prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
-		var title = nextScreen.getTitle();
+		let title = nextScreen.getTitle();
 		if (!core.isString(title)) {
 			title = this.getDefaultTitle();
 		}
-		var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
-		var historyState = {
+		let redirectPath = nextScreen.beforeUpdateHistoryPath(path);
+		const historyState = {
 			form: core.isDefAndNotNull(globals.capturedFormElement),
-			redirectPath: redirectPath,
-			path: path,
-			senna: true,
+			path,
+			redirectPath,
+			scrollLeft: 0,
 			scrollTop: 0,
-			scrollLeft: 0
+			senna: true
 		};
 		if (opt_replaceHistory) {
 			historyState.scrollTop = this.popstateScrollTop;
 			historyState.scrollLeft = this.popstateScrollLeft;
 		}
+		const hash = new Uri(path).getHash();
+		redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 		this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 		this.redirectPath = redirectPath;
 	}
