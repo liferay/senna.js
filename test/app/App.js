@@ -1166,6 +1166,34 @@ describe('App', function() {
 		});
 	});
 
+	it('should restore hashbang if redirect path is the same as requested path', (done) => {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/path';
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path#hash').then(() => {
+			assert.strictEqual('/path#hash', utils.getCurrentBrowserPath());
+			done();
+		});
+	});
+
+	it('should not restore hashbang if redirect path is not the same as requested path', (done) => {
+		class RedirectScreen extends Screen {
+			beforeUpdateHistoryPath() {
+				return '/redirect';
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', RedirectScreen));
+		this.app.navigate('/path#hash').then(() => {
+			assert.strictEqual('/redirect', utils.getCurrentBrowserPath());
+			done();
+		});
+	});
+
 	it('should skipLoadPopstate before page is loaded', (done) => {
 		this.app = new App();
 		this.app.onLoad_(); // Simulate
