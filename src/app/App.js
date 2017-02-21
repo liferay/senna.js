@@ -850,13 +850,19 @@ class App extends EventEmitter {
 		}
 
 		if (state.senna) {
-			console.log('History navigation to [' + state.path + ']');
-			this.popstateScrollTop = state.scrollTop;
-			this.popstateScrollLeft = state.scrollLeft;
-			if (!this.nativeScrollRestorationSupported) {
-				this.lockHistoryScrollPosition_();
-			}
-			this.navigate(state.path, true);
+			let isHashChange = false;
+			dom.once(globals.window, 'hashchange', () => isHashChange = true);
+			async.nextTick(() => {
+				if (!isHashChange) {
+					console.log('History navigation to [' + state.path + ']');
+					this.popstateScrollTop = state.scrollTop;
+					this.popstateScrollLeft = state.scrollLeft;
+					if (!this.nativeScrollRestorationSupported) {
+						this.lockHistoryScrollPosition_();
+					}
+					this.navigate(state.path, true);
+				}
+			});
 		}
 	}
 
