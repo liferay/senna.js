@@ -88,16 +88,33 @@ describe('App', function() {
 		assert.strictEqual(null, this.app.findRoute('/pathOther'));
 	});
 
-	it('should not find route for urls with hashbang when navigate to same basepath', () => {
+	it('should not allow navigation for urls with hashbang when navigating to same basepath', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		globals.window = {
 			location: {
+				hash: '',
+				hostname: '',
 				pathname: '/path',
 				search: ''
 			}
 		};
-		assert.strictEqual(null, this.app.findRoute('/path#hashbang'));
+		assert.strictEqual(false, this.app.canNavigate('/path#hashbang'));
+		globals.window = window;
+	});
+
+	it('should allow navigation for urls with hashbang when navigating to different basepath', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		globals.window = {
+			location: {
+				hash: '',
+				hostname: '',
+				pathname: '/path1',
+				search: ''
+			}
+		};
+		assert.strictEqual(true, this.app.canNavigate('/path#hashbang'));
 		globals.window = window;
 	});
 
