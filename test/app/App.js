@@ -533,6 +533,25 @@ describe('App', function() {
 			});
 	});
 
+	it('should not navigate back on a hash change', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path1#hash'))
+			.then(() => {
+				var startNavigate = sinon.stub();
+				this.app.on('startNavigate', startNavigate);
+				dom.once(globals.window, 'popstate', () => {
+					async.nextTick(() => {
+						assert.strictEqual(0, startNavigate.callCount);
+						done();
+					});
+				});
+				globals.window.history.back();
+			});
+	});
+
 	it('should only call beforeNavigate when waiting for pendingNavigate if navigate to same path', (done) => {
 		class CacheScreen extends Screen {
 			constructor() {
