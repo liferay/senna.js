@@ -287,6 +287,10 @@ class App extends EventEmitter {
 			console.log('Link clicked outside app\'s base path');
 			return false;
 		}
+		// Prevents navigation if it's a hash change on the same url.
+		if (uri.getHash() && utils.isCurrentBrowserPath(path)) {
+			return false;
+		}
 		if (!this.findRoute(path)) {
 			console.log('No route for ' + path);
 			return false;
@@ -448,11 +452,6 @@ class App extends EventEmitter {
 	 *     path is the same as the current url and the path contains a fragment.
 	 */
 	findRoute(path) {
-		// Prevents navigation if it's a hash change on the same url.
-		if ((path.lastIndexOf('#') > -1) && utils.isCurrentBrowserPath(path)) {
-			return null;
-		}
-
 		path = this.getRoutePath(path);
 		for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];
