@@ -710,7 +710,7 @@ class App extends EventEmitter {
 	 * @param {!string} path Path containing anchor
 	 */
 	maybeUpdateScrollPositionState_() {
-		var hash = globals.window.location.hash
+		var hash = globals.window.location.hash;
 		var anchorElement = globals.document.getElementById(hash.substring(1));
 		if (anchorElement) {
 			this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
