@@ -61,6 +61,14 @@ class App extends EventEmitter {
 		this.captureScrollPositionFromScrollEvent = true;
 
 		/**
+		 * Holds the value of the current browser path.
+		 * @type {!string}
+		 * @default the current browser path.
+		 * @protected
+		 */
+		this.currentBrowserPath = utils.getCurrentBrowserPath();
+
+		/**
 		 * Holds the default page title.
 		 * @type {string}
 		 * @default null
@@ -437,6 +445,7 @@ class App extends EventEmitter {
 
 		this.activePath = path;
 		this.activeScreen = nextScreen;
+		this.currentBrowserPath = path;
 		this.screens[path] = nextScreen;
 		this.isNavigationPending = false;
 		this.pendingNavigate = null;
@@ -850,19 +859,17 @@ class App extends EventEmitter {
 		}
 
 		if (state.senna) {
-			let isHashChange = false;
-			dom.once(globals.window, 'hashchange', () => isHashChange = true);
-			async.nextTick(() => {
-				if (!isHashChange) {
-					console.log('History navigation to [' + state.path + ']');
-					this.popstateScrollTop = state.scrollTop;
-					this.popstateScrollLeft = state.scrollLeft;
-					if (!this.nativeScrollRestorationSupported) {
-						this.lockHistoryScrollPosition_();
-					}
-					this.navigate(state.path, true);
+			let isHashChange = utils.getUrlPathWithoutHash(this.currentBrowserPath) === utils.getUrlPathWithoutHash(state.path);
+
+			if (!isHashChange) {
+				console.log('History navigation to [' + state.path + ']');
+				this.popstateScrollTop = state.scrollTop;
+				this.popstateScrollLeft = state.scrollLeft;
+				if (!this.nativeScrollRestorationSupported) {
+					this.lockHistoryScrollPosition_();
 				}
-			});
+				this.navigate(state.path, true);
+			}
 		}
 	}
 

@@ -543,10 +543,8 @@ describe('App', function() {
 				var startNavigate = sinon.stub();
 				this.app.on('startNavigate', startNavigate);
 				dom.once(globals.window, 'popstate', () => {
-					async.nextTick(() => {
-						assert.strictEqual(0, startNavigate.callCount);
-						done();
-					});
+					assert.strictEqual(0, startNavigate.callCount);
+					done();
 				});
 				globals.window.history.back();
 			});
