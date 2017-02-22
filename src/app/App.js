@@ -1016,7 +1016,9 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Saves scroll position from page offset into history state.
+	 * Saves given scroll position into history state.
+	 * @param {!number} scrollTop Number containing the top scroll position to be saved.
+	 * @param {!number} scrollLeft Number containing the left scroll position to be saved.
 	 */
 	saveHistoryCurrentPageScrollPosition_(scrollTop, scrollLeft) {
 		var state = globals.window.history.state;
