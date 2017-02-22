@@ -6996,6 +6996,14 @@ babelHelpers;
 			_this.captureScrollPositionFromScrollEvent = true;
 
 			/**
+    * Holds the value of the current browser path.
+    * @type {!string}
+    * @default the current browser path.
+    * @protected
+    */
+			_this.currentBrowserPath = utils.getCurrentBrowserPath();
+
+			/**
     * Holds the default page title.
     * @type {string}
     * @default null
@@ -7886,8 +7894,6 @@ babelHelpers;
 		}, {
 			key: 'onPopstate_',
 			value: function onPopstate_(event) {
-				var _this8 = this;
-
 				if (this.skipLoadPopstate) {
 					return;
 				}
@@ -7913,23 +7919,17 @@ babelHelpers;
 				}
 
 				if (state.senna) {
-					(function () {
-						var isHashChange = false;
-						dom.once(globals.window, 'hashchange', function () {
-							return isHashChange = true;
-						});
-						async.nextTick(function () {
-							if (!isHashChange) {
-								console.log('History navigation to [' + state.path + ']');
-								_this8.popstateScrollTop = state.scrollTop;
-								_this8.popstateScrollLeft = state.scrollLeft;
-								if (!_this8.nativeScrollRestorationSupported) {
-									_this8.lockHistoryScrollPosition_();
-								}
-								_this8.navigate(state.path, true);
-							}
-						});
-					})();
+					var isHashChange = utils.getUrlPathWithoutHash(this.currentBrowserPath) === utils.getUrlPathWithoutHash(state.path);
+
+					if (!isHashChange) {
+						console.log('History navigation to [' + state.path + ']');
+						this.popstateScrollTop = state.scrollTop;
+						this.popstateScrollLeft = state.scrollLeft;
+						if (!this.nativeScrollRestorationSupported) {
+							this.lockHistoryScrollPosition_();
+						}
+						this.navigate(state.path, true);
+					}
 				}
 			}
 
@@ -7957,7 +7957,7 @@ babelHelpers;
 		}, {
 			key: 'onStartNavigate_',
 			value: function onStartNavigate_(event) {
-				var _this9 = this;
+				var _this8 = this;
 
 				this.maybeDisableNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = false;
@@ -7972,12 +7972,12 @@ babelHelpers;
 					endNavigatePayload.error = reason;
 					throw reason;
 				}).thenAlways(function () {
-					if (!_this9.pendingNavigate) {
-						dom.removeClasses(globals.document.documentElement, _this9.loadingCssClass);
-						_this9.maybeRestoreNativeScrollRestoration();
-						_this9.captureScrollPositionFromScrollEvent = true;
+					if (!_this8.pendingNavigate) {
+						dom.removeClasses(globals.document.documentElement, _this8.loadingCssClass);
+						_this8.maybeRestoreNativeScrollRestoration();
+						_this8.captureScrollPositionFromScrollEvent = true;
 					}
-					_this9.emit('endNavigate', endNavigatePayload);
+					_this8.emit('endNavigate', endNavigatePayload);
 				});
 
 				this.pendingNavigate.path = event.path;
@@ -7992,7 +7992,7 @@ babelHelpers;
 		}, {
 			key: 'prefetch',
 			value: function prefetch(path) {
-				var _this10 = this;
+				var _this9 = this;
 
 				var route = this.findRoute(path);
 				if (!route) {
@@ -8004,9 +8004,9 @@ babelHelpers;
 				var nextScreen = this.createScreenInstance(path, route);
 
 				return nextScreen.load(path).then(function () {
-					return _this10.screens[path] = nextScreen;
+					return _this9.screens[path] = nextScreen;
 				}).catch(function (reason) {
-					_this10.handleNavigateError_(path, nextScreen, reason);
+					_this9.handleNavigateError_(path, nextScreen, reason);
 					throw reason;
 				});
 			}
@@ -8091,12 +8091,12 @@ babelHelpers;
 		}, {
 			key: 'removeScreen',
 			value: function removeScreen(path) {
-				var _this11 = this;
+				var _this10 = this;
 
 				var screen = this.screens[path];
 				if (screen) {
 					Object.keys(this.surfaces).forEach(function (surfaceId) {
-						return _this11.surfaces[surfaceId].remove(screen.getId());
+						return _this10.surfaces[surfaceId].remove(screen.getId());
 					});
 					screen.dispose();
 					delete this.screens[path];
@@ -8243,7 +8243,7 @@ babelHelpers;
 		}, {
 			key: 'syncScrollPositionSyncThenAsync_',
 			value: function syncScrollPositionSyncThenAsync_() {
-				var _this12 = this;
+				var _this11 = this;
 
 				var state = globals.window.history.state;
 				if (!state) {
@@ -8254,7 +8254,7 @@ babelHelpers;
 				var scrollLeft = state.scrollLeft;
 
 				var sync = function sync() {
-					if (_this12.updateScrollPosition) {
+					if (_this11.updateScrollPosition) {
 						globals.window.scrollTo(scrollLeft, scrollTop);
 					}
 				};
@@ -8283,6 +8283,8 @@ babelHelpers;
 				} else {
 					globals.window.history.pushState(state, title, path);
 				}
+
+				this.currentBrowserPath = path;
 
 				var titleNode = globals.document.querySelector('title');
 				if (titleNode) {
