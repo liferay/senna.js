@@ -154,6 +154,14 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			_this.captureScrollPositionFromScrollEvent = true;
 
 			/**
+    * Holds the value of the current browser path.
+    * @type {!string}
+    * @default the current browser path.
+    * @protected
+    */
+			_this.currentBrowserPath = _utils2.default.getCurrentBrowserPath();
+
+			/**
     * Holds the default page title.
     * @type {string}
     * @default null
@@ -374,6 +382,10 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					void 0;
 					return false;
 				}
+				// Prevents navigation if it's a hash change on the same url.
+				if (uri.getHash() && _utils2.default.isCurrentBrowserPath(path)) {
+					return false;
+				}
 				if (!this.findRoute(path)) {
 					void 0;
 					return false;
@@ -467,6 +479,8 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}).then(function () {
 					return nextScreen.evaluateScripts(_this5.surfaces);
 				}).then(function () {
+					return _this5.maybeUpdateScrollPositionState_();
+				}).then(function () {
 					return _this5.syncScrollPositionSyncThenAsync_();
 				}).then(function () {
 					return _this5.finalizeNavigate_(path, nextScreen);
@@ -503,11 +517,6 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'findRoute',
 			value: function findRoute(path) {
-				// Prevents navigation if it's a hash change on the same url.
-				if (path.lastIndexOf('#') > -1 && _utils2.default.isCurrentBrowserPath(path)) {
-					return null;
-				}
-
 				path = this.getRoutePath(path);
 				for (var i = 0; i < this.routes.length; i++) {
 					var route = this.routes[i];
@@ -674,6 +683,23 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 			}
 		}, {
+			key: 'maybeRestoreRedirectPathHash_',
+			value: function maybeRestoreRedirectPathHash_(path, redirectPath, hash) {
+				if (redirectPath === _utils2.default.getUrlPathWithoutHash(path)) {
+					return redirectPath + hash;
+				}
+				return redirectPath;
+			}
+		}, {
+			key: 'maybeUpdateScrollPositionState_',
+			value: function maybeUpdateScrollPositionState_() {
+				var hash = _globals2.default.window.location.hash;
+				var anchorElement = _globals2.default.document.getElementById(hash.substring(1));
+				if (anchorElement) {
+					this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+				}
+			}
+		}, {
 			key: 'navigate',
 			value: function navigate(path, opt_replaceHistory, opt_event) {
 				if (!_utils2.default.isHtml5HistorySupported()) {
@@ -779,20 +805,24 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 
 				if (state.senna) {
-					void 0;
-					this.popstateScrollTop = state.scrollTop;
-					this.popstateScrollLeft = state.scrollLeft;
-					if (!this.nativeScrollRestorationSupported) {
-						this.lockHistoryScrollPosition_();
+					var isHashChange = _utils2.default.getUrlPathWithoutHash(this.currentBrowserPath) === _utils2.default.getUrlPathWithoutHash(state.path);
+
+					if (!isHashChange) {
+						void 0;
+						this.popstateScrollTop = state.scrollTop;
+						this.popstateScrollLeft = state.scrollLeft;
+						if (!this.nativeScrollRestorationSupported) {
+							this.lockHistoryScrollPosition_();
+						}
+						this.navigate(state.path, true);
 					}
-					this.navigate(state.path, true);
 				}
 			}
 		}, {
 			key: 'onScroll_',
 			value: function onScroll_() {
 				if (this.captureScrollPositionFromScrollEvent) {
-					this.saveHistoryCurrentPageScrollPosition_();
+					this.saveHistoryCurrentPageScrollPosition_(_globals2.default.window.pageYOffset, _globals2.default.window.pageXOffset);
 				}
 			}
 		}, {
@@ -854,16 +884,18 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 				var historyState = {
 					form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
-					redirectPath: redirectPath,
 					path: path,
-					senna: true,
+					redirectPath: redirectPath,
+					scrollLeft: 0,
 					scrollTop: 0,
-					scrollLeft: 0
+					senna: true
 				};
 				if (opt_replaceHistory) {
 					historyState.scrollTop = this.popstateScrollTop;
 					historyState.scrollLeft = this.popstateScrollLeft;
 				}
+				var hash = new _Uri2.default(path).getHash();
+				redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 				this.redirectPath = redirectPath;
 			}
@@ -902,11 +934,13 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			}
 		}, {
 			key: 'saveHistoryCurrentPageScrollPosition_',
-			value: function saveHistoryCurrentPageScrollPosition_() {
+			value: function saveHistoryCurrentPageScrollPosition_(scrollTop, scrollLeft) {
 				var state = _globals2.default.window.history.state;
 				if (state && state.senna) {
-					state.scrollTop = _globals2.default.window.pageYOffset;
-					state.scrollLeft = _globals2.default.window.pageXOffset;
+					var _ref = [scrollTop, scrollLeft];
+					state.scrollTop = _ref[0];
+					state.scrollLeft = _ref[1];
+
 					_globals2.default.window.history.replaceState(state, null, null);
 				}
 			}
@@ -999,6 +1033,8 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				} else {
 					_globals2.default.window.history.pushState(state, title, path);
 				}
+
+				this.currentBrowserPath = path;
 
 				var titleNode = _globals2.default.document.querySelector('title');
 				if (titleNode) {

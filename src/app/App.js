@@ -61,6 +61,14 @@ class App extends EventEmitter {
 		this.captureScrollPositionFromScrollEvent = true;
 
 		/**
+		 * Holds the value of the current browser path.
+		 * @type {!string}
+		 * @default the current browser path.
+		 * @protected
+		 */
+		this.currentBrowserPath = utils.getCurrentBrowserPath();
+
+		/**
 		 * Holds the default page title.
 		 * @type {string}
 		 * @default null
@@ -287,6 +295,10 @@ class App extends EventEmitter {
 			console.log('Link clicked outside app\'s base path');
 			return false;
 		}
+		// Prevents navigation if it's a hash change on the same url.
+		if (uri.getHash() && utils.isCurrentBrowserPath(path)) {
+			return false;
+		}
 		if (!this.findRoute(path)) {
 			console.log('No route for ' + path);
 			return false;
@@ -396,6 +408,7 @@ class App extends EventEmitter {
 			.then(() => nextScreen.evaluateStyles(this.surfaces))
 			.then(() => nextScreen.flip(this.surfaces))
 			.then(() => nextScreen.evaluateScripts(this.surfaces))
+			.then(() => this.maybeUpdateScrollPositionState_())
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.catch((reason) => {
@@ -432,6 +445,7 @@ class App extends EventEmitter {
 
 		this.activePath = path;
 		this.activeScreen = nextScreen;
+		this.currentBrowserPath = path;
 		this.screens[path] = nextScreen;
 		this.isNavigationPending = false;
 		this.pendingNavigate = null;
@@ -447,11 +461,6 @@ class App extends EventEmitter {
 	 *     path is the same as the current url and the path contains a fragment.
 	 */
 	findRoute(path) {
-		// Prevents navigation if it's a hash change on the same url.
-		if ((path.lastIndexOf('#') > -1) && utils.isCurrentBrowserPath(path)) {
-			return null;
-		}
-
 		path = this.getRoutePath(path);
 		for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];
@@ -682,6 +691,33 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Maybe restore redirected path hash in case both the current path and
+	 * the given path are the same.
+	 * @param {!string} path Path before navigation.
+	 * @param {!string} redirectPath Path after navigation.
+	 * @param {!string} hash Hash to be added to the path.
+	 * @return {!string} Returns the path with the hash restored.
+	 */
+	maybeRestoreRedirectPathHash_(path, redirectPath, hash) {
+		if (redirectPath === utils.getUrlPathWithoutHash(path)) {
+			return redirectPath + hash;
+		}
+		return redirectPath;
+	}
+
+	/**
+	 * Maybe update scroll position in history state to anchor on path.
+	 * @param {!string} path Path containing anchor
+	 */
+	maybeUpdateScrollPositionState_() {
+		var hash = globals.window.location.hash;
+		var anchorElement = globals.document.getElementById(hash.substring(1));
+		if (anchorElement) {
+			this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+		}
+	}
+
+	/**
 	 * Navigates to the specified path if there is a route handler that matches.
 	 * @param {!string} path Path to navigate containing the base path.
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
@@ -823,13 +859,17 @@ class App extends EventEmitter {
 		}
 
 		if (state.senna) {
-			console.log('History navigation to [' + state.path + ']');
-			this.popstateScrollTop = state.scrollTop;
-			this.popstateScrollLeft = state.scrollLeft;
-			if (!this.nativeScrollRestorationSupported) {
-				this.lockHistoryScrollPosition_();
+			let isHashChange = utils.getUrlPathWithoutHash(this.currentBrowserPath) === utils.getUrlPathWithoutHash(state.path);
+
+			if (!isHashChange) {
+				console.log('History navigation to [' + state.path + ']');
+				this.popstateScrollTop = state.scrollTop;
+				this.popstateScrollLeft = state.scrollLeft;
+				if (!this.nativeScrollRestorationSupported) {
+					this.lockHistoryScrollPosition_();
+				}
+				this.navigate(state.path, true);
 			}
-			this.navigate(state.path, true);
 		}
 	}
 
@@ -840,7 +880,7 @@ class App extends EventEmitter {
 	 */
 	onScroll_() {
 		if (this.captureScrollPositionFromScrollEvent) {
-			this.saveHistoryCurrentPageScrollPosition_();
+			this.saveHistoryCurrentPageScrollPosition_(globals.window.pageYOffset, globals.window.pageXOffset);
 		}
 	}
 
@@ -907,23 +947,25 @@ class App extends EventEmitter {
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 */
 	prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
-		var title = nextScreen.getTitle();
+		let title = nextScreen.getTitle();
 		if (!core.isString(title)) {
 			title = this.getDefaultTitle();
 		}
-		var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
-		var historyState = {
+		let redirectPath = nextScreen.beforeUpdateHistoryPath(path);
+		const historyState = {
 			form: core.isDefAndNotNull(globals.capturedFormElement),
-			redirectPath: redirectPath,
-			path: path,
-			senna: true,
+			path,
+			redirectPath,
+			scrollLeft: 0,
 			scrollTop: 0,
-			scrollLeft: 0
+			senna: true
 		};
 		if (opt_replaceHistory) {
 			historyState.scrollTop = this.popstateScrollTop;
 			historyState.scrollLeft = this.popstateScrollLeft;
 		}
+		const hash = new Uri(path).getHash();
+		redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 		this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 		this.redirectPath = redirectPath;
 	}
@@ -973,13 +1015,14 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Saves scroll position from page offset into history state.
+	 * Saves given scroll position into history state.
+	 * @param {!number} scrollTop Number containing the top scroll position to be saved.
+	 * @param {!number} scrollLeft Number containing the left scroll position to be saved.
 	 */
-	saveHistoryCurrentPageScrollPosition_() {
+	saveHistoryCurrentPageScrollPosition_(scrollTop, scrollLeft) {
 		var state = globals.window.history.state;
 		if (state && state.senna) {
-			state.scrollTop = globals.window.pageYOffset;
-			state.scrollLeft = globals.window.pageXOffset;
+			[state.scrollTop, state.scrollLeft] = [scrollTop, scrollLeft];
 			globals.window.history.replaceState(state, null, null);
 		}
 	}
@@ -1110,8 +1153,7 @@ class App extends EventEmitter {
 		let titleNode = globals.document.querySelector('title');
 		if (titleNode) {
 			titleNode.innerHTML = title;
-		}
-		else {
+		} else {
 			globals.document.title = title;
 		}
 	}
