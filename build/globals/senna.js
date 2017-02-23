@@ -358,10 +358,20 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['isDocument'] = isDocument; /**
-                                                               * Returns true if value is a dom element.
+                                                               * Returns true if value is a document-fragment.
                                                                * @param {*} val
                                                                * @return {boolean}
                                                                */
+
+  function isDocumentFragment(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 11;
+  }
+
+  this['sennaNamed']['coreNamed']['isDocumentFragment'] = isDocumentFragment; /**
+                                                                               * Returns true if value is a dom element.
+                                                                               * @param {*} val
+                                                                               * @return {boolean}
+                                                                               */
 
   function isElement(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
@@ -483,6 +493,9 @@ babelHelpers;
     * @return {boolean}
     */
 			value: function equal(arr1, arr2) {
+				if (arr1 === arr2) {
+					return true;
+				}
 				if (arr1.length !== arr2.length) {
 					return false;
 				}
@@ -3530,6 +3543,7 @@ babelHelpers;
 (function () {
 	var isDef = this['sennaNamed']['metal']['isDef'];
 	var isDocument = this['sennaNamed']['metal']['isDocument'];
+	var isDocumentFragment = this['sennaNamed']['metal']['isDocumentFragment'];
 	var isElement = this['sennaNamed']['metal']['isElement'];
 	var isObject = this['sennaNamed']['metal']['isObject'];
 	var isString = this['sennaNamed']['metal']['isString'];
@@ -4218,7 +4232,7 @@ babelHelpers;
   * @return {Element} The converted element, or null if none was found.
   */
 	function toElement(selectorOrElement) {
-		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
+		if (isElement(selectorOrElement) || isDocument(selectorOrElement) || isDocumentFragment(selectorOrElement)) {
 			return selectorOrElement;
 		} else if (isString(selectorOrElement)) {
 			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
@@ -6982,6 +6996,14 @@ babelHelpers;
 			_this.captureScrollPositionFromScrollEvent = true;
 
 			/**
+    * Holds the value of the current browser path.
+    * @type {!string}
+    * @default the current browser path.
+    * @protected
+    */
+			_this.currentBrowserPath = window.location.pathname;
+
+			/**
     * Holds the default page title.
     * @type {string}
     * @default null
@@ -7219,6 +7241,10 @@ babelHelpers;
 					void 0;
 					return false;
 				}
+				// Prevents navigation if it's a hash change on the same url.
+				if (uri.getHash() && utils.isCurrentBrowserPath(path)) {
+					return false;
+				}
 				if (!this.findRoute(path)) {
 					void 0;
 					return false;
@@ -7345,6 +7371,8 @@ babelHelpers;
 				}).then(function () {
 					return nextScreen.evaluateScripts(_this5.surfaces);
 				}).then(function () {
+					return _this5.maybeUpdateScrollPositionState_();
+				}).then(function () {
 					return _this5.syncScrollPositionSyncThenAsync_();
 				}).then(function () {
 					return _this5.finalizeNavigate_(path, nextScreen);
@@ -7388,6 +7416,7 @@ babelHelpers;
 
 				this.activePath = path;
 				this.activeScreen = nextScreen;
+				this.currentBrowserPath = window.location.pathname;
 				this.screens[path] = nextScreen;
 				this.isNavigationPending = false;
 				this.pendingNavigate = null;
@@ -7406,11 +7435,6 @@ babelHelpers;
 		}, {
 			key: 'findRoute',
 			value: function findRoute(path) {
-				// Prevents navigation if it's a hash change on the same url.
-				if (path.lastIndexOf('#') > -1 && utils.isCurrentBrowserPath(path)) {
-					return null;
-				}
-
 				path = this.getRoutePath(path);
 				for (var i = 0; i < this.routes.length; i++) {
 					var route = this.routes[i];
@@ -7699,6 +7723,39 @@ babelHelpers;
 			}
 
 			/**
+    * Maybe restore redirected path hash in case both the current path and
+    * the given path are the same.
+    * @param {!string} path Path before navigation.
+    * @param {!string} redirectPath Path after navigation.
+    * @param {!string} hash Hash to be added to the path.
+    * @return {!string} Returns the path with the hash restored.
+    */
+
+		}, {
+			key: 'maybeRestoreRedirectPathHash_',
+			value: function maybeRestoreRedirectPathHash_(path, redirectPath, hash) {
+				if (redirectPath === utils.getUrlPathWithoutHash(path)) {
+					return redirectPath + hash;
+				}
+				return redirectPath;
+			}
+
+			/**
+    * Maybe update scroll position in history state to anchor on path.
+    * @param {!string} path Path containing anchor
+    */
+
+		}, {
+			key: 'maybeUpdateScrollPositionState_',
+			value: function maybeUpdateScrollPositionState_() {
+				var hash = globals.window.location.hash;
+				var anchorElement = globals.document.getElementById(hash.substring(1));
+				if (anchorElement) {
+					this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+				}
+			}
+
+			/**
     * Navigates to the specified path if there is a route handler that matches.
     * @param {!string} path Path to navigate containing the base path.
     * @param {boolean=} opt_replaceHistory Replaces browser history.
@@ -7863,6 +7920,11 @@ babelHelpers;
 				}
 
 				if (state.senna) {
+					// Do not navigate if the popstate was triggered by a hash change.
+					if (this.currentBrowserPath === utils.getUrlPathWithoutHash(state.path)) {
+						return;
+					}
+
 					void 0;
 					this.popstateScrollTop = state.scrollTop;
 					this.popstateScrollLeft = state.scrollLeft;
@@ -7883,7 +7945,7 @@ babelHelpers;
 			key: 'onScroll_',
 			value: function onScroll_() {
 				if (this.captureScrollPositionFromScrollEvent) {
-					this.saveHistoryCurrentPageScrollPosition_();
+					this.saveHistoryCurrentPageScrollPosition_(globals.window.pageYOffset, globals.window.pageXOffset);
 				}
 			}
 
@@ -7968,16 +8030,18 @@ babelHelpers;
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 				var historyState = {
 					form: core.isDefAndNotNull(globals.capturedFormElement),
-					redirectPath: redirectPath,
 					path: path,
-					senna: true,
+					redirectPath: redirectPath,
+					scrollLeft: 0,
 					scrollTop: 0,
-					scrollLeft: 0
+					senna: true
 				};
 				if (opt_replaceHistory) {
 					historyState.scrollTop = this.popstateScrollTop;
 					historyState.scrollLeft = this.popstateScrollLeft;
 				}
+				var hash = new Uri(path).getHash();
+				redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 				this.redirectPath = redirectPath;
 			}
@@ -8042,16 +8106,20 @@ babelHelpers;
 			}
 
 			/**
-    * Saves scroll position from page offset into history state.
+    * Saves given scroll position into history state.
+    * @param {!number} scrollTop Number containing the top scroll position to be saved.
+    * @param {!number} scrollLeft Number containing the left scroll position to be saved.
     */
 
 		}, {
 			key: 'saveHistoryCurrentPageScrollPosition_',
-			value: function saveHistoryCurrentPageScrollPosition_() {
+			value: function saveHistoryCurrentPageScrollPosition_(scrollTop, scrollLeft) {
 				var state = globals.window.history.state;
 				if (state && state.senna) {
-					state.scrollTop = globals.window.pageYOffset;
-					state.scrollLeft = globals.window.pageXOffset;
+					var _ref = [scrollTop, scrollLeft];
+					state.scrollTop = _ref[0];
+					state.scrollLeft = _ref[1];
+
 					globals.window.history.replaceState(state, null, null);
 				}
 			}
