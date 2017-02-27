@@ -6988,20 +6988,20 @@ babelHelpers;
 			_this.basePath = '';
 
 			/**
+    * Holds the value of the browser path before a navigation is performed.
+    * @type {!string}
+    * @default the current browser path.
+    * @protected
+    */
+			_this.browserPathBeforeNavigate = utils.getCurrentBrowserPathWithoutHash();
+
+			/**
     * Captures scroll position from scroll event.
     * @type {!boolean}
     * @default true
     * @protected
     */
 			_this.captureScrollPositionFromScrollEvent = true;
-
-			/**
-    * Holds the value of the current browser path.
-    * @type {!string}
-    * @default the current browser path.
-    * @protected
-    */
-			_this.currentBrowserPath = window.location.pathname;
 
 			/**
     * Holds the default page title.
@@ -7416,7 +7416,7 @@ babelHelpers;
 
 				this.activePath = path;
 				this.activeScreen = nextScreen;
-				this.currentBrowserPath = window.location.pathname;
+				this.browserPathBeforeNavigate = utils.getCurrentBrowserPathWithoutHash();
 				this.screens[path] = nextScreen;
 				this.isNavigationPending = false;
 				this.pendingNavigate = null;
@@ -7921,7 +7921,7 @@ babelHelpers;
 
 				if (state.senna) {
 					// Do not navigate if the popstate was triggered by a hash change.
-					if (this.currentBrowserPath === utils.getUrlPathWithoutHash(state.path)) {
+					if (this.browserPathBeforeNavigate === utils.getUrlPathWithoutHash(state.path)) {
 						return;
 					}
 

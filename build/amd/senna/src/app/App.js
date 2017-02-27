@@ -146,20 +146,20 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			_this.basePath = '';
 
 			/**
+    * Holds the value of the browser path before a navigation is performed.
+    * @type {!string}
+    * @default the current browser path.
+    * @protected
+    */
+			_this.browserPathBeforeNavigate = _utils2.default.getCurrentBrowserPathWithoutHash();
+
+			/**
     * Captures scroll position from scroll event.
     * @type {!boolean}
     * @default true
     * @protected
     */
 			_this.captureScrollPositionFromScrollEvent = true;
-
-			/**
-    * Holds the value of the current browser path.
-    * @type {!string}
-    * @default the current browser path.
-    * @protected
-    */
-			_this.currentBrowserPath = window.location.pathname;
 
 			/**
     * Holds the default page title.
@@ -508,7 +508,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 				this.activePath = path;
 				this.activeScreen = nextScreen;
-				this.currentBrowserPath = window.location.pathname;
+				this.browserPathBeforeNavigate = _utils2.default.getCurrentBrowserPathWithoutHash();
 				this.screens[path] = nextScreen;
 				this.isNavigationPending = false;
 				this.pendingNavigate = null;
@@ -807,7 +807,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 				if (state.senna) {
 					// Do not navigate if the popstate was triggered by a hash change.
-					if (this.currentBrowserPath === _utils2.default.getUrlPathWithoutHash(state.path)) {
+					if (this.browserPathBeforeNavigate === _utils2.default.getUrlPathWithoutHash(state.path)) {
 						return;
 					}
 
