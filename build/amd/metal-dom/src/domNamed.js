@@ -698,7 +698,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @return {Element} The converted element, or null if none was found.
   */
 	function toElement(selectorOrElement) {
-		if ((0, _metal.isElement)(selectorOrElement) || (0, _metal.isDocument)(selectorOrElement)) {
+		if ((0, _metal.isElement)(selectorOrElement) || (0, _metal.isDocument)(selectorOrElement) || (0, _metal.isDocumentFragment)(selectorOrElement)) {
 			return selectorOrElement;
 		} else if ((0, _metal.isString)(selectorOrElement)) {
 			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
