@@ -316,7 +316,7 @@ describe('HtmlScreen', function() {
 			done();
 		});
 	});
-	
+
 	it('should have correct title when the title contains html entities', (done) => {
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<title>left &amp; right</title>');
