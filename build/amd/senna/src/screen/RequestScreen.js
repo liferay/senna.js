@@ -250,8 +250,14 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 					return headers.add(header, _this2.httpHeaders[header]);
 				});
 
-				if (_globals2.default.capturedFormElement) {
-					body = new FormData(_globals2.default.capturedFormElement);
+				var formElement = _globals2.default.capturedFormElement;
+				if (formElement) {
+					body = new FormData(formElement);
+					_utils2.default.querySelectorAll(RequestScreen.selectors.submitButtons, formElement).filter(function (button) {
+						return !(button.disabled || body.has(button.name));
+					}).forEach(function (button) {
+						return body.append(button.name, button.value);
+					});
 					httpMethod = RequestScreen.POST;
 					if (_UA2.default.isIeOrEdge) {
 						headers.add('If-None-Match', '"0"');
@@ -328,6 +334,16 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
   * @static
   */
 	RequestScreen.POST = 'post';
+
+	/**
+  * Helper selectors constructing FormData.
+  * @type {object}
+  * @protected
+  * @static
+  */
+	RequestScreen.selectors = {
+		submitButtons: 'button[type=""],button[type="submit"],input[type=submit]'
+	};
 
 	/**
   * Fallback http header to retrieve response request url.

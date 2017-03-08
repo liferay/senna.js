@@ -162,8 +162,8 @@ class HtmlScreen extends RequestScreen {
 	 */
 	evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent, opt_appendResourceFn) {
 		var tracked = this.virtualQuerySelectorAll_(selector);
-		var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
-		var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
+		var temporariesInDoc = utils.querySelectorAll(selectorTemporary);
+		var permanentsInDoc = utils.querySelectorAll(selectorPermanent);
 
 		// Adds permanent resources in document to cache.
 		permanentsInDoc.forEach((resource) => {
@@ -283,15 +283,6 @@ class HtmlScreen extends RequestScreen {
 	 */
 	virtualQuerySelectorAll_(selector) {
 		return Array.prototype.slice.call(this.virtualDocument.querySelectorAll(selector));
-	}
-
-	/**
-	 * Queries elements from document and returns an array of elements.
-	 * @param {!string} selector
-	 * @return {array.<Element>}
-	 */
-	querySelectorAll_(selector) {
-		return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
 	}
 
 	/**

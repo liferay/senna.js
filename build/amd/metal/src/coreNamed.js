@@ -21,6 +21,7 @@ define(['exports'], function (exports) {
   exports.isDef = isDef;
   exports.isDefAndNotNull = isDefAndNotNull;
   exports.isDocument = isDocument;
+  exports.isDocumentFragment = isDocumentFragment;
   exports.isElement = isElement;
   exports.isFunction = isFunction;
   exports.isNull = isNull;
@@ -229,6 +230,15 @@ define(['exports'], function (exports) {
    */
   function isDocument(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 9;
+  }
+
+  /**
+   * Returns true if value is a document-fragment.
+   * @param {*} val
+   * @return {boolean}
+   */
+  function isDocumentFragment(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 11;
   }
 
   /**

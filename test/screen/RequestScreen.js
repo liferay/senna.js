@@ -221,6 +221,39 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
+	it('should add submit input button value into request FormData', (done) => {
+		globals.capturedFormElement = globals.document.createElement('form');
+		const submitButton = globals.document.createElement('input');
+		submitButton.name = 'submitButton';
+		submitButton.value = 'Send';
+		globals.capturedFormElement.appendChild(submitButton);
+		var screen = new RequestScreen();
+		screen.load('/url').then(() => {
+			const body = screen.getRequest().requestBody;
+			assert.strictEqual(submitButton.value, body.get(submitButton.name));
+			globals.capturedFormElement = null;
+			done();
+		});
+		this.requests[0].respond(200);
+	});
+
+	it('should not add disabled submit input button value into request FormData', (done) => {
+		globals.capturedFormElement = globals.document.createElement('form');
+		const submitButton = globals.document.createElement('input');
+		submitButton.name = 'submitButton';
+		submitButton.value = 'Send';
+		submitButton.disabled = true;
+		globals.capturedFormElement.appendChild(submitButton);
+		var screen = new RequestScreen();
+		screen.load('/url').then(() => {
+			const body = screen.getRequest().requestBody;
+			assert.notOk(null, body.get(submitButton.name));
+			globals.capturedFormElement = null;
+			done();
+		});
+		this.requests[0].respond(200);
+	});
+
 	it('should not cache get requests on ie browsers', (done) => {
 		UA.testUserAgent('MSIE'); // Simulates ie user agent
 		var url = '/url';

@@ -45,6 +45,13 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 		}
 
 		_createClass(utils, null, [{
+			key: 'clearNodeAttributes',
+			value: function clearNodeAttributes(node) {
+				Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
+					return node.removeAttribute(attribute.name);
+				});
+			}
+		}, {
 			key: 'copyNodeAttributes',
 			value: function copyNodeAttributes(source, target) {
 				Array.prototype.slice.call(source.attributes).forEach(function (attribute) {
@@ -93,11 +100,11 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
 			}
 		}, {
-			key: 'clearNodeAttributes',
-			value: function clearNodeAttributes(node) {
-				Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
-					return node.removeAttribute(attribute.name);
-				});
+			key: 'querySelectorAll',
+			value: function querySelectorAll(selector) {
+				var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _globals2.default.document;
+
+				return Array.prototype.slice.call(parent.querySelectorAll(selector));
 			}
 		}]);
 

@@ -204,8 +204,12 @@ class RequestScreen extends Screen {
 		var headers = new MultiMap();
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 
-		if (globals.capturedFormElement) {
-			body = new FormData(globals.capturedFormElement);
+		const formElement = globals.capturedFormElement;
+		if (formElement) {
+			body = new FormData(formElement);
+			utils.querySelectorAll(RequestScreen.selectors.submitButtons, formElement)
+				.filter(button => !(button.disabled || body.has(button.name)))
+				.forEach(button => body.append(button.name, button.value));
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
 				headers.add('If-None-Match', '"0"');
@@ -305,6 +309,16 @@ RequestScreen.GET = 'get';
  * @static
  */
 RequestScreen.POST = 'post';
+
+/**
+ * Helper selectors constructing FormData.
+ * @type {object}
+ * @protected
+ * @static
+ */
+RequestScreen.selectors = {
+	submitButtons: 'button[type=""],button[type="submit"],input[type=submit]'
+};
 
 /**
  * Fallback http header to retrieve response request url.

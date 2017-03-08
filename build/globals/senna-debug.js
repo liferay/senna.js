@@ -358,10 +358,20 @@ babelHelpers;
   }
 
   this['sennaNamed']['coreNamed']['isDocument'] = isDocument; /**
-                                                               * Returns true if value is a dom element.
+                                                               * Returns true if value is a document-fragment.
                                                                * @param {*} val
                                                                * @return {boolean}
                                                                */
+
+  function isDocumentFragment(val) {
+    return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 11;
+  }
+
+  this['sennaNamed']['coreNamed']['isDocumentFragment'] = isDocumentFragment; /**
+                                                                               * Returns true if value is a dom element.
+                                                                               * @param {*} val
+                                                                               * @return {boolean}
+                                                                               */
 
   function isElement(val) {
     return val && (typeof val === 'undefined' ? 'undefined' : babelHelpers.typeof(val)) === 'object' && val.nodeType === 1;
@@ -483,6 +493,9 @@ babelHelpers;
     * @return {boolean}
     */
 			value: function equal(arr1, arr2) {
+				if (arr1 === arr2) {
+					return true;
+				}
 				if (arr1.length !== arr2.length) {
 					return false;
 				}
@@ -2291,14 +2304,28 @@ babelHelpers;
 		}
 
 		babelHelpers.createClass(utils, null, [{
-			key: 'copyNodeAttributes',
+			key: 'clearNodeAttributes',
 
+
+			/**
+    * Removes all attributes form node.
+    * @return {void}
+    * @static
+    */
+			value: function clearNodeAttributes(node) {
+				Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
+					return node.removeAttribute(attribute.name);
+				});
+			}
 
 			/**
     * Copies attributes form source node to target node.
     * @return {void}
     * @static
     */
+
+		}, {
+			key: 'copyNodeAttributes',
 			value: function copyNodeAttributes(source, target) {
 				Array.prototype.slice.call(source.attributes).forEach(function (attribute) {
 					return target.setAttribute(attribute.name, attribute.value);
@@ -2397,17 +2424,17 @@ babelHelpers;
 			}
 
 			/**
-    * Removes all attributes form node.
-    * @return {void}
-    * @static
+    * Queries elements from document and returns an array of elements.
+    * @param {!string} selector
+    * @return {array.<Element>}
     */
 
 		}, {
-			key: 'clearNodeAttributes',
-			value: function clearNodeAttributes(node) {
-				Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
-					return node.removeAttribute(attribute.name);
-				});
+			key: 'querySelectorAll',
+			value: function querySelectorAll(selector) {
+				var parent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : globals.document;
+
+				return Array.prototype.slice.call(parent.querySelectorAll(selector));
 			}
 		}]);
 		return utils;
@@ -3530,6 +3557,7 @@ babelHelpers;
 (function () {
 	var isDef = this['sennaNamed']['metal']['isDef'];
 	var isDocument = this['sennaNamed']['metal']['isDocument'];
+	var isDocumentFragment = this['sennaNamed']['metal']['isDocumentFragment'];
 	var isElement = this['sennaNamed']['metal']['isElement'];
 	var isObject = this['sennaNamed']['metal']['isObject'];
 	var isString = this['sennaNamed']['metal']['isString'];
@@ -4218,7 +4246,7 @@ babelHelpers;
   * @return {Element} The converted element, or null if none was found.
   */
 	function toElement(selectorOrElement) {
-		if (isElement(selectorOrElement) || isDocument(selectorOrElement)) {
+		if (isElement(selectorOrElement) || isDocument(selectorOrElement) || isDocumentFragment(selectorOrElement)) {
 			return selectorOrElement;
 		} else if (isString(selectorOrElement)) {
 			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
@@ -8833,8 +8861,14 @@ babelHelpers;
 					return headers.add(header, _this2.httpHeaders[header]);
 				});
 
-				if (globals.capturedFormElement) {
-					body = new FormData(globals.capturedFormElement);
+				var formElement = globals.capturedFormElement;
+				if (formElement) {
+					body = new FormData(formElement);
+					utils.querySelectorAll(RequestScreen.selectors.submitButtons, formElement).filter(function (button) {
+						return !(button.disabled || body.has(button.name));
+					}).forEach(function (button) {
+						return body.append(button.name, button.value);
+					});
 					httpMethod = RequestScreen.POST;
 					if (UA.isIeOrEdge) {
 						headers.add('If-None-Match', '"0"');
@@ -8949,6 +8983,16 @@ babelHelpers;
   * @static
   */
 	RequestScreen.POST = 'post';
+
+	/**
+  * Helper selectors constructing FormData.
+  * @type {object}
+  * @protected
+  * @static
+  */
+	RequestScreen.selectors = {
+		submitButtons: 'button[type=""],button[type="submit"],input[type=submit]'
+	};
 
 	/**
   * Fallback http header to retrieve response request url.
@@ -9169,8 +9213,8 @@ babelHelpers;
 				var _this4 = this;
 
 				var tracked = this.virtualQuerySelectorAll_(selector);
-				var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
-				var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
+				var temporariesInDoc = utils.querySelectorAll(selectorTemporary);
+				var permanentsInDoc = utils.querySelectorAll(selectorPermanent);
 
 				// Adds permanent resources in document to cache.
 				permanentsInDoc.forEach(function (resource) {
@@ -9323,18 +9367,6 @@ babelHelpers;
 			key: 'virtualQuerySelectorAll_',
 			value: function virtualQuerySelectorAll_(selector) {
 				return Array.prototype.slice.call(this.virtualDocument.querySelectorAll(selector));
-			}
-
-			/**
-    * Queries elements from document and returns an array of elements.
-    * @param {!string} selector
-    * @return {array.<Element>}
-    */
-
-		}, {
-			key: 'querySelectorAll_',
-			value: function querySelectorAll_(selector) {
-				return Array.prototype.slice.call(globals.document.querySelectorAll(selector));
 			}
 
 			/**
