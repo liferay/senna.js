@@ -229,8 +229,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				var _this4 = this;
 
 				var tracked = this.virtualQuerySelectorAll_(selector);
-				var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
-				var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
+				var temporariesInDoc = _utils2.default.querySelectorAll(selectorTemporary);
+				var permanentsInDoc = _utils2.default.querySelectorAll(selectorPermanent);
 
 				// Adds permanent resources in document to cache.
 				permanentsInDoc.forEach(function (resource) {
@@ -334,11 +334,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			key: 'virtualQuerySelectorAll_',
 			value: function virtualQuerySelectorAll_(selector) {
 				return Array.prototype.slice.call(this.virtualDocument.querySelectorAll(selector));
-			}
-		}, {
-			key: 'querySelectorAll_',
-			value: function querySelectorAll_(selector) {
-				return Array.prototype.slice.call(_globals2.default.document.querySelectorAll(selector));
 			}
 		}, {
 			key: 'releaseVirtualDocument',
