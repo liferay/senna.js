@@ -10,6 +10,15 @@ import Uri from 'metal-uri';
 class utils {
 
 	/**
+	 * Removes all attributes form node.
+	 * @return {void}
+	 * @static
+	 */
+	static clearNodeAttributes(node) {
+		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
+	}
+
+	/**
 	 * Copies attributes form source node to target node.
 	 * @return {void}
 	 * @static
@@ -89,12 +98,12 @@ class utils {
 	}
 
 	/**
-	 * Removes all attributes form node.
-	 * @return {void}
-	 * @static
+	 * Queries elements from document and returns an array of elements.
+	 * @param {!string} selector
+	 * @return {array.<Element>}
 	 */
-	static clearNodeAttributes(node) {
-		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
+	static querySelectorAll(selector, parent = globals.document) {
+		return Array.prototype.slice.call(parent.querySelectorAll(selector));
 	}
 
 }
