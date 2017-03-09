@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.3
+ * @version v2.1.4
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -7424,6 +7424,7 @@ babelHelpers;
 				this.isNavigationPending = false;
 				this.pendingNavigate = null;
 				globals.capturedFormElement = null;
+				globals.capturedFormButtonElement = null;
 				console.log('Navigation done');
 			}
 
@@ -7682,6 +7683,7 @@ babelHelpers;
 				}
 
 				globals.capturedFormElement = event.capturedFormElement;
+				globals.capturedFormButtonElement = event.capturedFormButtonElement;
 
 				var navigateFailed = false;
 				try {
@@ -7860,6 +7862,12 @@ babelHelpers;
 					return;
 				}
 				event.capturedFormElement = form;
+				var buttonSelector = 'button:not([type]),button[type=submit],input[type=submit]';
+				if (dom.match(globals.document.activeElement, buttonSelector)) {
+					event.capturedFormButtonElement = globals.document.activeElement;
+				} else {
+					event.capturedFormButtonElement = form.querySelector(buttonSelector);
+				}
 				this.maybeNavigate_(form.action, event);
 			}
 
@@ -8896,23 +8904,20 @@ babelHelpers;
 				if (core.isDefAndNotNull(cache)) {
 					return CancellablePromise.resolve(cache);
 				}
-
 				var body = null;
 				var httpMethod = this.httpMethod;
-
 				var headers = new MultiMap();
 				Object.keys(this.httpHeaders).forEach(function (header) {
 					return headers.add(header, _this2.httpHeaders[header]);
 				});
-
 				if (globals.capturedFormElement) {
 					body = new FormData(globals.capturedFormElement);
+					this.maybeAppendSubmitButtonValue(body);
 					httpMethod = RequestScreen.POST;
 					if (UA.isIeOrEdge) {
 						headers.add('If-None-Match', '"0"');
 					}
 				}
-
 				var requestPath = this.formatLoadPath(path);
 				return Ajax.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 					_this2.setRequest(xhr);
@@ -8933,6 +8938,21 @@ babelHelpers;
 					}
 					throw reason;
 				});
+			}
+
+			/**
+    * Adds aditional data to the body of the request in case a submit button
+    * is captured during form submission.
+    * @param {!FormData} body The FormData containing the request body.
+    */
+
+		}, {
+			key: 'maybeAppendSubmitButtonValue',
+			value: function maybeAppendSubmitButtonValue(body) {
+				var button = globals.capturedFormButtonElement;
+				if (button && button.name) {
+					body.append(button.name, button.value);
+				}
 			}
 
 			/**

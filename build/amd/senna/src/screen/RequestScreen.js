@@ -241,23 +241,20 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				if (_metal.core.isDefAndNotNull(cache)) {
 					return _Promise2.default.resolve(cache);
 				}
-
 				var body = null;
 				var httpMethod = this.httpMethod;
-
 				var headers = new _structs.MultiMap();
 				Object.keys(this.httpHeaders).forEach(function (header) {
 					return headers.add(header, _this2.httpHeaders[header]);
 				});
-
 				if (_globals2.default.capturedFormElement) {
 					body = new FormData(_globals2.default.capturedFormElement);
+					this.maybeAppendSubmitButtonValue(body);
 					httpMethod = RequestScreen.POST;
 					if (_UA2.default.isIeOrEdge) {
 						headers.add('If-None-Match', '"0"');
 					}
 				}
-
 				var requestPath = this.formatLoadPath(path);
 				return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
 					_this2.setRequest(xhr);
@@ -278,6 +275,14 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 					}
 					throw reason;
 				});
+			}
+		}, {
+			key: 'maybeAppendSubmitButtonValue',
+			value: function maybeAppendSubmitButtonValue(body) {
+				var button = _globals2.default.capturedFormButtonElement;
+				if (button && button.name) {
+					body.append(button.name, button.value);
+				}
 			}
 		}, {
 			key: 'maybeExtractResponseUrlFromRequest',
