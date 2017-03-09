@@ -450,6 +450,7 @@ class App extends EventEmitter {
 		this.isNavigationPending = false;
 		this.pendingNavigate = null;
 		globals.capturedFormElement = null;
+		globals.capturedFormButtonElement = null;
 		console.log('Navigation done');
 	}
 
@@ -653,6 +654,7 @@ class App extends EventEmitter {
 		}
 
 		globals.capturedFormElement = event.capturedFormElement;
+		globals.capturedFormButtonElement = event.capturedFormButtonElement;
 
 		var navigateFailed = false;
 		try {
@@ -804,6 +806,12 @@ class App extends EventEmitter {
 			return;
 		}
 		event.capturedFormElement = form;
+		const buttonSelector = 'button:not([type]),button[type=submit],input[type=submit]';
+		if (dom.match(globals.document.activeElement, buttonSelector)) {
+			event.capturedFormButtonElement = globals.document.activeElement;
+		} else {
+			event.capturedFormButtonElement = form.querySelector(buttonSelector);
+		}
 		this.maybeNavigate_(form.action, event);
 	}
 
