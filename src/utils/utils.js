@@ -74,7 +74,10 @@ class utils {
 	 */
 	static isCurrentBrowserPath(url) {
 		if (url) {
-			return utils.getUrlPathWithoutHash(url) === this.getCurrentBrowserPathWithoutHash();
+			const currentBrowserPath = this.getCurrentBrowserPathWithoutHash();
+			// the getUrlPath will create a Uri and will normalize the path and
+			// remove the trailling '/' for properly comparing paths.
+			return utils.getUrlPathWithoutHash(url) === this.getUrlPath(currentBrowserPath);
 		}
 		return false;
 	}

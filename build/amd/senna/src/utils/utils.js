@@ -83,7 +83,10 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 			key: 'isCurrentBrowserPath',
 			value: function isCurrentBrowserPath(url) {
 				if (url) {
-					return utils.getUrlPathWithoutHash(url) === this.getCurrentBrowserPathWithoutHash();
+					var currentBrowserPath = this.getCurrentBrowserPathWithoutHash();
+					// the getUrlPath will create a Uri and will normalize the path and
+					// remove the trailling '/' for properly comparing paths.
+					return utils.getUrlPathWithoutHash(url) === this.getUrlPath(currentBrowserPath);
 				}
 				return false;
 			}
