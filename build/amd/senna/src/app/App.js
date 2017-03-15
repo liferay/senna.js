@@ -513,6 +513,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				this.isNavigationPending = false;
 				this.pendingNavigate = null;
 				_globals2.default.capturedFormElement = null;
+				_globals2.default.capturedFormButtonElement = null;
 				void 0;
 			}
 		}, {
@@ -652,6 +653,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 
 				_globals2.default.capturedFormElement = event.capturedFormElement;
+				_globals2.default.capturedFormButtonElement = event.capturedFormButtonElement;
 
 				var navigateFailed = false;
 				try {
@@ -762,6 +764,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					return;
 				}
 				event.capturedFormElement = form;
+				var buttonSelector = 'button:not([type]),button[type=submit],input[type=submit]';
+				if (_dom2.default.match(_globals2.default.document.activeElement, buttonSelector)) {
+					event.capturedFormButtonElement = _globals2.default.document.activeElement;
+				} else {
+					event.capturedFormButtonElement = form.querySelector(buttonSelector);
+				}
 				this.maybeNavigate_(form.action, event);
 			}
 		}, {

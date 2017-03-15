@@ -193,26 +193,23 @@ class RequestScreen extends Screen {
 	 * @inheritDoc
 	 */
 	load(path) {
-		var cache = this.getCache();
+		const cache = this.getCache();
 		if (core.isDefAndNotNull(cache)) {
 			return CancellablePromise.resolve(cache);
 		}
-
-		var body = null;
-		var httpMethod = this.httpMethod;
-
-		var headers = new MultiMap();
+		let body = null;
+		let httpMethod = this.httpMethod;
+		const headers = new MultiMap();
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
-
 		if (globals.capturedFormElement) {
 			body = new FormData(globals.capturedFormElement);
+			this.maybeAppendSubmitButtonValue(body);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
 				headers.add('If-None-Match', '"0"');
 			}
 		}
-
-		var requestPath = this.formatLoadPath(path);
+		const requestPath = this.formatLoadPath(path);
 		return Ajax
 			.request(requestPath, httpMethod, body, headers, null, this.timeout)
 			.then(xhr => {
@@ -235,6 +232,18 @@ class RequestScreen extends Screen {
 				}
 				throw reason;
 			});
+	}
+
+	/**
+	 * Adds aditional data to the body of the request in case a submit button
+	 * is captured during form submission.
+	 * @param {!FormData} body The FormData containing the request body.
+	 */
+	maybeAppendSubmitButtonValue(body) {
+		const button = globals.capturedFormButtonElement;
+		if (button && button.name) {
+			body.append(button.name, button.value);
+		}
 	}
 
 	/**

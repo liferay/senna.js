@@ -221,6 +221,27 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
+	it('should add submit input button value into request FormData', (done) => {
+		globals.capturedFormElement = globals.document.createElement('form');
+		const submitButton = globals.document.createElement('button');
+		submitButton.name = 'submitButton';
+		submitButton.type = 'submit';
+		submitButton.value = 'Send';
+		globals.capturedFormElement.appendChild(submitButton);
+		globals.capturedFormButtonElement = submitButton;
+		var screen = new RequestScreen();
+		var spy = sinon.spy(FormData.prototype, 'append');
+		screen.load('/url')
+			.then(() => {
+				assert.ok(spy.calledWith(submitButton.name, submitButton.value));
+				globals.capturedFormElement = null;
+				globals.capturedFormButtonElement = null;
+				spy.restore();
+				done();
+			});
+		this.requests[0].respond(200);
+	});
+
 	it('should not cache get requests on ie browsers', (done) => {
 		UA.testUserAgent('MSIE'); // Simulates ie user agent
 		var url = '/url';

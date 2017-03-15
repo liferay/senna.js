@@ -1140,18 +1140,46 @@ describe('App', function() {
 	});
 
 	it('should capture form on beforeNavigate', (done) => {
-		var form = enterDocumentFormElement('/path', 'post');
+		const form = enterDocumentFormElement('/path', 'post');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.on('beforeNavigate', (event) => {
 			assert.ok(event.form);
 			exitDocumentFormElement();
+			globals.capturedFormElement = null;
 			done();
 		});
 		dom.on(form, 'submit', sinon.stub());
 		dom.triggerEvent(form, 'submit');
 		assert.ok(globals.capturedFormElement);
+	});
+
+	it('should capture form button when submitting', () => {
+		const form = enterDocumentFormElement('/path', 'post');
+		const button = globals.document.createElement('button');
+		form.appendChild(button);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.addRoutes(new Route('/path', Screen));
+		dom.on(form, 'submit', sinon.stub());
+		dom.triggerEvent(form, 'submit');
+		assert.ok(globals.capturedFormButtonElement);
+		globals.capturedFormButtonElement = null;
+	});
+
+	it('should capture form button when clicking submit button', () => {
+		const form = enterDocumentFormElement('/path', 'post');
+		const button = globals.document.createElement('button');
+		button.type = 'submit';
+		button.tabindex = 1;
+		form.appendChild(button);
+		this.app = new App();
+		this.app.setAllowPreventNavigate(false);
+		this.app.addRoutes(new Route('/path', Screen));
+		button.click();
+		assert.ok(globals.capturedFormButtonElement);
+		globals.capturedFormButtonElement = null;
 	});
 
 	it('should set redirect path if history path was redirected', (done) => {
