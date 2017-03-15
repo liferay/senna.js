@@ -40,10 +40,10 @@ define(['exports', 'metal/src/metal', 'metal-path-parser/src/pathParser'], funct
 		function Route(path, handler) {
 			_classCallCheck(this, Route);
 
-			if (!_metal.core.isDefAndNotNull(path)) {
+			if (!(0, _metal.isDefAndNotNull)(path)) {
 				throw new Error('Route path not specified.');
 			}
-			if (!_metal.core.isFunction(handler)) {
+			if (!(0, _metal.isFunction)(handler)) {
 				throw new Error('Route handler is not a function.');
 			}
 
@@ -86,7 +86,7 @@ define(['exports', 'metal/src/metal', 'metal-path-parser/src/pathParser'], funct
 		}, {
 			key: 'extractParams',
 			value: function extractParams(path) {
-				if (_metal.core.isString(this.path)) {
+				if ((0, _metal.isString)(this.path)) {
 					return (0, _pathParser.extractData)(this.buildParsedData_().tokens, path);
 				}
 				return {};
@@ -106,10 +106,10 @@ define(['exports', 'metal/src/metal', 'metal-path-parser/src/pathParser'], funct
 			value: function matchesPath(value) {
 				var path = this.path;
 
-				if (_metal.core.isFunction(path)) {
+				if ((0, _metal.isFunction)(path)) {
 					return path(value);
 				}
-				if (_metal.core.isString(path)) {
+				if ((0, _metal.isString)(path)) {
 					path = this.buildParsedData_().regex;
 				}
 				if (path instanceof RegExp) {

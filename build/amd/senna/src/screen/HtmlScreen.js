@@ -149,7 +149,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		}, {
 			key: 'appendStyleIntoDocument_',
 			value: function appendStyleIntoDocument_(newStyle) {
-				var isTemporaryStyle = _dom.dom.match(newStyle, HtmlScreen.selectors.stylesTemporary);
+				var isTemporaryStyle = (0, _dom.match)(newStyle, HtmlScreen.selectors.stylesTemporary);
 				if (isTemporaryStyle) {
 					this.pendingStyles.push(newStyle);
 				}
@@ -167,7 +167,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			value: function assertSameBodyIdInVirtualDocument() {
 				var bodySurface = this.virtualDocument.querySelector('body');
 				if (!_globals2.default.document.body.id) {
-					_globals2.default.document.body.id = 'senna_surface_' + _metal.core.getUid();
+					_globals2.default.document.body.id = 'senna_surface_' + (0, _metal.getUid)();
 				}
 				if (bodySurface) {
 					bodySurface.id = _globals2.default.document.body.id;
@@ -196,7 +196,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			value: function disposePendingStyles() {
 				if (this.pendingStyles) {
 					this.pendingStyles.forEach(function (style) {
-						return _dom.dom.exitDocument(style);
+						return (0, _dom.exitDocument)(style);
 					});
 				}
 			}
@@ -240,7 +240,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					}
 				});
 
-				var frag = _dom.dom.buildFragment();
+				var frag = (0, _dom.buildFragment)();
 				tracked.forEach(function (resource) {
 					var resourceKey = _this4.getResourceKey_(resource);
 					// Do not load permanent resources if already in document.
@@ -248,7 +248,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 						frag.appendChild(resource);
 					}
 					// If resource has key and is permanent add to cache.
-					if (resourceKey && _dom.dom.match(resource, selectorPermanent)) {
+					if (resourceKey && (0, _dom.match)(resource, selectorPermanent)) {
 						HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
 					}
 				});
@@ -256,7 +256,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				return new _Promise2.default(function (resolve) {
 					evaluatorFn(frag, function () {
 						temporariesInDoc.forEach(function (resource) {
-							return _dom.dom.exitDocument(resource);
+							return (0, _dom.exitDocument)(resource);
 						});
 						resolve();
 					}, opt_appendResourceFn);

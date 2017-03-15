@@ -1,12 +1,14 @@
-define(['exports', './utils/utils', './app/App', './screen/HtmlScreen', './screen/RequestScreen', './route/Route', './screen/Screen'], function (exports, _utils, _App, _HtmlScreen, _RequestScreen, _Route, _Screen) {
+define(['exports', './utils/utils', './app/dataAttributeHandler', './app/App', './screen/HtmlScreen', './screen/RequestScreen', './route/Route', './screen/Screen'], function (exports, _utils, _dataAttributeHandler, _App, _HtmlScreen, _RequestScreen, _Route, _Screen) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.Screen = exports.RequestScreen = exports.Route = exports.HtmlScreen = exports.App = exports.utils = undefined;
+  exports.Screen = exports.RequestScreen = exports.Route = exports.HtmlScreen = exports.App = exports.utils = exports.dataAttributeHandler = undefined;
 
   var _utils2 = _interopRequireDefault(_utils);
+
+  var _dataAttributeHandler2 = _interopRequireDefault(_dataAttributeHandler);
 
   var _App2 = _interopRequireDefault(_App);
 
@@ -25,6 +27,7 @@ define(['exports', './utils/utils', './app/App', './screen/HtmlScreen', './scree
   }
 
   exports.default = _App2.default;
+  exports.dataAttributeHandler = _dataAttributeHandler2.default;
   exports.utils = _utils2.default;
   exports.App = _App2.default;
   exports.HtmlScreen = _HtmlScreen2.default;
