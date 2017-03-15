@@ -1,6 +1,6 @@
 'use strict';
 
-import { core } from 'metal';
+import { isDefAndNotNull } from 'metal';
 import Ajax from 'metal-ajax';
 import { MultiMap } from 'metal-structs';
 import CancellablePromise from 'metal-promise';
@@ -194,7 +194,7 @@ class RequestScreen extends Screen {
 	 */
 	load(path) {
 		const cache = this.getCache();
-		if (core.isDefAndNotNull(cache)) {
+		if (isDefAndNotNull(cache)) {
 			return CancellablePromise.resolve(cache);
 		}
 		let body = null;

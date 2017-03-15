@@ -13,8 +13,8 @@ var stripDebug = require('gulp-strip-debug');
 // Metal -----------------------------------------------------------------------
 
 var options = {
-  dest: 'build/globals',
-  src: 'src/senna.js',
+	dest: 'build/globals',
+	src: 'src/senna.js',
 	bundleCssFileName: 'senna.css',
 	bundleFileName: 'senna.js',
 	globalName: 'senna',
@@ -78,7 +78,7 @@ var options = {
 			version: '5.0'
 		}
 	}
-}
+};
 
 metal.registerTasks(options);
 
@@ -99,6 +99,12 @@ gulp.task('banner', function() {
 	return gulp.src('build/globals/*.js')
 		.pipe(header(stamp, require('./package.json')))
 		.pipe(gulp.dest('build/globals'));
+});
+
+gulp.task('build:globals:js', function(done) {
+	return buildRollup(options, function() {
+		done();
+	});
 });
 
 gulp.task('clean:debug', function() {
@@ -138,10 +144,4 @@ gulp.task('server', ['default'], function() {
 	connect.server({
 		port: 8888
 	});
-});
-
-gulp.task('build:globals:js', function(done) {
-  buildRollup(options, function() {
-    done();
-  });
 });
