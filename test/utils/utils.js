@@ -84,4 +84,9 @@ describe('utils', function() {
 		assert.ok(!utils.isHtml5HistorySupported());
 	});
 
+	it('should test if a given string is supported by Metal Uri', () => {
+		assert.ok(!utils.validateUrl('tel:+999999999'), 'Metal Uri does not support tel:+999999999');
+		assert.ok(utils.validateUrl('http://sennajs.com'), 'Metal Uri supports http://sennajs.com');
+	});
+
 });

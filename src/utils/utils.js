@@ -100,6 +100,22 @@ class utils {
 		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
 	}
 
+	/**
+	 * Checks if a given url is valid and returns a URI object. Otherwise,
+	 * returns false.
+	 * @return {Object<Uri>|boolean}
+	 * @static
+	 */
+	static validateUrl(url) {
+		try {
+			return new Uri(url);
+		}
+		catch (e) {
+			console.log(`Invalid url ${url}`);
+			return false;
+		}
+	}
+
 }
 
 export default utils;

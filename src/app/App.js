@@ -284,8 +284,13 @@ class App extends EventEmitter {
 	 * @return {boolean}
 	 */
 	canNavigate(url) {
-		var path = utils.getUrlPath(url);
-		var uri = new Uri(url);
+		const uri = utils.validateUrl(url);
+
+		if (!uri) {
+			return false;
+		}
+
+		const path = utils.getUrlPath(url);
 
 		if (!this.isLinkSameOrigin_(uri.getHostname())) {
 			console.log('Offsite link clicked');
@@ -531,8 +536,8 @@ class App extends EventEmitter {
 
 	/**
 	 * Returns the given path formatted to be matched by a route. This will,
-   * for example, remove the base path from it, but make sure it will end
-   * with a '/'.
+	 * for example, remove the base path from it, but make sure it will end
+	 * with a '/'.
 	 * @param {string} path
 	 * @return {string}
 	 */
