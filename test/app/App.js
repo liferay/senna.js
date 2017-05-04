@@ -1528,6 +1528,10 @@ describe('App', function() {
 				super();
 				this.cacheable = true;
 			}
+
+			load(path) {
+				return new CancellablePromise(resolve => setTimeout(resolve, 100));
+			}
 		}
 
 		var app = new App();
@@ -1558,7 +1562,7 @@ describe('App', function() {
 					}
 				});
 				globals.window.history.go(-1);
-				async.nextTick(() => globals.window.history.go(-1));
+				setTimeout(() => globals.window.history.go(-1) , 50);
 			});
 	});
 
