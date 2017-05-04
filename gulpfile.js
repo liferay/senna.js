@@ -77,6 +77,15 @@ metal.registerTasks({
 			platform: 'OS X 10.10',
 			version: '9.2'
 		},
+		sl_ios_10: {
+			appiumVersion: '1.6.4',
+			base: 'SauceLabs',
+			browserName: 'Safari',
+			deviceName: 'iPhone Simulator',
+			deviceOrientation: 'portrait',
+			platformName: 'iOS',
+			platformVersion: '10.2'
+		},
 		sl_android_4: {
 			base: 'SauceLabs',
 			browserName: 'android',
