@@ -108,7 +108,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
     * @type {string}
     * @protected
     */
-			_this.id = _this.makeId_(_metal.core.getUid());
+			_this.id = _this.makeId_((0, _metal.getUid)());
 
 			/**
     * Holds the screen title. Relevant when the page title should be

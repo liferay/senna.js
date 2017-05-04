@@ -1,8 +1,8 @@
 'use strict';
 
 import globals from '../globals/globals';
-import { core, Disposable } from 'metal';
-import dom from 'metal-dom';
+import { Disposable, isDefAndNotNull } from 'metal';
+import { append, removeChildren, exitDocument } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 
 class Surface extends Disposable {
@@ -79,21 +79,21 @@ class Surface extends Disposable {
 	addContent(screenId, opt_content) {
 		var child = this.defaultChild;
 
-		if (core.isDefAndNotNull(opt_content)) {
+		if (isDefAndNotNull(opt_content)) {
 			child = this.getChild(screenId);
 			if (child) {
-				dom.removeChildren(child);
+				removeChildren(child);
 			} else {
 				child = this.createChild(screenId);
 				this.transition(child, null);
 			}
-			dom.append(child, opt_content);
+			append(child, opt_content);
 		}
 
 		var element = this.getElement();
 
 		if (element && child) {
-			dom.append(element, child);
+			append(element, child);
 		}
 
 		return child;
@@ -209,7 +209,7 @@ class Surface extends Disposable {
 		this.activeChild = to;
 		return this.transition(from, to).thenAlways(() => {
 			if (from && from !== to) {
-				dom.exitDocument(from);
+				exitDocument(from);
 			}
 		});
 	}
@@ -221,7 +221,7 @@ class Surface extends Disposable {
 	remove(screenId) {
 		var child = this.getChild(screenId);
 		if (child) {
-			dom.exitDocument(child);
+			exitDocument(child);
 		}
 	}
 

@@ -1,6 +1,6 @@
 'use strict';
 
-import { core } from 'metal';
+import { getUid } from 'metal';
 import { globalEval } from 'metal-dom';
 import Cacheable from '../cacheable/Cacheable';
 import CancellablePromise from 'metal-promise';
@@ -22,7 +22,7 @@ class Screen extends Cacheable {
 		 * @type {string}
 		 * @protected
 		 */
-		this.id = this.makeId_(core.getUid());
+		this.id = this.makeId_(getUid());
 
 		/**
 		 * Holds the screen title. Relevant when the page title should be
