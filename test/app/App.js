@@ -1545,7 +1545,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path2', CacheScreen));
 		app.addRoutes(new Route('/path3', CacheScreen));
 
-		app.navigate('/path1')
+		return app.navigate('/path1')
 			.then(() => app.navigate('/path2'))
 			.then(() => app.navigate('/path3'))
 			.then(() => {
