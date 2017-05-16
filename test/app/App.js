@@ -33,6 +33,8 @@ describe('App', function() {
 		this.app = null;
 		this.xhr.restore();
 		console.log.restore();
+		exitDocumentLinkElement();
+		exitDocumentFormElement();
 	});
 
 	it('should add route', () => {
