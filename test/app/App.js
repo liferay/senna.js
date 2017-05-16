@@ -390,14 +390,6 @@ describe('App', function() {
 
 	it('should get link selector', () => {
 		this.app = new App();
-		assert.strictEqual('a:not([data-senna-off])', this.app.getLinkSelector());
-		this.app.setLinkSelector('');
-		assert.strictEqual('', this.app.getLinkSelector());
-	});
-
-	it('should get link selector', () => {
-		this.app = new App();
-		assert.strictEqual('a:not([data-senna-off])', this.app.getLinkSelector());
 		this.app.setLinkSelector('');
 		assert.strictEqual('', this.app.getLinkSelector());
 	});
