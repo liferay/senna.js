@@ -2,6 +2,7 @@
 
 import utils from '../../src/utils/utils';
 import globals from '../../src/globals/globals';
+import Uri from 'metal-uri';
 
 describe('utils', function() {
 
@@ -85,8 +86,8 @@ describe('utils', function() {
 	});
 
 	it('should test if a given string is supported by Metal Uri', () => {
-		assert.ok(!utils.validateUrl('tel:+999999999'), 'Metal Uri does not support tel:+999999999');
-		assert.ok(utils.validateUrl('http://sennajs.com'), 'Metal Uri supports http://sennajs.com');
+		assert.property(utils.validateUrl('tel:+999999999'), 'error', 'Metal Uri does not support tel:+999999999');
+		assert.instanceOf(utils.validateUrl('http://sennajs.com'), Uri, 'Metal Uri supports http://sennajs.com');
 	});
 
 });

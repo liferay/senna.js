@@ -107,13 +107,19 @@ class utils {
 	 * @static
 	 */
 	static validateUrl(url) {
+		let result = {
+			url: url
+		};
+
 		try {
-			return new Uri(url);
+			result = new Uri(url);
 		}
-		catch (e) {
-			console.log(`Invalid url ${url}`);
-			return false;
+		catch (err) {
+			console.error(`Invalid url ${url}`);
+			result.error = err;
 		}
+
+		return result;
 	}
 
 }

@@ -286,7 +286,7 @@ class App extends EventEmitter {
 	canNavigate(url) {
 		const uri = utils.validateUrl(url);
 
-		if (!uri) {
+		if (uri.error) {
 			return false;
 		}
 
