@@ -12,6 +12,11 @@ define(['exports'], function (exports) {
 	function parseFromAnchor(opt_uri) {
 		var link = document.createElement('a');
 		link.href = opt_uri;
+
+		if (link.protocol === ':' || !/:/.test(link.href)) {
+			throw new TypeError(opt_uri + ' is not a valid URL');
+		}
+
 		return {
 			hash: link.hash,
 			hostname: link.hostname,

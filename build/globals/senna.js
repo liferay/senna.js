@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.5
+ * @version v2.1.6
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -786,29 +786,23 @@ babelHelpers;
 			};
 		}
 		if (typeof Channel !== 'undefined') {
-			var _ret = function () {
-				var channel = new Channel();
-				// Use a fifo linked list to call callbacks in the right order.
-				var head = {};
-				var tail = head;
-				channel.port1.onmessage = function () {
-					head = head.next;
-					var cb = head.cb;
-					head.cb = null;
-					cb();
+			var channel = new Channel();
+			// Use a fifo linked list to call callbacks in the right order.
+			var head = {};
+			var tail = head;
+			channel.port1.onmessage = function () {
+				head = head.next;
+				var cb = head.cb;
+				head.cb = null;
+				cb();
+			};
+			return function (cb) {
+				tail.next = {
+					cb: cb
 				};
-				return {
-					v: function v(cb) {
-						tail.next = {
-							cb: cb
-						};
-						tail = tail.next;
-						channel.port2.postMessage(0);
-					}
-				};
-			}();
-
-			if ((typeof _ret === 'undefined' ? 'undefined' : babelHelpers.typeof(_ret)) === "object") return _ret.v;
+				tail = tail.next;
+				channel.port2.postMessage(0);
+			};
 		}
 		// Implementation for IE6-8: Script elements fire an asynchronous
 		// onreadystatechange event when inserted into the DOM.
@@ -1150,6 +1144,11 @@ babelHelpers;
 	function parseFromAnchor(opt_uri) {
 		var link = document.createElement('a');
 		link.href = opt_uri;
+
+		if (link.protocol === ':' || !/:/.test(link.href)) {
+			throw new TypeError(opt_uri + ' is not a valid URL');
+		}
+
 		return {
 			hash: link.hash,
 			hostname: link.hostname,
@@ -1178,7 +1177,16 @@ babelHelpers;
 
 	function parse(opt_uri) {
 		if (isFunction(URL) && URL.length) {
-			return new URL(opt_uri);
+			var url = new URL(opt_uri);
+
+			// Safari Browsers will cap port to the max 16-bit unsigned integer (65535) instead
+			// of throwing a TypeError as per spec. It will still keep the port number in the
+			// href attribute, so we can use this mismatch to raise the expected exception.
+			if (url.port && url.href.indexOf(url.port) === -1) {
+				throw new TypeError(opt_uri + ' is not a valid URL');
+			}
+
+			return url;
 		} else {
 			return parseFromAnchor(opt_uri);
 		}
@@ -2269,7 +2277,11 @@ babelHelpers;
   */
 
 
-	Uri.DEFAULT_PROTOCOL = 'http:';
+	var shouldInheritProtocol = function shouldInheritProtocol() {
+		return typeof require === 'undefined' && typeof window !== 'undefined';
+	};
+
+	Uri.DEFAULT_PROTOCOL = shouldInheritProtocol() ? window.location.protocol : 'http:';
 
 	/**
   * Hostname placeholder. Relevant to internal usage only.
@@ -2731,23 +2743,15 @@ babelHelpers;
 		}, {
 			key: 'buildFacade_',
 			value: function buildFacade_(event) {
-				var _this2 = this;
-
 				if (this.getShouldUseFacade()) {
-					var _ret = function () {
-						var facade = {
-							preventDefault: function preventDefault() {
-								facade.preventedDefault = true;
-							},
-							target: _this2,
-							type: event
-						};
-						return {
-							v: facade
-						};
-					}();
-
-					if ((typeof _ret === 'undefined' ? 'undefined' : babelHelpers.typeof(_ret)) === "object") return _ret.v;
+					var facade = {
+						preventDefault: function preventDefault() {
+							facade.preventedDefault = true;
+						},
+						target: this,
+						type: event
+					};
+					return facade;
 				}
 			}
 
@@ -4871,6 +4875,7 @@ babelHelpers;
 
 (function () {
 	var registerCustomEvent = this['sennaNamed']['dom']['registerCustomEvent'];
+	var contains = this['sennaNamed']['dom']['contains'];
 	var features = this['senna']['features'];
 
 
@@ -4886,7 +4891,7 @@ babelHelpers;
 			handler: function handler(callback, event) {
 				var related = event.relatedTarget;
 				var target = event.delegateTarget;
-				if (!related || related !== target && !target.contains(related)) {
+				if (!related || related !== target && !contains(target, related)) {
 					event.customType = eventName;
 					return callback(event);
 				}

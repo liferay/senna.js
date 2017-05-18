@@ -13,12 +13,6 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		};
 	}
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-		return typeof obj;
-	} : function (obj) {
-		return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-	};
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
@@ -161,23 +155,15 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'buildFacade_',
 			value: function buildFacade_(event) {
-				var _this2 = this;
-
 				if (this.getShouldUseFacade()) {
-					var _ret = function () {
-						var facade = {
-							preventDefault: function preventDefault() {
-								facade.preventedDefault = true;
-							},
-							target: _this2,
-							type: event
-						};
-						return {
-							v: facade
-						};
-					}();
-
-					if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+					var facade = {
+						preventDefault: function preventDefault() {
+							facade.preventedDefault = true;
+						},
+						target: this,
+						type: event
+					};
+					return facade;
 				}
 			}
 		}, {

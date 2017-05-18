@@ -432,7 +432,11 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
   * @default http:
   * @static
   */
-	Uri.DEFAULT_PROTOCOL = 'http:';
+	var shouldInheritProtocol = function shouldInheritProtocol() {
+		return typeof require === 'undefined' && typeof window !== 'undefined';
+	};
+
+	Uri.DEFAULT_PROTOCOL = shouldInheritProtocol() ? window.location.protocol : 'http:';
 
 	/**
   * Hostname placeholder. Relevant to internal usage only.
