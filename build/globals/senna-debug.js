@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.7
+ * @version v2.1.9
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -2422,6 +2422,24 @@ babelHelpers;
 			key: 'isHtml5HistorySupported',
 			value: function isHtml5HistorySupported() {
 				return !!(globals.window.history && globals.window.history.pushState);
+			}
+
+			/**
+    * Checks if a given url is a valid http(s) uri and returns the formed Uri
+    * or false if the parsing failed
+    * @return {Uri|boolean}
+    * @static
+    */
+
+		}, {
+			key: 'isWebUri',
+			value: function isWebUri(url) {
+				try {
+					return new Uri(url);
+				} catch (err) {
+					console.error(err.message + ' ' + url);
+					return false;
+				}
 			}
 
 			/**
@@ -7238,8 +7256,13 @@ babelHelpers;
 		}, {
 			key: 'canNavigate',
 			value: function canNavigate(url) {
+				var uri = utils.isWebUri(url);
+
+				if (!uri) {
+					return false;
+				}
+
 				var path = utils.getUrlPath(url);
-				var uri = new Uri(url);
 
 				if (!this.isLinkSameOrigin_(uri.getHostname())) {
 					console.log('Offsite link clicked');
@@ -7534,8 +7557,8 @@ babelHelpers;
 
 			/**
     * Returns the given path formatted to be matched by a route. This will,
-     * for example, remove the base path from it, but make sure it will end
-     * with a '/'.
+    * for example, remove the base path from it, but make sure it will end
+    * with a '/'.
     * @param {string} path
     * @return {string}
     */

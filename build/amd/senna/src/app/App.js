@@ -371,8 +371,13 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'canNavigate',
 			value: function canNavigate(url) {
+				var uri = _utils2.default.isWebUri(url);
+
+				if (!uri) {
+					return false;
+				}
+
 				var path = _utils2.default.getUrlPath(url);
-				var uri = new _Uri2.default(url);
 
 				if (!this.isLinkSameOrigin_(uri.getHostname())) {
 					void 0;

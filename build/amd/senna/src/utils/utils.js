@@ -96,6 +96,16 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
 			}
 		}, {
+			key: 'isWebUri',
+			value: function isWebUri(url) {
+				try {
+					return new _Uri2.default(url);
+				} catch (err) {
+					void 0;
+					return false;
+				}
+			}
+		}, {
 			key: 'clearNodeAttributes',
 			value: function clearNodeAttributes(node) {
 				Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
