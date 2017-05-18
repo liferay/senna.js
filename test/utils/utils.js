@@ -85,9 +85,10 @@ describe('utils', function() {
 		assert.ok(!utils.isHtml5HistorySupported());
 	});
 
-	it('should test if a given string is supported by Metal Uri', () => {
-		assert.property(utils.validateUrl('tel:+999999999'), 'error', 'Metal Uri does not support tel:+999999999');
-		assert.instanceOf(utils.validateUrl('http://sennajs.com'), Uri, 'Metal Uri supports http://sennajs.com');
+	it('should test if a given url is a valid web (http/https) uri', () => {
+		assert.ok(!utils.isWebUri('tel:+999999999'), 'tel:+999999999 is not a valid url');
+		assert.ok(!utils.isWebUri('http://localhost:999999999'), 'http://localhost:9999999 is not a valid url');
+		assert.instanceOf(utils.isWebUri('http://localhost:12345'), Uri);
 	});
 
 });

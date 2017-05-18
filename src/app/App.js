@@ -284,9 +284,9 @@ class App extends EventEmitter {
 	 * @return {boolean}
 	 */
 	canNavigate(url) {
-		const uri = utils.validateUrl(url);
+		const uri = utils.isWebUri(url);
 
-		if (uri.error) {
+		if (!uri) {
 			return false;
 		}
 

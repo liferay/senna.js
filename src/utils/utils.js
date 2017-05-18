@@ -92,6 +92,22 @@ class utils {
 	}
 
 	/**
+	 * Checks if a given url is a valid http(s) uri and returns the formed Uri
+	 * or false if the parsing failed
+	 * @return {Uri|boolean}
+	 * @static
+	 */
+	static isWebUri(url) {
+		try {
+			return new Uri(url);
+		}
+		catch (err) {
+			console.error(`${err.message} ${url}`);
+			return false;
+		}
+	}
+
+	/**
 	 * Removes all attributes form node.
 	 * @return {void}
 	 * @static
@@ -99,29 +115,6 @@ class utils {
 	static clearNodeAttributes(node) {
 		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
 	}
-
-	/**
-	 * Checks if a given url is valid and returns a URI object. Otherwise,
-	 * returns false.
-	 * @return {Object<Uri>|boolean}
-	 * @static
-	 */
-	static validateUrl(url) {
-		let result = {
-			url: url
-		};
-
-		try {
-			result = new Uri(url);
-		}
-		catch (err) {
-			console.error(`Invalid url ${url}`);
-			result.error = err;
-		}
-
-		return result;
-	}
-
 }
 
 export default utils;
