@@ -406,6 +406,8 @@ describe('App', function() {
 		assert.ok(!this.app.canNavigate('http://localhost/base/path1'));
 		assert.ok(!this.app.canNavigate('http://localhost/path'));
 		assert.ok(!this.app.canNavigate('http://external/path'));
+		assert.ok(!this.app.canNavigate('tel:+0101010101'));
+		assert.ok(!this.app.canNavigate('mailto:contact@sennajs.com'));
 		globals.window = window;
 	});
 
