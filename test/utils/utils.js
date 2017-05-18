@@ -87,7 +87,6 @@ describe('utils', function() {
 
 	it('should test if a given url is a valid web (http/https) uri', () => {
 		assert.ok(!utils.isWebUri('tel:+999999999'), 'tel:+999999999 is not a valid url');
-		assert.ok(!utils.isWebUri('http://localhost:999999999'), 'http://localhost:9999999 is not a valid url');
 		assert.instanceOf(utils.isWebUri('http://localhost:12345'), Uri);
 	});
 
