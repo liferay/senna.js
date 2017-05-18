@@ -433,7 +433,7 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
   * @static
   */
 	var shouldInheritProtocol = function shouldInheritProtocol() {
-		return typeof require === 'undefined' && typeof window !== 'undefined';
+		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol !== 'about:';
 	};
 
 	Uri.DEFAULT_PROTOCOL = shouldInheritProtocol() ? window.location.protocol : 'http:';

@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.6
+ * @version v2.1.7
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -2278,7 +2278,7 @@ babelHelpers;
 
 
 	var shouldInheritProtocol = function shouldInheritProtocol() {
-		return typeof require === 'undefined' && typeof window !== 'undefined';
+		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol !== 'about:';
 	};
 
 	Uri.DEFAULT_PROTOCOL = shouldInheritProtocol() ? window.location.protocol : 'http:';
