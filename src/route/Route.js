@@ -33,7 +33,7 @@ class Route {
 		 * @type {!string|RegExp|Function}
 		 * @protected
 		 */
-		this.path = core.isString(path) ? utils.getUrlPathWithoutHash(path) : path;
+		this.path = path;
 	}
 
 	/**
