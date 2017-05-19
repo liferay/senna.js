@@ -131,6 +131,20 @@ describe('App', function() {
 		globals.window = window;
 	});
 
+	it('should find route for urls ending with or without slash', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/pathOther', Screen));
+		globals.window = {
+			location: {
+				pathname: '/path/',
+				search: ''
+			}
+		};
+		assert.ok(this.app.findRoute('/pathOther'));
+		assert.ok(this.app.findRoute('/pathOther/'));
+		globals.window = window;
+	});
+
 	it('should ignore query string on findRoute when ignoreQueryStringFromRoutePath is enabled', () => {
 		this.app = new App();
 		this.app.setIgnoreQueryStringFromRoutePath(true);
@@ -442,9 +456,11 @@ describe('App', function() {
 				search: ''
 			}
 		};
-		this.app.addRoutes([new Route('/path/', Screen)]);
+		this.app.addRoutes([new Route('/path/', Screen), new Route('/path/(\\d+)/', Screen)]);
 		assert.ok(this.app.canNavigate('http://localhost/path'));
 		assert.ok(this.app.canNavigate('http://localhost/path/'));
+		assert.ok(this.app.canNavigate('http://localhost/path/123'));
+		assert.ok(this.app.canNavigate('http://localhost/path/123/'));
 		globals.window = window;
 	});
 
