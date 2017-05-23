@@ -1,17 +1,13 @@
-define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', 'metal-events/src/events', '../utils/utils', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri'], function (exports, _metal, _debounce, _dom, _Promise, _events, _utils, _globals, _Route, _Screen, _Surface, _Uri) {
+define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src/events', 'metal-promise/src/promise/Promise', 'metal-debounce/src/debounce', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri', '../utils/utils'], function (exports, _dom, _metal, _events, _Promise, _debounce, _globals, _Route, _Screen, _Surface, _Uri, _utils) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _debounce2 = _interopRequireDefault(_debounce);
-
-	var _dom2 = _interopRequireDefault(_dom);
-
 	var _Promise2 = _interopRequireDefault(_Promise);
 
-	var _utils2 = _interopRequireDefault(_utils);
+	var _debounce2 = _interopRequireDefault(_debounce);
 
 	var _globals2 = _interopRequireDefault(_globals);
 
@@ -22,6 +18,8 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 	var _Surface2 = _interopRequireDefault(_Surface);
 
 	var _Uri2 = _interopRequireDefault(_Uri);
+
+	var _utils2 = _interopRequireDefault(_utils);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -304,7 +302,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 			_this.appEventHandlers_ = new _events.EventHandler();
 
-			_this.appEventHandlers_.add(_dom2.default.on(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 100)), _dom2.default.on(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), _dom2.default.on(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add((0, _dom.on)(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 100)), (0, _dom.on)(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), (0, _dom.on)(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);
@@ -361,7 +359,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					surfaces = [surfaces];
 				}
 				surfaces.forEach(function (surface) {
-					if (_metal.core.isString(surface)) {
+					if ((0, _metal.isString)(surface)) {
 						surface = new _Surface2.default(surface);
 					}
 					_this3.surfaces[surface.getId()] = surface;
@@ -770,7 +768,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				}
 				event.capturedFormElement = form;
 				var buttonSelector = 'button:not([type]),button[type=submit],input[type=submit]';
-				if (_dom2.default.match(_globals2.default.document.activeElement, buttonSelector)) {
+				if ((0, _dom.match)(_globals2.default.document.activeElement, buttonSelector)) {
 					event.capturedFormButtonElement = _globals2.default.document.activeElement;
 				} else {
 					event.capturedFormButtonElement = form.querySelector(buttonSelector);
@@ -848,7 +846,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 
 				this.maybeDisableNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = false;
-				_dom2.default.addClasses(_globals2.default.document.documentElement, this.loadingCssClass);
+				(0, _dom.addClasses)(_globals2.default.document.documentElement, this.loadingCssClass);
 
 				var endNavigatePayload = {
 					form: event.form,
@@ -860,7 +858,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 					throw reason;
 				}).thenAlways(function () {
 					if (!_this8.pendingNavigate) {
-						_dom2.default.removeClasses(_globals2.default.document.documentElement, _this8.loadingCssClass);
+						(0, _dom.removeClasses)(_globals2.default.document.documentElement, _this8.loadingCssClass);
 						_this8.maybeRestoreNativeScrollRestoration();
 						_this8.captureScrollPositionFromScrollEvent = true;
 					}
@@ -894,12 +892,12 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 			key: 'prepareNavigateHistory_',
 			value: function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 				var title = nextScreen.getTitle();
-				if (!_metal.core.isString(title)) {
+				if (!(0, _metal.isString)(title)) {
 					title = this.getDefaultTitle();
 				}
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 				var historyState = {
-					form: _metal.core.isDefAndNotNull(_globals2.default.capturedFormElement),
+					form: (0, _metal.isDefAndNotNull)(_globals2.default.capturedFormElement),
 					path: path,
 					redirectPath: redirectPath,
 					scrollLeft: 0,
@@ -982,7 +980,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				if (this.formEventHandler_) {
 					this.formEventHandler_.removeListener();
 				}
-				this.formEventHandler_ = _dom2.default.delegate(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
+				this.formEventHandler_ = (0, _dom.delegate)(document, 'submit', this.formSelector, this.onDocSubmitDelegate_.bind(this), this.allowPreventNavigate);
 			}
 		}, {
 			key: 'setIgnoreQueryStringFromRoutePath',
@@ -996,7 +994,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 				if (this.linkEventHandler_) {
 					this.linkEventHandler_.removeListener();
 				}
-				this.linkEventHandler_ = _dom2.default.delegate(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
+				this.linkEventHandler_ = (0, _dom.delegate)(document, 'click', this.linkSelector, this.onDocClickDelegate_.bind(this), this.allowPreventNavigate);
 			}
 		}, {
 			key: 'setLoadingCssClass',
