@@ -968,7 +968,7 @@ define(['exports', 'metal/src/metal', 'metal-debounce/src/debounce', 'metal-dom/
 		}, {
 			key: 'setBasePath',
 			value: function setBasePath(basePath) {
-				this.basePath = basePath;
+				this.basePath = _utils2.default.getUrlPathWithoutHash(basePath);
 			}
 		}, {
 			key: 'setDefaultTitle',

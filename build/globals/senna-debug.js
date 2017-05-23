@@ -2277,11 +2277,11 @@ babelHelpers;
   */
 
 
-	var shouldInheritProtocol = function shouldInheritProtocol() {
-		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol !== 'about:';
+	var isSecure = function isSecure() {
+		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.indexOf('https') === 0;
 	};
 
-	Uri.DEFAULT_PROTOCOL = shouldInheritProtocol() ? window.location.protocol : 'http:';
+	Uri.DEFAULT_PROTOCOL = isSecure() ? 'https:' : 'http:';
 
 	/**
   * Hostname placeholder. Relevant to internal usage only.
@@ -8183,7 +8183,7 @@ babelHelpers;
 		}, {
 			key: 'setBasePath',
 			value: function setBasePath(basePath) {
-				this.basePath = basePath;
+				this.basePath = utils.getUrlPathWithoutHash(basePath);
 			}
 
 			/**

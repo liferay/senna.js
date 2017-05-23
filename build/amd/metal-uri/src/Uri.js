@@ -432,11 +432,11 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
   * @default http:
   * @static
   */
-	var shouldInheritProtocol = function shouldInheritProtocol() {
-		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol !== 'about:';
+	var isSecure = function isSecure() {
+		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.indexOf('https') === 0;
 	};
 
-	Uri.DEFAULT_PROTOCOL = shouldInheritProtocol() ? window.location.protocol : 'http:';
+	Uri.DEFAULT_PROTOCOL = isSecure() ? 'https:' : 'http:';
 
 	/**
   * Hostname placeholder. Relevant to internal usage only.
