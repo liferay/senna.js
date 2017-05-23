@@ -2,7 +2,6 @@
 
 import { core } from 'metal';
 import { extractData, parse, toRegex } from 'metal-path-parser';
-import utils from '../utils/utils';
 
 class Route {
 
