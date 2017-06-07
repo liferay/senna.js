@@ -33,6 +33,8 @@ describe('App', function() {
 		this.app = null;
 		this.xhr.restore();
 		console.log.restore();
+		exitDocumentLinkElement();
+		exitDocumentFormElement();
 	});
 
 	it('should add route', () => {
@@ -390,14 +392,7 @@ describe('App', function() {
 
 	it('should get link selector', () => {
 		this.app = new App();
-		assert.strictEqual('a:not([data-senna-off])', this.app.getLinkSelector());
-		this.app.setLinkSelector('');
-		assert.strictEqual('', this.app.getLinkSelector());
-	});
-
-	it('should get link selector', () => {
-		this.app = new App();
-		assert.strictEqual('a:not([data-senna-off])', this.app.getLinkSelector());
+		assert.strictEqual('a:not([data-senna-off]):not([target="_blank"])', this.app.getLinkSelector());
 		this.app.setLinkSelector('');
 		assert.strictEqual('', this.app.getLinkSelector());
 	});
@@ -883,6 +878,16 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path', Screen));
 		dom.triggerEvent(enterDocumentLinkElement('/path'), 'click');
 		assert.ok(this.app.pendingNavigate);
+		exitDocumentLinkElement();
+	});
+
+	it('should not navigate when clicking on target blank links', () => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		let link = enterDocumentLinkElement('/path');
+		link.setAttribute('target', '_blank');
+		dom.triggerEvent(link, 'click');
+		assert.strictEqual(this.app.pendingNavigate, null);
 		exitDocumentLinkElement();
 	});
 
@@ -1595,7 +1600,7 @@ describe('App', function() {
 		app.addRoutes(new Route('/path2', CacheScreen));
 		app.addRoutes(new Route('/path3', CacheScreen));
 
-		app.navigate('/path1')
+		return app.navigate('/path1')
 			.then(() => app.navigate('/path2'))
 			.then(() => app.navigate('/path3'))
 			.then(() => {

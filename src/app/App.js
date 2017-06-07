@@ -98,7 +98,7 @@ class App extends EventEmitter {
 		 * @default a:not([data-senna-off])
 		 * @protected
 		 */
-		this.linkSelector = 'a:not([data-senna-off])';
+		this.linkSelector = 'a:not([data-senna-off]):not([target="_blank"])';
 
 		/**
 		 * Holds the loading css class.
