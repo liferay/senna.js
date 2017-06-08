@@ -7950,9 +7950,13 @@ var Ajax = function () {
 				clearTimeout(timeout);
 			});
 
+			url = new Uri(url);
+
 			if (opt_params) {
-				url = new Uri(url).addParametersFromMultiMap(opt_params).toString();
+				url.addParametersFromMultiMap(opt_params).toString();
 			}
+
+			url = url.toString();
 
 			request.open(method, url, !opt_sync);
 

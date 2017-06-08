@@ -91,9 +91,13 @@ define(['exports', 'metal/src/metal', 'metal-uri/src/Uri', 'metal-promise/src/pr
 					clearTimeout(timeout);
 				});
 
+				url = new _Uri2.default(url);
+
 				if (opt_params) {
-					url = new _Uri2.default(url).addParametersFromMultiMap(opt_params).toString();
+					url.addParametersFromMultiMap(opt_params).toString();
 				}
+
+				url = url.toString();
 
 				request.open(method, url, !opt_sync);
 
