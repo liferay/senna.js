@@ -383,18 +383,9 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
 				return parseFn_;
 			}
 		}, {
-			key: 'normalizeObject',
-			value: function normalizeObject(parsed) {
-				var length = parsed.pathname ? parsed.pathname.length : 0;
-				if (length > 1 && parsed.pathname[length - 1] === '/') {
-					parsed.pathname = parsed.pathname.substr(0, length - 1);
-				}
-				return parsed;
-			}
-		}, {
 			key: 'parse',
 			value: function parse(opt_uri) {
-				return Uri.normalizeObject(parseFn_(opt_uri));
+				return parseFn_(opt_uri);
 			}
 		}, {
 			key: 'setParseFn',

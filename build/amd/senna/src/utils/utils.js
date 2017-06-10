@@ -112,6 +112,15 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 					return node.removeAttribute(attribute.name);
 				});
 			}
+		}, {
+			key: 'removePathTrailingSlash',
+			value: function removePathTrailingSlash(path) {
+				var length = path ? path.length : 0;
+				if (length > 1 && path[length - 1] === '/') {
+					path = path.substr(0, length - 1);
+				}
+				return path;
+			}
 		}]);
 
 		return utils;

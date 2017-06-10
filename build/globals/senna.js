@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.1.11
+ * @version v2.3.0
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -1963,8 +1963,8 @@ var Uri = function () {
 		}
 
 		/**
-   * Normalizes the parsed object to be in the expected standard.
-   * @param {!Object}
+   * Parses the given uri string into an object.
+   * @param {*=} opt_uri Optional string URI to parse
    */
 
 	}, {
@@ -2135,24 +2135,9 @@ var Uri = function () {
 			return parseFn_;
 		}
 	}, {
-		key: 'normalizeObject',
-		value: function normalizeObject(parsed) {
-			var length = parsed.pathname ? parsed.pathname.length : 0;
-			if (length > 1 && parsed.pathname[length - 1] === '/') {
-				parsed.pathname = parsed.pathname.substr(0, length - 1);
-			}
-			return parsed;
-		}
-
-		/**
-   * Parses the given uri string into an object.
-   * @param {*=} opt_uri Optional string URI to parse
-   */
-
-	}, {
 		key: 'parse',
 		value: function parse$$1(opt_uri) {
-			return Uri.normalizeObject(parseFn_(opt_uri));
+			return parseFn_(opt_uri);
 		}
 	}, {
 		key: 'setParseFn',
@@ -2368,6 +2353,22 @@ var utils = function () {
 			Array.prototype.slice.call(node.attributes).forEach(function (attribute) {
 				return node.removeAttribute(attribute.name);
 			});
+		}
+
+		/**
+  * Removes trailing slash in path.
+  * @param {!string}
+  * @return {string}
+  */
+
+	}, {
+		key: 'removePathTrailingSlash',
+		value: function removePathTrailingSlash(path) {
+			var length = path ? path.length : 0;
+			if (length > 1 && path[length - 1] === '/') {
+				path = path.substr(0, length - 1);
+			}
+			return path;
 		}
 	}]);
 	return utils;
@@ -7716,7 +7717,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'setBasePath',
 		value: function setBasePath(basePath) {
-			this.basePath = utils.getUrlPathWithoutHash(basePath);
+			this.basePath = utils.removePathTrailingSlash(basePath);
 		}
 
 		/**

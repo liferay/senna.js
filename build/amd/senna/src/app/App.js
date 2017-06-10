@@ -966,7 +966,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'setBasePath',
 			value: function setBasePath(basePath) {
-				this.basePath = _utils2.default.getUrlPathWithoutHash(basePath);
+				this.basePath = _utils2.default.removePathTrailingSlash(basePath);
 			}
 		}, {
 			key: 'setDefaultTitle',
