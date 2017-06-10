@@ -115,6 +115,19 @@ class utils {
 	static clearNodeAttributes(node) {
 		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
 	}
+
+  /**
+  * Removes trailing slash in path.
+  * @param {!string}
+  * @return {string}
+  */
+  static removePathTrailingSlash(path) {
+    var length = path ? path.length : 0;
+    if (length > 1 && path[length - 1] === '/') {
+      path = path.substr(0, length - 1);
+    }
+    return path;
+  }
 }
 
 export default utils;

@@ -36,7 +36,7 @@
     "metal-structs": "^1.0.0",
     "metal-path-parser": "^1.0.0",
     "metal-promise": "^2.0.0",
-    "metal-uri": "^2.0.0",
+    "metal-uri": "^2.2.6",
     "metal-useragent": "^2.0.0"
   },
   "devDependencies": {
