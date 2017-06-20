@@ -884,9 +884,10 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path', Screen));
 		let link = enterDocumentLinkElement('/path');
 		link.setAttribute('target', '_blank');
+		link.addEventListener('click', event => event.preventDefault());
 		dom.triggerEvent(link, 'click');
-		assert.strictEqual(this.app.pendingNavigate, null);
 		exitDocumentLinkElement();
+		assert.strictEqual(this.app.pendingNavigate, null);
 	});
 
 	it('should pass original event object to "beforeNavigate" when a link is clicked', () => {
