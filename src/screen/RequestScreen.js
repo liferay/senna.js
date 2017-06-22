@@ -203,7 +203,7 @@ class RequestScreen extends Screen {
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 		if (globals.capturedFormElement) {
 			body = new FormData(globals.capturedFormElement);
-			this.maybeAppendSubmitButtonValue(body);
+			this.maybeAppendSubmitButtonValue_(body);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
 				headers.add('If-None-Match', '"0"');
@@ -238,8 +238,9 @@ class RequestScreen extends Screen {
 	 * Adds aditional data to the body of the request in case a submit button
 	 * is captured during form submission.
 	 * @param {!FormData} body The FormData containing the request body.
+	 * @protected
 	 */
-	maybeAppendSubmitButtonValue(body) {
+	maybeAppendSubmitButtonValue_(body) {
 		const button = globals.capturedFormButtonElement;
 		if (button && button.name) {
 			body.append(button.name, button.value);
