@@ -682,7 +682,19 @@ class App extends EventEmitter {
 		if (hash) {
 			var anchorElement = globals.document.getElementById(hash.substring(1));
 			if (anchorElement) {
-				globals.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+				var anchorElementAbsoluteOffsetLeft = anchorElement.offsetLeft;
+				var anchorElementAbsoluteOffsetTop = anchorElement.offsetTop;
+				while (anchorElement.offsetParent) {
+					if (anchorElement == _globals.document.getElementsByTagName('body')[0]) {
+						break;
+					}
+					else {
+						anchorElementAbsoluteOffsetLeft = anchorElementAbsoluteOffsetLeft + anchorElement.offsetParent.offsetLeft;
+						anchorElementAbsoluteOffsetTop = anchorElementAbsoluteOffsetTop + anchorElement.offsetParent.offsetTop;
+						anchorElement = anchorElement.offsetParent;
+					}
+				}
+				globals.window.scrollTo(anchorElementAbsoluteOffsetLeft, anchorElementAbsoluteOffsetTop);
 			}
 		}
 	}
@@ -720,7 +732,19 @@ class App extends EventEmitter {
 		var hash = globals.window.location.hash;
 		var anchorElement = globals.document.getElementById(hash.substring(1));
 		if (anchorElement) {
-			this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+			var anchorElementAbsoluteOffsetLeft = anchorElement.offsetLeft;
+			var anchorElementAbsoluteOffsetTop = anchorElement.offsetTop;
+			while (anchorElement.offsetParent) {
+				if (anchorElement == _globals.document.getElementsByTagName('body')[0]) {
+					break;
+				}
+				else {
+					anchorElementAbsoluteOffsetLeft = anchorElementAbsoluteOffsetLeft + anchorElement.offsetParent.offsetLeft;
+					anchorElementAbsoluteOffsetTop = anchorElementAbsoluteOffsetTop + anchorElement.offsetParent.offsetTop;
+					anchorElement = anchorElement.offsetParent;
+				}
+			}
+			this.saveHistoryCurrentPageScrollPosition_(anchorElementAbsoluteOffsetTop, anchorElementAbsoluteOffsetLeft);
 		}
 	}
 
