@@ -685,7 +685,7 @@ class App extends EventEmitter {
 				var anchorElementAbsoluteOffsetLeft = anchorElement.offsetLeft;
 				var anchorElementAbsoluteOffsetTop = anchorElement.offsetTop;
 				while (anchorElement.offsetParent) {
-					if (anchorElement == _globals.document.getElementsByTagName('body')[0]) {
+					if (anchorElement == globals.document.getElementsByTagName('body')[0]) {
 						break;
 					}
 					else {
@@ -735,7 +735,7 @@ class App extends EventEmitter {
 			var anchorElementAbsoluteOffsetLeft = anchorElement.offsetLeft;
 			var anchorElementAbsoluteOffsetTop = anchorElement.offsetTop;
 			while (anchorElement.offsetParent) {
-				if (anchorElement == _globals.document.getElementsByTagName('body')[0]) {
+				if (anchorElement == globals.document.getElementsByTagName('body')[0]) {
 					break;
 				}
 				else {
