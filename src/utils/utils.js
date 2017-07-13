@@ -37,6 +37,24 @@ class utils {
 	}
 
 	/**
+	 * Gets the given node offset coordinates.
+	 * @return {!object}
+	 * @static
+	 */
+	static getNodeOffset(node) {
+		let [offsetLeft, offsetTop] = [0, 0];
+		do {
+			offsetLeft += node.offsetLeft;
+			offsetTop += node.offsetTop;
+			node = node.offsetParent;
+		} while (node);
+		return {
+			offsetLeft,
+			offsetTop
+		};
+	}
+
+	/**
 	 * Extracts the path part of an url.
 	 * @return {!string}
 	 * @static

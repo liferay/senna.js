@@ -678,23 +678,12 @@ class App extends EventEmitter {
 	 * Maybe reposition scroll to hashed anchor.
 	 */
 	maybeRepositionScrollToHashedAnchor() {
-		var hash = globals.window.location.hash;
+		const hash = globals.window.location.hash;
 		if (hash) {
-			var anchorElement = globals.document.getElementById(hash.substring(1));
+			let anchorElement = globals.document.getElementById(hash.substring(1));
 			if (anchorElement) {
-				var anchorElementAbsoluteOffsetLeft = anchorElement.offsetLeft;
-				var anchorElementAbsoluteOffsetTop = anchorElement.offsetTop;
-				while (anchorElement.offsetParent) {
-					if (anchorElement == globals.document.getElementsByTagName('body')[0]) {
-						break;
-					}
-					else {
-						anchorElementAbsoluteOffsetLeft = anchorElementAbsoluteOffsetLeft + anchorElement.offsetParent.offsetLeft;
-						anchorElementAbsoluteOffsetTop = anchorElementAbsoluteOffsetTop + anchorElement.offsetParent.offsetTop;
-						anchorElement = anchorElement.offsetParent;
-					}
-				}
-				globals.window.scrollTo(anchorElementAbsoluteOffsetLeft, anchorElementAbsoluteOffsetTop);
+				const {offsetLeft, offsetTop} = utils.getNodeOffset(anchorElement);
+				globals.window.scrollTo(offsetLeft, offsetTop);
 			}
 		}
 	}
@@ -732,19 +721,8 @@ class App extends EventEmitter {
 		var hash = globals.window.location.hash;
 		var anchorElement = globals.document.getElementById(hash.substring(1));
 		if (anchorElement) {
-			var anchorElementAbsoluteOffsetLeft = anchorElement.offsetLeft;
-			var anchorElementAbsoluteOffsetTop = anchorElement.offsetTop;
-			while (anchorElement.offsetParent) {
-				if (anchorElement == globals.document.getElementsByTagName('body')[0]) {
-					break;
-				}
-				else {
-					anchorElementAbsoluteOffsetLeft = anchorElementAbsoluteOffsetLeft + anchorElement.offsetParent.offsetLeft;
-					anchorElementAbsoluteOffsetTop = anchorElementAbsoluteOffsetTop + anchorElement.offsetParent.offsetTop;
-					anchorElement = anchorElement.offsetParent;
-				}
-			}
-			this.saveHistoryCurrentPageScrollPosition_(anchorElementAbsoluteOffsetTop, anchorElementAbsoluteOffsetLeft);
+			const {offsetLeft, offsetTop} = utils.getNodeOffset(anchorElement);
+			this.saveHistoryCurrentPageScrollPosition_(offsetTop, offsetLeft);
 		}
 	}
 
