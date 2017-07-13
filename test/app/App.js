@@ -1638,8 +1638,8 @@ describe('App', function() {
 		this.app.navigate('/path1#surfaceId1').then(() => {
 			const surfaceNode = document.querySelector('#surfaceId1');
 			const {offsetLeft, offsetTop} = utils.getNodeOffset(surfaceNode);
-			assert.strictEqual(globals.window.pageYOffset, offsetTop);
-			assert.strictEqual(globals.window.pageXOffset, offsetLeft);
+			assert.strictEqual(window.pageYOffset, offsetTop);
+			assert.strictEqual(window.pageXOffset, offsetLeft);
 			hidePageScrollbar();
 			dom.exitDocument(parentNode);
 			done();
