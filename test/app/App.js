@@ -1,6 +1,5 @@
 'use strict';
 
-import { async } from 'metal';
 import { dom } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
@@ -1588,7 +1587,7 @@ describe('App', function() {
 				this.cacheable = true;
 			}
 
-			load(path) {
+			load() {
 				return new CancellablePromise(resolve => setTimeout(resolve, 100));
 			}
 		}
@@ -1621,7 +1620,7 @@ describe('App', function() {
 					}
 				});
 				globals.window.history.go(-1);
-				setTimeout(() => globals.window.history.go(-1) , 50);
+				setTimeout(() => globals.window.history.go(-1), 50);
 			});
 	});
 
