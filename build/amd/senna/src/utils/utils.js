@@ -62,6 +62,22 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				return _globals2.default.window.location.pathname + _globals2.default.window.location.search;
 			}
 		}, {
+			key: 'getNodeOffset',
+			value: function getNodeOffset(node) {
+				var offsetLeft = 0,
+				    offsetTop = 0;
+
+				do {
+					offsetLeft += node.offsetLeft;
+					offsetTop += node.offsetTop;
+					node = node.offsetParent;
+				} while (node);
+				return {
+					offsetLeft: offsetLeft,
+					offsetTop: offsetTop
+				};
+			}
+		}, {
 			key: 'getUrlPath',
 			value: function getUrlPath(url) {
 				var uri = new _Uri2.default(url);

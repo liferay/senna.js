@@ -20,16 +20,7 @@ define(['exports', 'metal/src/metal', './parseFromAnchor'], function (exports, _
   */
 	function parse(opt_uri) {
 		if ((0, _metal.isFunction)(URL) && URL.length) {
-			var url = new URL(opt_uri);
-
-			// Safari Browsers will cap port to the max 16-bit unsigned integer (65535) instead
-			// of throwing a TypeError as per spec. It will still keep the port number in the
-			// href attribute, so we can use this mismatch to raise the expected exception.
-			if (url.port && url.href.indexOf(url.port) === -1) {
-				throw new TypeError(opt_uri + ' is not a valid URL');
-			}
-
-			return url;
+			return new URL(opt_uri);
 		} else {
 			return (0, _parseFromAnchor2.default)(opt_uri);
 		}

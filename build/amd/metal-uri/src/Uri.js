@@ -383,9 +383,18 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
 				return parseFn_;
 			}
 		}, {
+			key: 'normalizeObject',
+			value: function normalizeObject(parsed) {
+				var length = parsed.pathname ? parsed.pathname.length : 0;
+				if (length > 1 && parsed.pathname[length - 1] === '/') {
+					parsed.pathname = parsed.pathname.substr(0, length - 1);
+				}
+				return parsed;
+			}
+		}, {
 			key: 'parse',
 			value: function parse(opt_uri) {
-				return parseFn_(opt_uri);
+				return Uri.normalizeObject(parseFn_(opt_uri));
 			}
 		}, {
 			key: 'setParseFn',
@@ -423,11 +432,7 @@ define(['exports', 'metal/src/metal', './parse', 'metal-structs/src/all/structs'
   * @default http:
   * @static
   */
-	var isSecure = function isSecure() {
-		return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.indexOf('https') === 0;
-	};
-
-	Uri.DEFAULT_PROTOCOL = isSecure() ? 'https:' : 'http:';
+	Uri.DEFAULT_PROTOCOL = 'http:';
 
 	/**
   * Hostname placeholder. Relevant to internal usage only.

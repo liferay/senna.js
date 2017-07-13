@@ -21,7 +21,7 @@ define(['./dom', './features'], function (_dom, _features) {
 			handler: function handler(callback, event) {
 				var related = event.relatedTarget;
 				var target = event.delegateTarget;
-				if (!related || related !== target && !(0, _dom.contains)(target, related)) {
+				if (!related || related !== target && !target.contains(related)) {
 					event.customType = eventName;
 					return callback(event);
 				}

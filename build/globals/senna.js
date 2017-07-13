@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.3.1
+ * @version v2.3.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -1110,11 +1110,6 @@ var string = function () {
 function parseFromAnchor(opt_uri) {
 	var link = document.createElement('a');
 	link.href = opt_uri;
-
-	if (link.protocol === ':' || !/:/.test(link.href)) {
-		throw new TypeError(opt_uri + ' is not a valid URL');
-	}
-
 	return {
 		hash: link.hash,
 		hostname: link.hostname,
@@ -1134,16 +1129,7 @@ function parseFromAnchor(opt_uri) {
  */
 function parse(opt_uri) {
 	if (isFunction(URL) && URL.length) {
-		var url = new URL(opt_uri);
-
-		// Safari Browsers will cap port to the max 16-bit unsigned integer (65535) instead
-		// of throwing a TypeError as per spec. It will still keep the port number in the
-		// href attribute, so we can use this mismatch to raise the expected exception.
-		if (url.port && url.href.indexOf(url.port) === -1) {
-			throw new TypeError(opt_uri + ' is not a valid URL');
-		}
-
-		return url;
+		return new URL(opt_uri);
 	} else {
 		return parseFromAnchor(opt_uri);
 	}
@@ -1963,8 +1949,8 @@ var Uri = function () {
 		}
 
 		/**
-   * Parses the given uri string into an object.
-   * @param {*=} opt_uri Optional string URI to parse
+   * Normalizes the parsed object to be in the expected standard.
+   * @param {!Object}
    */
 
 	}, {
@@ -2135,9 +2121,24 @@ var Uri = function () {
 			return parseFn_;
 		}
 	}, {
+		key: 'normalizeObject',
+		value: function normalizeObject(parsed) {
+			var length = parsed.pathname ? parsed.pathname.length : 0;
+			if (length > 1 && parsed.pathname[length - 1] === '/') {
+				parsed.pathname = parsed.pathname.substr(0, length - 1);
+			}
+			return parsed;
+		}
+
+		/**
+   * Parses the given uri string into an object.
+   * @param {*=} opt_uri Optional string URI to parse
+   */
+
+	}, {
 		key: 'parse',
 		value: function parse$$1(opt_uri) {
-			return parseFn_(opt_uri);
+			return Uri.normalizeObject(parseFn_(opt_uri));
 		}
 	}, {
 		key: 'setParseFn',
@@ -2184,11 +2185,7 @@ var Uri = function () {
  */
 
 
-var isSecure = function isSecure() {
-	return typeof window !== 'undefined' && window.location && window.location.protocol && window.location.protocol.indexOf('https') === 0;
-};
-
-Uri.DEFAULT_PROTOCOL = isSecure() ? 'https:' : 'http:';
+Uri.DEFAULT_PROTOCOL = 'http:';
 
 /**
  * Hostname placeholder. Relevant to internal usage only.
@@ -2251,6 +2248,29 @@ var utils = function () {
 		key: 'getCurrentBrowserPathWithoutHash',
 		value: function getCurrentBrowserPathWithoutHash() {
 			return globals.window.location.pathname + globals.window.location.search;
+		}
+
+		/**
+   * Gets the given node offset coordinates.
+   * @return {!object}
+   * @static
+   */
+
+	}, {
+		key: 'getNodeOffset',
+		value: function getNodeOffset(node) {
+			var offsetLeft = 0,
+			    offsetTop = 0;
+
+			do {
+				offsetLeft += node.offsetLeft;
+				offsetTop += node.offsetTop;
+				node = node.offsetParent;
+			} while (node);
+			return {
+				offsetLeft: offsetLeft,
+				offsetTop: offsetTop
+			};
 		}
 
 		/**
@@ -4520,7 +4540,7 @@ Object.keys(mouseEventMap).forEach(function (eventName) {
 		handler: function handler(callback, event) {
 			var related = event.relatedTarget;
 			var target = event.delegateTarget;
-			if (!related || related !== target && !contains(target, related)) {
+			if (!related || related !== target && !target.contains(related)) {
 				event.customType = eventName;
 				return callback(event);
 			}
@@ -6593,7 +6613,7 @@ var App$1 = function (_EventEmitter) {
    * @default a:not([data-senna-off])
    * @protected
    */
-		_this.linkSelector = 'a:not([data-senna-off])';
+		_this.linkSelector = 'a:not([data-senna-off]):not([target="_blank"])';
 
 		/**
    * Holds the loading css class.
@@ -7271,7 +7291,11 @@ var App$1 = function (_EventEmitter) {
 			if (hash) {
 				var anchorElement = globals.document.getElementById(hash.substring(1));
 				if (anchorElement) {
-					globals.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+					var _utils$getNodeOffset = utils.getNodeOffset(anchorElement),
+					    offsetLeft = _utils$getNodeOffset.offsetLeft,
+					    offsetTop = _utils$getNodeOffset.offsetTop;
+
+					globals.window.scrollTo(offsetLeft, offsetTop);
 				}
 			}
 		}
@@ -7318,7 +7342,11 @@ var App$1 = function (_EventEmitter) {
 			var hash = globals.window.location.hash;
 			var anchorElement = globals.document.getElementById(hash.substring(1));
 			if (anchorElement) {
-				this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+				var _utils$getNodeOffset2 = utils.getNodeOffset(anchorElement),
+				    offsetLeft = _utils$getNodeOffset2.offsetLeft,
+				    offsetTop = _utils$getNodeOffset2.offsetTop;
+
+				this.saveHistoryCurrentPageScrollPosition_(offsetTop, offsetLeft);
 			}
 		}
 
@@ -7951,13 +7979,9 @@ var Ajax = function () {
 				clearTimeout(timeout);
 			});
 
-			url = new Uri(url);
-
 			if (opt_params) {
-				url.addParametersFromMultiMap(opt_params).toString();
+				url = new Uri(url).addParametersFromMultiMap(opt_params).toString();
 			}
-
-			url = url.toString();
 
 			request.open(method, url, !opt_sync);
 
@@ -8442,7 +8466,7 @@ var RequestScreen = function (_Screen) {
 			});
 			if (globals.capturedFormElement) {
 				body = new FormData(globals.capturedFormElement);
-				this.maybeAppendSubmitButtonValue(body);
+				this.maybeAppendSubmitButtonValue_(body);
 				httpMethod = RequestScreen.POST;
 				if (UA.isIeOrEdge) {
 					headers.add('If-None-Match', '"0"');
@@ -8474,11 +8498,12 @@ var RequestScreen = function (_Screen) {
    * Adds aditional data to the body of the request in case a submit button
    * is captured during form submission.
    * @param {!FormData} body The FormData containing the request body.
+   * @protected
    */
 
 	}, {
-		key: 'maybeAppendSubmitButtonValue',
-		value: function maybeAppendSubmitButtonValue(body) {
+		key: 'maybeAppendSubmitButtonValue_',
+		value: function maybeAppendSubmitButtonValue_(body) {
 			var button = globals.capturedFormButtonElement;
 			if (button && button.name) {
 				body.append(button.name, button.value);

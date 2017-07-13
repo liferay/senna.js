@@ -249,7 +249,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				});
 				if (_globals2.default.capturedFormElement) {
 					body = new FormData(_globals2.default.capturedFormElement);
-					this.maybeAppendSubmitButtonValue(body);
+					this.maybeAppendSubmitButtonValue_(body);
 					httpMethod = RequestScreen.POST;
 					if (_UA2.default.isIeOrEdge) {
 						headers.add('If-None-Match', '"0"');
@@ -277,8 +277,8 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				});
 			}
 		}, {
-			key: 'maybeAppendSubmitButtonValue',
-			value: function maybeAppendSubmitButtonValue(body) {
+			key: 'maybeAppendSubmitButtonValue_',
+			value: function maybeAppendSubmitButtonValue_(body) {
 				var button = _globals2.default.capturedFormButtonElement;
 				if (button && button.name) {
 					body.append(button.name, button.value);

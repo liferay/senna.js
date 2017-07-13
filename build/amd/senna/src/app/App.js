@@ -189,7 +189,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
     * @default a:not([data-senna-off])
     * @protected
     */
-			_this.linkSelector = 'a:not([data-senna-off])';
+			_this.linkSelector = 'a:not([data-senna-off]):not([target="_blank"])';
 
 			/**
     * Holds the loading css class.
@@ -677,7 +677,11 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				if (hash) {
 					var anchorElement = _globals2.default.document.getElementById(hash.substring(1));
 					if (anchorElement) {
-						_globals2.default.window.scrollTo(anchorElement.offsetLeft, anchorElement.offsetTop);
+						var _utils$getNodeOffset = _utils2.default.getNodeOffset(anchorElement),
+						    offsetLeft = _utils$getNodeOffset.offsetLeft,
+						    offsetTop = _utils$getNodeOffset.offsetTop;
+
+						_globals2.default.window.scrollTo(offsetLeft, offsetTop);
 					}
 				}
 			}
@@ -702,7 +706,11 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				var hash = _globals2.default.window.location.hash;
 				var anchorElement = _globals2.default.document.getElementById(hash.substring(1));
 				if (anchorElement) {
-					this.saveHistoryCurrentPageScrollPosition_(anchorElement.offsetTop, anchorElement.offsetLeft);
+					var _utils$getNodeOffset2 = _utils2.default.getNodeOffset(anchorElement),
+					    offsetLeft = _utils$getNodeOffset2.offsetLeft,
+					    offsetTop = _utils$getNodeOffset2.offsetTop;
+
+					this.saveHistoryCurrentPageScrollPosition_(offsetTop, offsetLeft);
 				}
 			}
 		}, {
