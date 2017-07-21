@@ -1177,7 +1177,7 @@ class App extends EventEmitter {
 
 			window.onbeforeunload = e => {
 				this.emit('beforeUnload', e);
-				if (e.defaultPrevented) {
+				if (e && e.defaultPrevented) {
 					return true;
 				}
 			};
