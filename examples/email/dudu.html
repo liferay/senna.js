@@ -16,6 +16,11 @@
 
   <!-- Including Senna -->
   <script src="../../build/globals/senna-debug.js"></script>
+  <script>
+    window.onbeforeunload = function() {
+      return 'test';
+    }
+  </script>
 </head>
 <!-- Initializing Senna via data attributes -->
 <body data-senna>
