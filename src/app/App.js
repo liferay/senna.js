@@ -220,9 +220,11 @@ class App extends EventEmitter {
 		this.on('startNavigate', this.onStartNavigate_);
 		this.on('beforeNavigate', this.onBeforeNavigate_);
 		this.on('beforeNavigate', this.onBeforeNavigateDefault_, true);
+		this.on('beforeUnload', this.onBeforeUnloadDefault_);
 
 		this.setLinkSelector(this.linkSelector);
 		this.setFormSelector(this.formSelector);
+		this.updateGlobalEvents_();
 	}
 
 	/**
@@ -416,6 +418,7 @@ class App extends EventEmitter {
 			.then(() => this.maybeUpdateScrollPositionState_())
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
+			.then(() => this.updateGlobalEvents_())
 			.catch((reason) => {
 				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
@@ -783,6 +786,8 @@ class App extends EventEmitter {
 				return;
 			}
 		}
+
+		this.emit('beforeUnload', event);
 
 		this.emit('startNavigate', {
 			form: event.form,
@@ -1155,6 +1160,43 @@ class App extends EventEmitter {
 		};
 
 		return new CancellablePromise((resolve) => sync() & async.nextTick(() => sync() & resolve()));
+	}
+
+	/**
+	 * Checks whether the onbeforeunload global event handler is overloaded
+	 * by client code. If so, it replaces with a function that halts the normal
+	 * event flow in relation with the client onbeforeunload function.
+	 * This can be in most part used to prematurely terminate navigation to other pages
+	 * according to the given constrait(s). 
+	 * @protected 
+	 */
+	updateGlobalEvents_() {
+		if ('function' === typeof window.onbeforeunload) {
+
+			window._onbeforeunload = window.onbeforeunload;
+
+			window.onbeforeunload = e => {
+				this.emit('beforeUnload', e);
+				if (e.defaultPrevented) {
+					return true;
+				}
+			};
+
+			// mark the updated handler due unwanted recursion 
+			window.onbeforeunload._overloaded = true; 
+		}
+	}
+
+	/**
+	 * Custom event handler that executes the original listener that has been
+	 * added by the client code and terminates the navigation accordingly.
+	 * @protected
+	 */
+	onBeforeUnloadDefault_(e) {
+		var func = window._onbeforeunload;
+		if (!func._overloaded && func()) {
+			e.preventDefault();
+		}		
 	}
 
 	/**
