@@ -169,6 +169,12 @@ gulp.task('default', function(done) {
 
 gulp.task('server', ['default'], function() {
 	connect.server({
-		port: 8888
+		port: 8080
+	});
+});
+
+gulp.task('secondary-server', ['default'], function() {
+	connect.server({
+		port: 8081
 	});
 });

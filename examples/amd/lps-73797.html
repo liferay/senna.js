@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Page 1</title>
+  <link rel="shortcut icon" href="http://sennajs.com/images/favicon.ico">
+
+  <script src="https://cdn.jsdelivr.net/requirejs/2.1.22/require.js"></script>
+</head>
+<body>
+  <h1>Issue LPS-73797</h1>
+  <a href="/redirect">Redirect to http://localhost:8080/examples/amd/page1.html</a>
+
+  <div id="mySurface"></div>
+
+  <!-- Initializing Senna -->
+  <script>
+    requirejs.config({
+      baseUrl: '../../build/amd'
+    });
+
+    requirejs(['senna/src/senna'], function(senna) {
+      var app = new senna.App();
+      app.addSurfaces('mySurface');
+      app.addRoutes([
+        {
+          path: '/redirect',
+          handler: senna.HtmlScreen
+        }
+      ]);
+    });
+  </script>
+</body>
+</html>
