@@ -1194,7 +1194,7 @@ class App extends EventEmitter {
 	 */
 	onBeforeUnloadDefault_(e) {
 		var func = window._onbeforeunload;
-		if (!func._overloaded && func()) {
+		if (func && !func._overloaded && func()) {
 			e.preventDefault();
 		}		
 	}
