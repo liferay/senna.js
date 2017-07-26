@@ -229,6 +229,9 @@ class RequestScreen extends Screen {
 					case errors.REQUEST_ERROR:
 						reason.requestError = true;
 						break;
+					case errors.REQUEST_BLOCKED_BY_CORS:
+						reason.isBlockedByCORS = true;
+						break;
 				}
 				throw reason;
 			});
