@@ -566,12 +566,12 @@ class App extends EventEmitter {
 	 * @param {!Error} error
 	 * @protected
 	 */
-	handleNavigateError_(path, nextScreen, err) {
-		console.log('Navigation error for [' + nextScreen + '] (' + err + ')');
+	handleNavigateError_(path, nextScreen, error) {
+		console.log('Navigation error for [' + nextScreen + '] (' + error + ')');
 		this.emit('navigationError', {
-			err,
-			path,
-			nextScreen
+			error,
+			nextScreen,
+			path
 		});
 		if (!utils.isCurrentBrowserPath(path)) {
 			if (this.isNavigationPending && this.pendingNavigate) {
