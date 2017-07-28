@@ -33,6 +33,6 @@ errors.REQUEST_TIMEOUT = 'Request timeout';
  * @type {string}
  * @static
  */
-errors.REQUEST_BLOCKED_BY_CORS = 'CORS error';
+errors.REQUEST_PREMATURE_TERMINATION = 'Request terminated prematurely';
 
 export default errors;
