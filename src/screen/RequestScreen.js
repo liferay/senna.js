@@ -229,6 +229,9 @@ class RequestScreen extends Screen {
 					case errors.REQUEST_ERROR:
 						reason.requestError = true;
 						break;
+					case errors.REQUEST_PREMATURE_TERMINATION:
+						reason.requestPrematureTermination = true;
+						break;
 				}
 				throw reason;
 			});

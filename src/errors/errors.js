@@ -28,4 +28,11 @@ errors.REQUEST_ERROR = 'Request error';
  */
 errors.REQUEST_TIMEOUT = 'Request timeout';
 
+/**
+ * Request is blocked by CORS issue message.
+ * @type {string}
+ * @static
+ */
+errors.REQUEST_PREMATURE_TERMINATION = 'Request terminated prematurely';
+
 export default errors;
