@@ -2370,7 +2370,7 @@ var utils = function () {
 			try {
 				return new Uri(url);
 			} catch (err) {
-				void 0;
+				console.error(err.message + ' ' + url);
 				return false;
 			}
 		}
@@ -5950,7 +5950,7 @@ var Screen = function (_Cacheable) {
 	createClass(Screen, [{
 		key: 'activate',
 		value: function activate() {
-			void 0;
+			console.log('Screen [' + this + '] activate');
 		}
 
 		/**
@@ -5965,7 +5965,7 @@ var Screen = function (_Cacheable) {
 	}, {
 		key: 'beforeDeactivate',
 		value: function beforeDeactivate() {
-			void 0;
+			console.log('Screen [' + this + '] beforeDeactivate');
 		}
 
 		/**
@@ -6001,7 +6001,7 @@ var Screen = function (_Cacheable) {
 	}, {
 		key: 'deactivate',
 		value: function deactivate() {
-			void 0;
+			console.log('Screen [' + this + '] deactivate');
 		}
 
 		/**
@@ -6014,7 +6014,7 @@ var Screen = function (_Cacheable) {
 		key: 'disposeInternal',
 		value: function disposeInternal() {
 			get(Screen.prototype.__proto__ || Object.getPrototypeOf(Screen.prototype), 'disposeInternal', this).call(this);
-			void 0;
+			console.log('Screen [' + this + '] dispose');
 		}
 
 		/**
@@ -6063,7 +6063,7 @@ var Screen = function (_Cacheable) {
 		value: function flip(surfaces) {
 			var _this2 = this;
 
-			void 0;
+			console.log('Screen [' + this + '] flip');
 
 			var transitions = [];
 
@@ -6101,7 +6101,7 @@ var Screen = function (_Cacheable) {
 	}, {
 		key: 'getSurfaceContent',
 		value: function getSurfaceContent() {
-			void 0;
+			console.log('Screen [' + this + '] getSurfaceContent');
 		}
 
 		/**
@@ -6128,7 +6128,7 @@ var Screen = function (_Cacheable) {
 	}, {
 		key: 'load',
 		value: function load() {
-			void 0;
+			console.log('Screen [' + this + '] load');
 			return CancellablePromise.resolve();
 		}
 
@@ -6833,11 +6833,11 @@ var App$1 = function (_EventEmitter) {
 			var path = utils.getUrlPath(url);
 
 			if (!this.isLinkSameOrigin_(uri.getHostname())) {
-				void 0;
+				console.log('Offsite link clicked');
 				return false;
 			}
 			if (!this.isSameBasePath_(path)) {
-				void 0;
+				console.log('Link clicked outside app\'s base path');
 				return false;
 			}
 			// Prevents navigation if it's a hash change on the same url.
@@ -6845,7 +6845,7 @@ var App$1 = function (_EventEmitter) {
 				return false;
 			}
 			if (!this.findRoute(path)) {
-				void 0;
+				console.log('No route for ' + path);
 				return false;
 			}
 
@@ -6881,7 +6881,7 @@ var App$1 = function (_EventEmitter) {
 		key: 'createScreenInstance',
 		value: function createScreenInstance(path, route) {
 			if (!this.pendingNavigate && path === this.activePath) {
-				void 0;
+				console.log('Already at destination, refresh navigation');
 				return this.activeScreen;
 			}
 			/* jshint newcap: false */
@@ -6893,7 +6893,7 @@ var App$1 = function (_EventEmitter) {
 				} else {
 					screen = handler(route) || new Screen();
 				}
-				void 0;
+				console.log('Create screen for [' + path + '] [' + screen + ']');
 			}
 			return screen;
 		}
@@ -6950,7 +6950,7 @@ var App$1 = function (_EventEmitter) {
 				return this.pendingNavigate;
 			}
 
-			void 0;
+			console.log('Navigate to [' + path + ']');
 
 			this.stopPendingNavigate_();
 			this.isNavigationPending = true;
@@ -7021,7 +7021,7 @@ var App$1 = function (_EventEmitter) {
 			this.pendingNavigate = null;
 			globals.capturedFormElement = null;
 			globals.capturedFormButtonElement = null;
-			void 0;
+			console.log('Navigation done');
 		}
 
 		/**
@@ -7167,7 +7167,7 @@ var App$1 = function (_EventEmitter) {
 		value: function handleNavigateError_(path, nextScreen, error) {
 			var _this6 = this;
 
-			void 0;
+			console.log('Navigation error for [' + nextScreen + '] (' + error + ')');
 			this.emit('navigationError', {
 				error: error,
 				nextScreen: nextScreen,
@@ -7426,7 +7426,7 @@ var App$1 = function (_EventEmitter) {
 		value: function onBeforeNavigateDefault_(event) {
 			if (this.pendingNavigate) {
 				if (this.pendingNavigate.path === event.path) {
-					void 0;
+					console.log('Waiting...');
 					return;
 				}
 			}
@@ -7449,7 +7449,7 @@ var App$1 = function (_EventEmitter) {
 		key: 'onDocClickDelegate_',
 		value: function onDocClickDelegate_(event) {
 			if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-				void 0;
+				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 				return;
 			}
 			this.maybeNavigate_(event.delegateTarget.href, event);
@@ -7467,7 +7467,7 @@ var App$1 = function (_EventEmitter) {
 		value: function onDocSubmitDelegate_(event) {
 			var form = event.delegateTarget;
 			if (form.method === 'get') {
-				void 0;
+				console.log('GET method not supported');
 				return;
 			}
 			event.capturedFormElement = form;
@@ -7546,7 +7546,7 @@ var App$1 = function (_EventEmitter) {
 			}
 
 			if (state.senna) {
-				void 0;
+				console.log('History navigation to [' + state.path + ']');
 				this.popstateScrollTop = state.scrollTop;
 				this.popstateScrollLeft = state.scrollLeft;
 				if (!this.nativeScrollRestorationSupported) {
@@ -7622,7 +7622,7 @@ var App$1 = function (_EventEmitter) {
 				return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
 			}
 
-			void 0;
+			console.log('Prefetching [' + path + ']');
 
 			var nextScreen = this.createScreenInstance(path, route);
 
@@ -7680,7 +7680,7 @@ var App$1 = function (_EventEmitter) {
 			Object.keys(surfaces).forEach(function (id) {
 				var surfaceContent = nextScreen.getSurfaceContent(id, params);
 				surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-				void 0;
+				console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + (isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
 			});
 		}
 
@@ -9117,7 +9117,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 			}
 
 			if (!this.baseElement.hasAttribute(dataAttributes.senna)) {
-				void 0;
+				console.log('Senna was not initialized from data attributes. ' + 'In order to enable its usage from data attributes try setting ' + 'in the base element, e.g. `<body data-senna>`.');
 				return;
 			}
 
@@ -9125,7 +9125,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 				throw new Error('Senna app was already initialized.');
 			}
 
-			void 0;
+			console.log('Senna initialized from data attribute.');
 
 			this.app = new App$1();
 			this.maybeAddRoutes_();
@@ -9187,7 +9187,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 			});
 			if (!this.app.hasRoutes()) {
 				this.app.addRoutes(new Route(/.*/, HtmlScreen));
-				void 0;
+				console.log('Senna can\'t find route elements, adding default.');
 			}
 		}
 
@@ -9230,7 +9230,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		value: function maybeParseLinkRoute_(link) {
 			var route = new Route(this.maybeParseLinkRoutePath_(link), this.maybeParseLinkRouteHandler_(link));
 			this.app.addRoutes(route);
-			void 0;
+			console.log('Senna scanned route ' + route.getPath());
 		}
 
 		/**
@@ -9277,7 +9277,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 			var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
 			if (isDefAndNotNull(basePath)) {
 				this.app.setBasePath(basePath);
-				void 0;
+				console.log('Senna scanned base path ' + basePath);
 			}
 		}
 
@@ -9292,7 +9292,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 			var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
 			if (isDefAndNotNull(linkSelector)) {
 				this.app.setLinkSelector(linkSelector);
-				void 0;
+				console.log('Senna scanned link selector ' + linkSelector);
 			}
 		}
 
@@ -9307,7 +9307,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 			var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
 			if (isDefAndNotNull(loadingCssClass)) {
 				this.app.setLoadingCssClass(loadingCssClass);
-				void 0;
+				console.log('Senna scanned loading css class ' + loadingCssClass);
 			}
 		}
 
@@ -9326,7 +9326,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 				} else {
 					this.app.setUpdateScrollPosition(true);
 				}
-				void 0;
+				console.log('Senna scanned update scroll position ' + updateScrollPosition);
 			}
 		}
 
