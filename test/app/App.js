@@ -1049,6 +1049,34 @@ describe('App', function() {
 		dom.triggerEvent(globals.window, 'popstate');
 	});
 
+	it('should not navigate on clicking links when onbeforeunload returns truthy value', () => {
+		const beforeunload = sinon.spy();
+		window.onbeforeunload = beforeunload;
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', Screen));
+		let link = enterDocumentLinkElement('/path');
+		dom.triggerEvent(link, 'click');
+		exitDocumentLinkElement();
+		assert.strictEqual(1, beforeunload.callCount);
+	});	
+
+	it('should not navigate back to the previous page on navigate back when onbeforeunload returns a truthy value', (done) => {
+		const beforeunload = sinon.spy();
+		window.onbeforeunload = beforeunload;		
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			this.app.navigate('/path2').then(() => {
+				globals.window.history.back();
+				// assumes that the path must remain the same
+				assert.strictEqual('/path2', this.app.activePath);
+				assert.strictEqual(1, beforeunload.callCount);
+				done();
+			});
+		});
+	});
+
 	it('should resposition scroll to hashed anchors on hash popstate', (done) => {
 		if (!canScrollIFrame_) {
 			done();
