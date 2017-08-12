@@ -1058,11 +1058,11 @@ describe('App', function() {
 		dom.triggerEvent(link, 'click');
 		exitDocumentLinkElement();
 		assert.strictEqual(1, beforeunload.callCount);
-	});	
+	});
 
 	it('should not navigate back to the previous page on navigate back when onbeforeunload returns a truthy value', (done) => {
 		const beforeunload = sinon.spy();
-		window.onbeforeunload = beforeunload;		
+		window.onbeforeunload = beforeunload;
 		this.app = new App();
 		this.app.addRoutes(new Route('/path1', Screen));
 		this.app.addRoutes(new Route('/path2', Screen));
