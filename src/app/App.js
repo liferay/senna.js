@@ -224,7 +224,8 @@ class App extends EventEmitter {
 
 		this.setLinkSelector(this.linkSelector);
 		this.setFormSelector(this.formSelector);
-		this.updateGlobalEvents_();
+
+		this.maybeOverloadBeforeUnload_();
 	}
 
 	/**
@@ -418,7 +419,7 @@ class App extends EventEmitter {
 			.then(() => this.maybeUpdateScrollPositionState_())
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
-			.then(() => this.updateGlobalEvents_())
+			.then(() => this.maybeOverloadBeforeUnload_())
 			.catch((reason) => {
 				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
@@ -683,6 +684,30 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Checks whether the onbeforeunload global event handler is overloaded
+	 * by client code. If so, it replaces with a function that halts the normal
+	 * event flow in relation with the client onbeforeunload function.
+	 * This can be in most part used to prematurely terminate navigation to other pages
+	 * according to the given constrait(s). 
+	 * @protected 
+	 */
+	maybeOverloadBeforeUnload_() {
+		if ('function' === typeof window.onbeforeunload) {
+			window._onbeforeunload = window.onbeforeunload;
+
+			window.onbeforeunload = event => {
+				this.emit('beforeUnload', event);
+				if (event && event.defaultPrevented) {
+					return true;
+				}
+			};
+
+			// mark the updated handler due unwanted recursion 
+			window.onbeforeunload._overloaded = true;
+		}
+	}
+
+	/**
 	 * Maybe reposition scroll to hashed anchor.
 	 */
 	maybeRepositionScrollToHashedAnchor() {
@@ -794,6 +819,19 @@ class App extends EventEmitter {
 			path: event.path,
 			replaceHistory: event.replaceHistory
 		});
+	}
+
+	/**
+	 * Custom event handler that executes the original listener that has been
+	 * added by the client code and terminates the navigation accordingly.
+	 * @param {!Event} event original Event facade.
+	 * @protected
+	 */
+	onBeforeUnloadDefault_(event) {
+		var func = window._onbeforeunload;
+		if (func && !func._overloaded && func()) {
+			event.preventDefault();
+		}
 	}
 
 	/**
@@ -1160,43 +1198,6 @@ class App extends EventEmitter {
 		};
 
 		return new CancellablePromise((resolve) => sync() & async.nextTick(() => sync() & resolve()));
-	}
-
-	/**
-	 * Checks whether the onbeforeunload global event handler is overloaded
-	 * by client code. If so, it replaces with a function that halts the normal
-	 * event flow in relation with the client onbeforeunload function.
-	 * This can be in most part used to prematurely terminate navigation to other pages
-	 * according to the given constrait(s). 
-	 * @protected 
-	 */
-	updateGlobalEvents_() {
-		if ('function' === typeof window.onbeforeunload) {
-
-			window._onbeforeunload = window.onbeforeunload;
-
-			window.onbeforeunload = e => {
-				this.emit('beforeUnload', e);
-				if (e && e.defaultPrevented) {
-					return true;
-				}
-			};
-
-			// mark the updated handler due unwanted recursion 
-			window.onbeforeunload._overloaded = true; 
-		}
-	}
-
-	/**
-	 * Custom event handler that executes the original listener that has been
-	 * added by the client code and terminates the navigation accordingly.
-	 * @protected
-	 */
-	onBeforeUnloadDefault_(e) {
-		var func = window._onbeforeunload;
-		if (func && !func._overloaded && func()) {
-			e.preventDefault();
-		}		
 	}
 
 	/**
