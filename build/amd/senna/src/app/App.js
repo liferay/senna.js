@@ -307,9 +307,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigateDefault_, true);
+			_this.on('beforeUnload', _this.onBeforeUnloadDefault_);
 
 			_this.setLinkSelector(_this.linkSelector);
 			_this.setFormSelector(_this.formSelector);
+
+			_this.maybeOverloadBeforeUnload_();
 			return _this;
 		}
 
@@ -487,6 +490,8 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					return _this5.syncScrollPositionSyncThenAsync_();
 				}).then(function () {
 					return _this5.finalizeNavigate_(path, nextScreen);
+				}).then(function () {
+					return _this5.maybeOverloadBeforeUnload_();
 				}).catch(function (reason) {
 					_this5.isNavigationPending = false;
 					_this5.handleNavigateError_(path, nextScreen, reason);
@@ -676,6 +681,25 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				}
 			}
 		}, {
+			key: 'maybeOverloadBeforeUnload_',
+			value: function maybeOverloadBeforeUnload_() {
+				var _this7 = this;
+
+				if ('function' === typeof window.onbeforeunload) {
+					window._onbeforeunload = window.onbeforeunload;
+
+					window.onbeforeunload = function (event) {
+						_this7.emit('beforeUnload', event);
+						if (event && event.defaultPrevented) {
+							return true;
+						}
+					};
+
+					// mark the updated handler due unwanted recursion 
+					window.onbeforeunload._overloaded = true;
+				}
+			}
+		}, {
 			key: 'maybeRepositionScrollToHashedAnchor',
 			value: function maybeRepositionScrollToHashedAnchor() {
 				var hash = _globals2.default.window.location.hash;
@@ -756,11 +780,21 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					}
 				}
 
+				this.emit('beforeUnload', event);
+
 				this.emit('startNavigate', {
 					form: event.form,
 					path: event.path,
 					replaceHistory: event.replaceHistory
 				});
+			}
+		}, {
+			key: 'onBeforeUnloadDefault_',
+			value: function onBeforeUnloadDefault_(event) {
+				var func = window._onbeforeunload;
+				if (func && !func._overloaded && func()) {
+					event.preventDefault();
+				}
 			}
 		}, {
 			key: 'onDocClickDelegate_',
@@ -791,13 +825,13 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'onLoad_',
 			value: function onLoad_() {
-				var _this7 = this;
+				var _this8 = this;
 
 				this.skipLoadPopstate = true;
 				setTimeout(function () {
 					// The timeout ensures that popstate events will be unblocked right
 					// after the load event occured, but not in the same event-loop cycle.
-					_this7.skipLoadPopstate = false;
+					_this8.skipLoadPopstate = false;
 				}, 0);
 				// Try to reposition scroll to the hashed anchor when page loads.
 				this.maybeRepositionScrollToHashedAnchor();
@@ -855,7 +889,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'onStartNavigate_',
 			value: function onStartNavigate_(event) {
-				var _this8 = this;
+				var _this9 = this;
 
 				this.maybeDisableNativeScrollRestoration();
 				this.captureScrollPositionFromScrollEvent = false;
@@ -870,12 +904,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					endNavigatePayload.error = reason;
 					throw reason;
 				}).thenAlways(function () {
-					if (!_this8.pendingNavigate) {
-						(0, _dom.removeClasses)(_globals2.default.document.documentElement, _this8.loadingCssClass);
-						_this8.maybeRestoreNativeScrollRestoration();
-						_this8.captureScrollPositionFromScrollEvent = true;
+					if (!_this9.pendingNavigate) {
+						(0, _dom.removeClasses)(_globals2.default.document.documentElement, _this9.loadingCssClass);
+						_this9.maybeRestoreNativeScrollRestoration();
+						_this9.captureScrollPositionFromScrollEvent = true;
 					}
-					_this8.emit('endNavigate', endNavigatePayload);
+					_this9.emit('endNavigate', endNavigatePayload);
 				});
 
 				this.pendingNavigate.path = event.path;
@@ -883,7 +917,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'prefetch',
 			value: function prefetch(path) {
-				var _this9 = this;
+				var _this10 = this;
 
 				var route = this.findRoute(path);
 				if (!route) {
@@ -895,9 +929,9 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				var nextScreen = this.createScreenInstance(path, route);
 
 				return nextScreen.load(path).then(function () {
-					return _this9.screens[path] = nextScreen;
+					return _this10.screens[path] = nextScreen;
 				}).catch(function (reason) {
-					_this9.handleNavigateError_(path, nextScreen, reason);
+					_this10.handleNavigateError_(path, nextScreen, reason);
 					throw reason;
 				});
 			}
@@ -948,12 +982,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'removeScreen',
 			value: function removeScreen(path) {
-				var _this10 = this;
+				var _this11 = this;
 
 				var screen = this.screens[path];
 				if (screen) {
 					Object.keys(this.surfaces).forEach(function (surfaceId) {
-						return _this10.surfaces[surfaceId].remove(screen.getId());
+						return _this11.surfaces[surfaceId].remove(screen.getId());
 					});
 					screen.dispose();
 					delete this.screens[path];
@@ -1030,7 +1064,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'syncScrollPositionSyncThenAsync_',
 			value: function syncScrollPositionSyncThenAsync_() {
-				var _this11 = this;
+				var _this12 = this;
 
 				var state = _globals2.default.window.history.state;
 				if (!state) {
@@ -1041,7 +1075,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				var scrollLeft = state.scrollLeft;
 
 				var sync = function sync() {
-					if (_this11.updateScrollPosition) {
+					if (_this12.updateScrollPosition) {
 						_globals2.default.window.scrollTo(scrollLeft, scrollTop);
 					}
 				};

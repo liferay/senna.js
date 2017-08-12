@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.4.0
+ * @version v2.4.1
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -6745,9 +6745,12 @@ var App$1 = function (_EventEmitter) {
 		_this.on('startNavigate', _this.onStartNavigate_);
 		_this.on('beforeNavigate', _this.onBeforeNavigate_);
 		_this.on('beforeNavigate', _this.onBeforeNavigateDefault_, true);
+		_this.on('beforeUnload', _this.onBeforeUnloadDefault_);
 
 		_this.setLinkSelector(_this.linkSelector);
 		_this.setFormSelector(_this.formSelector);
+
+		_this.maybeOverloadBeforeUnload_();
 		return _this;
 	}
 
@@ -6975,6 +6978,8 @@ var App$1 = function (_EventEmitter) {
 				return _this5.syncScrollPositionSyncThenAsync_();
 			}).then(function () {
 				return _this5.finalizeNavigate_(path, nextScreen);
+			}).then(function () {
+				return _this5.maybeOverloadBeforeUnload_();
 			}).catch(function (reason) {
 				_this5.isNavigationPending = false;
 				_this5.handleNavigateError_(path, nextScreen, reason);
@@ -7300,6 +7305,35 @@ var App$1 = function (_EventEmitter) {
 		}
 
 		/**
+   * Checks whether the onbeforeunload global event handler is overloaded
+   * by client code. If so, it replaces with a function that halts the normal
+   * event flow in relation with the client onbeforeunload function.
+   * This can be in most part used to prematurely terminate navigation to other pages
+   * according to the given constrait(s). 
+   * @protected 
+   */
+
+	}, {
+		key: 'maybeOverloadBeforeUnload_',
+		value: function maybeOverloadBeforeUnload_() {
+			var _this7 = this;
+
+			if ('function' === typeof window.onbeforeunload) {
+				window._onbeforeunload = window.onbeforeunload;
+
+				window.onbeforeunload = function (event) {
+					_this7.emit('beforeUnload', event);
+					if (event && event.defaultPrevented) {
+						return true;
+					}
+				};
+
+				// mark the updated handler due unwanted recursion 
+				window.onbeforeunload._overloaded = true;
+			}
+		}
+
+		/**
    * Maybe reposition scroll to hashed anchor.
    */
 
@@ -7431,11 +7465,29 @@ var App$1 = function (_EventEmitter) {
 				}
 			}
 
+			this.emit('beforeUnload', event);
+
 			this.emit('startNavigate', {
 				form: event.form,
 				path: event.path,
 				replaceHistory: event.replaceHistory
 			});
+		}
+
+		/**
+   * Custom event handler that executes the original listener that has been
+   * added by the client code and terminates the navigation accordingly.
+   * @param {!Event} event original Event facade.
+   * @protected
+   */
+
+	}, {
+		key: 'onBeforeUnloadDefault_',
+		value: function onBeforeUnloadDefault_(event) {
+			var func = window._onbeforeunload;
+			if (func && !func._overloaded && func()) {
+				event.preventDefault();
+			}
 		}
 
 		/**
@@ -7490,13 +7542,13 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'onLoad_',
 		value: function onLoad_() {
-			var _this7 = this;
+			var _this8 = this;
 
 			this.skipLoadPopstate = true;
 			setTimeout(function () {
 				// The timeout ensures that popstate events will be unblocked right
 				// after the load event occured, but not in the same event-loop cycle.
-				_this7.skipLoadPopstate = false;
+				_this8.skipLoadPopstate = false;
 			}, 0);
 			// Try to reposition scroll to the hashed anchor when page loads.
 			this.maybeRepositionScrollToHashedAnchor();
@@ -7580,7 +7632,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'onStartNavigate_',
 		value: function onStartNavigate_(event) {
-			var _this8 = this;
+			var _this9 = this;
 
 			this.maybeDisableNativeScrollRestoration();
 			this.captureScrollPositionFromScrollEvent = false;
@@ -7595,12 +7647,12 @@ var App$1 = function (_EventEmitter) {
 				endNavigatePayload.error = reason;
 				throw reason;
 			}).thenAlways(function () {
-				if (!_this8.pendingNavigate) {
-					removeClasses(globals.document.documentElement, _this8.loadingCssClass);
-					_this8.maybeRestoreNativeScrollRestoration();
-					_this8.captureScrollPositionFromScrollEvent = true;
+				if (!_this9.pendingNavigate) {
+					removeClasses(globals.document.documentElement, _this9.loadingCssClass);
+					_this9.maybeRestoreNativeScrollRestoration();
+					_this9.captureScrollPositionFromScrollEvent = true;
 				}
-				_this8.emit('endNavigate', endNavigatePayload);
+				_this9.emit('endNavigate', endNavigatePayload);
 			});
 
 			this.pendingNavigate.path = event.path;
@@ -7615,7 +7667,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'prefetch',
 		value: function prefetch(path) {
-			var _this9 = this;
+			var _this10 = this;
 
 			var route = this.findRoute(path);
 			if (!route) {
@@ -7627,9 +7679,9 @@ var App$1 = function (_EventEmitter) {
 			var nextScreen = this.createScreenInstance(path, route);
 
 			return nextScreen.load(path).then(function () {
-				return _this9.screens[path] = nextScreen;
+				return _this10.screens[path] = nextScreen;
 			}).catch(function (reason) {
-				_this9.handleNavigateError_(path, nextScreen, reason);
+				_this10.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
 		}
@@ -7714,12 +7766,12 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'removeScreen',
 		value: function removeScreen(path) {
-			var _this10 = this;
+			var _this11 = this;
 
 			var screen = this.screens[path];
 			if (screen) {
 				Object.keys(this.surfaces).forEach(function (surfaceId) {
-					return _this10.surfaces[surfaceId].remove(screen.getId());
+					return _this11.surfaces[surfaceId].remove(screen.getId());
 				});
 				screen.dispose();
 				delete this.screens[path];
@@ -7866,7 +7918,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'syncScrollPositionSyncThenAsync_',
 		value: function syncScrollPositionSyncThenAsync_() {
-			var _this11 = this;
+			var _this12 = this;
 
 			var state = globals.window.history.state;
 			if (!state) {
@@ -7877,7 +7929,7 @@ var App$1 = function (_EventEmitter) {
 			var scrollLeft = state.scrollLeft;
 
 			var sync = function sync() {
-				if (_this11.updateScrollPosition) {
+				if (_this12.updateScrollPosition) {
 					globals.window.scrollTo(scrollLeft, scrollTop);
 				}
 			};
