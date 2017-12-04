@@ -49,6 +49,7 @@
     "gulp-metal": "^1.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-strip-debug": "^1.1.0",
+    "gulp-template": "^4.0.0",
     "metal-tools-build-rollup": "^2.0.6",
     "run-sequence": "^1.1.5",
     "sinon": "1.17.7"
