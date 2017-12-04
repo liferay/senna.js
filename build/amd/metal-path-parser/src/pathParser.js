@@ -77,7 +77,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
   * @return {string}
   */
 	function escape(str) {
-		return str.replace(/([.+*?=^!:${}()[\]|\/\\])/g, '\\$1');
+		return str.replace(/([.+*?=^!:()[\]|\/\\])/g, '\\$1');
 	}
 
 	/**

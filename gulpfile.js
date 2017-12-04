@@ -6,9 +6,11 @@ var gulp = require('gulp');
 var header = require('gulp-header');
 var jsdoc = require('gulp-jsdoc3');
 var metal = require('gulp-metal');
+var pkg = require('./package.json');
 var rename = require('gulp-rename');
 var runSequence = require('run-sequence');
 var stripDebug = require('gulp-strip-debug');
+var template = require('gulp-template');
 
 // Metal -----------------------------------------------------------------------
 
@@ -161,10 +163,18 @@ gulp.task('docs', function() {
 		}));
 });
 
+gulp.task('version', function() {
+	return gulp.src('build/**/*.js')
+		.pipe(template({
+			version: pkg.version
+		}))
+		.pipe(gulp.dest('build'));
+});
+
 // Runner ----------------------------------------------------------------------
 
 gulp.task('default', function(done) {
-	runSequence('clean', 'css', 'build:globals', 'uglify', 'build:amd', 'banner', 'clean:debug', 'clean:debug:globals', 'clean:debug:amd', done);
+	runSequence('clean', 'css', 'build:globals', 'uglify', 'build:amd', 'banner', 'clean:debug', 'clean:debug:globals', 'clean:debug:amd', 'version', done);
 });
 
 gulp.task('server', ['default'], function() {
