@@ -6,11 +6,11 @@ var gulp = require('gulp');
 var header = require('gulp-header');
 var jsdoc = require('gulp-jsdoc3');
 var metal = require('gulp-metal');
+var pkg = require('./package.json');
 var rename = require('gulp-rename');
-var template = require('gulp-template');
 var runSequence = require('run-sequence');
 var stripDebug = require('gulp-strip-debug');
-var pkg = require('./package.json');
+var template = require('gulp-template');
 
 // Metal -----------------------------------------------------------------------
 
