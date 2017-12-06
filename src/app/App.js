@@ -688,8 +688,8 @@ class App extends EventEmitter {
 	 * by client code. If so, it replaces with a function that halts the normal
 	 * event flow in relation with the client onbeforeunload function.
 	 * This can be in most part used to prematurely terminate navigation to other pages
-	 * according to the given constrait(s). 
-	 * @protected 
+	 * according to the given constrait(s).
+	 * @protected
 	 */
 	maybeOverloadBeforeUnload_() {
 		if ('function' === typeof window.onbeforeunload) {
@@ -702,7 +702,7 @@ class App extends EventEmitter {
 				}
 			};
 
-			// mark the updated handler due unwanted recursion 
+			// mark the updated handler due unwanted recursion
 			window.onbeforeunload._overloaded = true;
 		}
 	}
@@ -945,7 +945,7 @@ class App extends EventEmitter {
 	 */
 	onScroll_() {
 		if (this.captureScrollPositionFromScrollEvent) {
-			this.saveHistoryCurrentPageScrollPosition_(globals.window.pageYOffset, globals.window.pageXOffset);
+			debounce(this.saveHistoryCurrentPageScrollPosition_(globals.window.pageYOffset, globals.window.pageXOffset), 100);
 		}
 	}
 
