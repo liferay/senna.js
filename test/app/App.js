@@ -1658,7 +1658,7 @@ describe('App', function() {
 		this.app.navigate('/path')
 			.then(() => assert.fail())
 			.catch(() => {
-				assert.ok(this.requests[0].aborted);
+				assert.equal(this.requests.length, 0);
 				done();
 			})
 			.cancel();
