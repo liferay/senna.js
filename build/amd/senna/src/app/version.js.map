@@ -1,0 +1,1 @@
+{"version":3,"sources":["version.js"],"names":[],"mappings":";;;;;;oBAGe,gB","file":"src/app/version.js","sourcesContent":["/**\n * @returns String current senna version\n */\nexport default '<%= version %>';"],"sourceRoot":"/source/"}

@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.4.2
+ * @version v2.5.0
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -5575,7 +5575,7 @@ function encloseNonCapturingGroup(pattern) {
  * @return {string}
  */
 function escape(str) {
-	return str.replace(/([.+*?=^!:${}()[\]|\/\\])/g, '\\$1');
+	return str.replace(/([.+*?=^!:()[\]|\/\\])/g, '\\$1');
 }
 
 /**
@@ -9492,6 +9492,11 @@ globals.document.addEventListener('DOMContentLoaded', function () {
   dataAttributeHandler.handle();
 });
 
+/**
+ * @returns String current senna version
+ */
+var version = '2.5.0';
+
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;
 exports.utils = utils;
@@ -9500,6 +9505,7 @@ exports.HtmlScreen = HtmlScreen;
 exports.Route = Route;
 exports.RequestScreen = RequestScreen;
 exports.Screen = Screen;
+exports.version = version;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
