@@ -163,6 +163,14 @@ gulp.task('docs', function() {
 		}));
 });
 
+gulp.task('version', function() {
+	return gulp.src('build/**/*.js')
+		.pipe(template({
+			version: pkg.version
+		}))
+		.pipe(gulp.dest('build'));
+});
+
 // Runner ----------------------------------------------------------------------
 
 gulp.task('default', function(done) {
