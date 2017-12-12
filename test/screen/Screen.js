@@ -27,6 +27,12 @@ describe('Screen', function() {
 		});
 	});
 
+	it('should expose lifecycle beforeActivate', () => {
+		assert.doesNotThrow(() => {
+			new Screen().beforeActivate();
+		});
+	});
+
 	it('should expose lifecycle beforeDeactivate', () => {
 		assert.doesNotThrow(() => {
 			new Screen().beforeDeactivate();

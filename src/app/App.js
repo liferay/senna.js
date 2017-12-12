@@ -383,11 +383,6 @@ class App extends EventEmitter {
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	doNavigate_(path, opt_replaceHistory) {
-		if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-			this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
-			return this.pendingNavigate;
-		}
-
 		var route = this.findRoute(path);
 		if (!route) {
 			this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
@@ -401,7 +396,9 @@ class App extends EventEmitter {
 
 		var nextScreen = this.createScreenInstance(path, route);
 
-		return nextScreen.load(path)
+		return this.maybePreventDeactivate_()
+			.then(() => this.maybePreventActivate_(nextScreen))
+			.then(() => nextScreen.load(path))
 			.then(() => {
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
@@ -688,8 +685,8 @@ class App extends EventEmitter {
 	 * by client code. If so, it replaces with a function that halts the normal
 	 * event flow in relation with the client onbeforeunload function.
 	 * This can be in most part used to prematurely terminate navigation to other pages
-	 * according to the given constrait(s). 
-	 * @protected 
+	 * according to the given constrait(s).
+	 * @protected
 	 */
 	maybeOverloadBeforeUnload_() {
 		if ('function' === typeof window.onbeforeunload) {
@@ -702,9 +699,48 @@ class App extends EventEmitter {
 				}
 			};
 
-			// mark the updated handler due unwanted recursion 
+			// mark the updated handler due unwanted recursion
 			window.onbeforeunload._overloaded = true;
 		}
+	}
+
+	/**
+	 * Cancels navigation if nextScreen's beforeActivate lifecycle method
+	 * resolves to true.
+	 * @param {!Screen} nextScreen
+	 * @return {!CancellablePromise}
+	 */
+	maybePreventActivate_(nextScreen) {
+		return CancellablePromise.resolve()
+			.then(() => {
+				return nextScreen.beforeActivate();
+			})
+			.then(prevent => {
+				if (prevent) {
+					this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by next screen'));
+					return this.pendingNavigate;
+				}
+			});
+	}
+
+	/**
+	 * Cancels navigation if activeScreen's beforeDeactivate lifecycle
+	 * method resolves to true.
+	 * @return {!CancellablePromise}
+	 */
+	maybePreventDeactivate_() {
+		return CancellablePromise.resolve()
+			.then(() => {
+				if (this.activeScreen) {
+					return this.activeScreen.beforeDeactivate();
+				}
+			})
+			.then(prevent => {
+				if (prevent) {
+					this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
+					return this.pendingNavigate;
+				}
+			});
 	}
 
 	/**

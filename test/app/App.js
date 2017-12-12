@@ -818,7 +818,7 @@ describe('App', function() {
 		this.app.dispatch();
 	});
 
-	it('should not navigate if active screen forbid deactivate', (done) => {
+	it('should prevent navigation when beforeDeactivate returns "true"', (done) => {
 		class NoNavigateScreen extends Screen {
 			beforeDeactivate() {
 				return true;
@@ -836,6 +836,74 @@ describe('App', function() {
 				done();
 			});
 		});
+	});
+
+	it('should prevent navigation when beforeDeactivate resolves to "true"', (done) => {
+		class NoNavigateScreen extends Screen {
+			beforeDeactivate() {
+				return new CancellablePromise(resolve => {
+					resolve(true);
+				});
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', NoNavigateScreen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1').then(() => {
+			this.app.on('endNavigate', (payload) => {
+				assert.ok(payload.error instanceof Error);
+			});
+			this.app.navigate('/path2').catch((reason) => {
+				assert.ok(reason instanceof Error);
+				done();
+			});
+		});
+	});
+
+	it('should prevent navigation when beforeActivate returns "true"', (done) => {
+		class NoNavigateScreen extends Screen {
+			beforeActivate() {
+				return true;
+			}
+		}
+
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', NoNavigateScreen));
+		this.app.on('endNavigate', (payload) => {
+			assert.ok(payload.error instanceof Error);
+		});
+		this.app.navigate('/path')
+			.then(() => assert.fail())
+			.catch((reason) => {
+				assert.ok(reason instanceof Error);
+				assert.equal(reason.message, 'Cancelled by next screen');
+
+				done();
+			});
+	});
+
+	it('should prevent navigation when beforeActivate promise resolves to "true"', (done) => {
+		class NoNavigateScreen extends Screen {
+			beforeActivate() {
+				return new CancellablePromise(resolve => {
+					resolve(true);
+				});
+			}
+		}
+
+		this.app = new App();
+		this.app.addRoutes(new Route('/path', NoNavigateScreen));
+		this.app.on('endNavigate', (payload) => {
+			assert.ok(payload.error instanceof Error);
+		});
+		this.app.navigate('/path')
+			.then(() => assert.fail())
+			.catch((reason) => {
+				assert.ok(reason instanceof Error);
+				assert.equal(reason.message, 'Cancelled by next screen');
+
+				done();
+			});
 	});
 
 	it('should prefetch paths', (done) => {
@@ -1590,7 +1658,7 @@ describe('App', function() {
 		this.app.navigate('/path')
 			.then(() => assert.fail())
 			.catch(() => {
-				assert.ok(this.requests[0].aborted);
+				assert.equal(this.requests.length, 0);
 				done();
 			})
 			.cancel();

@@ -44,11 +44,22 @@ class Screen extends Cacheable {
 
 	/**
 	 * Gives the Screen a chance to cancel the navigation and stop itself from
+	 * activating. Can be used, for example, to prevent navigation if a user
+	 * is not authenticated. Lifecycle.
+	 * @return {boolean=|?CancellablePromise=} If returns or resolves to true,
+	 *     the current screen is locked and the next nagivation interrupted.
+	 */
+	beforeActivate() {
+		console.log('Screen [' + this + '] beforeActivate');
+	}
+
+	/**
+	 * Gives the Screen a chance to cancel the navigation and stop itself from
 	 * being deactivated. Can be used, for example, if the screen has unsaved
 	 * state. Lifecycle. Clean-up should not be preformed here, since the
 	 * navigation may still be cancelled. Do clean-up in deactivate.
-	 * @return {boolean=} If returns true, the current screen is locked and the
-	 *     next nagivation interrupted.
+	 * @return {boolean=|?CancellablePromise=} If returns or resolves to true,
+	 *     the current screen is locked and the next nagivation interrupted.
 	 */
 	beforeDeactivate() {
 		console.log('Screen [' + this + '] beforeDeactivate');
