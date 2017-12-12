@@ -5955,11 +5955,25 @@ var Screen = function (_Cacheable) {
 
 		/**
    * Gives the Screen a chance to cancel the navigation and stop itself from
+   * activating. Can be used, for example, to prevent navigation if a user
+   * is not authenticated. Lifecycle.
+   * @return {boolean=|?CancellablePromise=} If returns or resolves to true,
+   *     the current screen is locked and the next nagivation interrupted.
+   */
+
+	}, {
+		key: 'beforeActivate',
+		value: function beforeActivate() {
+			console.log('Screen [' + this + '] beforeActivate');
+		}
+
+		/**
+   * Gives the Screen a chance to cancel the navigation and stop itself from
    * being deactivated. Can be used, for example, if the screen has unsaved
    * state. Lifecycle. Clean-up should not be preformed here, since the
    * navigation may still be cancelled. Do clean-up in deactivate.
-   * @return {boolean=} If returns true, the current screen is locked and the
-   *     next nagivation interrupted.
+   * @return {boolean=|?CancellablePromise=} If returns or resolves to true,
+   *     the current screen is locked and the next nagivation interrupted.
    */
 
 	}, {
@@ -6942,11 +6956,6 @@ var App$1 = function (_EventEmitter) {
 		value: function doNavigate_(path, opt_replaceHistory) {
 			var _this5 = this;
 
-			if (this.activeScreen && this.activeScreen.beforeDeactivate()) {
-				this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
-				return this.pendingNavigate;
-			}
-
 			var route = this.findRoute(path);
 			if (!route) {
 				this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
@@ -6960,7 +6969,11 @@ var App$1 = function (_EventEmitter) {
 
 			var nextScreen = this.createScreenInstance(path, route);
 
-			return nextScreen.load(path).then(function () {
+			return this.maybePreventDeactivate_().then(function () {
+				return _this5.maybePreventActivate_(nextScreen);
+			}).then(function () {
+				return nextScreen.load(path);
+			}).then(function () {
 				if (_this5.activeScreen) {
 					_this5.activeScreen.deactivate();
 				}
@@ -7309,8 +7322,8 @@ var App$1 = function (_EventEmitter) {
    * by client code. If so, it replaces with a function that halts the normal
    * event flow in relation with the client onbeforeunload function.
    * This can be in most part used to prematurely terminate navigation to other pages
-   * according to the given constrait(s). 
-   * @protected 
+   * according to the given constrait(s).
+   * @protected
    */
 
 	}, {
@@ -7328,9 +7341,54 @@ var App$1 = function (_EventEmitter) {
 					}
 				};
 
-				// mark the updated handler due unwanted recursion 
+				// mark the updated handler due unwanted recursion
 				window.onbeforeunload._overloaded = true;
 			}
+		}
+
+		/**
+   * Cancels navigation if nextScreen's beforeActivate lifecycle method
+   * resolves to true.
+   * @param {!Screen} nextScreen
+   * @return {!CancellablePromise}
+   */
+
+	}, {
+		key: 'maybePreventActivate_',
+		value: function maybePreventActivate_(nextScreen) {
+			var _this8 = this;
+
+			return CancellablePromise.resolve().then(function () {
+				return nextScreen.beforeActivate();
+			}).then(function (prevent) {
+				if (prevent) {
+					_this8.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by next screen'));
+					return _this8.pendingNavigate;
+				}
+			});
+		}
+
+		/**
+   * Cancels navigation if activeScreen's beforeDeactivate lifecycle
+   * method resolves to true.
+   * @return {!CancellablePromise}
+   */
+
+	}, {
+		key: 'maybePreventDeactivate_',
+		value: function maybePreventDeactivate_() {
+			var _this9 = this;
+
+			return CancellablePromise.resolve().then(function () {
+				if (_this9.activeScreen) {
+					return _this9.activeScreen.beforeDeactivate();
+				}
+			}).then(function (prevent) {
+				if (prevent) {
+					_this9.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
+					return _this9.pendingNavigate;
+				}
+			});
 		}
 
 		/**
@@ -7542,13 +7600,13 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'onLoad_',
 		value: function onLoad_() {
-			var _this8 = this;
+			var _this10 = this;
 
 			this.skipLoadPopstate = true;
 			setTimeout(function () {
 				// The timeout ensures that popstate events will be unblocked right
 				// after the load event occured, but not in the same event-loop cycle.
-				_this8.skipLoadPopstate = false;
+				_this10.skipLoadPopstate = false;
 			}, 0);
 			// Try to reposition scroll to the hashed anchor when page loads.
 			this.maybeRepositionScrollToHashedAnchor();
@@ -7632,7 +7690,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'onStartNavigate_',
 		value: function onStartNavigate_(event) {
-			var _this9 = this;
+			var _this11 = this;
 
 			this.maybeDisableNativeScrollRestoration();
 			this.captureScrollPositionFromScrollEvent = false;
@@ -7647,12 +7705,12 @@ var App$1 = function (_EventEmitter) {
 				endNavigatePayload.error = reason;
 				throw reason;
 			}).thenAlways(function () {
-				if (!_this9.pendingNavigate) {
-					removeClasses(globals.document.documentElement, _this9.loadingCssClass);
-					_this9.maybeRestoreNativeScrollRestoration();
-					_this9.captureScrollPositionFromScrollEvent = true;
+				if (!_this11.pendingNavigate) {
+					removeClasses(globals.document.documentElement, _this11.loadingCssClass);
+					_this11.maybeRestoreNativeScrollRestoration();
+					_this11.captureScrollPositionFromScrollEvent = true;
 				}
-				_this9.emit('endNavigate', endNavigatePayload);
+				_this11.emit('endNavigate', endNavigatePayload);
 			});
 
 			this.pendingNavigate.path = event.path;
@@ -7667,7 +7725,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'prefetch',
 		value: function prefetch(path) {
-			var _this10 = this;
+			var _this12 = this;
 
 			var route = this.findRoute(path);
 			if (!route) {
@@ -7679,9 +7737,9 @@ var App$1 = function (_EventEmitter) {
 			var nextScreen = this.createScreenInstance(path, route);
 
 			return nextScreen.load(path).then(function () {
-				return _this10.screens[path] = nextScreen;
+				return _this12.screens[path] = nextScreen;
 			}).catch(function (reason) {
-				_this10.handleNavigateError_(path, nextScreen, reason);
+				_this12.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			});
 		}
@@ -7766,12 +7824,12 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'removeScreen',
 		value: function removeScreen(path) {
-			var _this11 = this;
+			var _this13 = this;
 
 			var screen = this.screens[path];
 			if (screen) {
 				Object.keys(this.surfaces).forEach(function (surfaceId) {
-					return _this11.surfaces[surfaceId].remove(screen.getId());
+					return _this13.surfaces[surfaceId].remove(screen.getId());
 				});
 				screen.dispose();
 				delete this.screens[path];
@@ -7918,7 +7976,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'syncScrollPositionSyncThenAsync_',
 		value: function syncScrollPositionSyncThenAsync_() {
-			var _this12 = this;
+			var _this14 = this;
 
 			var state = globals.window.history.state;
 			if (!state) {
@@ -7929,7 +7987,7 @@ var App$1 = function (_EventEmitter) {
 			var scrollLeft = state.scrollLeft;
 
 			var sync = function sync() {
-				if (_this12.updateScrollPosition) {
+				if (_this14.updateScrollPosition) {
 					globals.window.scrollTo(scrollLeft, scrollTop);
 				}
 			};

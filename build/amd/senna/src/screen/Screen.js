@@ -133,6 +133,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 				void 0;
 			}
 		}, {
+			key: 'beforeActivate',
+			value: function beforeActivate() {
+				void 0;
+			}
+		}, {
 			key: 'beforeDeactivate',
 			value: function beforeDeactivate() {
 				void 0;
