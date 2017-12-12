@@ -7,7 +7,7 @@ import HtmlScreen from './screen/HtmlScreen';
 import RequestScreen from './screen/RequestScreen';
 import Route from './route/Route';
 import Screen from './screen/Screen';
-import version from './version';
+import version from './app/version';
 
 export default App;
 export { dataAttributeHandler, utils, App, HtmlScreen, Route, RequestScreen, Screen, version };
