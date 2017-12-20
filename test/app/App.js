@@ -1742,6 +1742,22 @@ describe('App', function() {
 		});
 	});
 
+	it('should update the document.referrer upon navigation', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+
+		this.app.navigate('/path1').then(() => {
+			this.app.navigate('/path2').then(() => {
+				assert.strictEqual(globals.document.referrer, '/path1');
+				this.app.navigate('/path1').then(() => {
+					assert.strictEqual(globals.document.referrer, '/path2');
+					done();
+				});
+			});
+		});
+	});
+
 });
 
 var canScrollIFrame_ = false;
