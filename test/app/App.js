@@ -1749,9 +1749,10 @@ describe('App', function() {
 
 		this.app.navigate('/path1').then(() => {
 			this.app.navigate('/path2').then(() => {
-				assert.strictEqual(globals.document.referrer, '/path1');
+				const origin = globals.window.location.origin;
+				assert.strictEqual(globals.document.referrer, origin + '/path1');
 				this.app.navigate('/path1').then(() => {
-					assert.strictEqual(globals.document.referrer, '/path2');
+					assert.strictEqual(globals.document.referrer, origin + '/path2');
 					done();
 				});
 			});
