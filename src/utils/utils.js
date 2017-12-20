@@ -145,6 +145,18 @@ class utils {
 		}
 		return path;
 	}
+
+	/**
+	 * Overrides document referrer
+	 * @param {string} referrer
+	 * @static
+	 */
+	static setReferrer(referrer) {
+		Object.defineProperty(globals.document, 'referrer', {
+			configurable: true,
+			get: function () { return referrer; }
+		});
+	}
 }
 
 export default utils;
