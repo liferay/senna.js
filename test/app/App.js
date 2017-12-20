@@ -1749,10 +1749,9 @@ describe('App', function() {
 
 		this.app.navigate('/path1').then(() => {
 			this.app.navigate('/path2').then(() => {
-				const origin = globals.window.location.origin;
-				assert.strictEqual(globals.document.referrer, origin + '/path1');
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
 				this.app.navigate('/path1').then(() => {
-					assert.strictEqual(globals.document.referrer, origin + '/path2');
+					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2');
 					done();
 				});
 			});
