@@ -22,7 +22,7 @@ describe('App', function() {
 			requests.push(xhr);
 		};
 		// Prevent log messages from showing up in test output.
-		sinon.stub(console, 'log');
+		// sinon.stub(console, 'log');
 	});
 
 	afterEach(() => {
@@ -31,7 +31,7 @@ describe('App', function() {
 		}
 		this.app = null;
 		this.xhr.restore();
-		console.log.restore();
+		// console.log.restore();
 	});
 
 	it('should add route', () => {

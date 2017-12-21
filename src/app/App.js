@@ -12,6 +12,12 @@ import Surface from '../surface/Surface';
 import Uri from 'metal-uri';
 import utils from '../utils/utils';
 
+const DOM_EXCEPTION_18_TIME = 30000;
+const DOM_EXCEPTION_18_COUNT = 100;
+
+let stateUpdateTime = new Date();
+let stateUpdateCount = 0;
+
 class App extends EventEmitter {
 
 	/**
@@ -403,7 +409,9 @@ class App extends EventEmitter {
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}
-				this.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
+				return this.prepareNavigateHistory_(path, nextScreen, opt_replaceHistory);
+			})
+			.then(() => {
 				this.prepareNavigateSurfaces_(
 					nextScreen,
 					this.surfaces,
@@ -1067,8 +1075,9 @@ class App extends EventEmitter {
 		}
 		const hash = new Uri(path).getHash();
 		redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
-		this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 		this.redirectPath = redirectPath;
+		return this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
+		
 	}
 
 	/**
@@ -1245,20 +1254,50 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	updateHistory_(title, path, state, opt_replaceHistory) {
-		utils.setReferrer(globals.window.location.href);
+		const updateHistory = () => {
+			utils.setReferrer(globals.window.location.href);
 
-		if (opt_replaceHistory) {
-			globals.window.history.replaceState(state, title, path);
-		} else {
-			globals.window.history.pushState(state, title, path);
-		}
+			if (opt_replaceHistory) {
+				globals.window.history.replaceState(state, title, path);
+			} else {
+				globals.window.history.pushState(state, title, path);
+			}
+			stateUpdateCount++;
 
-		let titleNode = globals.document.querySelector('title');
-		if (titleNode) {
-			titleNode.innerHTML = title;
-		} else {
-			globals.document.title = title;
-		}
+			let titleNode = globals.document.querySelector('title');
+			if (titleNode) {
+				titleNode.innerHTML = title;
+			} else {
+				globals.document.title = title;
+			}
+			
+			const now = new Date();
+			const delay = now - stateUpdateTime;
+			if (delay > DOM_EXCEPTION_18_TIME) {
+				console.log('reset');
+				stateUpdateCount = 0;
+				stateUpdateTime = new Date();
+			}
+		};
+
+		return new CancellablePromise((resolve, reject) => {
+			const now = new Date();
+			const delay = now - stateUpdateTime;
+			if (stateUpdateCount < DOM_EXCEPTION_18_COUNT - 1 ||
+				delay > DOM_EXCEPTION_18_TIME) {
+				console.log('stateUpdateCount', stateUpdateCount);
+				updateHistory();
+				resolve();
+			}
+			else {
+				setTimeout(() => {
+					console.log('waiting', DOM_EXCEPTION_18_TIME - delay);
+					updateHistory();
+					resolve();
+				}, DOM_EXCEPTION_18_TIME - delay);
+			}
+		})
+		
 	}
 
 }
