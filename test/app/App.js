@@ -1742,6 +1742,31 @@ describe('App', function() {
 		});
 	});
 
+	it('should update the document.referrer upon navigation', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.addRoutes(new Route('/path3', Screen));
+
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path2'))
+			.then(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1')
+			})
+			.then(() => this.app.navigate('/path3'))
+			.then(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2')
+			})
+			.then(() => {
+				this.app.on('endNavigate', () => {
+					setTimeout(() => {
+						assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+						done();
+					}, 0);
+				});
+				globals.window.history.back();
+			});
+	});
 });
 
 var canScrollIFrame_ = false;
