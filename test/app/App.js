@@ -460,14 +460,14 @@ describe('App', function() {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.navigate('/path').then(() => {
-			assert.deepEqual({
-				form: false,
-				redirectPath: '/path',
-				path: '/path',
-				senna: true,
-				scrollTop: 0,
-				scrollLeft: 0
-			}, globals.window.history.state);
+			const state = globals.window.history.state;
+			assert.equal(state.path, '/path');
+			assert.equal(state.redirectPath, '/path');
+			assert.equal(state.scrollLeft, 0);
+			assert.equal(state.scrollTop, 0);
+			assert.isFalse(state.form);
+			assert.ok(state.referrer);
+			assert.ok(state.senna);
 			done();
 		});
 	});
