@@ -1245,6 +1245,10 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	updateHistory_(title, path, state, opt_replaceHistory) {
+		const referrer = globals.window.location.href;
+		state.referrer = referrer;
+		utils.setReferrer(referrer);
+
 		if (opt_replaceHistory) {
 			globals.window.history.replaceState(state, title, path);
 		} else {
