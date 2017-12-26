@@ -1167,7 +1167,7 @@ describe('App', function() {
 				exitDocumentLinkElement('foo');
 				hidePageScrollbar();
 				done();
-			}, 100);
+			}, 500);
 		});
 
 		showPageScrollbar();
