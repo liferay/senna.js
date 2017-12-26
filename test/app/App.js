@@ -12,6 +12,8 @@ import Surface from '../../src/surface/Surface';
 
 describe('App', function() {
 	before((done) => {
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
 		detectCanScrollIFrame(done);
 	});
 
@@ -21,8 +23,6 @@ describe('App', function() {
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
-		// Prevent log messages from showing up in test output.
-		sinon.stub(console, 'log');
 	});
 
 	afterEach(() => {
@@ -31,6 +31,9 @@ describe('App', function() {
 		}
 		this.app = null;
 		this.xhr.restore();
+	});
+
+	after(() => {
 		console.log.restore();
 	});
 
@@ -1145,37 +1148,36 @@ describe('App', function() {
 		});
 	});
 
-	it('should resposition scroll to hashed anchors on hash popstate', (done) => {
+	it('should reposition scroll to hashed anchors on hash popstate', (done) => {
 		if (!canScrollIFrame_) {
 			done();
 			return;
 		}
 
-		showPageScrollbar();
-		var link = enterDocumentLinkElement('/path');
+		const link = enterDocumentLinkElement('/path', 'foo');
 		link.style.position = 'absolute';
-		link.style.top = '1000px';
-		link.style.left = '1000px';
-		this.app = new App();
-		this.app.addRoutes(new Route('/path', Screen));
-		this.app.navigate('/path').then(() => {
-			globals.window.location.hash = 'link';
-			window.history.replaceState(null, null, null);
-			globals.window.location.hash = 'other';
-			window.history.replaceState(null, null, null);
-			dom.once(globals.window, 'popstate', () => {
-				assert.strictEqual(1000, window.pageXOffset);
-				assert.strictEqual(1000, window.pageYOffset);
-				exitDocumentLinkElement();
-				hidePageScrollbar();
+		link.style.left = '2000px';
+		link.style.top = '2000px';
 
+		showPageScrollbar();
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.navigate('/path1#foo')
+			.then(() => this.app.navigate('/path2'))
+			.then(() => {
 				dom.once(globals.window, 'popstate', () => {
-					done();
+					setTimeout(() => {
+						const {offsetLeft, offsetTop} = utils.getNodeOffset(link);
+						assert.strictEqual(offsetLeft, window.pageXOffset);
+						assert.strictEqual(offsetTop, window.pageYOffset);
+						exitDocumentLinkElement('foo');
+						hidePageScrollbar();	
+						done();
+					}, 100);
 				});
 				globals.window.history.back();
 			});
-			globals.window.history.back();
-		});
 	});
 
 	it('should not reload page on navigate back to a routed page without history state and skipLoadPopstate is active', (done) => {
@@ -1761,8 +1763,9 @@ describe('App', function() {
 				this.app.on('endNavigate', () => {
 					setTimeout(() => {
 						assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+						console.log('############################################# CHAMOU O DONE');
 						done();
-					}, 0);
+					}, 300);
 				});
 				globals.window.history.back();
 			});
@@ -1787,9 +1790,9 @@ function detectCanScrollIFrame(done) {
 	}, 1000);
 }
 
-function enterDocumentLinkElement(href) {
-	dom.enterDocument('<a id="link" href="' + href + '">link</a>');
-	return document.getElementById('link');
+function enterDocumentLinkElement(href, id = 'link') {
+	dom.enterDocument(`<a id="${id}" href="${href}">link</a>`);
+	return document.getElementById(id);
 }
 
 function enterDocumentFormElement(action, method) {
@@ -1797,8 +1800,8 @@ function enterDocumentFormElement(action, method) {
 	return document.getElementById('form');
 }
 
-function exitDocumentLinkElement() {
-	dom.exitDocument(document.getElementById('link'));
+function exitDocumentLinkElement(id = 'link') {
+	dom.exitDocument(document.getElementById(id));
 }
 
 function exitDocumentFormElement() {
