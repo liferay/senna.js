@@ -12,6 +12,8 @@ import Surface from '../../src/surface/Surface';
 
 describe('App', function() {
 	before((done) => {
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
 		detectCanScrollIFrame(done);
 	});
 
@@ -21,8 +23,6 @@ describe('App', function() {
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
-		// Prevent log messages from showing up in test output.
-		sinon.stub(console, 'log');
 	});
 
 	afterEach(() => {
@@ -31,6 +31,9 @@ describe('App', function() {
 		}
 		this.app = null;
 		this.xhr.restore();
+	});
+
+	after(() => {
 		console.log.restore();
 	});
 
@@ -460,14 +463,14 @@ describe('App', function() {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.navigate('/path').then(() => {
-			assert.deepEqual({
-				form: false,
-				redirectPath: '/path',
-				path: '/path',
-				senna: true,
-				scrollTop: 0,
-				scrollLeft: 0
-			}, globals.window.history.state);
+			const state = globals.window.history.state;
+			assert.equal(state.path, '/path');
+			assert.equal(state.redirectPath, '/path');
+			assert.equal(state.scrollLeft, 0);
+			assert.equal(state.scrollTop, 0);
+			assert.isFalse(state.form);
+			assert.ok(state.referrer);
+			assert.ok(state.senna);
 			done();
 		});
 	});
@@ -1742,6 +1745,30 @@ describe('App', function() {
 		});
 	});
 
+	it('should update the document.referrer upon navigation', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.addRoutes(new Route('/path3', Screen));
+
+		dom.once(globals.window, 'popstate', () => {
+			setTimeout(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+				done();
+			}, 100);
+		});
+
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path2'))
+			.then(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1')
+			})
+			.then(() => this.app.navigate('/path3'))
+			.then(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2')
+			})
+			.then(() => globals.window.history.back());
+	});
 });
 
 var canScrollIFrame_ = false;
