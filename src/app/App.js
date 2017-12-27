@@ -970,11 +970,12 @@ class App extends EventEmitter {
 			if (!this.nativeScrollRestorationSupported) {
 				this.lockHistoryScrollPosition_();
 			}
-			this.navigate(state.path, true).then(() => {
+			this.once('endNavigate', () => {
 				if (state.referrer) {
 					utils.setReferrer(state.referrer);
 				}
 			});
+			this.navigate(state.path, true);
 		}
 	}
 

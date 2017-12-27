@@ -1753,23 +1753,20 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path2', Screen));
 		this.app.addRoutes(new Route('/path3', Screen));
 
-		dom.once(globals.window, 'popstate', () => {
-			setTimeout(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
-				done();
-			}, 1000);
-		});
-
 		this.app.navigate('/path1')
 			.then(() => this.app.navigate('/path2'))
 			.then(() => {
 				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1')
+				return this.app.navigate('/path3');
 			})
-			.then(() => this.app.navigate('/path3'))
 			.then(() => {
 				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2')
-			})
-			.then(() => globals.window.history.back());
+				this.app.on('endNavigate', () => {
+					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+					done();
+				}, true);
+				globals.window.history.back();
+			});
 	});
 });
 
