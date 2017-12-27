@@ -970,6 +970,11 @@ class App extends EventEmitter {
 			if (!this.nativeScrollRestorationSupported) {
 				this.lockHistoryScrollPosition_();
 			}
+			this.once('endNavigate', () => {
+				if (state.referrer) {
+					utils.setReferrer(state.referrer);
+				}
+			});
 			this.navigate(state.path, true);
 		}
 	}
@@ -1245,11 +1250,16 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	updateHistory_(title, path, state, opt_replaceHistory) {
+		const referrer = globals.window.location.href;
+		state.referrer = referrer;
+
 		if (opt_replaceHistory) {
 			globals.window.history.replaceState(state, title, path);
 		} else {
 			globals.window.history.pushState(state, title, path);
 		}
+
+		utils.setReferrer(referrer);
 
 		let titleNode = globals.document.querySelector('title');
 		if (titleNode) {
