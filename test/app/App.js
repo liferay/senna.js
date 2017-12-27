@@ -12,6 +12,8 @@ import Surface from '../../src/surface/Surface';
 
 describe('App', function() {
 	before((done) => {
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
 		detectCanScrollIFrame(done);
 	});
 
@@ -21,8 +23,6 @@ describe('App', function() {
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
-		// Prevent log messages from showing up in test output.
-		sinon.stub(console, 'log');
 	});
 
 	afterEach(() => {
@@ -31,6 +31,9 @@ describe('App', function() {
 		}
 		this.app = null;
 		this.xhr.restore();
+	});
+
+	after(() => {
 		console.log.restore();
 	});
 
