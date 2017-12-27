@@ -1251,13 +1251,14 @@ class App extends EventEmitter {
 	updateHistory_(title, path, state, opt_replaceHistory) {
 		const referrer = globals.window.location.href;
 		state.referrer = referrer;
-		utils.setReferrer(referrer);
 
 		if (opt_replaceHistory) {
 			globals.window.history.replaceState(state, title, path);
 		} else {
 			globals.window.history.pushState(state, title, path);
 		}
+
+		utils.setReferrer(referrer);
 
 		let titleNode = globals.document.querySelector('title');
 		if (titleNode) {
