@@ -12,7 +12,10 @@ import Surface from '../../src/surface/Surface';
 
 describe('App', function() {
 	before((done) => {
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
 		detectCanScrollIFrame(done);
+		preventDOMException18();
 	});
 
 	beforeEach(() => {
@@ -21,8 +24,6 @@ describe('App', function() {
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
-		// Prevent log messages from showing up in test output.
-		sinon.stub(console, 'log');
 	});
 
 	afterEach(() => {
@@ -31,7 +32,11 @@ describe('App', function() {
 		}
 		this.app = null;
 		this.xhr.restore();
+	});
+
+	after(() => {
 		console.log.restore();
+		restorePreventDOMException18();
 	});
 
 	it('should add route', () => {
@@ -460,14 +465,14 @@ describe('App', function() {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.navigate('/path').then(() => {
-			assert.deepEqual({
-				form: false,
-				redirectPath: '/path',
-				path: '/path',
-				senna: true,
-				scrollTop: 0,
-				scrollLeft: 0
-			}, globals.window.history.state);
+			const state = globals.window.history.state;
+			assert.equal(state.path, '/path');
+			assert.equal(state.redirectPath, '/path');
+			assert.equal(state.scrollLeft, 0);
+			assert.equal(state.scrollTop, 0);
+			assert.isFalse(state.form);
+			assert.ok(state.referrer);
+			assert.ok(state.senna);
 			done();
 		});
 	});
@@ -1742,6 +1747,27 @@ describe('App', function() {
 		});
 	});
 
+	it('should update the document.referrer upon navigation', (done) => {
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		this.app.addRoutes(new Route('/path3', Screen));
+
+		this.app.navigate('/path1')
+			.then(() => this.app.navigate('/path2'))
+			.then(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1')
+				return this.app.navigate('/path3');
+			})
+			.then(() => {
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2')
+				this.app.on('endNavigate', () => {
+					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+					done();
+				}, true);
+				globals.window.history.back();
+			});
+	});
 });
 
 var canScrollIFrame_ = false;
@@ -1792,4 +1818,49 @@ function showPageScrollbar() {
 function hidePageScrollbar() {
 	globals.document.documentElement.style.height = '';
 	globals.document.documentElement.style.width = '';
+}
+
+/**
+ * On recent versions of Safari, DOMException 18 is thrown when more than 100
+ * calls are made to pushState or replaceState in less than 30 seconds. This 
+ * workaround aims to prevent this exception from being thrown during test
+ * execution.
+ */
+const originalPushState = globals.window.history.pushState;
+const originalReplaceState = globals.window.history.replaceState;
+
+const syncTimeout = (fn, ms) => {
+	const start = Date.now();
+	let now = start;
+	while (now - start < ms) now = Date.now();
+	fn();
+}
+
+const retryWhenDOMException18 = (fn, args) => {
+	try {
+		fn.apply(globals.window.history, args);
+	} catch (e) {
+		if (e instanceof globals.window.DOMException &&
+			e.code === globals.window.DOMException.SECURITY_ERR) {
+
+			syncTimeout(() => fn.apply(globals.window.history, args), 30000);
+		} else {
+			throw e;
+		}
+	}
+};
+
+function preventDOMException18() {
+	globals.window.history.pushState = function(...args) {
+		retryWhenDOMException18(originalPushState, args);
+	};
+
+	globals.window.history.replaceState = function(...args) {
+		retryWhenDOMException18(originalReplaceState, args);
+	};
+}
+
+function restorePreventDOMException18() {
+	globals.window.history.pushState = originalPushState;
+	globals.window.history.replaceState = originalReplaceState;
 }
