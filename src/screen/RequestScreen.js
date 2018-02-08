@@ -246,7 +246,13 @@ class RequestScreen extends Screen {
 	 */
 	maybeAppendSubmitButtonValue_(body) {
 		const button = globals.capturedFormButtonElement;
-		if (button && button.name) {
+
+		// Only adds submit button value if we can make sure it's not already there
+		if (typeof body.has !== 'function') {
+			return;
+		}
+
+		if (button && button.name && !body.has(button.name)) {
 			body.append(button.name, button.value);
 		}
 	}
