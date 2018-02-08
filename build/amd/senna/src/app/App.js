@@ -905,6 +905,11 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					if (!this.nativeScrollRestorationSupported) {
 						this.lockHistoryScrollPosition_();
 					}
+					this.once('endNavigate', function () {
+						if (state.referrer) {
+							_utils2.default.setReferrer(state.referrer);
+						}
+					});
 					this.navigate(state.path, true);
 				}
 			}
@@ -1118,11 +1123,16 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'updateHistory_',
 			value: function updateHistory_(title, path, state, opt_replaceHistory) {
+				var referrer = _globals2.default.window.location.href;
+				state.referrer = referrer;
+
 				if (opt_replaceHistory) {
 					_globals2.default.window.history.replaceState(state, title, path);
 				} else {
 					_globals2.default.window.history.pushState(state, title, path);
 				}
+
+				_utils2.default.setReferrer(referrer);
 
 				var titleNode = _globals2.default.document.querySelector('title');
 				if (titleNode) {
