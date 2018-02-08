@@ -2404,6 +2404,23 @@ var utils = function () {
 			}
 			return path;
 		}
+
+		/**
+   * Overrides document referrer
+   * @param {string} referrer
+   * @static
+   */
+
+	}, {
+		key: 'setReferrer',
+		value: function setReferrer(referrer) {
+			Object.defineProperty(globals.document, 'referrer', {
+				configurable: true,
+				get: function get$$1() {
+					return referrer;
+				}
+			});
+		}
 	}]);
 	return utils;
 }();
@@ -7662,6 +7679,11 @@ var App$1 = function (_EventEmitter) {
 				if (!this.nativeScrollRestorationSupported) {
 					this.lockHistoryScrollPosition_();
 				}
+				this.once('endNavigate', function () {
+					if (state.referrer) {
+						utils.setReferrer(state.referrer);
+					}
+				});
 				this.navigate(state.path, true);
 			}
 		}
@@ -8011,11 +8033,16 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'updateHistory_',
 		value: function updateHistory_(title, path, state, opt_replaceHistory) {
+			var referrer = globals.window.location.href;
+			state.referrer = referrer;
+
 			if (opt_replaceHistory) {
 				globals.window.history.replaceState(state, title, path);
 			} else {
 				globals.window.history.pushState(state, title, path);
 			}
+
+			utils.setReferrer(referrer);
 
 			var titleNode = globals.document.querySelector('title');
 			if (titleNode) {

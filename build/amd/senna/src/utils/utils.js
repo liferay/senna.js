@@ -137,6 +137,16 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				}
 				return path;
 			}
+		}, {
+			key: 'setReferrer',
+			value: function setReferrer(referrer) {
+				Object.defineProperty(_globals2.default.document, 'referrer', {
+					configurable: true,
+					get: function get() {
+						return referrer;
+					}
+				});
+			}
 		}]);
 
 		return utils;
