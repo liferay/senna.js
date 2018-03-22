@@ -592,14 +592,14 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Tests if hostname is an offsite link.
-	 * @param {!string} hostname Link hostname to compare with
-	 *     <code>globals.window.location.hostname</code>.
+	 * Tests if host is an offsite link.
+	 * @param {!string} host Link host to compare with
+	 *     <code>globals.window.location.host</code>.
 	 * @return {boolean}
 	 * @protected
 	 */
-	isLinkSameOrigin_(hostname) {
-		return hostname === globals.window.location.hostname;
+	isLinkSameOrigin_(host) {
+		return host === globals.window.location.host;
 	}
 
 	/**
