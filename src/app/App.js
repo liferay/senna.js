@@ -295,7 +295,7 @@ class App extends EventEmitter {
 
 		const path = utils.getUrlPath(url);
 
-		if (!this.isLinkSameOrigin_(uri.getHostname())) {
+		if (!this.isLinkSameOrigin_(uri.getHost())) {
 			console.log('Offsite link clicked');
 			return false;
 		}
