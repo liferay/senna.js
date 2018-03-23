@@ -468,6 +468,24 @@ describe('App', function() {
 		globals.window = window;
 	});
 
+	it('should detect a navigation to different port and refresh page', () => {
+		this.app = new App();
+		globals.window = {
+			history: {},
+			location: {
+				host: 'localhost:8080',
+				pathname: '/path',
+				search: ''
+			}
+		};
+		this.app.addRoutes([new Route('/path/', Screen), new Route('/path/(\\d+)/', Screen)]);
+		assert.isFalse(this.app.canNavigate('http://localhost:9080/path'));
+		assert.isFalse(this.app.canNavigate('http://localhost:9081/path/'));
+		assert.isFalse(this.app.canNavigate('http://localhost:9082/path/123'));
+		assert.isFalse(this.app.canNavigate('http://localhost:9083/path/123/'));
+		globals.window = window;
+	});
+
 	it('should store proper senna state after navigate', (done) => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
