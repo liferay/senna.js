@@ -98,6 +98,7 @@ describe('App', function() {
 		globals.window = {
 			location: {
 				hash: '',
+				host: '',
 				hostname: '',
 				pathname: '/path',
 				search: ''
@@ -113,6 +114,7 @@ describe('App', function() {
 		globals.window = {
 			location: {
 				hash: '',
+				host: '',
 				hostname: '',
 				pathname: '/path1',
 				search: ''
@@ -127,6 +129,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/pathOther', Screen));
 		globals.window = {
 			location: {
+				host: '',
 				pathname: '/path',
 				search: ''
 			}
@@ -140,6 +143,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/pathOther', Screen));
 		globals.window = {
 			location: {
+				host: '',
 				pathname: '/path/',
 				search: ''
 			}
@@ -404,6 +408,7 @@ describe('App', function() {
 		globals.window = {
 			history: {},
 			location: {
+				host: 'localhost',
 				hostname: 'localhost',
 				pathname: '/path',
 				search: ''
@@ -427,6 +432,7 @@ describe('App', function() {
 		globals.window = {
 			history: {},
 			location: {
+				host: 'localhost',
 				hostname: 'localhost',
 				pathname: '/path',
 				search: ''
@@ -448,6 +454,7 @@ describe('App', function() {
 		globals.window = {
 			history: {},
 			location: {
+				host: 'localhost',
 				hostname: 'localhost',
 				pathname: '/path',
 				search: ''
@@ -1822,7 +1829,7 @@ function hidePageScrollbar() {
 
 /**
  * On recent versions of Safari, DOMException 18 is thrown when more than 100
- * calls are made to pushState or replaceState in less than 30 seconds. This 
+ * calls are made to pushState or replaceState in less than 30 seconds. This
  * workaround aims to prevent this exception from being thrown during test
  * execution.
  */
