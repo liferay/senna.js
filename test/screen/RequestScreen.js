@@ -222,6 +222,9 @@ describe('RequestScreen', function() {
 	});
 
 	it('should add submit input button value into request FormData', (done) => {
+		if (typeof FormData.prototype.has !== 'function') {
+			done();
+		}
 		globals.capturedFormElement = globals.document.createElement('form');
 		const submitButton = globals.document.createElement('button');
 		submitButton.name = 'submitButton';
