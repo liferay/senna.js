@@ -11,6 +11,22 @@
 * [Documentation](http://sennajs.com/docs/)
 * [API Docs](http://sennajs.com/api/)
 
+## Support and Project status
+
+Senna.js is widely used and well maintained internally at Liferay but
+does not currently have staffing to support the open source release.  As such
+this project is mostly _internal_ and support is _minimal_.  For certain
+issues, like build integration we are in an especially bad position to offer
+support.
+
+To get assistance you can use any of the following forums
+
+1. Look through the [documentation](https://sennajs.com).
+2. File an [issue on GitHub](https://github.com/liferay/senna.js/issues)
+
+We will try our best, but keep in mind that given our support staffing, we may
+not be able to help.
+
 ## Install
 
 Install via [npm](https://www.npmjs.com/), [Bower](http://bower.io/), [CDN](http://www.jsdelivr.com/projects/senna.js) or
