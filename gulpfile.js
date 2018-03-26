@@ -83,7 +83,7 @@ var options = {
 			base: 'SauceLabs',
 			browserName: 'iphone',
 			platform: 'OS X 10.10',
-			version: '9.2'
+			version: '9.3'
 		},
 		sl_ios_10: {
 			appiumVersion: '1.6.4',
