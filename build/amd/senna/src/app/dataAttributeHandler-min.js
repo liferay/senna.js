@@ -1,0 +1,1 @@
+define(["exports","../globals/globals","./AppDataAttributeHandler"],function(e,t,n){"use strict";function d(e){return e&&e.__esModule?e:{"default":e}}Object.defineProperty(e,"__esModule",{value:!0});var a=d(t),u=d(n),l=new u["default"];a["default"].document.addEventListener("DOMContentLoaded",function(){l.setBaseElement(a["default"].document.body),l.handle()}),e["default"]=l});
