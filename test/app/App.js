@@ -1800,11 +1800,11 @@ describe('App', function() {
 		this.app.navigate('/path1')
 			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1')
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
 				return this.app.navigate('/path3');
 			})
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2')
+				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2');
 				this.app.on('endNavigate', () => {
 					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
 					done();
@@ -1876,9 +1876,11 @@ const originalReplaceState = globals.window.history.replaceState;
 const syncTimeout = (fn, ms) => {
 	const start = Date.now();
 	let now = start;
-	while (now - start < ms) now = Date.now();
+	while (now - start < ms) {
+		now = Date.now();
+	}
 	fn();
-}
+};
 
 const retryWhenDOMException18 = (fn, args) => {
 	try {
