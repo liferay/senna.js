@@ -1100,6 +1100,25 @@ describe('App', function() {
 		});
 	});
 
+	it('should be able to update referrer when Screen history state returns null', (done) => {
+		class NullStateScreen extends Screen {
+			beforeUpdateHistoryState() {
+				return null;
+			}
+		}
+		this.app = new App();
+		this.app.addRoutes(new Route('/path1', NullStateScreen));
+		this.app.navigate('/path1').then(() => {
+			this.app.navigate('/path1#hash').then(() => {
+				dom.once(globals.window, 'popstate', () => {
+					assert.strictEqual('/path1', utils.getCurrentBrowserPath(document.referrer));
+					done();
+				});
+				globals.window.history.back();
+			});
+		});
+	});
+
 	it('should not reload page on navigate back to a routed page with same path containing hashbang without history state', (done) => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
