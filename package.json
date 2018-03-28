@@ -17,8 +17,9 @@
     "test/**/*.js"
   ],
   "scripts": {
+    "build": "gulp build",
     "compile": "babel --presets metal -d lib/ src/",
-    "prepublish": "npm run compile"
+    "prepublish": "npm run build && npm run compile"
   },
   "keywords": [
     "spa",
