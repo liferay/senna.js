@@ -117,7 +117,7 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				try {
 					return new _Uri2.default(url);
 				} catch (err) {
-					void 0;
+					console.error(err.message + ' ' + url);
 					return false;
 				}
 			}

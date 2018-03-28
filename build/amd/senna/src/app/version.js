@@ -4,6 +4,6 @@ define(['exports'], function (exports) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.default = '2.5.0';
+  exports.default = '<%= version %>';
 });
 //# sourceMappingURL=version.js.map

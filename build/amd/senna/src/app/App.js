@@ -380,12 +380,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 
 				var path = _utils2.default.getUrlPath(url);
 
-				if (!this.isLinkSameOrigin_(uri.getHostname())) {
-					void 0;
+				if (!this.isLinkSameOrigin_(uri.getHost())) {
+					console.log('Offsite link clicked');
 					return false;
 				}
 				if (!this.isSameBasePath_(path)) {
-					void 0;
+					console.log('Link clicked outside app\'s base path');
 					return false;
 				}
 				// Prevents navigation if it's a hash change on the same url.
@@ -393,7 +393,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					return false;
 				}
 				if (!this.findRoute(path)) {
-					void 0;
+					console.log('No route for ' + path);
 					return false;
 				}
 
@@ -416,7 +416,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			key: 'createScreenInstance',
 			value: function createScreenInstance(path, route) {
 				if (!this.pendingNavigate && path === this.activePath) {
-					void 0;
+					console.log('Already at destination, refresh navigation');
 					return this.activeScreen;
 				}
 				/* jshint newcap: false */
@@ -428,7 +428,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					} else {
 						screen = handler(route) || new _Screen2.default();
 					}
-					void 0;
+					console.log('Create screen for [' + path + '] [' + screen + ']');
 				}
 				return screen;
 			}
@@ -460,7 +460,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					return this.pendingNavigate;
 				}
 
-				void 0;
+				console.log('Navigate to [' + path + ']');
 
 				this.stopPendingNavigate_();
 				this.isNavigationPending = true;
@@ -521,7 +521,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				this.pendingNavigate = null;
 				_globals2.default.capturedFormElement = null;
 				_globals2.default.capturedFormButtonElement = null;
-				void 0;
+				console.log('Navigation done');
 			}
 		}, {
 			key: 'findRoute',
@@ -592,7 +592,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function handleNavigateError_(path, nextScreen, error) {
 				var _this6 = this;
 
-				void 0;
+				console.log('Navigation error for [' + nextScreen + '] (' + error + ')');
 				this.emit('navigationError', {
 					error: error,
 					nextScreen: nextScreen,
@@ -615,8 +615,8 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			}
 		}, {
 			key: 'isLinkSameOrigin_',
-			value: function isLinkSameOrigin_(hostname) {
-				return hostname === _globals2.default.window.location.hostname;
+			value: function isLinkSameOrigin_(host) {
+				return host === _globals2.default.window.location.host;
 			}
 		}, {
 			key: 'isSameBasePath_',
@@ -804,7 +804,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function onBeforeNavigateDefault_(event) {
 				if (this.pendingNavigate) {
 					if (this.pendingNavigate.path === event.path) {
-						void 0;
+						console.log('Waiting...');
 						return;
 					}
 				}
@@ -829,7 +829,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			key: 'onDocClickDelegate_',
 			value: function onDocClickDelegate_(event) {
 				if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-					void 0;
+					console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 					return;
 				}
 				this.maybeNavigate_(event.delegateTarget.href, event);
@@ -839,7 +839,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function onDocSubmitDelegate_(event) {
 				var form = event.delegateTarget;
 				if (form.method === 'get') {
-					void 0;
+					console.log('GET method not supported');
 					return;
 				}
 				event.capturedFormElement = form;
@@ -899,7 +899,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				}
 
 				if (state.senna) {
-					void 0;
+					console.log('History navigation to [' + state.path + ']');
 					this.popstateScrollTop = state.scrollTop;
 					this.popstateScrollLeft = state.scrollLeft;
 					if (!this.nativeScrollRestorationSupported) {
@@ -958,7 +958,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					return _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
 				}
 
-				void 0;
+				console.log('Prefetching [' + path + ']');
 
 				var nextScreen = this.createScreenInstance(path, route);
 
@@ -1000,7 +1000,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				Object.keys(surfaces).forEach(function (id) {
 					var surfaceContent = nextScreen.getSurfaceContent(id, params);
 					surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-					void 0;
+					console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + ((0, _metal.isDefAndNotNull)(surfaceContent) ? '...' : 'empty') + ']');
 				});
 			}
 		}, {
