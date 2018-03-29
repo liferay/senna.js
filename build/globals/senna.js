@@ -8027,7 +8027,10 @@ var App$1 = function (_EventEmitter) {
 		key: 'updateHistory_',
 		value: function updateHistory_(title, path, state, opt_replaceHistory) {
 			var referrer = globals.window.location.href;
-			state.referrer = referrer;
+
+			if (state) {
+				state.referrer = referrer;
+			}
 
 			if (opt_replaceHistory) {
 				globals.window.history.replaceState(state, title, path);
