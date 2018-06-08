@@ -282,15 +282,16 @@ class RequestScreen extends Screen {
 	 * https://bugs.webkit.org/show_bug.cgi?id=184490
 	 */
 	addSafariXHRPolyfill() {
-		if (UA.isSafari) {
+		if (globals.capturedFormElement && UA.isSafari) {
 			let inputs = globals.capturedFormElement.querySelectorAll('input[type="file"]:not([disabled])');
-			inputs.forEach((input) => {
+			for (let index = 0; index < inputs.length; index++) {
+				let input = inputs[index];
 				if (input.files.length > 0) {
 					return;
 				}
 				input.setAttribute('data-safari-temp-disabled', 'true');
 				input.setAttribute('disabled', '');
-			});
+			}
 		}
 	}
 
@@ -304,10 +305,11 @@ class RequestScreen extends Screen {
 	removeSafariXHRPolyfill() {
 		if (globals.capturedFormElement && UA.isSafari) {
 			let inputs = globals.capturedFormElement.querySelectorAll('input[type="file"][data-safari-temp-disabled]');
-			inputs.forEach((input) => {
+			for (let index = 0; index < inputs.length; index++) {
+				const input = inputs[index];
 				input.removeAttribute('data-safari-temp-disabled');
 				input.removeAttribute('disabled');
-			});
+			}
 		}
 	}
 
