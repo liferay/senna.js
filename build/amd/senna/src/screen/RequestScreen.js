@@ -248,6 +248,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 					return headers.add(header, _this2.httpHeaders[header]);
 				});
 				if (_globals2.default.capturedFormElement) {
+					this.addSafariXHRPolyfill();
 					body = new FormData(_globals2.default.capturedFormElement);
 					this.maybeAppendSubmitButtonValue_(body);
 					httpMethod = RequestScreen.POST;
@@ -257,6 +258,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				}
 				var requestPath = this.formatLoadPath(path);
 				return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+					_this2.removeSafariXHRPolyfill();
 					_this2.setRequest(xhr);
 					_this2.assertValidResponseStatusCode(xhr.status);
 					if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
@@ -265,6 +267,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 					xhr.requestPath = requestPath;
 					return xhr.responseText;
 				}).catch(function (reason) {
+					_this2.removeSafariXHRPolyfill();
 					switch (reason.message) {
 						case _errors2.default.REQUEST_TIMEOUT:
 							reason.timeout = true;
@@ -296,6 +299,33 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 					return responseUrl;
 				}
 				return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
+			}
+		}, {
+			key: 'addSafariXHRPolyfill',
+			value: function addSafariXHRPolyfill() {
+				if (_globals2.default.capturedFormElement && _UA2.default.isSafari) {
+					var inputs = _globals2.default.capturedFormElement.querySelectorAll('input[type="file"]:not([disabled])');
+					for (var index = 0; index < inputs.length; index++) {
+						var input = inputs[index];
+						if (input.files.length > 0) {
+							return;
+						}
+						input.setAttribute('data-safari-temp-disabled', 'true');
+						input.setAttribute('disabled', '');
+					}
+				}
+			}
+		}, {
+			key: 'removeSafariXHRPolyfill',
+			value: function removeSafariXHRPolyfill() {
+				if (_globals2.default.capturedFormElement && _UA2.default.isSafari) {
+					var inputs = _globals2.default.capturedFormElement.querySelectorAll('input[type="file"][data-safari-temp-disabled]');
+					for (var index = 0; index < inputs.length; index++) {
+						var input = inputs[index];
+						input.removeAttribute('data-safari-temp-disabled');
+						input.removeAttribute('disabled');
+					}
+				}
 			}
 		}, {
 			key: 'setHttpHeaders',

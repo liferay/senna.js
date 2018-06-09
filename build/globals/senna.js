@@ -8639,6 +8639,7 @@ var RequestScreen = function (_Screen) {
 				return headers.add(header, _this2.httpHeaders[header]);
 			});
 			if (globals.capturedFormElement) {
+				this.addSafariXHRPolyfill();
 				body = new FormData(globals.capturedFormElement);
 				this.maybeAppendSubmitButtonValue_(body);
 				httpMethod = RequestScreen.POST;
@@ -8648,6 +8649,7 @@ var RequestScreen = function (_Screen) {
 			}
 			var requestPath = this.formatLoadPath(path);
 			return Ajax.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+				_this2.removeSafariXHRPolyfill();
 				_this2.setRequest(xhr);
 				_this2.assertValidResponseStatusCode(xhr.status);
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
@@ -8656,6 +8658,7 @@ var RequestScreen = function (_Screen) {
 				xhr.requestPath = requestPath;
 				return xhr.responseText;
 			}).catch(function (reason) {
+				_this2.removeSafariXHRPolyfill();
 				switch (reason.message) {
 					case errors.REQUEST_TIMEOUT:
 						reason.timeout = true;
@@ -8708,6 +8711,52 @@ var RequestScreen = function (_Screen) {
 				return responseUrl;
 			}
 			return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
+		}
+
+		/**
+   * This function set attribute data-safari-temp-disabled to 
+   * true and set disable attribute of an input type="file" tag
+   * is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1 
+   * empty <input type="file"> XHR bug.
+   * https://github.com/rails/rails/issues/32440
+   * https://bugs.webkit.org/show_bug.cgi?id=184490
+   */
+
+	}, {
+		key: 'addSafariXHRPolyfill',
+		value: function addSafariXHRPolyfill() {
+			if (globals.capturedFormElement && UA.isSafari) {
+				var inputs = globals.capturedFormElement.querySelectorAll('input[type="file"]:not([disabled])');
+				for (var index = 0; index < inputs.length; index++) {
+					var input = inputs[index];
+					if (input.files.length > 0) {
+						return;
+					}
+					input.setAttribute('data-safari-temp-disabled', 'true');
+					input.setAttribute('disabled', '');
+				}
+			}
+		}
+
+		/**
+   * This function remove attribute data-safari-temp-disabled and disable attribute
+   * of an input type="file" tag is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1
+   * empty <input type="file"> XHR bug.
+   * https://github.com/rails/rails/issues/32440
+   * https://bugs.webkit.org/show_bug.cgi?id=184490
+   */
+
+	}, {
+		key: 'removeSafariXHRPolyfill',
+		value: function removeSafariXHRPolyfill() {
+			if (globals.capturedFormElement && UA.isSafari) {
+				var inputs = globals.capturedFormElement.querySelectorAll('input[type="file"][data-safari-temp-disabled]');
+				for (var index = 0; index < inputs.length; index++) {
+					var input = inputs[index];
+					input.removeAttribute('data-safari-temp-disabled');
+					input.removeAttribute('disabled');
+				}
+			}
 		}
 
 		/**
