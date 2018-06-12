@@ -69,16 +69,16 @@ define(['exports', 'metal/src/metal', './domData', 'metal-events/src/events'], f
    * @param {!Event} emitter Element the event was subscribed to.
    * @param {string} event The name of the event that was subscribed to.
    * @param {!Function} listener The listener subscribed to the event.
-   * @param {string=} opt_selector An optional selector used when delegating
+   * @param {string=} selector An optional selector used when delegating
    *     the event.
    * @constructor
    */
-		function DomDelegatedEventHandle(emitter, event, listener, opt_selector) {
+		function DomDelegatedEventHandle(emitter, event, listener, selector) {
 			_classCallCheck(this, DomDelegatedEventHandle);
 
 			var _this = _possibleConstructorReturn(this, (DomDelegatedEventHandle.__proto__ || Object.getPrototypeOf(DomDelegatedEventHandle)).call(this, emitter, event, listener));
 
-			_this.selector_ = opt_selector;
+			_this.selector_ = selector;
 			return _this;
 		}
 

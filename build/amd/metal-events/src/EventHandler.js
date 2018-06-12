@@ -56,6 +56,9 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	var EventHandler = function (_Disposable) {
 		_inherits(EventHandler, _Disposable);
 
+		/**
+   * EventHandler constructor
+   */
 		function EventHandler() {
 			_classCallCheck(this, EventHandler);
 
@@ -81,8 +84,12 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		_createClass(EventHandler, [{
 			key: 'add',
 			value: function add() {
+				for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+					args[_key] = arguments[_key];
+				}
+
 				for (var i = 0; i < arguments.length; i++) {
-					this.eventHandles_.push(arguments[i]);
+					this.eventHandles_.push(args[i]);
 				}
 			}
 		}, {

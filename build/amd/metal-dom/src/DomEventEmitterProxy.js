@@ -95,7 +95,7 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 						var index = event.indexOf(':', 9);
 						var eventName = event.substring(9, index);
 						var selector = event.substring(index + 1);
-						return (0, _dom.delegate)(this.originEmitter_, eventName, selector, listener);
+						return (0, _dom.delegate)(this.originEmitter_, eventName, selector, listener); // eslint-disable-line
 					} else {
 						return (0, _dom.on)(this.originEmitter_, event, listener);
 					}
@@ -119,7 +119,7 @@ define(['exports', './dom', 'metal-events/src/events'], function (exports, _dom,
 		}, {
 			key: 'shouldProxyEvent_',
 			value: function shouldProxyEvent_(event) {
-				return _get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'shouldProxyEvent_', this).call(this, event) && this.isSupportedDomEvent_(event);
+				return _get(DomEventEmitterProxy.prototype.__proto__ || Object.getPrototypeOf(DomEventEmitterProxy.prototype), 'shouldProxyEvent_', this).call(this, event) && this.isSupportedDomEvent_(event); // eslint-disable-line
 			}
 		}]);
 

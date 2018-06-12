@@ -1,5 +1,9 @@
-define(['exports', '../core'], function (exports, _core) {
+define(['exports'], function (exports) {
 	'use strict';
+
+	/**
+  * Set of utilities for array operations
+  */
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -61,8 +65,9 @@ define(['exports', '../core'], function (exports, _core) {
 			}
 		}, {
 			key: 'flatten',
-			value: function flatten(arr, opt_output) {
-				var output = opt_output || [];
+			value: function flatten(arr) {
+				var output = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
 				for (var i = 0; i < arr.length; i++) {
 					if (Array.isArray(arr[i])) {
 						array.flatten(arr[i], output);
@@ -89,9 +94,10 @@ define(['exports', '../core'], function (exports, _core) {
 			}
 		}, {
 			key: 'slice',
-			value: function slice(arr, start, opt_end) {
+			value: function slice(arr, start) {
+				var end = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : arr.length;
+
 				var sliced = [];
-				var end = (0, _core.isDef)(opt_end) ? opt_end : arr.length;
 				for (var i = start; i < end; i++) {
 					sliced.push(arr[i]);
 				}

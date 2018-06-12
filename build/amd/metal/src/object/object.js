@@ -1,6 +1,10 @@
 define(['exports'], function (exports) {
 	'use strict';
 
+	/**
+  * Set of utilities for object operations
+  */
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -37,10 +41,18 @@ define(['exports'], function (exports) {
 		_createClass(object, null, [{
 			key: 'mixin',
 			value: function mixin(target) {
-				var key = void 0,
-				    source = void 0;
-				for (var i = 1; i < arguments.length; i++) {
-					source = arguments[i];
+				var key = void 0;
+				var source = void 0;
+
+				for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+					args[_key - 1] = arguments[_key];
+				}
+
+				for (var i = 0; i < args.length; i++) {
+					source = args[i];
+					// Possible prototype chain leak, breaks 1 metal-dom and
+					// 1 metal-incremental-dom test if guard-for-in rule is addressed
+					// eslint-disable-next-line
 					for (key in source) {
 						target[key] = source[key];
 					}
@@ -49,8 +61,9 @@ define(['exports'], function (exports) {
 			}
 		}, {
 			key: 'getObjectByName',
-			value: function getObjectByName(name, opt_obj) {
-				var scope = opt_obj || window;
+			value: function getObjectByName(name) {
+				var scope = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
+
 				var parts = name.split('.');
 				return parts.reduce(function (part, key) {
 					return part[key];

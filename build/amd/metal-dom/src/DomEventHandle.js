@@ -61,16 +61,16 @@ define(['exports', 'metal-events/src/events'], function (exports, _events) {
    * @param {!EventEmitter} emitter Emitter the event was subscribed to.
    * @param {string} event The name of the event that was subscribed to.
    * @param {!Function} listener The listener subscribed to the event.
-   * @param {boolean} opt_capture Flag indicating if listener should be triggered
+   * @param {boolean} capture Flag indicating if listener should be triggered
    *   during capture phase, instead of during the bubbling phase. Defaults to false.
    * @constructor
    */
-		function DomEventHandle(emitter, event, listener, opt_capture) {
+		function DomEventHandle(emitter, event, listener, capture) {
 			_classCallCheck(this, DomEventHandle);
 
 			var _this = _possibleConstructorReturn(this, (DomEventHandle.__proto__ || Object.getPrototypeOf(DomEventHandle)).call(this, emitter, event, listener));
 
-			_this.capture_ = opt_capture;
+			_this.capture_ = capture;
 			return _this;
 		}
 

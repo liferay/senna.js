@@ -1,13 +1,5 @@
-define(['exports'], function (exports) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
-
-	/**
-  * Metal.js browser user agent detection. It's extremely recommended the usage
-  * of feature checking over browser user agent sniffing. Unfortunately, in some
-  * situations feature checking can be slow or even impossible, therefore use
-  * this utility with caution.
-  * @see <a href="http://www.useragentstring.com/">User agent strings</a>.
-  */
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
@@ -45,7 +37,7 @@ define(['exports'], function (exports) {
 		_createClass(UA, null, [{
 			key: 'getNativeUserAgent',
 			value: function getNativeUserAgent() {
-				var navigator = UA.globals.window.navigator;
+				var navigator = UA.globals.window && UA.globals.window.navigator;
 				if (navigator) {
 					var userAgent = navigator.userAgent;
 					if (userAgent) {
@@ -57,7 +49,7 @@ define(['exports'], function (exports) {
 		}, {
 			key: 'getNativePlatform',
 			value: function getNativePlatform() {
-				var navigator = UA.globals.window.navigator;
+				var navigator = UA.globals.window && UA.globals.window.navigator;
 				if (navigator) {
 					var platform = navigator.platform;
 					if (platform) {
@@ -169,9 +161,12 @@ define(['exports'], function (exports) {
   * @type {object}
   * @static
   */
-	UA.globals = {
-		window: window
-	};
+	Object.defineProperty(UA, 'globals', {
+		writable: true,
+		value: {
+			window: (0, _metal.isServerSide)() ? null : window
+		}
+	});
 
 	UA.testUserAgent(UA.getNativeUserAgent(), UA.getNativePlatform());
 

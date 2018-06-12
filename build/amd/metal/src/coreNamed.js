@@ -84,7 +84,7 @@ define(['exports'], function (exports) {
    *       using "key" to keep working like before. NOTE: this may cause
    *       problems, since "key" is meant to be used differently. Only use this
    *       if it's not possible to upgrade the code to use "ref" instead.
-   * @param {Object=} opt_data Optional object with data to specify more
+   * @param {Object=} data Optional object with data to specify more
    *     details, such as:
    *         - renderers {Array} the template renderers that should be in
    *           compatibility mode, either their constructors or strings
@@ -93,9 +93,9 @@ define(['exports'], function (exports) {
    * @type {Object}
    */
   function enableCompatibilityMode() {
-    var opt_data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    compatibilityModeData_ = opt_data;
+    compatibilityModeData_ = data;
   }
 
   /**
@@ -148,17 +148,20 @@ define(['exports'], function (exports) {
    * be recalculated even if this function is called multiple times.
    * @param {!function()} ctor Class constructor.
    * @param {string} propertyName Property name to be merged.
-   * @param {function(*, *):*=} opt_mergeFn Function that receives the merged
+   * @param {function(*, *):*=} mergeFn Function that receives the merged
    *     value of the property so far and the next value to be merged to it.
    *     Should return these two merged together. If not passed the final property
    *     will be the first truthy value among ancestors.
+   * @return {Object}
    */
-  function getStaticProperty(ctor, propertyName, opt_mergeFn) {
+  function getStaticProperty(ctor, propertyName) {
+    var mergeFn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : getFirstTruthy_;
+
     var mergedName = propertyName + '_MERGED';
     if (!ctor.hasOwnProperty(mergedName)) {
+      // eslint-disable-next-line
       var merged = ctor.hasOwnProperty(propertyName) ? ctor[propertyName] : null;
       if (ctor.__proto__ && !ctor.__proto__.isPrototypeOf(Function)) {
-        var mergeFn = opt_mergeFn || getFirstTruthy_;
         merged = mergeFn(merged, getStaticProperty(ctor.__proto__, propertyName, mergeFn));
       }
       ctor[mergedName] = merged;
@@ -167,34 +170,35 @@ define(['exports'], function (exports) {
   }
 
   /**
-   * Gets an unique id. If `opt_object` argument is passed, the object is
+   * Gets an unique id. If `object` argument is passed, the object is
    * mutated with an unique id. Consecutive calls with the same object
    * reference won't mutate the object again, instead the current object uid
    * returns. See {@link UID_PROPERTY}.
-   * @param {Object=} opt_object Optional object to be mutated with the uid. If
+   * @param {Object=} object Optional object to be mutated with the uid. If
    *     not specified this method only returns the uid.
-   * @param {boolean=} opt_noInheritance Optional flag indicating if this
+   * @param {boolean=} noInheritance Optional flag indicating if this
    *     object's uid property can be inherited from parents or not.
    * @throws {Error} when invoked to indicate the method should be overridden.
+   * @return {number}
    */
-  function getUid(opt_object, opt_noInheritance) {
-    if (opt_object) {
-      var id = opt_object[UID_PROPERTY];
-      if (opt_noInheritance && !opt_object.hasOwnProperty(UID_PROPERTY)) {
+  function getUid(object, noInheritance) {
+    if (object) {
+      var id = object[UID_PROPERTY];
+      if (noInheritance && !object.hasOwnProperty(UID_PROPERTY)) {
         id = null;
       }
-      return id || (opt_object[UID_PROPERTY] = uniqueIdCounter_++);
+      return id || (object[UID_PROPERTY] = uniqueIdCounter_++);
     }
     return uniqueIdCounter_++;
   }
 
   /**
    * The identity function. Returns its first argument.
-   * @param {*=} opt_returnValue The single value that will be returned.
+   * @param {*=} returnValue The single value that will be returned.
    * @return {?} The first argument.
    */
-  function identityFunction(opt_returnValue) {
-    return opt_returnValue;
+  function identityFunction(returnValue) {
+    return returnValue;
   }
 
   /**
@@ -320,10 +324,18 @@ define(['exports'], function (exports) {
    * Sets to true if running inside Node.js environment with extra check for
    * `process.browser` to skip Karma runner environment. Karma environment has
    * `process` defined even though it runs on the browser.
+   * @param {?Object} options Contains `checkEnv` property which if true, checks
+   * the NODE_ENV variable. If NODE_ENV equals 'test', the function returns false.
    * @return {boolean}
    */
   function isServerSide() {
-    return typeof process !== 'undefined' && typeof process.env !== 'undefined' && process.env.NODE_ENV !== 'test' && !process.browser;
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { checkEnv: true };
+
+    var serverSide = typeof process !== 'undefined' && !process.browser;
+    if (serverSide && options.checkEnv) {
+      serverSide = typeof process.env !== 'undefined' && process.env.NODE_ENV !== 'test';
+    }
+    return serverSide;
   }
 
   /**

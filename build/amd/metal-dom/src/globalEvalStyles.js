@@ -36,11 +36,11 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 
 		_createClass(globalEvalStyles, null, [{
 			key: 'run',
-			value: function run(text, opt_appendFn) {
+			value: function run(text, appendFn) {
 				var style = document.createElement('style');
 				style.innerHTML = text;
-				if (opt_appendFn) {
-					opt_appendFn(style);
+				if (appendFn) {
+					appendFn(style);
 				} else {
 					document.head.appendChild(style);
 				}
@@ -48,18 +48,18 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			}
 		}, {
 			key: 'runFile',
-			value: function runFile(href, opt_callback, opt_appendFn) {
+			value: function runFile(href, defaultFn, appendFn) {
 				var link = document.createElement('link');
 				link.rel = 'stylesheet';
 				link.href = href;
-				globalEvalStyles.runStyle(link, opt_callback, opt_appendFn);
+				globalEvalStyles.runStyle(link, defaultFn, appendFn);
 				return link;
 			}
 		}, {
 			key: 'runStyle',
-			value: function runStyle(style, opt_callback, opt_appendFn) {
+			value: function runStyle(style, defaultFn, appendFn) {
 				var callback = function callback() {
-					opt_callback && opt_callback();
+					defaultFn && defaultFn();
 				};
 				if (style.rel && style.rel !== 'stylesheet') {
 					_metal.async.nextTick(callback);
@@ -73,8 +73,8 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 					(0, _dom.once)(style, 'error', callback);
 				}
 
-				if (opt_appendFn) {
-					opt_appendFn(style);
+				if (appendFn) {
+					appendFn(style);
 				} else {
 					document.head.appendChild(style);
 				}
@@ -83,21 +83,21 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			}
 		}, {
 			key: 'runStylesInElement',
-			value: function runStylesInElement(element, opt_callback, opt_appendFn) {
+			value: function runStylesInElement(element, defaultFn, appendFn) {
 				var styles = element.querySelectorAll('style,link');
-				if (styles.length === 0 && opt_callback) {
-					_metal.async.nextTick(opt_callback);
+				if (styles.length === 0 && defaultFn) {
+					_metal.async.nextTick(defaultFn);
 					return;
 				}
 
 				var loadCount = 0;
 				var callback = function callback() {
-					if (opt_callback && ++loadCount === styles.length) {
-						_metal.async.nextTick(opt_callback);
+					if (defaultFn && ++loadCount === styles.length) {
+						_metal.async.nextTick(defaultFn);
 					}
 				};
 				for (var i = 0; i < styles.length; i++) {
-					globalEvalStyles.runStyle(styles[i], callback, opt_appendFn);
+					globalEvalStyles.runStyle(styles[i], callback, appendFn);
 				}
 			}
 		}]);

@@ -38,6 +38,9 @@ define(['exports'], function (exports) {
 	}();
 
 	var Disposable = function () {
+		/**
+   * Disposable constructor
+   */
 		function Disposable() {
 			_classCallCheck(this, Disposable);
 

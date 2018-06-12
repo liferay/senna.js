@@ -51,10 +51,14 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 				var prefixes = ['Webkit', 'MS', 'O', ''];
 				var typeTitleCase = _metal.string.replaceInterval(type, 0, 1, type.substring(0, 1).toUpperCase());
 				var suffixes = [typeTitleCase + 'End', typeTitleCase + 'End', typeTitleCase + 'End', type + 'end'];
+				if (!features.animationElement_) {
+					features.animationElement_ = document.createElement('div');
+				}
 				for (var i = 0; i < prefixes.length; i++) {
-					if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined) {
-						return prefixes[i].toLowerCase() + suffixes[i];
-					}
+					if (features.animationElement_.style[prefixes[i] + typeTitleCase] !== undefined // eslint-disable-line
+					) {
+							return prefixes[i].toLowerCase() + suffixes[i];
+						}
 				}
 				return type + 'end';
 			}
@@ -74,7 +78,7 @@ define(['exports', './dom', 'metal/src/metal'], function (exports, _dom, _metal)
 		return features;
 	}();
 
-	features.animationElement_ = document.createElement('div');
+	features.animationElement_ = undefined;
 	features.animationEventName_ = undefined;
 	features.attrOrderChange_ = undefined;
 

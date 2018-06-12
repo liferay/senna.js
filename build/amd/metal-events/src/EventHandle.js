@@ -56,6 +56,12 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	var EventHandle = function (_Disposable) {
 		_inherits(EventHandle, _Disposable);
 
+		/**
+   * EventHandle constructor
+   * @param {!EventEmitter} emitter Emitter the event was subscribed to.
+   * @param {string} event The name of the event that was subscribed to.
+   * @param {!Function} listener The listener subscribed to the event.
+   */
 		function EventHandle(emitter, event, listener) {
 			_classCallCheck(this, EventHandle);
 

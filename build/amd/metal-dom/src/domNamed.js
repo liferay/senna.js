@@ -11,6 +11,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	exports.buildFragment = buildFragment;
 	exports.contains = contains;
 	exports.delegate = delegate;
+	exports.isNodeListLike = isNodeListLike;
 	exports.enterDocument = enterDocument;
 	exports.exitDocument = exitDocument;
 	exports.hasClass = hasClass;
@@ -20,6 +21,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	exports.on = on;
 	exports.once = once;
 	exports.parent = parent;
+	exports.prepend = prepend;
 	exports.registerCustomEvent = registerCustomEvent;
 	exports.removeChildren = removeChildren;
 	exports.removeClasses = removeClasses;
@@ -199,7 +201,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 		if ((0, _metal.isString)(child)) {
 			child = buildFragment(child);
 		}
-		if (child instanceof NodeList) {
+		if (isNodeListLike(child)) {
 			var childArr = Array.prototype.slice.call(child);
 			for (var i = 0; i < childArr.length; i++) {
 				parent.appendChild(childArr[i]);
@@ -252,20 +254,20 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   *     that should match the event for the listener to be triggered.
   * @param {!function(!Object)} callback Function to be called when the event
   *     is triggered. It will receive the normalized event object.
-  * @param {boolean=} opt_default Optional flag indicating if this is a default
+  * @param {boolean=} defaultListener Optional flag indicating if this is a default
   *     listener. That means that it would only be executed after all non
   *     default listeners, and only if the event isn't prevented via
   *     `preventDefault`.
   * @return {!EventHandle} Can be used to remove the listener.
   */
-	function delegate(element, eventName, selectorOrTarget, callback, opt_default) {
+	function delegate(element, eventName, selectorOrTarget, callback, defaultListener) {
 		var customConfig = customEvents[eventName];
 		if (customConfig && customConfig.delegate) {
 			eventName = customConfig.originalEvent;
 			callback = customConfig.handler.bind(customConfig, callback);
 		}
 
-		if (opt_default) {
+		if (defaultListener) {
 			// Wrap callback so we don't set property directly on it.
 			callback = callback.bind();
 			callback.defaultListener_ = true;
@@ -286,10 +288,12 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * simulating browsers behaviour, avoiding event listeners to be called by triggerEvent method.
   * @param {Element} node Element to be checked.
   * @param {string} eventName The event name.
+  * @param {Object=} eventObj
   * @private
+  * @return {boolean}
   */
-	function isAbleToInteractWith_(node, eventName, opt_eventObj) {
-		if (opt_eventObj && eventName === 'click' && opt_eventObj.button === 2) {
+	function isAbleToInteractWith_(node, eventName, eventObj) {
+		if (eventObj && eventName === 'click' && eventObj.button === 2) {
 			// Firefox triggers "click" events on the document for right clicks. This
 			// causes our delegate logic to trigger it for regular elements too, which
 			// shouldn't happen. Ignoring them here.
@@ -301,6 +305,15 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			return !(node.disabled || parent(node, 'fieldset[disabled]'));
 		}
 		return true;
+	}
+
+	/**
+  * Returns true if the specified value is a NodeList or like one.
+  * @param {?} val Variable to test.
+  * @return {boolean} Whether variable is like a NodeList.
+  */
+	function isNodeListLike(val) {
+		return (0, _metal.isDefAndNotNull)(val) && typeof val.length === 'number' && typeof val.item === 'function';
 	}
 
 	/**
@@ -366,7 +379,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function hasClassWithNative_(element, className) {
-		return element.classList.contains(className);
+		return className.indexOf(' ') === -1 && element.classList.contains(className);
 	}
 
 	/**
@@ -377,7 +390,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function hasClassWithoutNative_(element, className) {
-		return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0;
+		return (' ' + element.className + ' ').indexOf(' ' + className + ' ') >= 0 && className.split(' ').length === 1;
 	}
 
 	/**
@@ -418,12 +431,18 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @private
   */
 	function matchFallback_(element, selector) {
-		var nodes = document.querySelectorAll(selector, element.parentNode);
-		for (var i = 0; i < nodes.length; ++i) {
-			if (nodes[i] === element) {
-				return true;
+		var parentNode = element.parentNode;
+
+		if (parentNode) {
+			var nodes = parentNode.querySelectorAll(selector);
+
+			for (var i = 0; i < nodes.length; ++i) {
+				if (nodes[i] === element) {
+					return true;
+				}
 			}
 		}
+
 		return false;
 	}
 
@@ -432,6 +451,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * selector, or null if there is none.
   * @param {!Element} element
   * @param {?string} selector
+  * @return {Element|null}
   */
 	function next(element, selector) {
 		do {
@@ -462,11 +482,11 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * @param {string} eventName The name of the event to listen to.
   * @param {!function(!Object)} callback Function to be called when the event is
   *   triggered. It will receive the normalized event object.
-  * @param {boolean} opt_capture Flag indicating if listener should be triggered
+  * @param {boolean} capture Flag indicating if listener should be triggered
   *   during capture phase, instead of during the bubbling phase. Defaults to false.
   * @return {!DomEventHandle} Can be used to remove the listener.
   */
-	function on(element, eventName, callback, opt_capture) {
+	function on(element, eventName, callback, capture) {
 		if ((0, _metal.isString)(element)) {
 			return delegate(document, eventName, element, callback);
 		}
@@ -475,8 +495,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 			eventName = customConfig.originalEvent;
 			callback = customConfig.handler.bind(customConfig, callback);
 		}
-		element.addEventListener(eventName, callback, opt_capture);
-		return new _DomEventHandle2.default(element, eventName, callback, opt_capture);
+		element.addEventListener(eventName, callback, capture);
+		return new _DomEventHandle2.default(element, eventName, callback, capture);
 	}
 
 	/**
@@ -492,7 +512,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	function once(element, eventName, callback) {
 		var domEventHandle = on(element, eventName, function () {
 			domEventHandle.removeListener();
-			return callback.apply(this, arguments);
+			return callback.apply(this, arguments); // eslint-disable-line
 		});
 		return domEventHandle;
 	}
@@ -506,6 +526,34 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   */
 	function parent(element, selector) {
 		return closest(element.parentNode, selector);
+	}
+
+	/**
+  * Inserts a node before first child of the parent. If child is a HTML string
+  * it will be converted to document fragment before prepending it to the parent.
+  * @param {!Element} parent The node to prepend to.
+  * @param {!(Element|NodeList|string)} child The thing to prepend to the parent.
+  * @return {!Element} The prepended child.
+  */
+	function prepend(parent, child) {
+		if ((0, _metal.isString)(child)) {
+			child = buildFragment(child);
+		}
+
+		if (!isNodeListLike(child) && !(0, _metal.isDefAndNotNull)(parent.firstChild)) {
+			return append(parent, child);
+		}
+
+		if (isNodeListLike(child)) {
+			var childArr = Array.prototype.slice.call(child);
+			for (var i = childArr.length - 1; i >= 0; i--) {
+				parent.insertBefore(childArr[i], parent.firstChild);
+			}
+		} else {
+			parent.insertBefore(child, parent.firstChild);
+		}
+
+		return child;
 	}
 
 	/**
@@ -645,7 +693,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 
 	/**
   * This triggers all default matched delegated listeners of a given event type.
-  * @param {!Array} defaultFns Array to collect default listeners in, instead
+  * @param {!Array} defFns Array to collect default listeners in, instead
   * @param {!Event} event
   * @return {boolean} False if at least one of the triggered callbacks returns
   *     false, or true otherwise.
@@ -764,7 +812,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 				elementClassName = '' + elementClassName + classes[i] + ' ';
 			} else {
 				var before = elementClassName.substring(0, classIndex);
-				var after = elementClassName.substring(classIndex + className.length);
+				var after = elementClassName.substring(classIndex + className.length); // eslint-disable-line
 				elementClassName = before + ' ' + after;
 			}
 		}
@@ -797,15 +845,15 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
   * NOTE: This should mostly be used for testing, not on real code.
   * @param {!Element} element The node that should trigger the event.
   * @param {string} eventName The name of the event to be triggred.
-  * @param {Object=} opt_eventObj An object with data that should be on the
+  * @param {Object=} eventObj An object with data that should be on the
   *   triggered event's payload.
   */
-	function triggerEvent(element, eventName, opt_eventObj) {
-		if (isAbleToInteractWith_(element, eventName, opt_eventObj)) {
-			var eventObj = document.createEvent('HTMLEvents');
-			eventObj.initEvent(eventName, true, true);
-			_metal.object.mixin(eventObj, opt_eventObj);
-			element.dispatchEvent(eventObj);
+	function triggerEvent(element, eventName, eventObj) {
+		if (isAbleToInteractWith_(element, eventName, eventObj)) {
+			var payload = document.createEvent('HTMLEvents');
+			payload.initEvent(eventName, true, true);
+			_metal.object.mixin(payload, eventObj);
+			element.dispatchEvent(payload);
 		}
 	}
 

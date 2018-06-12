@@ -130,17 +130,17 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		_createClass(Screen, [{
 			key: 'activate',
 			value: function activate() {
-				console.log('Screen [' + this + '] activate');
+				void 0;
 			}
 		}, {
 			key: 'beforeActivate',
 			value: function beforeActivate() {
-				console.log('Screen [' + this + '] beforeActivate');
+				void 0;
 			}
 		}, {
 			key: 'beforeDeactivate',
 			value: function beforeDeactivate() {
-				console.log('Screen [' + this + '] beforeDeactivate');
+				void 0;
 			}
 		}, {
 			key: 'beforeUpdateHistoryPath',
@@ -155,13 +155,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}, {
 			key: 'deactivate',
 			value: function deactivate() {
-				console.log('Screen [' + this + '] deactivate');
+				void 0;
 			}
 		}, {
 			key: 'disposeInternal',
 			value: function disposeInternal() {
 				_get(Screen.prototype.__proto__ || Object.getPrototypeOf(Screen.prototype), 'disposeInternal', this).call(this);
-				console.log('Screen [' + this + '] dispose');
+				void 0;
 			}
 		}, {
 			key: 'evaluateScripts',
@@ -183,7 +183,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 			value: function flip(surfaces) {
 				var _this2 = this;
 
-				console.log('Screen [' + this + '] flip');
+				void 0;
 
 				var transitions = [];
 
@@ -203,7 +203,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}, {
 			key: 'getSurfaceContent',
 			value: function getSurfaceContent() {
-				console.log('Screen [' + this + '] getSurfaceContent');
+				void 0;
 			}
 		}, {
 			key: 'getTitle',
@@ -213,7 +213,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}, {
 			key: 'load',
 			value: function load() {
-				console.log('Screen [' + this + '] load');
+				void 0;
 				return _Promise2.default.resolve();
 			}
 		}, {

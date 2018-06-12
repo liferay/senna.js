@@ -56,7 +56,16 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	var EventEmitterProxy = function (_Disposable) {
 		_inherits(EventEmitterProxy, _Disposable);
 
-		function EventEmitterProxy(originEmitter, targetEmitter, opt_blacklist, opt_whitelist) {
+		/**
+   * @param {EventEmitter} originEmitter Events originated on this emitter
+   * will be fired for the target emitter's listeners as well.
+   * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
+   * will also be triggered when the event is fired by the origin emitter.
+   * @param {Object} blacklist Optional blacklist of events that should not be
+   * proxied.
+   * @param {Object} whitelist
+   */
+		function EventEmitterProxy(originEmitter, targetEmitter, blacklist, whitelist) {
 			_classCallCheck(this, EventEmitterProxy);
 
 			var _this = _possibleConstructorReturn(this, (EventEmitterProxy.__proto__ || Object.getPrototypeOf(EventEmitterProxy)).call(this));
@@ -66,7 +75,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     * @type {Object}
     * @protected
     */
-			_this.blacklist_ = opt_blacklist;
+			_this.blacklist_ = blacklist;
 
 			/**
     * The origin emitter. This emitter's events will be proxied through the
@@ -105,7 +114,7 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
     * @type {Object}
     * @protected
     */
-			_this.whitelist_ = opt_whitelist;
+			_this.whitelist_ = whitelist;
 
 			_this.startProxy_();
 			return _this;
@@ -136,7 +145,9 @@ define(['exports', 'metal/src/metal'], function (exports, _metal) {
 		}, {
 			key: 'emitOnTarget_',
 			value: function emitOnTarget_() {
-				this.targetEmitter_.emit.apply(this.targetEmitter_, arguments);
+				var _targetEmitter_;
+
+				(_targetEmitter_ = this.targetEmitter_).emit.apply(_targetEmitter_, arguments);
 			}
 		}, {
 			key: 'proxyEvent',

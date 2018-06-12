@@ -65,13 +65,15 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 
 	/**
   * EventEmitter utility.
-  * @constructor
   * @extends {Disposable}
   */
 
 	var EventEmitter = function (_Disposable) {
 		_inherits(EventEmitter, _Disposable);
 
+		/**
+   * EventEmitter constructor
+   */
 		function EventEmitter() {
 			_classCallCheck(this, EventEmitter);
 
@@ -128,25 +130,25 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 			}
 		}, {
 			key: 'addListener',
-			value: function addListener(event, listener, opt_default) {
+			value: function addListener(event, listener, defaultListener) {
 				this.validateListener_(listener);
 
 				var events = this.toEventsArray_(event);
 				for (var i = 0; i < events.length; i++) {
-					this.addSingleListener_(events[i], listener, opt_default);
+					this.addSingleListener_(events[i], listener, defaultListener);
 				}
 
 				return new _EventHandle2.default(this, event, listener);
 			}
 		}, {
 			key: 'addSingleListener_',
-			value: function addSingleListener_(event, listener, opt_default, opt_origin) {
+			value: function addSingleListener_(event, listener, defaultListener, origin) {
 				this.runListenerHandlers_(event);
-				if (opt_default || opt_origin) {
+				if (defaultListener || origin) {
 					listener = {
-						default: opt_default,
+						default: defaultListener,
 						fn: listener,
-						origin: opt_origin
+						origin: origin
 					};
 				}
 				this.events_ = this.events_ || {};
@@ -179,7 +181,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 					return false;
 				}
 
-				var args = _metal.array.slice(arguments, 1);
+				var args = _metal.array.slice(arguments, 1); // eslint-disable-line
 				this.runListeners_(listeners, args, this.buildFacade_(event));
 				return true;
 			}
@@ -220,11 +222,14 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 					return;
 				}
 
+				/**
+     *
+     */
 				function handlerInternal() {
 					if (--amount === 0) {
 						self.removeListener(event, handlerInternal);
 					}
-					listener.apply(self, arguments);
+					listener.apply(self, arguments); // eslint-disable-line
 				}
 
 				self.addSingleListener_(event, handlerInternal, false, listener);
@@ -233,7 +238,8 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 			key: 'matchesListener_',
 			value: function matchesListener_(listenerObj, listener) {
 				var fn = listenerObj.fn || listenerObj;
-				return fn === listener || listenerObj.origin && listenerObj.origin === listener;
+				return fn === listener || listenerObj.origin && listenerObj.origin === listener // eslint-disable-line
+				;
 			}
 		}, {
 			key: 'off',
@@ -253,12 +259,12 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'on',
 			value: function on() {
-				return this.addListener.apply(this, arguments);
+				return this.addListener.apply(this, arguments); // eslint-disable-line
 			}
 		}, {
 			key: 'onListener',
 			value: function onListener(handler) {
-				this.listenerHandlers_ = this.addHandler_(this.listenerHandlers_, handler);
+				this.listenerHandlers_ = this.addHandler_(this.listenerHandlers_, handler); // eslint-disable-line
 			}
 		}, {
 			key: 'once',
@@ -267,10 +273,10 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 			}
 		}, {
 			key: 'removeAllListeners',
-			value: function removeAllListeners(opt_events) {
+			value: function removeAllListeners(event) {
 				if (this.events_) {
-					if (opt_events) {
-						var events = this.toEventsArray_(opt_events);
+					if (event) {
+						var events = this.toEventsArray_(event);
 						for (var i = 0; i < events.length; i++) {
 							this.events_[events[i]] = null;
 						}
@@ -294,7 +300,7 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		}, {
 			key: 'removeListener',
 			value: function removeListener() {
-				return this.off.apply(this, arguments);
+				return this.off.apply(this, arguments); // eslint-disable-line
 			}
 		}, {
 			key: 'runListenerHandlers_',
@@ -356,6 +362,11 @@ define(['exports', 'metal/src/metal', './EventHandle'], function (exports, _meta
 		return EventEmitter;
 	}(_metal.Disposable);
 
+	/**
+  * Converts to an array
+  * @param {Object} val
+  * @return {Array}
+  */
 	function toArray(val) {
 		val = val || [];
 		return Array.isArray(val) ? val : [val];

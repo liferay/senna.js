@@ -36,11 +36,11 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 
 		_createClass(globalEval, null, [{
 			key: 'run',
-			value: function run(text, opt_appendFn) {
+			value: function run(text, appendFn) {
 				var script = document.createElement('script');
 				script.text = text;
-				if (opt_appendFn) {
-					opt_appendFn(script);
+				if (appendFn) {
+					appendFn(script);
 				} else {
 					document.head.appendChild(script);
 				}
@@ -49,19 +49,19 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			}
 		}, {
 			key: 'runFile',
-			value: function runFile(src, opt_callback, opt_appendFn) {
+			value: function runFile(src, defaultFn, appendFn) {
 				var script = document.createElement('script');
 				script.src = src;
 
 				var callback = function callback() {
 					(0, _dom.exitDocument)(script);
-					opt_callback && opt_callback();
+					defaultFn && defaultFn();
 				};
 				(0, _dom.once)(script, 'load', callback);
 				(0, _dom.once)(script, 'error', callback);
 
-				if (opt_appendFn) {
-					opt_appendFn(script);
+				if (appendFn) {
+					appendFn(script);
 				} else {
 					document.head.appendChild(script);
 				}
@@ -70,9 +70,9 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 			}
 		}, {
 			key: 'runScript',
-			value: function runScript(script, opt_callback, opt_appendFn) {
+			value: function runScript(script, defaultFn, appendFn) {
 				var callback = function callback() {
-					opt_callback && opt_callback();
+					defaultFn && defaultFn();
 				};
 				if (script.type && script.type !== 'text/javascript') {
 					_metal.async.nextTick(callback);
@@ -80,32 +80,32 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 				}
 				(0, _dom.exitDocument)(script);
 				if (script.src) {
-					return globalEval.runFile(script.src, opt_callback, opt_appendFn);
+					return globalEval.runFile(script.src, defaultFn, appendFn);
 				} else {
 					_metal.async.nextTick(callback);
-					return globalEval.run(script.text, opt_appendFn);
+					return globalEval.run(script.text, appendFn);
 				}
 			}
 		}, {
 			key: 'runScriptsInElement',
-			value: function runScriptsInElement(element, opt_callback, opt_appendFn) {
+			value: function runScriptsInElement(element, defaultFn, appendFn) {
 				var scripts = element.querySelectorAll('script');
 				if (scripts.length) {
-					globalEval.runScriptsInOrder(scripts, 0, opt_callback, opt_appendFn);
-				} else if (opt_callback) {
-					_metal.async.nextTick(opt_callback);
+					globalEval.runScriptsInOrder(scripts, 0, defaultFn, appendFn);
+				} else if (defaultFn) {
+					_metal.async.nextTick(defaultFn);
 				}
 			}
 		}, {
 			key: 'runScriptsInOrder',
-			value: function runScriptsInOrder(scripts, index, opt_callback, opt_appendFn) {
+			value: function runScriptsInOrder(scripts, index, defaultFn, appendFn) {
 				globalEval.runScript(scripts.item(index), function () {
 					if (index < scripts.length - 1) {
-						globalEval.runScriptsInOrder(scripts, index + 1, opt_callback, opt_appendFn);
-					} else if (opt_callback) {
-						_metal.async.nextTick(opt_callback);
+						globalEval.runScriptsInOrder(scripts, index + 1, defaultFn, appendFn); // eslint-disable-line
+					} else if (defaultFn) {
+						_metal.async.nextTick(defaultFn);
 					}
-				}, opt_appendFn);
+				}, appendFn);
 			}
 		}]);
 

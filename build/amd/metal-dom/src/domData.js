@@ -1,4 +1,4 @@
-define(['exports'], function (exports) {
+define(['exports', 'metal/src/metal'], function (exports, _metal) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -31,6 +31,10 @@ define(['exports'], function (exports) {
 
 	var METAL_DATA = '__metal_data__';
 
+	/**
+  * Set of utilities for dom data operations
+  */
+
 	var domData = function () {
 		function domData() {
 			_classCallCheck(this, domData);
@@ -38,22 +42,34 @@ define(['exports'], function (exports) {
 
 		_createClass(domData, null, [{
 			key: 'get',
-			value: function get(element, opt_name, opt_initialVal) {
+			value: function get(element, name, initialValue) {
 				if (!element[METAL_DATA]) {
 					element[METAL_DATA] = {};
 				}
-				if (!opt_name) {
+				if (!name) {
 					return element[METAL_DATA];
 				}
-				if (!element[METAL_DATA][opt_name] && opt_initialVal) {
-					element[METAL_DATA][opt_name] = opt_initialVal;
+				if (!(0, _metal.isDef)(element[METAL_DATA][name]) && (0, _metal.isDef)(initialValue)) {
+					element[METAL_DATA][name] = initialValue;
 				}
-				return element[METAL_DATA][opt_name];
+				return element[METAL_DATA][name];
 			}
 		}, {
 			key: 'has',
 			value: function has(element) {
 				return !!element[METAL_DATA];
+			}
+		}, {
+			key: 'set',
+			value: function set(element, name, value) {
+				if (!element[METAL_DATA]) {
+					element[METAL_DATA] = {};
+				}
+				if (!name || !(0, _metal.isDef)(value)) {
+					return element[METAL_DATA];
+				}
+				element[METAL_DATA][name] = value;
+				return element[METAL_DATA][name];
 			}
 		}]);
 

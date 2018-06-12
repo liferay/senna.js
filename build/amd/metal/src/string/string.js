@@ -1,6 +1,10 @@
 define(['exports'], function (exports) {
 	'use strict';
 
+	/**
+  * Set of utilities for string operations
+  */
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -56,7 +60,7 @@ define(['exports'], function (exports) {
 		}, {
 			key: 'escapeRegex',
 			value: function escapeRegex(str) {
-				return String(str).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08');
+				return String(str).replace(/([-()[\]{}+?*.$^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08'); // eslint-disable-line
 			}
 		}, {
 			key: 'getRandomString',
