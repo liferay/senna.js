@@ -842,10 +842,11 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			if (this.pendingNavigate.path === event.path) {
-				console.log('Waiting...');
-				return;
-			}
+			// Here, we have a critic point to navigation. When avoiding 
+			// execution of beforeUnload and startNavigate event,
+			// we avoid CancellationPromise when senna lifecycle is executed.
+			// https://github.com/antonio-ortega/liferay-portal/pull/49
+			return;
 		}
 
 		this.emit('beforeUnload', event);
@@ -1114,9 +1115,11 @@ class App extends EventEmitter {
 	removeScreen(path) {
 		var screen = this.screens[path];
 		if (screen) {
+			console.log('before screen: ', screen);
 			Object.keys(this.surfaces).forEach((surfaceId) => this.surfaces[surfaceId].remove(screen.getId()));
+			console.log('after cleaning: ', screen);
 			screen.dispose();
-			delete this.screens[path];
+			this.screens[path] = null;
 		}
 	}
 
