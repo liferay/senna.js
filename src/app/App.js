@@ -124,6 +124,14 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
+		 * When set to true means that the current navigation cannot be Cancelled to start another.
+		 * @type {boolean}
+		 * @default false
+		 * @protected
+		 */
+		this.isNavigationAvoided = false;
+
+		/**
 		 * When set to true there is a pendingNavigate that has not yet been
 		 * resolved or rejected.
 		 * @type {boolean}
@@ -172,6 +180,14 @@ class App extends EventEmitter {
 		 * @protected
 		 */
 		this.routes = [];
+
+		/**
+		 * Holds the latest DOM event that can initiate a navigation.
+		 * @type {Event}
+		 * @default null
+		 * @protected
+		 */
+		this.scheduledNavigationEvent = null;
 
 		/**
 		 * Maps the screen instances by the url containing the parameters.
@@ -425,7 +441,13 @@ class App extends EventEmitter {
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			})
-			.thenAlways(() => this.isNavigationAvoided = false);
+			.thenAlways(() => {
+				this.isNavigationAvoided = false;
+				if (this.scheduledNavigationEvent) {
+					this.maybeNavigate_(this.scheduledNavigationEvent.delegateTarget.href, this.scheduledNavigationEvent);
+					this.scheduledNavigationEvent = null;
+				}
+			});
 	}
 
 	/**
@@ -668,6 +690,14 @@ class App extends EventEmitter {
 			return;
 		}
 
+		if (this.isNavigationPending && this.isNavigationAvoided) {
+			this.scheduledNavigationEvent = object.mixin({
+				isScheduledEvent: true
+			}, event);
+			event.preventDefault();
+			return;
+		}
+
 		globals.capturedFormElement = event.capturedFormElement;
 		globals.capturedFormButtonElement = event.capturedFormButtonElement;
 
@@ -679,7 +709,7 @@ class App extends EventEmitter {
 			navigateFailed = true;
 		}
 
-		if (!navigateFailed) {
+		if (!navigateFailed && !event.isScheduledEvent) {
 			event.preventDefault();
 		}
 	}
