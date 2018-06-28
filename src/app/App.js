@@ -658,7 +658,7 @@ class App extends EventEmitter {
 		// behaviors can happen even on the same browser, hence the race will decide
 		// the winner.
 		var winner = false;
-		var switchScrollPositionRace = function () {
+		var switchScrollPositionRace = function() {
 			globals.document.removeEventListener('scroll', switchScrollPositionRace, false);
 			if (!winner) {
 				globals.window.scrollTo(state.scrollLeft, state.scrollTop);
@@ -785,7 +785,7 @@ class App extends EventEmitter {
 		if (hash) {
 			let anchorElement = globals.document.getElementById(hash.substring(1));
 			if (anchorElement) {
-				const { offsetLeft, offsetTop } = utils.getNodeOffset(anchorElement);
+				const {offsetLeft, offsetTop} = utils.getNodeOffset(anchorElement);
 				globals.window.scrollTo(offsetLeft, offsetTop);
 			}
 		}
@@ -824,7 +824,7 @@ class App extends EventEmitter {
 		var hash = globals.window.location.hash;
 		var anchorElement = globals.document.getElementById(hash.substring(1));
 		if (anchorElement) {
-			const { offsetLeft, offsetTop } = utils.getNodeOffset(anchorElement);
+			const {offsetLeft, offsetTop} = utils.getNodeOffset(anchorElement);
 			this.saveHistoryCurrentPageScrollPosition_(offsetTop, offsetLeft);
 		}
 	}
@@ -876,7 +876,7 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			if (this.pendingNavigate.path == event.path || this.isNavigationAvoided) {
+			if (this.pendingNavigate.path === event.path || this.isNavigationAvoided) {
 				console.log('Waiting');
 				return;
 			}
