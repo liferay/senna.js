@@ -1,7 +1,7 @@
 'use strict';
 
 import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
-import { array, async, isDefAndNotNull, isString } from 'metal';
+import { array, async, object, isDefAndNotNull, isString } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import debounce from 'metal-debounce';
@@ -636,7 +636,7 @@ class App extends EventEmitter {
 		// behaviors can happen even on the same browser, hence the race will decide
 		// the winner.
 		var winner = false;
-		var switchScrollPositionRace = function() {
+		var switchScrollPositionRace = function () {
 			globals.document.removeEventListener('scroll', switchScrollPositionRace, false);
 			if (!winner) {
 				globals.window.scrollTo(state.scrollLeft, state.scrollTop);
@@ -755,7 +755,7 @@ class App extends EventEmitter {
 		if (hash) {
 			let anchorElement = globals.document.getElementById(hash.substring(1));
 			if (anchorElement) {
-				const {offsetLeft, offsetTop} = utils.getNodeOffset(anchorElement);
+				const { offsetLeft, offsetTop } = utils.getNodeOffset(anchorElement);
 				globals.window.scrollTo(offsetLeft, offsetTop);
 			}
 		}
@@ -794,7 +794,7 @@ class App extends EventEmitter {
 		var hash = globals.window.location.hash;
 		var anchorElement = globals.document.getElementById(hash.substring(1));
 		if (anchorElement) {
-			const {offsetLeft, offsetTop} = utils.getNodeOffset(anchorElement);
+			const { offsetLeft, offsetTop } = utils.getNodeOffset(anchorElement);
 			this.saveHistoryCurrentPageScrollPosition_(offsetTop, offsetLeft);
 		}
 	}
@@ -846,10 +846,6 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			// Here, we have a critic point to navigation. When avoiding 
-			// execution of beforeUnload and startNavigate event,
-			// we avoid CancellationPromise when senna lifecycle is executed.
-			// https://github.com/liferay/senna.js/issues/262
 			if (this.pendingNavigate.path == event.path || this.isNavigationAvoided) {
 				console.log('Waiting');
 				return;
@@ -1020,7 +1016,7 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
-				if (!this.pendingNavigate) {
+				if (!this.pendingNavigate && !this.scheduledNavigationEvent) {
 					removeClasses(globals.document.documentElement, this.loadingCssClass);
 					this.maybeRestoreNativeScrollRestoration();
 					this.captureScrollPositionFromScrollEvent = true;
@@ -1218,7 +1214,7 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	stopPendingNavigate_() {
-		if (this.pendingNavigate && this.isNavigationAvoided) {
+		if (this.pendingNavigate) {
 			this.pendingNavigate.cancel('Cancel pending navigation');
 		}
 		this.pendingNavigate = null;
