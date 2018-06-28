@@ -401,7 +401,7 @@ class App extends EventEmitter {
 			.then(() => nextScreen.load(path))
 			.then(() => {
 				// At this point we cannot stop navigation.
-				this.avoidStartNavigation = true;
+				this.isNavigationAvoided = true;
 
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
@@ -425,7 +425,7 @@ class App extends EventEmitter {
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
 			})
-			.thenAlways(() => this.avoidStartNavigation = false);
+			.thenAlways(() => this.isNavigationAvoided = false);
 	}
 
 	/**
@@ -850,7 +850,7 @@ class App extends EventEmitter {
 			// execution of beforeUnload and startNavigate event,
 			// we avoid CancellationPromise when senna lifecycle is executed.
 			// https://github.com/liferay/senna.js/issues/262
-			if (this.pendingNavigate.path == event.path || this.avoidStartNavigation) {
+			if (this.pendingNavigate.path == event.path || this.isNavigationAvoided) {
 				console.log('Waiting');
 				return;
 			}
@@ -1218,7 +1218,7 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	stopPendingNavigate_() {
-		if (this.pendingNavigate && this.avoidStartNavigation) {
+		if (this.pendingNavigate && this.isNavigationAvoided) {
 			this.pendingNavigate.cancel('Cancel pending navigation');
 		}
 		this.pendingNavigate = null;
