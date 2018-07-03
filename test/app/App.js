@@ -1678,6 +1678,105 @@ describe('App', function() {
 		utils.isHtml5HistorySupported = original;
 	});
 
+
+	it('should navigate cancelling navigation to multiple paths after navigation is avoided', (done) => {
+		this.app = new App();
+
+		class TestScreen extends Screen {
+			evaluateStyles() {
+				super.evaluateStyles();
+
+				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
+				exitDocumentLinkElement();
+			}
+
+			evaluateScripts(surfaces) {
+				super.evaluateScripts(surfaces);
+
+				assert.ok(app.scheduledNavigationEvent);
+			}
+		}
+
+		class TestScreen2 extends Screen {
+			evaluateStyles() {
+				super.evaluateStyles();
+
+				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
+				exitDocumentLinkElement();
+			}
+
+			evaluateScripts(surfaces) {
+				super.evaluateScripts(surfaces);
+
+				assert.ok(app.scheduledNavigationEvent);
+			}
+		}
+
+		this.app.addRoutes(new Route('/path1', TestScreen));
+		this.app.addRoutes(new Route('/path2', TestScreen2));
+		this.app.addRoutes(new Route('/path3', TestScreen2));
+
+		this.app.navigate('/path1');
+
+		this.app.on('endNavigate', () => {
+			var pathName = globals.window.location.pathname;
+
+			if (pathName === '/path2') {
+				console.log('entrou');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
+				assert.strictEqual('/path2', pathName);
+			}
+
+			if (pathName === '/path3') {
+				console.log('entrou');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
+				assert.strictEqual('/path3', pathName);
+			}
+			
+			assert.ok(!this.app.scheduledNavigationEvent);
+
+			done();
+		});
+	});
+
+
+	it('should navigate cancelling navigation to multiple paths before navigation is avoided', (done) => {
+		this.app = new App();
+
+		class TestScreen extends Screen {
+			load(path) {
+				super.load(path);
+
+				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
+				exitDocumentLinkElement();
+			}
+		}
+
+		class TestScreen2 extends Screen {
+			load(path) {
+				super.load(path);
+
+				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
+				exitDocumentLinkElement();
+			}
+		}
+
+		this.app.addRoutes(new Route('/path1', TestScreen));
+		this.app.addRoutes(new Route('/path2', TestScreen2));
+		this.app.addRoutes(new Route('/path3', TestScreen2));
+
+		this.app.navigate('/path1');
+
+		assert.ok(!this.app.scheduledNavigationEvent);
+
+		this.app.on('endNavigate', () => {
+			assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
+			assert.strictEqual('/path3', globals.window.location.pathname);
+			done();
+		});
+
+	});
+
 	it('should set document title from screen title', (done) => {
 		class TitledScreen extends Screen {
 			getTitle() {
@@ -1798,15 +1897,17 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path3', Screen));
 
 		this.app.navigate('/path1')
-			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+				return this.app.navigate('/path2');
+			})
+			.then(() => {
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 				return this.app.navigate('/path3');
 			})
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
 				this.app.on('endNavigate', () => {
-					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+					assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 					done();
 				}, true);
 				globals.window.history.back();
