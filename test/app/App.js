@@ -1683,32 +1683,28 @@ describe('App', function() {
 		this.app = new App();
 
 		class TestScreen extends Screen {
-			evaluateStyles() {
-				super.evaluateStyles();
-
+			evaluateStyles(surfaces) {
 				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
 				exitDocumentLinkElement();
+				return super.evaluateStyles(surfaces);
 			}
 
 			evaluateScripts(surfaces) {
-				super.evaluateScripts(surfaces);
-
 				assert.ok(app.scheduledNavigationEvent);
+				return super.evaluateScripts(surfaces);
 			}
 		}
 
 		class TestScreen2 extends Screen {
-			evaluateStyles() {
-				super.evaluateStyles();
-
+			evaluateStyles(surfaces) {
 				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
 				exitDocumentLinkElement();
+				return super.evaluateStyles(surfaces);
 			}
 
 			evaluateScripts(surfaces) {
-				super.evaluateScripts(surfaces);
-
 				assert.ok(app.scheduledNavigationEvent);
+				return super.evaluateScripts(surfaces);
 			}
 		}
 
@@ -1718,24 +1714,12 @@ describe('App', function() {
 
 		this.app.navigate('/path1');
 
-		this.app.on('endNavigate', () => {
-			var pathName = globals.window.location.pathname;
-
-			if (pathName === '/path2') {
-				console.log('entrou');
-				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
-				assert.strictEqual('/path2', pathName);
+		this.app.on('endNavigate', (event) => {
+			if (event.path === '/path3') {
+				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.strictEqual(globals.window.location.pathname, '/path3');
+				done();
 			}
-
-			if (pathName === '/path3') {
-				console.log('entrou');
-				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
-				assert.strictEqual('/path3', pathName);
-			}
-			
-			assert.ok(!this.app.scheduledNavigationEvent);
-
-			done();
 		});
 	});
 
@@ -1745,19 +1729,17 @@ describe('App', function() {
 
 		class TestScreen extends Screen {
 			load(path) {
-				super.load(path);
-
 				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
 				exitDocumentLinkElement();
+				return super.load(path);
 			}
 		}
 
 		class TestScreen2 extends Screen {
 			load(path) {
-				super.load(path);
-
 				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
 				exitDocumentLinkElement();
+				return super.load(path);
 			}
 		}
 
@@ -1769,10 +1751,12 @@ describe('App', function() {
 
 		assert.ok(!this.app.scheduledNavigationEvent);
 
-		this.app.on('endNavigate', () => {
-			assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
-			assert.strictEqual('/path3', globals.window.location.pathname);
-			done();
+		this.app.on('endNavigate', (event) => {
+			if (event.path === '/path3') {
+				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.strictEqual(globals.window.location.pathname, '/path3');
+				done();
+			}
 		});
 
 	});
