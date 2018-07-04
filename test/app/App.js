@@ -1690,7 +1690,7 @@ describe('App', function() {
 			}
 
 			evaluateScripts(surfaces) {
-				assert.ok(app.scheduledNavigationEvent);
+				assert.ok(this.app.scheduledNavigationEvent);
 				return super.evaluateScripts(surfaces);
 			}
 		}
@@ -1703,7 +1703,7 @@ describe('App', function() {
 			}
 
 			evaluateScripts(surfaces) {
-				assert.ok(app.scheduledNavigationEvent);
+				assert.ok(this.app.scheduledNavigationEvent);
 				return super.evaluateScripts(surfaces);
 			}
 		}
