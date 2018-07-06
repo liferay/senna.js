@@ -124,12 +124,15 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
-		 * When set to true means that the current navigation cannot be Cancelled to start another.
-		 * @type {boolean}
-		 * @default false
+		 * When set to 'scheduleLast' means that the current navigation 
+		 * cannot be Cancelled to start another and will be queued in 
+		 * scheduledNavigationQueue. When 'immediate' means that all 
+		 * navigation will be cancelled to start another.
+		 * @type {!string}
+		 * @default immediate
 		 * @protected
 		 */
-		this.isNavigationAvoided = false;
+		this.navigationStrategy = 'immediate';
 
 		/**
 		 * When set to true there is a pendingNavigate that has not yet been
@@ -182,12 +185,12 @@ class App extends EventEmitter {
 		this.routes = [];
 
 		/**
-		 * Holds the latest DOM event that can initiate a navigation.
-		 * @type {Event}
-		 * @default null
+		 * Holds a queue that stores every DOM event that can initiate a navigation.
+		 * @type {!Event}
+		 * @default []
 		 * @protected
 		 */
-		this.scheduledNavigationEvent = null;
+		this.scheduledNavigationQueue = [];
 
 		/**
 		 * Maps the screen instances by the url containing the parameters.
@@ -416,8 +419,9 @@ class App extends EventEmitter {
 			.then(() => this.maybePreventActivate_(nextScreen))
 			.then(() => nextScreen.load(path))
 			.then(() => {
-				// At this point we cannot stop navigation.
-				this.isNavigationAvoided = true;
+				// At this point we cannot stop navigation and all received
+				// navigate candidates will be queued at scheduledNavigationQueue.
+				this.navigationStrategy = 'scheduleLast';
 
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
@@ -442,10 +446,11 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
-				this.isNavigationAvoided = false;
-				if (this.scheduledNavigationEvent) {
-					this.maybeNavigate_(this.scheduledNavigationEvent.delegateTarget.href, this.scheduledNavigationEvent);
-					this.scheduledNavigationEvent = null;
+				this.navigationStrategy = 'immediate';
+				if (this.scheduledNavigationQueue.length) {
+					let event = this.scheduledNavigationQueue.shift();
+					this.maybeNavigate_(event.delegateTarget.href, event);
+					this.scheduledNavigationQueue = [];
 				}
 			});
 	}
@@ -690,10 +695,10 @@ class App extends EventEmitter {
 			return;
 		}
 
-		if (this.isNavigationPending && this.isNavigationAvoided) {
-			this.scheduledNavigationEvent = object.mixin({
+		if (this.isNavigationPending && this.navigationStrategy === 'scheduleLast') {
+			this.scheduledNavigationQueue.push(object.mixin({
 				isScheduledEvent: true
-			}, event);
+			}, event));
 			event.preventDefault();
 			return;
 		}
@@ -876,7 +881,7 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			if (this.pendingNavigate.path === event.path || this.isNavigationAvoided) {
+			if (this.pendingNavigate.path === event.path || this.navigationStrategy === 'scheduleLast') {
 				console.log('Waiting');
 				return;
 			}
@@ -1046,7 +1051,7 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
-				if (!this.pendingNavigate && !this.scheduledNavigationEvent) {
+				if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
 					removeClasses(globals.document.documentElement, this.loadingCssClass);
 					this.maybeRestoreNativeScrollRestoration();
 					this.captureScrollPositionFromScrollEvent = true;

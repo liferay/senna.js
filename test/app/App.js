@@ -1679,7 +1679,7 @@ describe('App', function() {
 	});
 
 
-	it('should navigate cancelling navigation to multiple paths after navigation is avoided', (done) => {
+	it('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
 		this.app = new App();
 
 		class TestScreen extends Screen {
@@ -1724,7 +1724,7 @@ describe('App', function() {
 	});
 
 
-	it('should navigate cancelling navigation to multiple paths before navigation is avoided', (done) => {
+	it('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
 		this.app = new App();
 
 		class TestScreen extends Screen {
