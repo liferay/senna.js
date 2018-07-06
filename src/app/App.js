@@ -1,7 +1,7 @@
 'use strict';
 
 import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
-import { array, async, isDefAndNotNull, isString } from 'metal';
+import { array, async, isDefAndNotNull, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import debounce from 'metal-debounce';
@@ -124,6 +124,17 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
+		 * When set to 'scheduleLast' means that the current navigation 
+		 * cannot be Cancelled to start another and will be queued in 
+		 * scheduledNavigationQueue. When 'immediate' means that all 
+		 * navigation will be cancelled to start another.
+		 * @type {!string}
+		 * @default immediate
+		 * @protected
+		 */
+		this.navigationStrategy = 'immediate';
+
+		/**
 		 * When set to true there is a pendingNavigate that has not yet been
 		 * resolved or rejected.
 		 * @type {boolean}
@@ -172,6 +183,14 @@ class App extends EventEmitter {
 		 * @protected
 		 */
 		this.routes = [];
+
+		/**
+		 * Holds a queue that stores every DOM event that can initiate a navigation.
+		 * @type {!Event}
+		 * @default []
+		 * @protected
+		 */
+		this.scheduledNavigationQueue = [];
 
 		/**
 		 * Maps the screen instances by the url containing the parameters.
@@ -400,6 +419,10 @@ class App extends EventEmitter {
 			.then(() => this.maybePreventActivate_(nextScreen))
 			.then(() => nextScreen.load(path))
 			.then(() => {
+				// At this point we cannot stop navigation and all received
+				// navigate candidates will be queued at scheduledNavigationQueue.
+				this.navigationStrategy = 'scheduleLast';
+
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}
@@ -421,6 +444,14 @@ class App extends EventEmitter {
 				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
+			})
+			.thenAlways(() => {
+				this.navigationStrategy = 'immediate';
+				if (this.scheduledNavigationQueue.length) {
+					let event = this.scheduledNavigationQueue.shift();
+					this.maybeNavigate_(event.delegateTarget.href, event);
+					this.scheduledNavigationQueue = [];
+				}
 			});
 	}
 
@@ -664,6 +695,14 @@ class App extends EventEmitter {
 			return;
 		}
 
+		if (this.isNavigationPending && this.navigationStrategy === 'scheduleLast') {
+			this.scheduledNavigationQueue.push(object.mixin({
+				isScheduledEvent: true
+			}, event));
+			event.preventDefault();
+			return;
+		}
+
 		globals.capturedFormElement = event.capturedFormElement;
 		globals.capturedFormButtonElement = event.capturedFormButtonElement;
 
@@ -675,7 +714,7 @@ class App extends EventEmitter {
 			navigateFailed = true;
 		}
 
-		if (!navigateFailed) {
+		if (!navigateFailed && !event.isScheduledEvent) {
 			event.preventDefault();
 		}
 	}
@@ -842,8 +881,8 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			if (this.pendingNavigate.path === event.path) {
-				console.log('Waiting...');
+			if (this.pendingNavigate.path === event.path || this.navigationStrategy === 'scheduleLast') {
+				console.log('Waiting');
 				return;
 			}
 		}
@@ -1012,7 +1051,7 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
-				if (!this.pendingNavigate) {
+				if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
 					removeClasses(globals.document.documentElement, this.loadingCssClass);
 					this.maybeRestoreNativeScrollRestoration();
 					this.captureScrollPositionFromScrollEvent = true;
@@ -1212,8 +1251,8 @@ class App extends EventEmitter {
 	stopPendingNavigate_() {
 		if (this.pendingNavigate) {
 			this.pendingNavigate.cancel('Cancel pending navigation');
-			this.pendingNavigate = null;
 		}
+		this.pendingNavigate = null;
 	}
 
 	/**
