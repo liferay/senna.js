@@ -1,7 +1,7 @@
 'use strict';
 
 import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
-import { array, async, object, isDefAndNotNull, isString } from 'metal';
+import { array, async, isDefAndNotNull, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import debounce from 'metal-debounce';
