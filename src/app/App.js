@@ -12,6 +12,11 @@ import Surface from '../surface/Surface';
 import Uri from 'metal-uri';
 import utils from '../utils/utils';
 
+const NavigationStrategy = {
+	IMMEDIATE: 'immediate',
+	SCHEDULE_LAST: 'scheduleLast'
+};
+
 class App extends EventEmitter {
 
 	/**
@@ -124,15 +129,15 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
-		 * When set to 'scheduleLast' means that the current navigation 
-		 * cannot be Cancelled to start another and will be queued in 
-		 * scheduledNavigationQueue. When 'immediate' means that all 
+		 * When set to NavigationStrategy.SCHEDULE_LAST means that the current navigation
+		 * cannot be Cancelled to start another and will be queued in
+		 * scheduledNavigationQueue. When NavigationStrategy.IMMEDIATE means that all
 		 * navigation will be cancelled to start another.
 		 * @type {!string}
 		 * @default immediate
 		 * @protected
 		 */
-		this.navigationStrategy = 'immediate';
+		this.navigationStrategy = NavigationStrategy.IMMEDIATE;
 
 		/**
 		 * When set to true there is a pendingNavigate that has not yet been
@@ -421,7 +426,7 @@ class App extends EventEmitter {
 			.then(() => {
 				// At this point we cannot stop navigation and all received
 				// navigate candidates will be queued at scheduledNavigationQueue.
-				this.navigationStrategy = 'scheduleLast';
+				this.navigationStrategy = NavigationStrategy.SCHEDULE_LAST;
 
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
@@ -446,11 +451,11 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
-				this.navigationStrategy = 'immediate';
+				this.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
 				if (this.scheduledNavigationQueue.length) {
-					let event = this.scheduledNavigationQueue.shift();
+					const event = this.scheduledNavigationQueue.shift();
 					this.maybeNavigate_(event.delegateTarget.href, event);
-					this.scheduledNavigationQueue = [];
 				}
 			});
 	}
@@ -695,11 +700,15 @@ class App extends EventEmitter {
 			return;
 		}
 
-		if (this.isNavigationPending && this.navigationStrategy === 'scheduleLast') {
-			this.scheduledNavigationQueue.push(object.mixin({
-				isScheduledEvent: true
-			}, event));
+		if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
 			event.preventDefault();
+
+			this.scheduledNavigationQueue = [
+				object.mixin({
+					isScheduledEvent: true
+				}, event)
+			];
+
 			return;
 		}
 
@@ -881,7 +890,7 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			if (this.pendingNavigate.path === event.path || this.navigationStrategy === 'scheduleLast') {
+			if (this.pendingNavigate.path === event.path || this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
 				console.log('Waiting');
 				return;
 			}
