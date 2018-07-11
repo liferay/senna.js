@@ -1678,6 +1678,89 @@ describe('App', function() {
 		utils.isHtml5HistorySupported = original;
 	});
 
+
+	it('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
+		this.app = new App();
+
+		class TestScreen extends Screen {
+			evaluateStyles(surfaces) {
+				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
+				exitDocumentLinkElement();
+				return super.evaluateStyles(surfaces);
+			}
+
+			evaluateScripts(surfaces) {
+				assert.ok(this.app.scheduledNavigationEvent);
+				return super.evaluateScripts(surfaces);
+			}
+		}
+
+		class TestScreen2 extends Screen {
+			evaluateStyles(surfaces) {
+				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
+				exitDocumentLinkElement();
+				return super.evaluateStyles(surfaces);
+			}
+
+			evaluateScripts(surfaces) {
+				assert.ok(this.app.scheduledNavigationEvent);
+				return super.evaluateScripts(surfaces);
+			}
+		}
+
+		this.app.addRoutes(new Route('/path1', TestScreen));
+		this.app.addRoutes(new Route('/path2', TestScreen2));
+		this.app.addRoutes(new Route('/path3', TestScreen2));
+
+		this.app.navigate('/path1');
+
+		this.app.on('endNavigate', (event) => {
+			if (event.path === '/path3') {
+				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.strictEqual(globals.window.location.pathname, '/path3');
+				done();
+			}
+		});
+	});
+
+
+	it('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
+		this.app = new App();
+
+		class TestScreen extends Screen {
+			load(path) {
+				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
+				exitDocumentLinkElement();
+				return super.load(path);
+			}
+		}
+
+		class TestScreen2 extends Screen {
+			load(path) {
+				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
+				exitDocumentLinkElement();
+				return super.load(path);
+			}
+		}
+
+		this.app.addRoutes(new Route('/path1', TestScreen));
+		this.app.addRoutes(new Route('/path2', TestScreen2));
+		this.app.addRoutes(new Route('/path3', TestScreen2));
+
+		this.app.navigate('/path1');
+
+		assert.ok(!this.app.scheduledNavigationEvent);
+
+		this.app.on('endNavigate', (event) => {
+			if (event.path === '/path3') {
+				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.strictEqual(globals.window.location.pathname, '/path3');
+				done();
+			}
+		});
+
+	});
+
 	it('should set document title from screen title', (done) => {
 		class TitledScreen extends Screen {
 			getTitle() {
@@ -1798,15 +1881,17 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path3', Screen));
 
 		this.app.navigate('/path1')
-			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+				return this.app.navigate('/path2');
+			})
+			.then(() => {
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 				return this.app.navigate('/path3');
 			})
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
 				this.app.on('endNavigate', () => {
-					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+					assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 					done();
 				}, true);
 				globals.window.history.back();
