@@ -32,8 +32,6 @@ describe('App', function() {
 		}
 		this.app = null;
 		this.xhr.restore();
-
-		globals.window.location.hash = '';
 	});
 
 	after(() => {
@@ -1887,13 +1885,13 @@ describe('App', function() {
 				return this.app.navigate('/path2');
 			})
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 				return this.app.navigate('/path3');
 			})
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
 				this.app.on('endNavigate', () => {
-					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+					assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 					done();
 				}, true);
 				globals.window.history.back();
