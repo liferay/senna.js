@@ -77,7 +77,7 @@ var options = {
 			base: 'SauceLabs',
 			browserName: 'microsoftedge',
 			platform: 'Windows 10',
-			version: '13'
+			version: '17'
 		},
 		sl_iphone: {
 			base: 'SauceLabs',
