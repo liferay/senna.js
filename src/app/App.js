@@ -701,7 +701,7 @@ class App extends EventEmitter {
 			this.scheduledNavigationQueue = [object.mixin({
 				href,
 				isScheduledNavigation: true
-			}, event)]
+			}, event)];
 			return true;
 		}
 		return false;
