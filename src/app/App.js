@@ -454,8 +454,8 @@ class App extends EventEmitter {
 				this.navigationStrategy = NavigationStrategy.IMMEDIATE;
 
 				if (this.scheduledNavigationQueue.length) {
-					const event = this.scheduledNavigationQueue.shift();
-					this.maybeNavigate_(event.delegateTarget.href, event);
+					const scheduledNavigation = this.scheduledNavigationQueue.shift();
+					this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
 				}
 			});
 	}
