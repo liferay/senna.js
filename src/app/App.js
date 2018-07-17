@@ -735,7 +735,7 @@ class App extends EventEmitter {
 			navigateFailed = true;
 		}
 
-		if (!navigateFailed && !event.isScheduledEvent) {
+		if (!navigateFailed && !event.isScheduledNavigation) {
 			event.preventDefault();
 		}
 	}
