@@ -1,7 +1,7 @@
 'use strict';
 
 import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
-import { array, async, isDefAndNotNull, isString } from 'metal';
+import { array, async, isDefAndNotNull, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import debounce from 'metal-debounce';
@@ -11,6 +11,11 @@ import Screen from '../screen/Screen';
 import Surface from '../surface/Surface';
 import Uri from 'metal-uri';
 import utils from '../utils/utils';
+
+const NavigationStrategy = {
+	IMMEDIATE: 'immediate',
+	SCHEDULE_LAST: 'scheduleLast'
+};
 
 class App extends EventEmitter {
 
@@ -124,6 +129,17 @@ class App extends EventEmitter {
 		this.nativeScrollRestorationSupported = ('scrollRestoration' in globals.window.history);
 
 		/**
+		 * When set to NavigationStrategy.SCHEDULE_LAST means that the current navigation
+		 * cannot be Cancelled to start another and will be queued in
+		 * scheduledNavigationQueue. When NavigationStrategy.IMMEDIATE means that all
+		 * navigation will be cancelled to start another.
+		 * @type {!string}
+		 * @default immediate
+		 * @protected
+		 */
+		this.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+		/**
 		 * When set to true there is a pendingNavigate that has not yet been
 		 * resolved or rejected.
 		 * @type {boolean}
@@ -172,6 +188,14 @@ class App extends EventEmitter {
 		 * @protected
 		 */
 		this.routes = [];
+
+		/**
+		 * Holds a queue that stores every DOM event that can initiate a navigation.
+		 * @type {!Event}
+		 * @default []
+		 * @protected
+		 */
+		this.scheduledNavigationQueue = [];
 
 		/**
 		 * Maps the screen instances by the url containing the parameters.
@@ -400,6 +424,10 @@ class App extends EventEmitter {
 			.then(() => this.maybePreventActivate_(nextScreen))
 			.then(() => nextScreen.load(path))
 			.then(() => {
+				// At this point we cannot stop navigation and all received
+				// navigate candidates will be queued at scheduledNavigationQueue.
+				this.navigationStrategy = NavigationStrategy.SCHEDULE_LAST;
+
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}
@@ -421,6 +449,14 @@ class App extends EventEmitter {
 				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
+			})
+			.thenAlways(() => {
+				this.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+				if (this.scheduledNavigationQueue.length) {
+					const scheduledNavigation = this.scheduledNavigationQueue.shift();
+					this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
+				}
 			});
 	}
 
@@ -655,6 +691,23 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * This method is used to evaluate if is possible to queue received
+	 *  dom event to scheduleNavigationQueue and enqueue it.
+	 * @param {string} href Information about the link's href.
+	 * @param {Event} event Dom event that initiated the navigation.
+	 */
+	maybeScheduleNavigation_(href, event) {
+		if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
+			this.scheduledNavigationQueue = [object.mixin({
+				href,
+				isScheduledNavigation: true
+			}, event)];
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Maybe navigate to a path.
 	 * @param {string} href Information about the link's href.
 	 * @param {Event} event Dom event that initiated the navigation.
@@ -664,8 +717,12 @@ class App extends EventEmitter {
 			return;
 		}
 
-		globals.capturedFormElement = event.capturedFormElement;
-		globals.capturedFormButtonElement = event.capturedFormButtonElement;
+		const isNavigationScheduled = this.maybeScheduleNavigation_(href, event);
+
+		if (isNavigationScheduled) {
+			event.preventDefault();
+			return;
+		}
 
 		var navigateFailed = false;
 		try {
@@ -675,7 +732,7 @@ class App extends EventEmitter {
 			navigateFailed = true;
 		}
 
-		if (!navigateFailed) {
+		if (!navigateFailed && !event.isScheduledNavigation) {
 			event.preventDefault();
 		}
 	}
@@ -807,6 +864,11 @@ class App extends EventEmitter {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 		}
 
+		if (opt_event) {
+			globals.capturedFormElement = opt_event.capturedFormElement;
+			globals.capturedFormButtonElement = opt_event.capturedFormButtonElement;
+		}
+
 		// When reloading the same path do replaceState instead of pushState to
 		// avoid polluting history with states with the same path.
 		if (path === this.activePath) {
@@ -842,7 +904,7 @@ class App extends EventEmitter {
 	 */
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
-			if (this.pendingNavigate.path === event.path) {
+			if (this.pendingNavigate.path === event.path || this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
 				console.log('Waiting...');
 				return;
 			}
@@ -975,6 +1037,13 @@ class App extends EventEmitter {
 					utils.setReferrer(state.referrer);
 				}
 			});
+			const uri = new Uri(state.path);
+			uri.setHostname(globals.window.location.hostname);
+			uri.setPort(globals.window.location.port);
+			const isNavigationScheduled = this.maybeScheduleNavigation_(uri.toString(), {});
+			if (isNavigationScheduled) {
+				return;
+			}
 			this.navigate(state.path, true);
 		}
 	}
@@ -1012,7 +1081,7 @@ class App extends EventEmitter {
 				throw reason;
 			})
 			.thenAlways(() => {
-				if (!this.pendingNavigate) {
+				if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
 					removeClasses(globals.document.documentElement, this.loadingCssClass);
 					this.maybeRestoreNativeScrollRestoration();
 					this.captureScrollPositionFromScrollEvent = true;
@@ -1212,8 +1281,8 @@ class App extends EventEmitter {
 	stopPendingNavigate_() {
 		if (this.pendingNavigate) {
 			this.pendingNavigate.cancel('Cancel pending navigation');
-			this.pendingNavigate = null;
 		}
+		this.pendingNavigate = null;
 	}
 
 	/**

@@ -20,6 +20,7 @@ describe('App', function() {
 
 	beforeEach(() => {
 		var requests = this.requests = [];
+		globals.window = window;
 		this.xhr = sinon.useFakeXMLHttpRequest();
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
@@ -105,7 +106,6 @@ describe('App', function() {
 			}
 		};
 		assert.strictEqual(false, this.app.canNavigate('/path#hashbang'));
-		globals.window = window;
 	});
 
 	it('should allow navigation for urls with hashbang when navigating to different basepath', () => {
@@ -121,7 +121,6 @@ describe('App', function() {
 			}
 		};
 		assert.strictEqual(true, this.app.canNavigate('/path#hashbang'));
-		globals.window = window;
 	});
 
 	it('should find route for urls with hashbang for different basepath', () => {
@@ -135,7 +134,6 @@ describe('App', function() {
 			}
 		};
 		assert.ok(this.app.findRoute('/pathOther#hashbang'));
-		globals.window = window;
 	});
 
 	it('should find route for urls ending with or without slash', () => {
@@ -150,7 +148,6 @@ describe('App', function() {
 		};
 		assert.ok(this.app.findRoute('/pathOther'));
 		assert.ok(this.app.findRoute('/pathOther/'));
-		globals.window = window;
 	});
 
 	it('should ignore query string on findRoute when ignoreQueryStringFromRoutePath is enabled', () => {
@@ -424,7 +421,6 @@ describe('App', function() {
 		assert.ok(!this.app.canNavigate('http://external/path'));
 		assert.ok(!this.app.canNavigate('tel:+0101010101'));
 		assert.ok(!this.app.canNavigate('mailto:contact@sennajs.com'));
-		globals.window = window;
 	});
 
 	it('should test if can navigate to url with base path ending in "/"', () => {
@@ -446,7 +442,6 @@ describe('App', function() {
 		assert.ok(!this.app.canNavigate('http://localhost/base/path1'));
 		assert.ok(!this.app.canNavigate('http://localhost/path'));
 		assert.ok(!this.app.canNavigate('http://external/path'));
-		globals.window = window;
 	});
 
 	it('should be able to navigate to route that ends with "/"', () => {
@@ -465,7 +460,6 @@ describe('App', function() {
 		assert.ok(this.app.canNavigate('http://localhost/path/'));
 		assert.ok(this.app.canNavigate('http://localhost/path/123'));
 		assert.ok(this.app.canNavigate('http://localhost/path/123/'));
-		globals.window = window;
 	});
 
 	it('should detect a navigation to different port and refresh page', () => {
@@ -483,7 +477,6 @@ describe('App', function() {
 		assert.isFalse(this.app.canNavigate('http://localhost:9081/path/'));
 		assert.isFalse(this.app.canNavigate('http://localhost:9082/path/123'));
 		assert.isFalse(this.app.canNavigate('http://localhost:9083/path/123/'));
-		globals.window = window;
 	});
 
 	it('should store proper senna state after navigate', (done) => {
@@ -1678,6 +1671,89 @@ describe('App', function() {
 		utils.isHtml5HistorySupported = original;
 	});
 
+
+	it('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
+		this.app = new App();
+
+		class TestScreen extends Screen {
+			evaluateStyles(surfaces) {
+				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
+				exitDocumentLinkElement();
+				return super.evaluateStyles(surfaces);
+			}
+
+			evaluateScripts(surfaces) {
+				assert.ok(this.app.scheduledNavigationEvent);
+				return super.evaluateScripts(surfaces);
+			}
+		}
+
+		class TestScreen2 extends Screen {
+			evaluateStyles(surfaces) {
+				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
+				exitDocumentLinkElement();
+				return super.evaluateStyles(surfaces);
+			}
+
+			evaluateScripts(surfaces) {
+				assert.ok(this.app.scheduledNavigationEvent);
+				return super.evaluateScripts(surfaces);
+			}
+		}
+
+		this.app.addRoutes(new Route('/path1', TestScreen));
+		this.app.addRoutes(new Route('/path2', TestScreen2));
+		this.app.addRoutes(new Route('/path3', TestScreen2));
+
+		this.app.navigate('/path1');
+
+		this.app.on('endNavigate', (event) => {
+			if (event.path === '/path3') {
+				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.strictEqual(globals.window.location.pathname, '/path3');
+				done();
+			}
+		});
+	});
+
+
+	it('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
+		this.app = new App();
+
+		class TestScreen extends Screen {
+			load(path) {
+				dom.triggerEvent(enterDocumentLinkElement('/path2'), 'click');
+				exitDocumentLinkElement();
+				return super.load(path);
+			}
+		}
+
+		class TestScreen2 extends Screen {
+			load(path) {
+				dom.triggerEvent(enterDocumentLinkElement('/path3'), 'click');
+				exitDocumentLinkElement();
+				return super.load(path);
+			}
+		}
+
+		this.app.addRoutes(new Route('/path1', TestScreen));
+		this.app.addRoutes(new Route('/path2', TestScreen2));
+		this.app.addRoutes(new Route('/path3', TestScreen2));
+
+		this.app.navigate('/path1');
+
+		assert.ok(!this.app.scheduledNavigationEvent);
+
+		this.app.on('endNavigate', (event) => {
+			if (event.path === '/path3') {
+				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.strictEqual(globals.window.location.pathname, '/path3');
+				done();
+			}
+		});
+
+	});
+
 	it('should set document title from screen title', (done) => {
 		class TitledScreen extends Screen {
 			getTitle() {
@@ -1798,15 +1874,17 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path3', Screen));
 
 		this.app.navigate('/path1')
-			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+				return this.app.navigate('/path2');
+			})
+			.then(() => {
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 				return this.app.navigate('/path3');
 			})
 			.then(() => {
-				assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path2');
+				assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path2');
 				this.app.on('endNavigate', () => {
-					assert.strictEqual(utils.getUrlPath(globals.document.referrer), '/path1');
+					assert.strictEqual(utils.getUrlPathWithoutHash(globals.document.referrer), '/path1');
 					done();
 				}, true);
 				globals.window.history.back();
