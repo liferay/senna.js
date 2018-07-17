@@ -724,9 +724,6 @@ class App extends EventEmitter {
 			return;
 		}
 
-		globals.capturedFormElement = event.capturedFormElement;
-		globals.capturedFormButtonElement = event.capturedFormButtonElement;
-
 		var navigateFailed = false;
 		try {
 			this.navigate(utils.getUrlPath(href), false, event);
@@ -865,6 +862,11 @@ class App extends EventEmitter {
 	navigate(path, opt_replaceHistory, opt_event) {
 		if (!utils.isHtml5HistorySupported()) {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
+		}
+
+		if (opt_event) {
+			globals.capturedFormElement = opt_event.capturedFormElement;
+			globals.capturedFormButtonElement = opt_event.capturedFormButtonElement;
 		}
 
 		// When reloading the same path do replaceState instead of pushState to
@@ -1035,6 +1037,13 @@ class App extends EventEmitter {
 					utils.setReferrer(state.referrer);
 				}
 			});
+			const uri = new Uri(state.path);
+			uri.setHostname(globals.window.location.hostname);
+			uri.setPort(globals.window.location.port);
+			const isNavigationScheduled = this.maybeScheduleNavigation_(uri.toString(), {});
+			if (isNavigationScheduled) {
+				return;
+			}
 			this.navigate(state.path, true);
 		}
 	}
