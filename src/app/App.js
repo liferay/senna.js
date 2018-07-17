@@ -905,7 +905,7 @@ class App extends EventEmitter {
 	onBeforeNavigateDefault_(event) {
 		if (this.pendingNavigate) {
 			if (this.pendingNavigate.path === event.path || this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
-				console.log('Waiting');
+				console.log('Waiting...');
 				return;
 			}
 		}
