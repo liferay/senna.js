@@ -691,6 +691,23 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * This method is used to evaluate if is possible to queue received
+	 *  dom event to scheduleNavigationQueue and enqueue it.
+	 * @param {string} href Information about the link's href.
+	 * @param {Event} event Dom event that initiated the navigation.
+	 */
+	maybeScheduleNavigation_(href, event) {
+		if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
+			this.scheduledNavigationQueue = [object.mixin({
+				href,
+				isScheduledNavigation: true
+			}, event)]
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Maybe navigate to a path.
 	 * @param {string} href Information about the link's href.
 	 * @param {Event} event Dom event that initiated the navigation.
@@ -700,15 +717,10 @@ class App extends EventEmitter {
 			return;
 		}
 
-		if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
+		const isNavigationScheduled = this.maybeScheduleNavigation_(href, event);
+
+		if (isNavigationScheduled) {
 			event.preventDefault();
-
-			this.scheduledNavigationQueue = [
-				object.mixin({
-					isScheduledEvent: true
-				}, event)
-			];
-
 			return;
 		}
 
