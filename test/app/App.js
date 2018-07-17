@@ -20,6 +20,7 @@ describe('App', function() {
 
 	beforeEach(() => {
 		var requests = this.requests = [];
+		globals.window = window;
 		this.xhr = sinon.useFakeXMLHttpRequest();
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
@@ -105,7 +106,6 @@ describe('App', function() {
 			}
 		};
 		assert.strictEqual(false, this.app.canNavigate('/path#hashbang'));
-		globals.window = window;
 	});
 
 	it('should allow navigation for urls with hashbang when navigating to different basepath', () => {
@@ -121,7 +121,6 @@ describe('App', function() {
 			}
 		};
 		assert.strictEqual(true, this.app.canNavigate('/path#hashbang'));
-		globals.window = window;
 	});
 
 	it('should find route for urls with hashbang for different basepath', () => {
@@ -135,7 +134,6 @@ describe('App', function() {
 			}
 		};
 		assert.ok(this.app.findRoute('/pathOther#hashbang'));
-		globals.window = window;
 	});
 
 	it('should find route for urls ending with or without slash', () => {
@@ -150,7 +148,6 @@ describe('App', function() {
 		};
 		assert.ok(this.app.findRoute('/pathOther'));
 		assert.ok(this.app.findRoute('/pathOther/'));
-		globals.window = window;
 	});
 
 	it('should ignore query string on findRoute when ignoreQueryStringFromRoutePath is enabled', () => {
@@ -424,7 +421,6 @@ describe('App', function() {
 		assert.ok(!this.app.canNavigate('http://external/path'));
 		assert.ok(!this.app.canNavigate('tel:+0101010101'));
 		assert.ok(!this.app.canNavigate('mailto:contact@sennajs.com'));
-		globals.window = window;
 	});
 
 	it('should test if can navigate to url with base path ending in "/"', () => {
@@ -446,7 +442,6 @@ describe('App', function() {
 		assert.ok(!this.app.canNavigate('http://localhost/base/path1'));
 		assert.ok(!this.app.canNavigate('http://localhost/path'));
 		assert.ok(!this.app.canNavigate('http://external/path'));
-		globals.window = window;
 	});
 
 	it('should be able to navigate to route that ends with "/"', () => {
@@ -465,7 +460,6 @@ describe('App', function() {
 		assert.ok(this.app.canNavigate('http://localhost/path/'));
 		assert.ok(this.app.canNavigate('http://localhost/path/123'));
 		assert.ok(this.app.canNavigate('http://localhost/path/123/'));
-		globals.window = window;
 	});
 
 	it('should detect a navigation to different port and refresh page', () => {
@@ -483,7 +477,6 @@ describe('App', function() {
 		assert.isFalse(this.app.canNavigate('http://localhost:9081/path/'));
 		assert.isFalse(this.app.canNavigate('http://localhost:9082/path/123'));
 		assert.isFalse(this.app.canNavigate('http://localhost:9083/path/123/'));
-		globals.window = window;
 	});
 
 	it('should store proper senna state after navigate', (done) => {
