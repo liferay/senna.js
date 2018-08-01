@@ -1257,10 +1257,9 @@ describe('App', function() {
 			});
 			dom.triggerEvent(form, 'submit');
 		}).thenAlways(() => {
-			exitDocumentFormElement();
+			exitDocument(form);
 		});
 	});
-
 
 	it('should not capture form element when submit event was prevented', () => {
 		this.app = new App();
