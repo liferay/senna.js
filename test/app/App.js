@@ -1,6 +1,6 @@
 'use strict';
 
-import { dom } from 'metal-dom';
+import { dom, exitDocument } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
 import utils from '../../src/utils/utils';
@@ -9,6 +9,17 @@ import Route from '../../src/route/Route';
 import Screen from '../../src/screen/Screen';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
+
+class StubScreen extends Screen {
+}
+StubScreen.prototype.activate = sinon.spy();
+StubScreen.prototype.beforeDeactivate = sinon.spy();
+StubScreen.prototype.deactivate = sinon.spy();
+StubScreen.prototype.flip = sinon.spy();
+StubScreen.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
+StubScreen.prototype.disposeInternal = sinon.spy();
+StubScreen.prototype.evaluateStyles = sinon.spy();
+StubScreen.prototype.evaluateScripts = sinon.spy();
 
 describe('App', function() {
 	before((done) => {
@@ -25,6 +36,9 @@ describe('App', function() {
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
+
+		const beforeunload = sinon.spy();
+		window.onbeforeunload = beforeunload;
 	});
 
 	afterEach(() => {
@@ -1220,32 +1234,14 @@ describe('App', function() {
 		});
 	});
 
-	it('should not reload page on navigate back to a routed page without history state and skipLoadPopstate is active', (done) => {
-		this.app = new App();
-		this.app.reloadPage = sinon.stub();
-		this.app.addRoutes(new Route('/path1', Screen));
-		this.app.addRoutes(new Route('/path2', Screen));
-		this.app.navigate('/path1').then(() => {
-			window.history.replaceState(null, null, null);
-			this.app.navigate('/path2').then(() => {
-				dom.once(globals.window, 'popstate', () => {
-					assert.strictEqual(0, this.app.reloadPage.callCount);
-					done();
-				});
-				this.app.skipLoadPopstate = true;
-				globals.window.history.back();
-			});
-		});
-	});
-
-	it('should navigate when submitting routed forms', (done) => {
+	it('should navigate when submitting routed forms', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
-		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
+		const form = enterDocumentFormElement('/path', 'post');
+		dom.triggerEvent(form, 'submit');
 		assert.ok(this.app.pendingNavigate);
-		this.app.on('endNavigate', () => {
-			exitDocumentFormElement();
-			done();
+		return this.app.on('endNavigate', () => {
+			exitDocument(form);
 		});
 	});
 
@@ -1253,32 +1249,46 @@ describe('App', function() {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		var form = enterDocumentFormElement('/path', 'post');
-		dom.once(form, 'submit', preventDefault);
-		dom.triggerEvent(form, 'submit');
-		assert.ok(!this.app.pendingNavigate);
-		exitDocumentFormElement();
+		return new CancellablePromise((resolve, reject) => {
+			dom.once(form, 'submit', (event) => {
+				event.preventDefault();
+				assert.ok(!this.app.pendingNavigate);
+				resolve();
+			});
+			dom.triggerEvent(form, 'submit');
+		}).thenAlways(() => {
+			exitDocumentFormElement();
+		});
 	});
+
 
 	it('should not capture form element when submit event was prevented', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		var form = enterDocumentFormElement('/path', 'post');
-		dom.once(form, 'submit', preventDefault);
-		dom.triggerEvent(form, 'submit');
-		assert.ok(!globals.capturedFormElement);
-		exitDocumentFormElement();
+		return new CancellablePromise((resolve, reject) => {
+			dom.once(form, 'submit', (event) => {
+				event.preventDefault();
+				assert.ok(!globals.capturedFormElement);
+				resolve();
+			});
+			dom.triggerEvent(form, 'submit');
+		}).thenAlways(() => {
+			exitDocument(form);
+		});
 	});
 
 	it('should expose form reference in event data when submitting routed forms', (done) => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
-		dom.triggerEvent(enterDocumentFormElement('/path', 'post'), 'submit');
+		const form = enterDocumentFormElement('/path', 'post');
+		dom.triggerEvent(form, 'submit');
 		this.app.on('startNavigate', (data) => {
 			assert.ok(data.form);
 		});
 		this.app.on('endNavigate', (data) => {
 			assert.ok(data.form);
-			exitDocumentFormElement();
+			exitDocument(form);
 			done();
 		});
 	});
@@ -1291,7 +1301,7 @@ describe('App', function() {
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.strictEqual(null, this.app.pendingNavigate);
-		exitDocumentFormElement();
+		exitDocument(form);
 	});
 
 	it('should not navigate when submitting on external forms', () => {
@@ -1301,7 +1311,7 @@ describe('App', function() {
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.strictEqual(null, this.app.pendingNavigate);
-		exitDocumentFormElement();
+		exitDocument(form);
 	});
 
 	it('should not navigate when submitting on forms outside basepath', () => {
@@ -1312,7 +1322,7 @@ describe('App', function() {
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.strictEqual(null, this.app.pendingNavigate);
-		exitDocumentFormElement();
+		exitDocument(form);
 	});
 
 	it('should not navigate when submitting on unrouted forms', () => {
@@ -1322,7 +1332,7 @@ describe('App', function() {
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.strictEqual(null, this.app.pendingNavigate);
-		exitDocumentFormElement();
+		exitDocument(form);
 	});
 
 	it('should not capture form if navigate fails when submitting forms', () => {
@@ -1332,7 +1342,7 @@ describe('App', function() {
 		dom.on(form, 'submit', preventDefault);
 		dom.triggerEvent(form, 'submit');
 		assert.ok(!globals.capturedFormElement);
-		exitDocumentFormElement();
+		exitDocument(form);
 	});
 
 	it('should capture form on beforeNavigate', (done) => {
@@ -1342,7 +1352,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.on('beforeNavigate', (event) => {
 			assert.ok(event.form);
-			exitDocumentFormElement();
+			exitDocument(form);
 			globals.capturedFormElement = null;
 			done();
 		});
@@ -1357,11 +1367,20 @@ describe('App', function() {
 		form.appendChild(button);
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
-		this.app.addRoutes(new Route('/path', Screen));
-		dom.on(form, 'submit', sinon.stub());
-		dom.triggerEvent(form, 'submit');
-		assert.ok(globals.capturedFormButtonElement);
-		globals.capturedFormButtonElement = null;
+		this.app.addRoutes(new Route('/path', StubScreen));
+
+		return new CancellablePromise((resolve, reject) => {
+			this.app.on('beforeNavigate', (event) => {
+				assert.ok(globals.capturedFormButtonElement);
+				resolve();
+			});
+
+			dom.triggerEvent(form, 'submit');
+		}).thenAlways(() => {
+			exitDocument(form);
+			globals.capturedFormElement = null;
+			globals.capturedFormButtonElement = null
+		});
 	});
 
 	it('should capture form button when clicking submit button', () => {
@@ -1376,6 +1395,7 @@ describe('App', function() {
 		button.click();
 		assert.ok(globals.capturedFormButtonElement);
 		globals.capturedFormButtonElement = null;
+		exitDocument(form);
 	});
 
 	it('should set redirect path if history path was redirected', (done) => {
@@ -1445,17 +1465,7 @@ describe('App', function() {
 		}, 0);
 	});
 
-	it('should respect screen lifecycle on navigate', (done) => {
-		class StubScreen1 extends Screen {
-		}
-		StubScreen1.prototype.activate = sinon.spy();
-		StubScreen1.prototype.beforeDeactivate = sinon.spy();
-		StubScreen1.prototype.deactivate = sinon.spy();
-		StubScreen1.prototype.flip = sinon.spy();
-		StubScreen1.prototype.load = sinon.stub().returns(CancellablePromise.resolve());
-		StubScreen1.prototype.disposeInternal = sinon.spy();
-		StubScreen1.prototype.evaluateStyles = sinon.spy();
-		StubScreen1.prototype.evaluateScripts = sinon.spy();
+	it('should respect screen lifecycle on navigate', () => {
 		class StubScreen2 extends Screen {
 		}
 		StubScreen2.prototype.activate = sinon.spy();
@@ -1466,29 +1476,28 @@ describe('App', function() {
 		StubScreen2.prototype.evaluateStyles = sinon.spy();
 		StubScreen2.prototype.evaluateScripts = sinon.spy();
 		this.app = new App();
-		this.app.addRoutes(new Route('/path1', StubScreen1));
+		this.app.addRoutes(new Route('/path1', StubScreen));
 		this.app.addRoutes(new Route('/path2', StubScreen2));
-		this.app.navigate('/path1').then(() => {
+		return this.app.navigate('/path1').then(() => {
 			this.app.navigate('/path2').then(() => {
 				var lifecycleOrder = [
-					StubScreen1.prototype.load,
-					StubScreen1.prototype.evaluateStyles,
-					StubScreen1.prototype.flip,
-					StubScreen1.prototype.evaluateScripts,
-					StubScreen1.prototype.activate,
-					StubScreen1.prototype.beforeDeactivate,
+					StubScreen.prototype.load,
+					StubScreen.prototype.evaluateStyles,
+					StubScreen.prototype.flip,
+					StubScreen.prototype.evaluateScripts,
+					StubScreen.prototype.activate,
+					StubScreen.prototype.beforeDeactivate,
 					StubScreen2.prototype.load,
-					StubScreen1.prototype.deactivate,
+					StubScreen.prototype.deactivate,
 					StubScreen2.prototype.evaluateStyles,
 					StubScreen2.prototype.flip,
 					StubScreen2.prototype.evaluateScripts,
 					StubScreen2.prototype.activate,
-					StubScreen1.prototype.disposeInternal
+					StubScreen.prototype.disposeInternal
 				];
 				for (var i = 1; i < lifecycleOrder.length - 1; i++) {
 					assert.ok(lifecycleOrder[i - 1].calledBefore(lifecycleOrder[i]));
 				}
-				done();
 			});
 		});
 	});
@@ -1673,7 +1682,7 @@ describe('App', function() {
 
 
 	it('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
-		this.app = new App();
+		const app = this.app = new App();
 
 		class TestScreen extends Screen {
 			evaluateStyles(surfaces) {
@@ -1683,7 +1692,7 @@ describe('App', function() {
 			}
 
 			evaluateScripts(surfaces) {
-				assert.ok(this.app.scheduledNavigationEvent);
+				assert.ok(app.scheduledNavigationEvent);
 				return super.evaluateScripts(surfaces);
 			}
 		}
@@ -1696,7 +1705,7 @@ describe('App', function() {
 			}
 
 			evaluateScripts(surfaces) {
-				assert.ok(this.app.scheduledNavigationEvent);
+				assert.ok(app.scheduledNavigationEvent);
 				return super.evaluateScripts(surfaces);
 			}
 		}
@@ -1890,6 +1899,26 @@ describe('App', function() {
 				globals.window.history.back();
 			});
 	});
+
+	it('should not reload page on navigate back to a routed page without history state and skipLoadPopstate is active', () => {
+		this.app = new App();
+		this.app.reloadPage = sinon.stub();
+		this.app.addRoutes(new Route('/path1', Screen));
+		this.app.addRoutes(new Route('/path2', Screen));
+		return this.app.navigate('/path1').then(() => {
+			window.history.replaceState(null, null, null);
+			return this.app.navigate('/path2').then(() => {
+				return new CancellablePromise((resolve, reject) => {
+					dom.once(globals.window, 'popstate', () => {
+						assert.strictEqual(0, this.app.reloadPage.callCount);
+						resolve();
+					});
+					this.app.skipLoadPopstate = true;
+					globals.window.history.back();
+				});
+			});
+		});
+	});
 });
 
 var canScrollIFrame_ = false;
@@ -1916,16 +1945,13 @@ function enterDocumentLinkElement(href) {
 }
 
 function enterDocumentFormElement(action, method) {
-	dom.enterDocument('<form id="form" action="' + action + '" method="' + method + '" enctype="multipart/form-data"></form>');
-	return document.getElementById('form');
+	const random = Math.floor(Math.random() * 10000);
+	dom.enterDocument(`<form id="form_${random}" action="${action}" method="${method}" enctype="multipart/form-data"></form>`);
+	return document.getElementById(`form_${random}`);
 }
 
 function exitDocumentLinkElement() {
 	dom.exitDocument(document.getElementById('link'));
-}
-
-function exitDocumentFormElement() {
-	dom.exitDocument(document.getElementById('form'));
 }
 
 function preventDefault(event) {
