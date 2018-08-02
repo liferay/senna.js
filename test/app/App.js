@@ -32,6 +32,8 @@ describe('App', function() {
 	beforeEach(() => {
 		var requests = this.requests = [];
 		globals.window = window;
+		globals.capturedFormElement = undefined;
+		globals.capturedFormButtonElement = undefined;
 		this.xhr = sinon.useFakeXMLHttpRequest();
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
