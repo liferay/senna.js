@@ -1878,6 +1878,10 @@ describe('App', function() {
 	});
 
 	it('should update the document.referrer upon navigation', (done) => {
+		// Specify this test to only retry up to 4 times
+		// See: https://mochajs.org/#retry-tests
+		this.retries(4);
+
 		this.app = new App();
 		this.app.addRoutes(new Route('/path1', Screen));
 		this.app.addRoutes(new Route('/path2', Screen));
