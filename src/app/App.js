@@ -347,7 +347,7 @@ class App extends EventEmitter {
 		Object.keys(this.screens).forEach((path) => {
 			if (path === this.activePath) {
 				this.activeScreen.clearCache();
-			} else {
+			} else if (!(this.isNavigationPending && this.pendingNavigate.path === path)) {
 				this.removeScreen(path);
 			}
 		});
