@@ -1,6 +1,7 @@
 'use strict';
 
 import { dom, exitDocument } from 'metal-dom';
+import { EventEmitter } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import globals from '../../src/globals/globals';
 import utils from '../../src/utils/utils';
@@ -364,6 +365,38 @@ describe('App', function() {
 		this.app.clearScreensCache();
 		assert.strictEqual(1, Object.keys(this.app.screens).length);
 		assert.strictEqual(null, this.app.activeScreen.getCache());
+	});
+
+	it('should not to clear screen cache the being used in a pending navigation', (done) => {
+		const event = new EventEmitter();
+		class StubScreen extends Screen {
+			constructor() {
+				super();
+
+				this.cacheable = true;
+			}
+
+			flip(surfaces) {
+				super.flip(surfaces);
+				event.emit('flip');
+			}
+		}
+
+		const callback = () => {
+			this.app.clearScreensCache();
+			assert.strictEqual(1, Object.keys(this.app.screens).length);
+			event.dispose();
+			done();
+		}
+
+		var route = new Route('/path1', StubScreen);
+
+		this.app = new App();
+		this.app.addSurfaces(new Surface('surfaceId'));
+		this.app.screens['/path1'] = this.app.createScreenInstance('/path1', route);
+		this.app.addRoutes(route);
+		this.app.navigate('/path1');
+		event.on('flip', callback);
 	});
 
 	it('should get allow prevent navigate', () => {
