@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.5.5
+ * @version v2.5.6
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -6697,6 +6697,11 @@ Surface.defaultTransition = function (from, to) {
 	}
 };
 
+var NavigationStrategy = {
+	IMMEDIATE: 'immediate',
+	SCHEDULE_LAST: 'scheduleLast'
+};
+
 var App$1 = function (_EventEmitter) {
 	inherits(App, _EventEmitter);
 
@@ -6812,6 +6817,17 @@ var App$1 = function (_EventEmitter) {
 		_this.nativeScrollRestorationSupported = 'scrollRestoration' in globals.window.history;
 
 		/**
+   * When set to NavigationStrategy.SCHEDULE_LAST means that the current navigation
+   * cannot be Cancelled to start another and will be queued in
+   * scheduledNavigationQueue. When NavigationStrategy.IMMEDIATE means that all
+   * navigation will be cancelled to start another.
+   * @type {!string}
+   * @default immediate
+   * @protected
+   */
+		_this.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+		/**
    * When set to true there is a pendingNavigate that has not yet been
    * resolved or rejected.
    * @type {boolean}
@@ -6860,6 +6876,14 @@ var App$1 = function (_EventEmitter) {
    * @protected
    */
 		_this.routes = [];
+
+		/**
+   * Holds a queue that stores every DOM event that can initiate a navigation.
+   * @type {!Event}
+   * @default []
+   * @protected
+   */
+		_this.scheduledNavigationQueue = [];
 
 		/**
    * Maps the screen instances by the url containing the parameters.
@@ -7027,7 +7051,7 @@ var App$1 = function (_EventEmitter) {
 			Object.keys(this.screens).forEach(function (path) {
 				if (path === _this4.activePath) {
 					_this4.activeScreen.clearCache();
-				} else {
+				} else if (!(_this4.isNavigationPending && _this4.pendingNavigate.path === path)) {
 					_this4.removeScreen(path);
 				}
 			});
@@ -7119,6 +7143,10 @@ var App$1 = function (_EventEmitter) {
 			}).then(function () {
 				return nextScreen.load(path);
 			}).then(function () {
+				// At this point we cannot stop navigation and all received
+				// navigate candidates will be queued at scheduledNavigationQueue.
+				_this5.navigationStrategy = NavigationStrategy.SCHEDULE_LAST;
+
 				if (_this5.activeScreen) {
 					_this5.activeScreen.deactivate();
 				}
@@ -7142,6 +7170,13 @@ var App$1 = function (_EventEmitter) {
 				_this5.isNavigationPending = false;
 				_this5.handleNavigateError_(path, nextScreen, reason);
 				throw reason;
+			}).thenAlways(function () {
+				_this5.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+				if (_this5.scheduledNavigationQueue.length) {
+					var scheduledNavigation = _this5.scheduledNavigationQueue.shift();
+					_this5.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
+				}
 			});
 		}
 
@@ -7434,6 +7469,26 @@ var App$1 = function (_EventEmitter) {
 		}
 
 		/**
+   * This method is used to evaluate if is possible to queue received
+   *  dom event to scheduleNavigationQueue and enqueue it.
+   * @param {string} href Information about the link's href.
+   * @param {Event} event Dom event that initiated the navigation.
+   */
+
+	}, {
+		key: 'maybeScheduleNavigation_',
+		value: function maybeScheduleNavigation_(href, event) {
+			if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
+				this.scheduledNavigationQueue = [object.mixin({
+					href: href,
+					isScheduledNavigation: true
+				}, event)];
+				return true;
+			}
+			return false;
+		}
+
+		/**
    * Maybe navigate to a path.
    * @param {string} href Information about the link's href.
    * @param {Event} event Dom event that initiated the navigation.
@@ -7446,8 +7501,12 @@ var App$1 = function (_EventEmitter) {
 				return;
 			}
 
-			globals.capturedFormElement = event.capturedFormElement;
-			globals.capturedFormButtonElement = event.capturedFormButtonElement;
+			var isNavigationScheduled = this.maybeScheduleNavigation_(href, event);
+
+			if (isNavigationScheduled) {
+				event.preventDefault();
+				return;
+			}
 
 			var navigateFailed = false;
 			try {
@@ -7457,7 +7516,7 @@ var App$1 = function (_EventEmitter) {
 				navigateFailed = true;
 			}
 
-			if (!navigateFailed) {
+			if (!navigateFailed && !event.isScheduledNavigation) {
 				event.preventDefault();
 			}
 		}
@@ -7621,6 +7680,11 @@ var App$1 = function (_EventEmitter) {
 				throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 			}
 
+			if (opt_event) {
+				globals.capturedFormElement = opt_event.capturedFormElement;
+				globals.capturedFormButtonElement = opt_event.capturedFormButtonElement;
+			}
+
 			// When reloading the same path do replaceState instead of pushState to
 			// avoid polluting history with states with the same path.
 			if (path === this.activePath) {
@@ -7662,7 +7726,7 @@ var App$1 = function (_EventEmitter) {
 		key: 'onBeforeNavigateDefault_',
 		value: function onBeforeNavigateDefault_(event) {
 			if (this.pendingNavigate) {
-				if (this.pendingNavigate.path === event.path) {
+				if (this.pendingNavigate.path === event.path || this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
 					void 0;
 					return;
 				}
@@ -7812,6 +7876,13 @@ var App$1 = function (_EventEmitter) {
 						utils.setReferrer(state.referrer);
 					}
 				});
+				var uri = new Uri(state.path);
+				uri.setHostname(globals.window.location.hostname);
+				uri.setPort(globals.window.location.port);
+				var isNavigationScheduled = this.maybeScheduleNavigation_(uri.toString(), {});
+				if (isNavigationScheduled) {
+					return;
+				}
 				this.navigate(state.path, true);
 			}
 		}
@@ -7855,7 +7926,7 @@ var App$1 = function (_EventEmitter) {
 				endNavigatePayload.error = reason;
 				throw reason;
 			}).thenAlways(function () {
-				if (!_this11.pendingNavigate) {
+				if (!_this11.pendingNavigate && !_this11.scheduledNavigationQueue.length) {
 					removeClasses(globals.document.documentElement, _this11.loadingCssClass);
 					_this11.maybeRestoreNativeScrollRestoration();
 					_this11.captureScrollPositionFromScrollEvent = true;
@@ -8111,8 +8182,8 @@ var App$1 = function (_EventEmitter) {
 		value: function stopPendingNavigate_() {
 			if (this.pendingNavigate) {
 				this.pendingNavigate.cancel('Cancel pending navigation');
-				this.pendingNavigate = null;
 			}
+			this.pendingNavigate = null;
 		}
 
 		/**
@@ -9706,7 +9777,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
 /**
  * @returns String current senna version
  */
-var version = '2.5.5';
+var version = '2.5.6';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;
