@@ -19,7 +19,7 @@
   "scripts": {
     "build": "gulp build build:amd",
     "compile": "babel --presets metal --plugins transform-remove-console -d lib/ src/",
-    "prepublish": "npm run build && npm run compile"
+    "prepublish": "gulp && npm run compile"
   },
   "keywords": [
     "spa",
