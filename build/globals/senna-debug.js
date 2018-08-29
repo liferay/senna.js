@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.5.6
+ * @version v2.6.1
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -9777,7 +9777,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
 /**
  * @returns String current senna version
  */
-var version = '2.5.6';
+var version = '2.6.1';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;
