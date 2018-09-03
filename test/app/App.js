@@ -399,6 +399,20 @@ describe('App', function() {
 		event.on('flip', callback);
 	});
 
+	it('should not throw exceptions when clicking on a SVGElement link', function() {
+		class StubApp extends App {
+		}
+		this.app = new StubApp();
+		this.app.addRoutes(new Route('/path1', Screen));
+		StubApp.prototype.maybeNavigate_ = sinon.spy();
+		assert.doesNotThrow(() => {
+			dom.triggerEvent(enterDocumentSVGLinkElement('/path1'), 'click');
+		});
+		assert.isTrue(StubApp.prototype.maybeNavigate_.calledWithMatch(sinon.match((/\/path1$/))));
+		exitDocumentSVGLinkElement();
+		this.app.dispose();
+	});
+
 	it('should get allow prevent navigate', () => {
 		this.app = new App();
 		assert.strictEqual(true, this.app.getAllowPreventNavigate());
@@ -2005,8 +2019,17 @@ function enterDocumentFormElement(action, method) {
 	return document.getElementById(`form_${random}`);
 }
 
+function enterDocumentSVGLinkElement(href) {
+	dom.enterDocument(`<svg id="svg"><g><circle r="50"><a id="svgLink" href="${href}"></a></circle></g></svg>`);
+	return document.getElementById('svgLink');
+}
+
 function exitDocumentLinkElement() {
 	dom.exitDocument(document.getElementById('link'));
+}
+
+function exitDocumentSVGLinkElement() {
+	dom.exitDocument(document.getElementById('svg'));
 }
 
 function preventDefault(event) {
