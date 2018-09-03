@@ -1,7 +1,7 @@
 'use strict';
 
-import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
-import { array, async, isDefAndNotNull, isString, object } from 'metal';
+import { addClasses, delegate, exitDocument, match, on, removeClasses } from 'metal-dom';
+import { array, async, isDefAndNotNull, isObject, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import debounce from 'metal-debounce';
@@ -946,7 +946,18 @@ class App extends EventEmitter {
 			console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 			return;
 		}
-		this.maybeNavigate_(event.delegateTarget.href, event);
+
+		let href = event.delegateTarget.href;
+
+		// If SVGAnimatedString object is passed as url
+		if (isObject(href) && href.toString() === '[object SVGAnimatedString]') {
+			let tempNode = globals.document.createElement('a');
+			tempNode.setAttribute('href', href.animVal);
+			href = tempNode.href;
+			exitDocument(tempNode);
+		}
+
+		this.maybeNavigate_(href, event);
 	}
 
 	/**
