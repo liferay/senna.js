@@ -387,7 +387,7 @@ describe('App', function() {
 			assert.strictEqual(1, Object.keys(this.app.screens).length);
 			event.dispose();
 			done();
-		}
+		};
 
 		var route = new Route('/path1', StubScreen);
 
@@ -1444,7 +1444,7 @@ describe('App', function() {
 		}).thenAlways(() => {
 			exitDocument(form);
 			globals.capturedFormElement = null;
-			globals.capturedFormButtonElement = null
+			globals.capturedFormButtonElement = null;
 		});
 	});
 
