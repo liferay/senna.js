@@ -409,6 +409,7 @@ describe('App', function() {
 			dom.triggerEvent(enterDocumentSVGLinkElement('/path1'), 'click');
 		});
 		assert.isTrue(StubApp.prototype.maybeNavigate_.calledWithMatch(sinon.match((/\/path1$/))));
+		assert.isTrue(StubApp.prototype.maybeNavigate_.calledWithMatch(sinon.match.string));
 		exitDocumentSVGLinkElement();
 		this.app.dispose();
 	});
