@@ -1932,7 +1932,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path1', Screen));
 		this.app.addSurfaces(['surfaceId1']);
 		this.app.navigate('/path1#surfaceId1').then(() => {
-			const surfaceNode = document.querySelector('#surfaceId1');
+			const surfaceNode = globals.document.querySelector('#surfaceId1');
 			const {offsetLeft, offsetTop} = utils.getNodeOffset(surfaceNode);
 			assert.strictEqual(window.pageYOffset, offsetTop);
 			assert.strictEqual(window.pageXOffset, offsetLeft);
@@ -2011,26 +2011,26 @@ function detectCanScrollIFrame(done) {
 
 function enterDocumentLinkElement(href) {
 	dom.enterDocument('<a id="link" href="' + href + '">link</a>');
-	return document.getElementById('link');
+	return globals.document.getElementById('link');
 }
 
 function enterDocumentFormElement(action, method) {
 	const random = Math.floor(Math.random() * 10000);
 	dom.enterDocument(`<form id="form_${random}" action="${action}" method="${method}" enctype="multipart/form-data"></form>`);
-	return document.getElementById(`form_${random}`);
+	return globals.document.getElementById(`form_${random}`);
 }
 
 function enterDocumentSVGLinkElement(href) {
 	dom.enterDocument(`<svg id="svg"><g><circle r="50"><a id="svgLink" href="${href}"></a></circle></g></svg>`);
-	return document.getElementById('svgLink');
+	return globals.document.getElementById('svgLink');
 }
 
 function exitDocumentLinkElement() {
-	dom.exitDocument(document.getElementById('link'));
+	dom.exitDocument(globals.document.getElementById('link'));
 }
 
 function exitDocumentSVGLinkElement() {
-	dom.exitDocument(document.getElementById('svg'));
+	dom.exitDocument(globals.document.getElementById('svg'));
 }
 
 function preventDefault(event) {
