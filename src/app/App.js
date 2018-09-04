@@ -1,7 +1,7 @@
 'use strict';
 
-import { addClasses, delegate, exitDocument, match, on, removeClasses } from 'metal-dom';
-import { array, async, isDefAndNotNull, isObject, isString, object } from 'metal';
+import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
+import { array, async, isDefAndNotNull, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
 import CancellablePromise from 'metal-promise';
 import debounce from 'metal-debounce';
@@ -455,7 +455,7 @@ class App extends EventEmitter {
 
 				if (this.scheduledNavigationQueue.length) {
 					const scheduledNavigation = this.scheduledNavigationQueue.shift();
-					this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
+					this.maybeNavigate_(utils.getHref(scheduledNavigation), scheduledNavigation);
 				}
 			});
 	}
@@ -947,17 +947,7 @@ class App extends EventEmitter {
 			return;
 		}
 
-		let href = event.delegateTarget.href;
-
-		// If SVGAnimatedString object is passed as url
-		if (isObject(href) && href.toString() === '[object SVGAnimatedString]') {
-			let tempNode = globals.document.createElement('a');
-			tempNode.setAttribute('href', href.animVal);
-			href = tempNode.href;
-			exitDocument(tempNode);
-		}
-
-		this.maybeNavigate_(href, event);
+		this.maybeNavigate_(utils.getHref(event), event);
 	}
 
 	/**
