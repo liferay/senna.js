@@ -2,6 +2,8 @@
 
 import { exitDocument } from 'metal-dom';
 import globals from '../globals/globals';
+import { isObject } from 'metal';
+import { exitDocument } from 'metal-dom';
 import Uri from 'metal-uri';
 
 /**
@@ -17,6 +19,19 @@ class utils {
 	 */
 	static copyNodeAttributes(source, target) {
 		Array.prototype.slice.call(source.attributes).forEach((attribute) => target.setAttribute(attribute.name, attribute.value));
+	}
+
+	/**
+	 * This function is used to get absolute path of given relative path passed by anchor element.
+	 * @param {!string} href Relative Hypertext reference string
+	 * @return {string} absolute path from given href argument
+	 */
+	static getAbsoluteHref(href) {
+		let temporary = globals.document.createElement('a');
+		temporary.setAttribute('href', href);
+		let absolutePath = temporary.href;
+		exitDocument(temporary);
+		return absolutePath;
 	}
 
 	/**
@@ -83,6 +98,26 @@ class utils {
 	static getUrlPathWithoutHashAndSearch(url) {
 		var uri = new Uri(url);
 		return uri.getPathname();
+	}
+
+	/**
+	 * Receives a event and returns the delegate target href.
+	 * @param {!Event} event
+	 * @return {string}
+	 */
+	static getHref(event) {
+		let href = event.delegateTarget.href;
+
+		// If we have an anchor element within SVG element, href value of this
+		// anchor element will return a SVGAnimatedString object. So, we are treating
+		// this object and using animVal value of this object due this property has
+		// the same value of baseVal. See the following link for more details:
+		// https://developer.mozilla.org/en-US/docs/Web/API/SVGAnimatedString/animVal
+		if (isObject(href) && href.toString() === '[object SVGAnimatedString]') {
+			return utils.getAbsoluteHref(href.animVal);
+		}
+
+		return href;
 	}
 
 	/**
