@@ -101,13 +101,11 @@ class utils {
 	}
 
 	/**
-	 * Receives a event and returns the delegate target href.
-	 * @param {!Event} event
-	 * @return {string}
+	 * Receives a hyperlink reference(href) from a delegate target and returns a href string.
+	 * @param {string | object} href a string or object candidate for hypertext reference(href)
+	 * @return {!string} a href string
 	 */
-	static getHref(event) {
-		let href = event.delegateTarget.href;
-
+	static getHref(href) {
 		// If we have an anchor element within SVG element, href value of this
 		// anchor element will return a SVGAnimatedString object. So, we are treating
 		// this object and using animVal value of this object due this property has
