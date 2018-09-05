@@ -455,7 +455,7 @@ class App extends EventEmitter {
 
 				if (this.scheduledNavigationQueue.length) {
 					const scheduledNavigation = this.scheduledNavigationQueue.shift();
-					this.maybeNavigate_(utils.getHref(scheduledNavigation), scheduledNavigation);
+					this.maybeNavigate_(utils.getHref(scheduledNavigation.href), scheduledNavigation);
 				}
 			});
 	}
@@ -947,7 +947,7 @@ class App extends EventEmitter {
 			return;
 		}
 
-		this.maybeNavigate_(utils.getHref(event), event);
+		this.maybeNavigate_(utils.getHref(event.delegateTarget.href), event);
 	}
 
 	/**
