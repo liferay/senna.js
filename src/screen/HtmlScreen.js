@@ -206,8 +206,8 @@ class HtmlScreen extends RequestScreen {
 	 */
 	flip(surfaces) {
 		return super.flip(surfaces).then(() => {
-			utils.clearNodeAttributes(document.documentElement);
-			utils.copyNodeAttributes(this.virtualDocument, document.documentElement);
+			utils.clearNodeAttributes(globals.document.documentElement);
+			utils.copyNodeAttributes(this.virtualDocument, globals.document.documentElement);
 		});
 	}
 
