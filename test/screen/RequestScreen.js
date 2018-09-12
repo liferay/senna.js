@@ -12,7 +12,8 @@ describe('RequestScreen', function() {
 		this.xhr.onCreate = (xhr) => {
 			requests.push(xhr);
 		};
-		UA.testUserAgent(UA.getNativeUserAgent());
+
+		UA.testUserAgent(UA.getNativeUserAgent(), UA.getNativePlatform());
 
 		// A fix for window.location.origin in Internet Explorer
 		if (!globals.window.location.origin) {
@@ -108,17 +109,21 @@ describe('RequestScreen', function() {
 	});
 
 	it('should send request to an url', (done) => {
-		UA.testUserAgent('Chrome'); // Simulates chrome user agent to avoid unique url on test case
-		var screen = new RequestScreen();
-		screen.load('/url').then(() => {
-			assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
-			assert.deepEqual({
-				'X-PJAX': 'true',
-				'X-Requested-With': 'XMLHttpRequest'
-			}, screen.getRequest().requestHeaders);
+		// This test will run only on Chrome to avoid unique url on test case
+		if (!UA.isChrome) {
 			done();
-		});
-		this.requests[0].respond(200);
+		} else {
+			var screen = new RequestScreen();
+			screen.load('/url').then(() => {
+				assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
+				assert.deepEqual({
+					'X-PJAX': 'true',
+					'X-Requested-With': 'XMLHttpRequest'
+				}, screen.getRequest().requestHeaders);
+				done();
+			});
+			this.requests[0].respond(200);
+		}
 	});
 
 	it('should load response content from cache', (done) => {
@@ -243,38 +248,50 @@ describe('RequestScreen', function() {
 	});
 
 	it('should not cache get requests on ie browsers', (done) => {
-		UA.testUserAgent('MSIE'); // Simulates ie user agent
-		var url = '/url';
-		var screen = new RequestScreen();
-		screen.load(url).then(() => {
-			assert.notStrictEqual(url, screen.getRequest().url);
-			assert.strictEqual(url, screen.getRequestPath());
+		// This test will run only on IE
+		if (!UA.isIe) {
 			done();
-		});
-		this.requests[0].respond(200);
+		} else {
+			var url = '/url';
+			var screen = new RequestScreen();
+			screen.load(url).then(() => {
+				assert.notStrictEqual(url, screen.getRequest().url);
+				assert.strictEqual(url, screen.getRequestPath());
+				done();
+			});
+			this.requests[0].respond(200);
+		}
 	});
 
 	it('should not cache get requests on edge browsers', (done) => {
-		UA.testUserAgent('Edge'); // Simulates edge user agent
-		var url = '/url';
-		var screen = new RequestScreen();
-		screen.load(url).then(() => {
-			assert.notStrictEqual(url, screen.getRequest().url);
+		// This test will run only on Edge
+		if (!UA.isEdge) {
 			done();
-		});
-		this.requests[0].respond(200);
+		} else {
+			var url = '/url';
+			var screen = new RequestScreen();
+			screen.load(url).then(() => {
+				assert.notStrictEqual(url, screen.getRequest().url);
+				done();
+			});
+			this.requests[0].respond(200);
+		}
 	});
 
 	it('should not cache redirected requests on edge browsers', (done) => {
-		UA.testUserAgent('Edge'); // Simulates edge user agent
-		globals.capturedFormElement = globals.document.createElement('form');
-		var url = '/url';
-		var screen = new RequestScreen();
-		screen.load(url).then(() => {
-			assert.ok('"0"', screen.getRequest().requestHeaders['If-None-Match']);
+		// This test will run only on Edge
+		if (!UA.isEdge) {
 			done();
-		});
-		this.requests[0].respond(200);
+		} else {
+			globals.capturedFormElement = globals.document.createElement('form');
+			var url = '/url';
+			var screen = new RequestScreen();
+			screen.load(url).then(() => {
+				assert.ok('"0"', screen.getRequest().requestHeaders['If-None-Match']);
+				done();
+			});
+			this.requests[0].respond(200);
+		}
 	});
 
 	it('should navigate over same protocol the page was viewed on', (done) => {

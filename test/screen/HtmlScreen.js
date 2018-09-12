@@ -266,23 +266,31 @@ describe('HtmlScreen', function() {
 	});
 
 	it('should mutate temporary style hrefs to be unique on ie browsers', (done) => {
-		UA.testUserAgent('MSIE'); // Simulates ie user agent
-		var screen = new HtmlScreen();
+		// This test will run only on IE
+		if (!UA.isIe) {
+			done();
+		} else {
+			var screen = new HtmlScreen();
 
-		screen.load('/url').then(() => {
-			screen.evaluateStyles({})
-				.then(() => {
-					assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
-					done();
-				});
-			screen.activate();
-		});
+			screen.load('/url').then(() => {
+				screen.evaluateStyles({})
+					.then(() => {
+						assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
+						done();
+					});
+				screen.activate();
+			});
 
-		this.requests[0].respond(200, null, '<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">');
+			this.requests[0].respond(200, null, '<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">');
+		}
 	});
 
 	it('link elements should only be loaded once in IE', (done) => {
-		UA.testUserAgent('MSIE'); // Simulates ie user agent
+		// This test will run only on IE
+		if (!UA.isIe) {
+			done();
+		}
+
 		var screen = new HtmlScreen();
 		window.sentinelLoadCount = 0;
 
