@@ -266,45 +266,53 @@ describe('HtmlScreen', function() {
 	});
 
 	it('should mutate temporary style hrefs to be unique on ie browsers', (done) => {
-		UA.testUserAgent('MSIE'); // Simulates ie user agent
-		var screen = new HtmlScreen();
+		// This test will run only on IE
+		if (!UA.isIe) {
+			done();
+		} else {
+			var screen = new HtmlScreen();
 
-		screen.load('/url').then(() => {
-			screen.evaluateStyles({})
-				.then(() => {
-					assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
-					done();
-				});
-			screen.activate();
-		});
+			screen.load('/url').then(() => {
+				screen.evaluateStyles({})
+					.then(() => {
+						assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
+						done();
+					});
+				screen.activate();
+			});
 
-		this.requests[0].respond(200, null, '<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">');
+			this.requests[0].respond(200, null, '<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">');
+		}
 	});
 
 	it('link elements should only be loaded once in IE', (done) => {
-		UA.testUserAgent('MSIE'); // Simulates ie user agent
-		var screen = new HtmlScreen();
-		window.sentinelLoadCount = 0;
+		// This test will run only on IE
+		if (!UA.isIe) {
+			done();
+		} else {
+			var screen = new HtmlScreen();
+			window.sentinelLoadCount = 0;
 
-		screen.load('/url').then(() => {
-			var style = screen.virtualQuerySelectorAll_('#style')[0];
-			style.addEventListener('load', () => {
-				window.sentinelLoadCount++;
-			});
-			style.addEventListener('error', () => {
-				window.sentinelLoadCount++;
-			});
-
-			screen.evaluateStyles({})
-				.then(() => {
-					assert.strictEqual(1, window.sentinelLoadCount);
-					delete window.sentinelLoadCount;
-					done();
+			screen.load('/url').then(() => {
+				var style = screen.virtualQuerySelectorAll_('#style')[0];
+				style.addEventListener('load', () => {
+					window.sentinelLoadCount++;
 				});
-			screen.activate();
-		});
+				style.addEventListener('error', () => {
+					window.sentinelLoadCount++;
+				});
 
-		this.requests[0].respond(200, null, '<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">');
+				screen.evaluateStyles({})
+					.then(() => {
+						assert.strictEqual(1, window.sentinelLoadCount);
+						delete window.sentinelLoadCount;
+						done();
+					});
+				screen.activate();
+			});
+
+			this.requests[0].respond(200, null, '<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">');
+		}
 	});
 
 	it('should have correct title', (done) => {
