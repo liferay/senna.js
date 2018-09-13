@@ -96,8 +96,16 @@ class HtmlScreen extends RequestScreen {
 	copyNodeAttributesFromContent_(content, node) {
 		content = content.replace(/[<]\s*html/ig, '<senna');
 		content = content.replace(/\/html\s*\>/ig, '/senna>');
-		node.innerHTML = content;
-		var placeholder = node.querySelector('senna');
+		var placeholder;
+		if (UA.isIe) {
+			var tmpnode = document.createRange().createContextualFragment(content);
+			placeholder = tmpnode.querySelector('senna');
+		}
+		else {
+			node.innerHTML = content;
+			placeholder = node.querySelector('senna');
+		}
+
 		if (placeholder) {
 			utils.clearNodeAttributes(node);
 			utils.copyNodeAttributes(placeholder, node);
