@@ -96,8 +96,16 @@ class HtmlScreen extends RequestScreen {
 	copyNodeAttributesFromContent_(content, node) {
 		content = content.replace(/[<]\s*html/ig, '<senna');
 		content = content.replace(/\/html\s*\>/ig, '/senna>');
-		node.innerHTML = content;
-		var placeholder = node.querySelector('senna');
+		let placeholder;
+		if (UA.isIe) {
+			const tempNode = globals.document.createRange().createContextualFragment(content);
+			placeholder = tempNode.querySelector('senna');
+		}
+		else {
+			node.innerHTML = content;
+			placeholder = node.querySelector('senna');
+		}
+
 		if (placeholder) {
 			utils.clearNodeAttributes(node);
 			utils.copyNodeAttributes(placeholder, node);
@@ -199,8 +207,8 @@ class HtmlScreen extends RequestScreen {
 	 */
 	flip(surfaces) {
 		return super.flip(surfaces).then(() => {
-			utils.clearNodeAttributes(document.documentElement);
-			utils.copyNodeAttributes(this.virtualDocument, document.documentElement);
+			utils.clearNodeAttributes(globals.document.documentElement);
+			utils.copyNodeAttributes(this.virtualDocument, globals.document.documentElement);
 		});
 	}
 
