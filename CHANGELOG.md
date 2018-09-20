@@ -1,5 +1,17 @@
 # Change Log
 
+## [v2.6.2](https://github.com/liferay/senna.js/tree/v2.6.2) (2018-09-20)
+[Full Changelog](https://github.com/liferay/senna.js/compare/v2.6.1...v2.6.2)
+
+**Closed issues:**
+
+- On IE11, a data provider send twice in IE11 when load content [\#281](https://github.com/liferay/senna.js/issues/281)
+
+**Merged pull requests:**
+
+- Fixes \#281 | Use a contextual fragment to avoid updating node.innerHTML twice [\#282](https://github.com/liferay/senna.js/pull/282) ([diegonvs](https://github.com/diegonvs))
+- Fixes "IE only" tests to run only on IE [\#277](https://github.com/liferay/senna.js/pull/277) ([diegonvs](https://github.com/diegonvs))
+
 ## [v2.6.1](https://github.com/liferay/senna.js/tree/v2.6.1) (2018-08-29)
 [Full Changelog](https://github.com/liferay/senna.js/compare/v2.6.0...v2.6.1)
 
