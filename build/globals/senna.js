@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.6.1
+ * @version v2.6.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -9148,8 +9148,15 @@ var HtmlScreen = function (_RequestScreen) {
 		value: function copyNodeAttributesFromContent_(content, node) {
 			content = content.replace(/[<]\s*html/ig, '<senna');
 			content = content.replace(/\/html\s*\>/ig, '/senna>');
-			node.innerHTML = content;
-			var placeholder = node.querySelector('senna');
+			var placeholder = void 0;
+			if (UA.isIe) {
+				var tempNode = globals.document.createRange().createContextualFragment(content);
+				placeholder = tempNode.querySelector('senna');
+			} else {
+				node.innerHTML = content;
+				placeholder = node.querySelector('senna');
+			}
+
 			if (placeholder) {
 				utils.clearNodeAttributes(node);
 				utils.copyNodeAttributes(placeholder, node);
@@ -9280,8 +9287,8 @@ var HtmlScreen = function (_RequestScreen) {
 			var _this5 = this;
 
 			return get(HtmlScreen.prototype.__proto__ || Object.getPrototypeOf(HtmlScreen.prototype), 'flip', this).call(this, surfaces).then(function () {
-				utils.clearNodeAttributes(document.documentElement);
-				utils.copyNodeAttributes(_this5.virtualDocument, document.documentElement);
+				utils.clearNodeAttributes(globals.document.documentElement);
+				utils.copyNodeAttributes(_this5.virtualDocument, globals.document.documentElement);
 			});
 		}
 
@@ -9777,7 +9784,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
 /**
  * @returns String current senna version
  */
-var version = '2.6.1';
+var version = '2.6.2';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;

@@ -178,8 +178,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			value: function copyNodeAttributesFromContent_(content, node) {
 				content = content.replace(/[<]\s*html/ig, '<senna');
 				content = content.replace(/\/html\s*\>/ig, '/senna>');
-				node.innerHTML = content;
-				var placeholder = node.querySelector('senna');
+				var placeholder = void 0;
+				if (_UA2.default.isIe) {
+					var tempNode = _globals2.default.document.createRange().createContextualFragment(content);
+					placeholder = tempNode.querySelector('senna');
+				} else {
+					node.innerHTML = content;
+					placeholder = node.querySelector('senna');
+				}
+
 				if (placeholder) {
 					_utils2.default.clearNodeAttributes(node);
 					_utils2.default.copyNodeAttributes(placeholder, node);
@@ -268,8 +275,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				var _this5 = this;
 
 				return _get(HtmlScreen.prototype.__proto__ || Object.getPrototypeOf(HtmlScreen.prototype), 'flip', this).call(this, surfaces).then(function () {
-					_utils2.default.clearNodeAttributes(document.documentElement);
-					_utils2.default.copyNodeAttributes(_this5.virtualDocument, document.documentElement);
+					_utils2.default.clearNodeAttributes(_globals2.default.document.documentElement);
+					_utils2.default.copyNodeAttributes(_this5.virtualDocument, _globals2.default.document.documentElement);
 				});
 			}
 		}, {
