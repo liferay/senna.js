@@ -1,0 +1,7 @@
+{
+    "env": {
+        "compile" : {
+            "presets": ["./babelSennaPreset"]
+        }
+    }
+}

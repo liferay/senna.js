@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "build": "gulp build build:amd",
-    "compile": "babel --presets metal --plugins transform-remove-console -d lib/ src/",
+    "compile": "BABEL_ENV=compile babel -d lib/ src/",
     "prepublish": "gulp && npm run compile"
   },
   "keywords": [
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
+    "babel-plugin-search-and-replace": "0.3.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-metal": "^4.0.0",
     "gulp": "^3.8.11",

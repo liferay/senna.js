@@ -1,4 +1,7 @@
 /**
- * @returns String current senna version
+ * @returns String containing the current senna version
  */
-export default '<%= version %>';
+
+const version = '<%= version %>';
+
+export default version;
