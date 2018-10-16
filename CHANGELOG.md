@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased](https://github.com/liferay/senna.js/tree/HEAD)
+
+[Full Changelog](https://github.com/liferay/senna.js/compare/v2.6.2...HEAD)
+
+**Closed issues:**
+
+- Version constant isn't available when loading by babel [\#284](https://github.com/liferay/senna.js/issues/284)
+
+**Merged pull requests:**
+
+- Makes version constraint be consistent [\#283](https://github.com/liferay/senna.js/pull/283) ([diegonvs](https://github.com/diegonvs))
+
 ## [v2.6.2](https://github.com/liferay/senna.js/tree/v2.6.2) (2018-09-20)
 [Full Changelog](https://github.com/liferay/senna.js/compare/v2.6.1...v2.6.2)
 
