@@ -1,1 +1,1 @@
-{"version":3,"sources":["version.js"],"names":[],"mappings":";;;;;;oBAGe,gB","file":"src/app/version.js","sourcesContent":["/**\n * @returns String current senna version\n */\nexport default '<%= version %>';"],"sourceRoot":"/source/"}
+{"version":3,"sources":["version.js"],"names":["version"],"mappings":";;;;;;AAAA;;;;AAIA,MAAMA,UAAU,gBAAhB;;oBAEeA,O","file":"src/app/version.js","sourcesContent":["/**\n * @returns String containing the current senna version\n */\n\nconst version = '<%= version %>';\n\nexport default version;"],"sourceRoot":"/source/"}

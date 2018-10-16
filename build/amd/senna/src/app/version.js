@@ -4,6 +4,12 @@ define(['exports'], function (exports) {
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.default = '2.6.2';
+  /**
+   * @returns String containing the current senna version
+   */
+
+  var version = '2.7.0';
+
+  exports.default = version;
 });
 //# sourceMappingURL=version.js.map

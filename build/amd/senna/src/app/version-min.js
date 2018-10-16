@@ -1,1 +1,1 @@
-define(["exports"],function(e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e["default"]="2.6.2"});
+define(["exports"],function(e){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var t="2.7.0";e["default"]=t});
