@@ -156,13 +156,14 @@ describe('HtmlScreen', function() {
 	});
 
 	it('should evaluate favicon', (done) => {
-		enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/for/favicon.ico" />');
+		enterDocumentSurfaceElement('surfaceId', '');
 		var surface = new Surface('surfaceId');
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 		screen.evaluateFavicon_().then(() => {
 			var element = document.querySelector('link[rel="Shortcut Icon"]');
-			assert.isTrue(element.href.includes('/for/favicon.ico'));
+			var uri = new Uri(element.href);
+			assert.strictEqual('/for/favicon.ico', uri.getPathname());
 			exitDocumentElement('surfaceId');
 			done();
 		});
