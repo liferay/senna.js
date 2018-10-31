@@ -203,6 +203,19 @@ describe('HtmlScreen', function() {
 		});
 	});
 
+	it('should not force favicon change when href is equal', (done) => {
+		enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="http://localhost/foo/favicon.ico" />');
+		var surface = new Surface('surfaceId');
+		var screen = new HtmlScreen();
+		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="http://localhost/foo/favicon.ico" />');
+		screen.evaluateFavicon_().then(() => {
+			var element = document.querySelector('link[rel="Shortcut Icon"]');
+			assert.strictEqual('http://localhost/foo/favicon.ico', element.href);
+			exitDocumentElement('surfaceId');
+			done();
+		});
+	});
+
 	it('should always evaluate tracked temporary scripts', (done) => {
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<script data-senna-track="temporary">window.sentinel=true;</script>');
