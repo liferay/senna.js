@@ -101,6 +101,26 @@ class utils {
 	}
 
 	/**
+	 * Compare the href of the node with those of the elements.
+	 * @param {!Array<Element>} elements 
+	 * @param {!Element} node 
+	 */
+	static isEqualHref(elements, node) {
+		for (let element of elements) {
+			let oldHref = new Uri(element.href);
+			let newHref = new Uri(node.href);
+			if (
+				oldHref.removeParameter('q').toString() === 
+				newHref.removeParameter('q').toString()
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if HTML5 History api is supported.
 	 * @return {boolean}
 	 * @static
@@ -144,6 +164,16 @@ class utils {
 			path = path.substr(0, length - 1);
 		}
 		return path;
+	}
+
+	/**
+	 * Adds a random suffix to the href attribute of the element.
+	 * @param {!element} element
+	 * @return {element}
+	 */
+	static setElementWithRandomHref(element) {
+		element.href = element.href + '?q=' + Math.random();
+		return element;
 	}
 
 	/**

@@ -91,6 +91,19 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
+	 * Removes the favicon element from the document.
+	 * @param {!Array<Element>} resources 
+	 * @private
+	 * @return {CancellablePromise}
+	 */
+	clearFaviconInDoc_(resources) {
+		return new CancellablePromise((resolve) => {
+			resources.forEach((resource) => exitDocument(resource));
+			resolve();
+		});
+	}
+
+	/**
 	 * Copies attributes from the <html> tag of content to the given node.
 	 */
 	copyNodeAttributesFromContent_(content, node) {
@@ -154,6 +167,17 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
+	 * Allows a screen to evaluate the favicon style before the screen becomes visible.
+	 * @return {CancellablePromise}
+	 */
+	evaluateFavicon_() {
+		const resourcesInVirtual = this.virtualQuerySelectorAll_(HtmlScreen.selectors.favicon);
+		const resourcesInDocument = this.querySelectorAll_(HtmlScreen.selectors.favicon);
+
+		return this.clearFaviconInDoc_(resourcesInDocument).then(this.runFaviconInElement_(resourcesInVirtual, resourcesInDocument));
+	}
+
+	/**
 	 * Evaluates tracked resources inside incoming fragment and remove existing
 	 * temporary resources.
 	 * @param {?function()} appendFn Function to append the node into document.
@@ -206,6 +230,8 @@ class HtmlScreen extends RequestScreen {
 	 * @Override
 	 */
 	flip(surfaces) {
+		this.evaluateFavicon_();
+
 		return super.flip(surfaces).then(() => {
 			utils.clearNodeAttributes(globals.document.documentElement);
 			utils.copyNodeAttributes(this.virtualDocument, globals.document.documentElement);
@@ -285,6 +311,24 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
+	 * Adds the favicon elements to the document.
+	 * @param {!Array<Element>} elements
+	 * @param {!Array<Element>} resourcesInDocument
+	 * @private
+	 * @return {CancellablePromise}
+	 */
+	runFaviconInElement_(elements, resourcesInDocument) {
+		return new CancellablePromise((resolve) => {
+			elements.forEach((element) => document.head.appendChild(
+				utils.isEqualHref(resourcesInDocument, element) 
+					? element 
+					: utils.setElementWithRandomHref(element)
+			));
+			resolve();
+		});
+	}
+
+	/**
 	 * Queries elements from virtual document and returns an array of elements.
 	 * @param {!string} selector
 	 * @return {array.<Element>}
@@ -336,6 +380,7 @@ class HtmlScreen extends RequestScreen {
  * @static
  */
 HtmlScreen.selectors = {
+	favicon: 'link[rel="Shortcut Icon"],link[rel="shortcut icon"],link[rel="icon"],link[href$="favicon.icon"]',
 	scripts: 'script[data-senna-track]',
 	scriptsPermanent: 'script[data-senna-track="permanent"]',
 	scriptsTemporary: 'script[data-senna-track="temporary"]',
