@@ -106,7 +106,8 @@ class utils {
 	 * @param {!Element} node 
 	 */
 	static isEqualHref(elements, node) {
-		for (let element of elements) {
+		for (let index = 0; index < elements; index++) {
+			let element = elements[index];
 			let oldHref = new Uri(element.href);
 			let newHref = new Uri(node.href);
 			if (
