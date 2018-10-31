@@ -374,6 +374,11 @@ class HtmlScreen extends RequestScreen {
 }
 
 /**
+ * Helper selector for ignore favicon when exist data-senna-track.
+ */
+const ignoreFavicon = ':not([rel="Shortcut Icon"]):not([rel="shortcut icon"]):not([rel="icon"]):not([href$="favicon.icon"])';
+
+/**
  * Helper selectors for tracking resources.
  * @type {object}
  * @protected
@@ -384,9 +389,9 @@ HtmlScreen.selectors = {
 	scripts: 'script[data-senna-track]',
 	scriptsPermanent: 'script[data-senna-track="permanent"]',
 	scriptsTemporary: 'script[data-senna-track="temporary"]',
-	styles: 'style[data-senna-track],link[data-senna-track]',
-	stylesPermanent: 'style[data-senna-track="permanent"],link[data-senna-track="permanent"]',
-	stylesTemporary: 'style[data-senna-track="temporary"],link[data-senna-track="temporary"]'
+	styles: `style[data-senna-track],link[data-senna-track]${ignoreFavicon}`,
+	stylesPermanent: `style[data-senna-track="permanent"],link[data-senna-track="permanent"]${ignoreFavicon}`,
+	stylesTemporary: `style[data-senna-track="temporary"],link[data-senna-track="temporary"]${ignoreFavicon}`
 };
 
 /**
