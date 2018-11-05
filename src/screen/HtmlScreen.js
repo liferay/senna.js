@@ -1,7 +1,7 @@
 'use strict';
 
 import { getUid } from 'metal';
-import { buildFragment, exitDocument, globalEval, globalEvalStyles, match } from 'metal-dom';
+import { buildFragment, globalEval, globalEvalStyles, match } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
@@ -91,19 +91,6 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
-	 * Removes the favicon element from the document.
-	 * @param {!Array<Element>} resources 
-	 * @private
-	 * @return {CancellablePromise}
-	 */
-	clearFaviconInDoc_(resources) {
-		return new CancellablePromise((resolve) => {
-			resources.forEach((resource) => exitDocument(resource));
-			resolve();
-		});
-	}
-
-	/**
 	 * Copies attributes from the <html> tag of content to the given node.
 	 */
 	copyNodeAttributesFromContent_(content, node) {
@@ -138,7 +125,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	disposePendingStyles() {
 		if (this.pendingStyles) {
-			this.pendingStyles.forEach((style) => exitDocument(style));
+			utils.removeElementsFromDocument(this.pendingStyles);
 		}
 	}
 
@@ -174,7 +161,10 @@ class HtmlScreen extends RequestScreen {
 		const resourcesInVirtual = this.virtualQuerySelectorAll_(HtmlScreen.selectors.favicon);
 		const resourcesInDocument = this.querySelectorAll_(HtmlScreen.selectors.favicon);
 
-		return this.clearFaviconInDoc_(resourcesInDocument).then(this.runFaviconInElement_(resourcesInVirtual, resourcesInDocument));
+		return new CancellablePromise((resolve) => {
+			utils.removeElementsFromDocument(resourcesInDocument);
+			this.runFaviconInElement_(resourcesInVirtual, resourcesInDocument).then(() => resolve());
+		});
 	}
 
 	/**
@@ -220,7 +210,7 @@ class HtmlScreen extends RequestScreen {
 
 		return new CancellablePromise((resolve) => {
 			evaluatorFn(frag, () => {
-				temporariesInDoc.forEach((resource) => exitDocument(resource));
+				utils.removeElementsFromDocument(temporariesInDoc);
 				resolve();
 			}, opt_appendResourceFn);
 		});
@@ -230,11 +220,10 @@ class HtmlScreen extends RequestScreen {
 	 * @Override
 	 */
 	flip(surfaces) {
-		this.evaluateFavicon_();
-
 		return super.flip(surfaces).then(() => {
 			utils.clearNodeAttributes(globals.document.documentElement);
 			utils.copyNodeAttributes(this.virtualDocument, globals.document.documentElement);
+			this.evaluateFavicon_();
 		});
 	}
 

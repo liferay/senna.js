@@ -1,5 +1,6 @@
 'use strict';
 
+import { exitDocument } from 'metal-dom';
 import globals from '../globals/globals';
 import Uri from 'metal-uri';
 
@@ -152,6 +153,14 @@ class utils {
 	 */
 	static clearNodeAttributes(node) {
 		Array.prototype.slice.call(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
+	}
+
+	/**
+	 * Remove elements from the document.
+	 * @param {!Array<Element>} elements
+	 */
+	static removeElementsFromDocument(elements) {
+		elements.forEach((element) => exitDocument(element));
 	}
 
 	/**
