@@ -1,5 +1,6 @@
 'use strict';
 
+import { exitDocument } from 'metal-dom';
 import globals from '../globals/globals';
 import Uri from 'metal-uri';
 
@@ -101,6 +102,27 @@ class utils {
 	}
 
 	/**
+	 * Compare the href of the node with those of the elements.
+	 * @param {!Array<Element>} elements 
+	 * @param {!Element} node 
+	 */
+	static isEqualHref(elements, node) {
+		for (let index = 0; index < elements.length; index++) {
+			let element = elements[index];
+			let oldHref = new Uri(element.href);
+			let newHref = new Uri(node.href);
+			if (
+				oldHref.removeParameter('q').toString() === 
+				newHref.removeParameter('q').toString()
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Returns true if HTML5 History api is supported.
 	 * @return {boolean}
 	 * @static
@@ -134,6 +156,14 @@ class utils {
 	}
 
 	/**
+	 * Remove elements from the document.
+	 * @param {!Array<Element>} elements
+	 */
+	static removeElementsFromDocument(elements) {
+		elements.forEach((element) => exitDocument(element));
+	}
+
+	/**
 	* Removes trailing slash in path.
 	* @param {!string}
 	* @return {string}
@@ -144,6 +174,16 @@ class utils {
 			path = path.substr(0, length - 1);
 		}
 		return path;
+	}
+
+	/**
+	 * Adds a random suffix to the href attribute of the element.
+	 * @param {!element} element
+	 * @return {element}
+	 */
+	static setElementWithRandomHref(element) {
+		element.href = element.href + '?q=' + Math.random();
+		return element;
 	}
 
 	/**

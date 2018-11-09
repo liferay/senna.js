@@ -1,7 +1,7 @@
 'use strict';
 
 import { getUid } from 'metal';
-import { buildFragment, exitDocument, globalEval, globalEvalStyles, match } from 'metal-dom';
+import { buildFragment, globalEval, globalEvalStyles, match } from 'metal-dom';
 import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
@@ -125,7 +125,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	disposePendingStyles() {
 		if (this.pendingStyles) {
-			this.pendingStyles.forEach((style) => exitDocument(style));
+			utils.removeElementsFromDocument(this.pendingStyles);
 		}
 	}
 
@@ -151,6 +151,20 @@ class HtmlScreen extends RequestScreen {
 			this.appendStyleIntoDocument_.bind(this));
 
 		return evaluateTrackedStyles.then(() => super.evaluateStyles(surfaces));
+	}
+
+	/**
+	 * Allows a screen to evaluate the favicon style before the screen becomes visible.
+	 * @return {CancellablePromise}
+	 */
+	evaluateFavicon_() {
+		const resourcesInVirtual = this.virtualQuerySelectorAll_(HtmlScreen.selectors.favicon);
+		const resourcesInDocument = this.querySelectorAll_(HtmlScreen.selectors.favicon);
+
+		return new CancellablePromise((resolve) => {
+			utils.removeElementsFromDocument(resourcesInDocument);
+			this.runFaviconInElement_(resourcesInVirtual, resourcesInDocument).then(() => resolve());
+		});
 	}
 
 	/**
@@ -196,7 +210,7 @@ class HtmlScreen extends RequestScreen {
 
 		return new CancellablePromise((resolve) => {
 			evaluatorFn(frag, () => {
-				temporariesInDoc.forEach((resource) => exitDocument(resource));
+				utils.removeElementsFromDocument(temporariesInDoc);
 				resolve();
 			}, opt_appendResourceFn);
 		});
@@ -209,6 +223,7 @@ class HtmlScreen extends RequestScreen {
 		return super.flip(surfaces).then(() => {
 			utils.clearNodeAttributes(globals.document.documentElement);
 			utils.copyNodeAttributes(this.virtualDocument, globals.document.documentElement);
+			this.evaluateFavicon_();
 		});
 	}
 
@@ -285,6 +300,24 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	/**
+	 * Adds the favicon elements to the document.
+	 * @param {!Array<Element>} elements
+	 * @param {!Array<Element>} resourcesInDocument
+	 * @private
+	 * @return {CancellablePromise}
+	 */
+	runFaviconInElement_(elements, resourcesInDocument) {
+		return new CancellablePromise((resolve) => {
+			elements.forEach((element) => document.head.appendChild(
+				utils.isEqualHref(resourcesInDocument, element) 
+					? element 
+					: utils.setElementWithRandomHref(element)
+			));
+			resolve();
+		});
+	}
+
+	/**
 	 * Queries elements from virtual document and returns an array of elements.
 	 * @param {!string} selector
 	 * @return {array.<Element>}
@@ -330,18 +363,24 @@ class HtmlScreen extends RequestScreen {
 }
 
 /**
+ * Helper selector for ignore favicon when exist data-senna-track.
+ */
+const ignoreFavicon = ':not([rel="Shortcut Icon"]):not([rel="shortcut icon"]):not([rel="icon"]):not([href$="favicon.icon"])';
+
+/**
  * Helper selectors for tracking resources.
  * @type {object}
  * @protected
  * @static
  */
 HtmlScreen.selectors = {
+	favicon: 'link[rel="Shortcut Icon"],link[rel="shortcut icon"],link[rel="icon"],link[href$="favicon.icon"]',
 	scripts: 'script[data-senna-track]',
 	scriptsPermanent: 'script[data-senna-track="permanent"]',
 	scriptsTemporary: 'script[data-senna-track="temporary"]',
-	styles: 'style[data-senna-track],link[data-senna-track]',
-	stylesPermanent: 'style[data-senna-track="permanent"],link[data-senna-track="permanent"]',
-	stylesTemporary: 'style[data-senna-track="temporary"],link[data-senna-track="temporary"]'
+	styles: `style[data-senna-track],link[data-senna-track]${ignoreFavicon}`,
+	stylesPermanent: `style[data-senna-track="permanent"],link[data-senna-track="permanent"]${ignoreFavicon}`,
+	stylesTemporary: `style[data-senna-track="temporary"],link[data-senna-track="temporary"]${ignoreFavicon}`
 };
 
 /**
