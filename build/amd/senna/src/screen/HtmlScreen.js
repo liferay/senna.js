@@ -202,9 +202,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			key: 'disposePendingStyles',
 			value: function disposePendingStyles() {
 				if (this.pendingStyles) {
-					this.pendingStyles.forEach(function (style) {
-						return (0, _dom.exitDocument)(style);
-					});
+					_utils2.default.removeElementsFromDocument(this.pendingStyles);
 				}
 			}
 		}, {
@@ -231,9 +229,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				});
 			}
 		}, {
+			key: 'evaluateFavicon_',
+			value: function evaluateFavicon_() {
+				var _this4 = this;
+
+				var resourcesInVirtual = this.virtualQuerySelectorAll_(HtmlScreen.selectors.favicon);
+				var resourcesInDocument = this.querySelectorAll_(HtmlScreen.selectors.favicon);
+
+				return new _Promise2.default(function (resolve) {
+					_utils2.default.removeElementsFromDocument(resourcesInDocument);
+					_this4.runFaviconInElement_(resourcesInVirtual, resourcesInDocument).then(function () {
+						return resolve();
+					});
+				});
+			}
+		}, {
 			key: 'evaluateTrackedResources_',
 			value: function evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent, opt_appendResourceFn) {
-				var _this4 = this;
+				var _this5 = this;
 
 				var tracked = this.virtualQuerySelectorAll_(selector);
 				var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
@@ -241,7 +254,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 				// Adds permanent resources in document to cache.
 				permanentsInDoc.forEach(function (resource) {
-					var resourceKey = _this4.getResourceKey_(resource);
+					var resourceKey = _this5.getResourceKey_(resource);
 					if (resourceKey) {
 						HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
 					}
@@ -249,7 +262,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 				var frag = (0, _dom.buildFragment)();
 				tracked.forEach(function (resource) {
-					var resourceKey = _this4.getResourceKey_(resource);
+					var resourceKey = _this5.getResourceKey_(resource);
 					// Do not load permanent resources if already in document.
 					if (!HtmlScreen.permanentResourcesInDoc[resourceKey]) {
 						frag.appendChild(resource);
@@ -262,9 +275,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 				return new _Promise2.default(function (resolve) {
 					evaluatorFn(frag, function () {
-						temporariesInDoc.forEach(function (resource) {
-							return (0, _dom.exitDocument)(resource);
-						});
+						_utils2.default.removeElementsFromDocument(temporariesInDoc);
 						resolve();
 					}, opt_appendResourceFn);
 				});
@@ -272,11 +283,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		}, {
 			key: 'flip',
 			value: function flip(surfaces) {
-				var _this5 = this;
+				var _this6 = this;
 
 				return _get(HtmlScreen.prototype.__proto__ || Object.getPrototypeOf(HtmlScreen.prototype), 'flip', this).call(this, surfaces).then(function () {
 					_utils2.default.clearNodeAttributes(_globals2.default.document.documentElement);
-					_utils2.default.copyNodeAttributes(_this5.virtualDocument, _globals2.default.document.documentElement);
+					_utils2.default.copyNodeAttributes(_this6.virtualDocument, _globals2.default.document.documentElement);
+					_this6.evaluateFavicon_();
 				});
 			}
 		}, {
@@ -304,14 +316,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		}, {
 			key: 'load',
 			value: function load(path) {
-				var _this6 = this;
+				var _this7 = this;
 
 				return _get(HtmlScreen.prototype.__proto__ || Object.getPrototypeOf(HtmlScreen.prototype), 'load', this).call(this, path).then(function (content) {
-					_this6.allocateVirtualDocumentForContent(content);
-					_this6.resolveTitleFromVirtualDocument();
-					_this6.assertSameBodyIdInVirtualDocument();
+					_this7.allocateVirtualDocumentForContent(content);
+					_this7.resolveTitleFromVirtualDocument();
+					_this7.assertSameBodyIdInVirtualDocument();
 					if (_UA2.default.isIe) {
-						_this6.makeTemporaryStylesHrefsUnique_();
+						_this7.makeTemporaryStylesHrefsUnique_();
 					}
 					return content;
 				});
@@ -319,11 +331,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		}, {
 			key: 'makeTemporaryStylesHrefsUnique_',
 			value: function makeTemporaryStylesHrefsUnique_() {
-				var _this7 = this;
+				var _this8 = this;
 
 				var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
 				temporariesInDoc.forEach(function (style) {
-					return _this7.replaceStyleAndMakeUnique_(style);
+					return _this8.replaceStyleAndMakeUnique_(style);
 				});
 			}
 		}, {
@@ -336,6 +348,16 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					style.parentNode.replaceChild(newStyle, style);
 					style.disabled = true;
 				}
+			}
+		}, {
+			key: 'runFaviconInElement_',
+			value: function runFaviconInElement_(elements, resourcesInDocument) {
+				return new _Promise2.default(function (resolve) {
+					elements.forEach(function (element) {
+						return document.head.appendChild(_utils2.default.isEqualHref(resourcesInDocument, element) ? element : _utils2.default.setElementWithRandomHref(element));
+					});
+					resolve();
+				});
 			}
 		}, {
 			key: 'virtualQuerySelectorAll_',
@@ -371,18 +393,24 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 	}(_RequestScreen3.default);
 
 	/**
+  * Helper selector for ignore favicon when exist data-senna-track.
+  */
+	var ignoreFavicon = ':not([rel="Shortcut Icon"]):not([rel="shortcut icon"]):not([rel="icon"]):not([href$="favicon.icon"])';
+
+	/**
   * Helper selectors for tracking resources.
   * @type {object}
   * @protected
   * @static
   */
 	HtmlScreen.selectors = {
+		favicon: 'link[rel="Shortcut Icon"],link[rel="shortcut icon"],link[rel="icon"],link[href$="favicon.icon"]',
 		scripts: 'script[data-senna-track]',
 		scriptsPermanent: 'script[data-senna-track="permanent"]',
 		scriptsTemporary: 'script[data-senna-track="temporary"]',
-		styles: 'style[data-senna-track],link[data-senna-track]',
-		stylesPermanent: 'style[data-senna-track="permanent"],link[data-senna-track="permanent"]',
-		stylesTemporary: 'style[data-senna-track="temporary"],link[data-senna-track="temporary"]'
+		styles: 'style[data-senna-track],link[data-senna-track]' + ignoreFavicon,
+		stylesPermanent: 'style[data-senna-track="permanent"],link[data-senna-track="permanent"]' + ignoreFavicon,
+		stylesTemporary: 'style[data-senna-track="temporary"],link[data-senna-track="temporary"]' + ignoreFavicon
 	};
 
 	/**

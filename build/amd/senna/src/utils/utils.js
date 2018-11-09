@@ -1,4 +1,4 @@
-define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports, _globals, _Uri) {
+define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src/Uri'], function (exports, _dom, _globals, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -107,6 +107,20 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				return false;
 			}
 		}, {
+			key: 'isEqualHref',
+			value: function isEqualHref(elements, node) {
+				for (var index = 0; index < elements.length; index++) {
+					var element = elements[index];
+					var oldHref = new _Uri2.default(element.href);
+					var newHref = new _Uri2.default(node.href);
+					if (oldHref.removeParameter('q').toString() === newHref.removeParameter('q').toString()) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+		}, {
 			key: 'isHtml5HistorySupported',
 			value: function isHtml5HistorySupported() {
 				return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
@@ -129,6 +143,13 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 				});
 			}
 		}, {
+			key: 'removeElementsFromDocument',
+			value: function removeElementsFromDocument(elements) {
+				elements.forEach(function (element) {
+					return (0, _dom.exitDocument)(element);
+				});
+			}
+		}, {
 			key: 'removePathTrailingSlash',
 			value: function removePathTrailingSlash(path) {
 				var length = path ? path.length : 0;
@@ -136,6 +157,12 @@ define(['exports', '../globals/globals', 'metal-uri/src/Uri'], function (exports
 					path = path.substr(0, length - 1);
 				}
 				return path;
+			}
+		}, {
+			key: 'setElementWithRandomHref',
+			value: function setElementWithRandomHref(element) {
+				element.href = element.href + '?q=' + Math.random();
+				return element;
 			}
 		}, {
 			key: 'setReferrer',
