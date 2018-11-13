@@ -4531,6 +4531,22 @@ var utils = function () {
 		}
 
 		/**
+   * This function is used to get absolute path of given relative path passed by anchor element.
+   * @param {!string} href Relative Hypertext reference string
+   * @return {string} absolute path from given href argument
+   */
+
+	}, {
+		key: 'getAbsoluteHref',
+		value: function getAbsoluteHref(href) {
+			var temporary = globals.document.createElement('a');
+			temporary.setAttribute('href', href);
+			var absolutePath = temporary.href;
+			exitDocument(temporary);
+			return absolutePath;
+		}
+
+		/**
    * Gets the current browser path including hashbang.
    * @return {!string}
    * @static
@@ -4614,6 +4630,27 @@ var utils = function () {
 		value: function getUrlPathWithoutHashAndSearch(url) {
 			var uri = new Uri(url);
 			return uri.getPathname();
+		}
+
+		/**
+   * Receives a hyperlink reference(href) from a delegate target and returns a href string.
+   * @param {string | object} href a string or object candidate for hypertext reference(href)
+   * @return {!string} a href string
+   */
+
+	}, {
+		key: 'getHref',
+		value: function getHref(href) {
+			// If we have an anchor element within SVG element, href value of this
+			// anchor element will return a SVGAnimatedString object. So, we are treating
+			// this object and using animVal value of this object due this property has
+			// the same value of baseVal. See the following link for more details:
+			// https://developer.mozilla.org/en-US/docs/Web/API/SVGAnimatedString/animVal
+			if (isObject(href) && href.toString() === '[object SVGAnimatedString]') {
+				return utils.getAbsoluteHref(href.animVal);
+			}
+
+			return href;
 		}
 
 		/**
@@ -7800,7 +7837,8 @@ var App$1 = function (_EventEmitter) {
 				console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 				return;
 			}
-			this.maybeNavigate_(event.delegateTarget.href, event);
+
+			this.maybeNavigate_(utils.getHref(event.delegateTarget.href), event);
 		}
 
 		/**

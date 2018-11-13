@@ -3,7 +3,6 @@
 import { exitDocument } from 'metal-dom';
 import globals from '../globals/globals';
 import { isObject } from 'metal';
-import { exitDocument } from 'metal-dom';
 import Uri from 'metal-uri';
 
 /**

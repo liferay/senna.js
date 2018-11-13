@@ -157,7 +157,6 @@ describe('HtmlScreen', function() {
 
 	it('should evaluate favicon', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '');
-		var surface = new Surface('surfaceId');
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 		screen.evaluateFavicon_().then(() => {
@@ -187,10 +186,19 @@ describe('HtmlScreen', function() {
 			});
 	});
 
-	it('should not force favicon to change whenever the href change when the browser is IE', (done) => {
-		// This test will run only on IE
+	it('should force favicon change whenever change the href', (done) => {
 		if (!UA.isIe) {
-			done();
+			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
+			var screen = new HtmlScreen();
+			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
+			screen.evaluateFavicon_().then(() => {
+				var element = document.querySelector('link[rel="Shortcut Icon"]');
+				var uri = new Uri(element.href);
+				assert.strictEqual('/for/favicon.ico', uri.getPathname());
+				assert.ok(uri.hasParameter('q'));
+				exitDocumentElement('surfaceId');
+				done();
+			});
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
 			var surface = new Surface('surfaceId');

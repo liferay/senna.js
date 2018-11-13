@@ -1,4 +1,4 @@
-define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src/Uri'], function (exports, _dom, _globals, _Uri) {
+define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal/src/metal', 'metal-uri/src/Uri'], function (exports, _dom, _globals, _metal, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -52,6 +52,15 @@ define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src
 				});
 			}
 		}, {
+			key: 'getAbsoluteHref',
+			value: function getAbsoluteHref(href) {
+				var temporary = _globals2.default.document.createElement('a');
+				temporary.setAttribute('href', href);
+				var absolutePath = temporary.href;
+				(0, _dom.exitDocument)(temporary);
+				return absolutePath;
+			}
+		}, {
 			key: 'getCurrentBrowserPath',
 			value: function getCurrentBrowserPath() {
 				return this.getCurrentBrowserPathWithoutHash() + _globals2.default.window.location.hash;
@@ -94,6 +103,20 @@ define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src
 			value: function getUrlPathWithoutHashAndSearch(url) {
 				var uri = new _Uri2.default(url);
 				return uri.getPathname();
+			}
+		}, {
+			key: 'getHref',
+			value: function getHref(href) {
+				// If we have an anchor element within SVG element, href value of this
+				// anchor element will return a SVGAnimatedString object. So, we are treating
+				// this object and using animVal value of this object due this property has
+				// the same value of baseVal. See the following link for more details:
+				// https://developer.mozilla.org/en-US/docs/Web/API/SVGAnimatedString/animVal
+				if ((0, _metal.isObject)(href) && href.toString() === '[object SVGAnimatedString]') {
+					return utils.getAbsoluteHref(href.animVal);
+				}
+
+				return href;
 			}
 		}, {
 			key: 'isCurrentBrowserPath',

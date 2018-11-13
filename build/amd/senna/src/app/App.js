@@ -891,7 +891,8 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					void 0;
 					return;
 				}
-				this.maybeNavigate_(event.delegateTarget.href, event);
+
+				this.maybeNavigate_(_utils2.default.getHref(event.delegateTarget.href), event);
 			}
 		}, {
 			key: 'onDocSubmitDelegate_',
