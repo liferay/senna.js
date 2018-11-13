@@ -164,6 +164,7 @@ describe('HtmlScreen', function() {
 			var element = document.querySelector('link[rel="Shortcut Icon"]');
 			var uri = new Uri(element.href);
 			assert.strictEqual('/for/favicon.ico', uri.getPathname());
+			assert.ok(uri.hasParameter('q'));
 			exitDocumentElement('surfaceId');
 			done();
 		});
@@ -198,19 +199,6 @@ describe('HtmlScreen', function() {
 			var uri = new Uri(element.href);
 			assert.strictEqual('/for/favicon.ico', uri.getPathname());
 			assert.ok(uri.hasParameter('q'));
-			exitDocumentElement('surfaceId');
-			done();
-		});
-	});
-
-	it('should not force favicon change when href is equal', (done) => {
-		enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="http://localhost/foo/favicon.ico" />');
-		var surface = new Surface('surfaceId');
-		var screen = new HtmlScreen();
-		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="http://localhost/foo/favicon.ico" />');
-		screen.evaluateFavicon_().then(() => {
-			var element = document.querySelector('link[rel="Shortcut Icon"]');
-			assert.strictEqual('http://localhost/foo/favicon.ico', element.href);
 			exitDocumentElement('surfaceId');
 			done();
 		});
