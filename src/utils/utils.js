@@ -102,27 +102,6 @@ class utils {
 	}
 
 	/**
-	 * Compare the href of the node with those of the elements.
-	 * @param {!Array<Element>} elements 
-	 * @param {!Element} node 
-	 */
-	static isEqualHref(elements, node) {
-		for (let index = 0; index < elements.length; index++) {
-			let element = elements[index];
-			let oldHref = new Uri(element.href);
-			let newHref = new Uri(node.href);
-			if (
-				oldHref.removeParameter('q').toString() === 
-				newHref.removeParameter('q').toString()
-			) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Returns true if HTML5 History api is supported.
 	 * @return {boolean}
 	 * @static

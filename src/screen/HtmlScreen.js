@@ -163,7 +163,7 @@ class HtmlScreen extends RequestScreen {
 
 		return new CancellablePromise((resolve) => {
 			utils.removeElementsFromDocument(resourcesInDocument);
-			this.runFaviconInElement_(resourcesInVirtual, resourcesInDocument).then(() => resolve());
+			this.runFaviconInElement_(resourcesInVirtual).then(() => resolve());
 		});
 	}
 
@@ -302,16 +302,13 @@ class HtmlScreen extends RequestScreen {
 	/**
 	 * Adds the favicon elements to the document.
 	 * @param {!Array<Element>} elements
-	 * @param {!Array<Element>} resourcesInDocument
 	 * @private
 	 * @return {CancellablePromise}
 	 */
-	runFaviconInElement_(elements, resourcesInDocument) {
+	runFaviconInElement_(elements) {
 		return new CancellablePromise((resolve) => {
 			elements.forEach((element) => document.head.appendChild(
-				utils.isEqualHref(resourcesInDocument, element) 
-					? element 
-					: utils.setElementWithRandomHref(element)
+				utils.setElementWithRandomHref(element)
 			));
 			resolve();
 		});
