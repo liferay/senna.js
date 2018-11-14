@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.1
+ * @version v2.7.2
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -4636,27 +4636,6 @@ var utils = function () {
 		}
 
 		/**
-   * Compare the href of the node with those of the elements.
-   * @param {!Array<Element>} elements 
-   * @param {!Element} node 
-   */
-
-	}, {
-		key: 'isEqualHref',
-		value: function isEqualHref(elements, node) {
-			for (var index = 0; index < elements.length; index++) {
-				var element = elements[index];
-				var oldHref = new Uri(element.href);
-				var newHref = new Uri(node.href);
-				if (oldHref.removeParameter('q').toString() === newHref.removeParameter('q').toString()) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		/**
    * Returns true if HTML5 History api is supported.
    * @return {boolean}
    * @static
@@ -9281,7 +9260,7 @@ var HtmlScreen = function (_RequestScreen) {
 
 			return new CancellablePromise(function (resolve) {
 				utils.removeElementsFromDocument(resourcesInDocument);
-				_this4.runFaviconInElement_(resourcesInVirtual, resourcesInDocument).then(function () {
+				_this4.runFaviconInElement_(resourcesInVirtual).then(function () {
 					return resolve();
 				});
 			});
@@ -9455,17 +9434,16 @@ var HtmlScreen = function (_RequestScreen) {
 		/**
    * Adds the favicon elements to the document.
    * @param {!Array<Element>} elements
-   * @param {!Array<Element>} resourcesInDocument
    * @private
    * @return {CancellablePromise}
    */
 
 	}, {
 		key: 'runFaviconInElement_',
-		value: function runFaviconInElement_(elements, resourcesInDocument) {
+		value: function runFaviconInElement_(elements) {
 			return new CancellablePromise(function (resolve) {
 				elements.forEach(function (element) {
-					return document.head.appendChild(utils.isEqualHref(resourcesInDocument, element) ? element : utils.setElementWithRandomHref(element));
+					return document.head.appendChild(utils.setElementWithRandomHref(element));
 				});
 				resolve();
 			});
@@ -9875,7 +9853,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.1';
+var version = '2.7.2';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;
