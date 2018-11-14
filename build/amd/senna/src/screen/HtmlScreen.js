@@ -238,7 +238,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 
 				return new _Promise2.default(function (resolve) {
 					_utils2.default.removeElementsFromDocument(resourcesInDocument);
-					_this4.runFaviconInElement_(resourcesInVirtual, resourcesInDocument).then(function () {
+					_this4.runFaviconInElement_(resourcesInVirtual).then(function () {
 						return resolve();
 					});
 				});
@@ -351,10 +351,10 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			}
 		}, {
 			key: 'runFaviconInElement_',
-			value: function runFaviconInElement_(elements, resourcesInDocument) {
+			value: function runFaviconInElement_(elements) {
 				return new _Promise2.default(function (resolve) {
 					elements.forEach(function (element) {
-						return document.head.appendChild(_utils2.default.isEqualHref(resourcesInDocument, element) ? element : _utils2.default.setElementWithRandomHref(element));
+						return document.head.appendChild(_utils2.default.setElementWithRandomHref(element));
 					});
 					resolve();
 				});

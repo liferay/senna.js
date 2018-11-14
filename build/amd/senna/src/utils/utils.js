@@ -107,20 +107,6 @@ define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src
 				return false;
 			}
 		}, {
-			key: 'isEqualHref',
-			value: function isEqualHref(elements, node) {
-				for (var index = 0; index < elements.length; index++) {
-					var element = elements[index];
-					var oldHref = new _Uri2.default(element.href);
-					var newHref = new _Uri2.default(node.href);
-					if (oldHref.removeParameter('q').toString() === newHref.removeParameter('q').toString()) {
-						return true;
-					}
-				}
-
-				return false;
-			}
-		}, {
 			key: 'isHtml5HistorySupported',
 			value: function isHtml5HistorySupported() {
 				return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
