@@ -635,7 +635,30 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	isLinkSameOrigin_(host) {
-		return host === globals.window.location.host;
+    var protocol = globals.default.window.location.protocol;
+
+    var globalHost = globals.default.window.location.host;
+
+    if (protocol == 'https:') {
+      if (host.indexOf(':443') == (host.length - 4)) {
+        host = host.substring(0, host.length - 4);
+      }
+
+      if (globalHost.indexOf(':443') == (globalHost.length - 4)) {
+        globalHost = globalHost.substring(0, globalHost.length - 4);
+      }
+    }
+    else if (protocol == 'http:') {
+      if (host.indexOf(':80') == (host.length - 3)) {
+        host = host.substring(0, host.length - 3);
+      }
+
+      if (globalHost.indexOf(':80') == (globalHost.length - 3)) {
+        globalHost = globalHost.substring(0, globalHost.length - 3);
+      }
+    }
+
+    return host === globalHost;
 	}
 
 	/**
