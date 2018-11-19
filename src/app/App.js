@@ -635,7 +635,10 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	isLinkSameOrigin_(host) {
-		return host === globals.window.location.host;
+		const hostUri = new Uri(host);
+		const locationHostUri = new Uri(globals.window.location.host);
+
+		return hostUri.url.port === locationHostUri.url.port && hostUri.url.hostname == locationHostUri.url.hostname;
 	}
 
 	/**
