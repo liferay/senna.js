@@ -638,7 +638,7 @@ class App extends EventEmitter {
 		const hostUri = new Uri(host);
 		const locationHostUri = new Uri(globals.window.location.host);
 
-		return hostUri.url.port === locationHostUri.url.port && hostUri.url.hostname == locationHostUri.url.hostname;
+		return hostUri.getPort() === locationHostUri.getPort() && hostUri.getHostname() === locationHostUri.getHostname();
 	}
 
 	/**
