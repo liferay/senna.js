@@ -528,6 +528,23 @@ describe('App', function() {
 		assert.isFalse(this.app.canNavigate('http://localhost:9083/path/123/'));
 	});
 
+	it('should be able to navigate to a path using default protocol port', () => {
+		this.app = new App();
+		globals.window = {
+			history: {},
+			location: {
+				host: 'localhost',
+				pathname: '/path',
+				search: ''
+			}
+		};
+		this.app.addRoutes([new Route('/path/', Screen), new Route('/path/(\\d+)/', Screen)]);
+		assert.isTrue(this.app.canNavigate('http://localhost:80/path'));
+		assert.isTrue(this.app.canNavigate('http://localhost:80/path/'));
+		assert.isTrue(this.app.canNavigate('http://localhost:80/path/123'));
+		assert.isTrue(this.app.canNavigate('http://localhost:80/path/123/'));
+	});
+
 	it('should store proper senna state after navigate', (done) => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
