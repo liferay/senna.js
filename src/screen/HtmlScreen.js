@@ -100,8 +100,7 @@ class HtmlScreen extends RequestScreen {
 		if (UA.isIe) {
 			const tempNode = globals.document.createRange().createContextualFragment(content);
 			placeholder = tempNode.querySelector('senna');
-		}
-		else {
+		} else {
 			node.innerHTML = content;
 			placeholder = node.querySelector('senna');
 		}
