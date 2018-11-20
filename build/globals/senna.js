@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.2
+ * @version v2.7.3
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -7430,7 +7430,10 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'isLinkSameOrigin_',
 		value: function isLinkSameOrigin_(host) {
-			return host === globals.window.location.host;
+			var hostUri = new Uri(host);
+			var locationHostUri = new Uri(globals.window.location.host);
+
+			return hostUri.getPort() === locationHostUri.getPort() && hostUri.getHostname() === locationHostUri.getHostname();
 		}
 
 		/**
@@ -9853,7 +9856,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.2';
+var version = '2.7.3';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;

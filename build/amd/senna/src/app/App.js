@@ -651,7 +651,10 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'isLinkSameOrigin_',
 			value: function isLinkSameOrigin_(host) {
-				return host === _globals2.default.window.location.host;
+				var hostUri = new _Uri2.default(host);
+				var locationHostUri = new _Uri2.default(_globals2.default.window.location.host);
+
+				return hostUri.getPort() === locationHostUri.getPort() && hostUri.getHostname() === locationHostUri.getHostname();
 			}
 		}, {
 			key: 'isSameBasePath_',
