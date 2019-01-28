@@ -307,7 +307,7 @@ class HtmlScreen extends RequestScreen {
 	runFaviconInElement_(elements) {
 		return new CancellablePromise((resolve) => {
 			elements.forEach((element) => document.head.appendChild(
-				utils.setElementWithRandomHref(element)
+        UA.isIe ? element : utils.setElementWithRandomHref(element)
 			));
 			resolve();
 		});
