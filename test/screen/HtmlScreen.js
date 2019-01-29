@@ -164,7 +164,6 @@ describe('HtmlScreen', function() {
 			var element = document.querySelector('link[rel="Shortcut Icon"]');
 			var uri = new Uri(element.href);
 			assert.strictEqual('/for/favicon.ico', uri.getPathname());
-			assert.ok(uri.hasParameter('q'));
 			exitDocumentElement('surfaceId');
 			done();
 		});
@@ -182,26 +181,50 @@ describe('HtmlScreen', function() {
 						var element = document.querySelector('link[rel="Shortcut Icon"]');
 						assert.ok(element);
 						var uri = new Uri(element.href);
-						assert.ok(uri.hasParameter('q'));
 						exitDocumentElement('favicon');
 						done();
 					});
 			});
 	});
 
-	it('should force favicon change whenever change the href', (done) => {
-		enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-		var surface = new Surface('surfaceId');
-		var screen = new HtmlScreen();
-		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
-		screen.evaluateFavicon_().then(() => {
-			var element = document.querySelector('link[rel="Shortcut Icon"]');
-			var uri = new Uri(element.href);
-			assert.strictEqual('/for/favicon.ico', uri.getPathname());
-			assert.ok(uri.hasParameter('q'));
-			exitDocumentElement('surfaceId');
+	it('should not force favicon to change whenever the href change when the browser is IE', (done) => {
+		// This test will run only on IE
+		if (!UA.isIe) {
 			done();
-		});
+		} else {
+			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
+			var surface = new Surface('surfaceId');
+			var screen = new HtmlScreen();
+			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
+			screen.evaluateFavicon_().then(() => {
+				var element = document.querySelector('link[rel="Shortcut Icon"]');
+				var uri = new Uri(element.href);
+				assert.strictEqual('/for/favicon.ico', uri.getPathname());
+				assert.ok(uri.hasParameter('q') === false);
+				exitDocumentElement('surfaceId');
+				done();
+			});
+		}
+	});
+
+	it('should force favicon to change whenever change the href when the browser is not IE', (done) => {
+		// This test will run on all browsers except in IE
+		if (UA.isIe) {
+			done();
+		} else {
+			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
+			var surface = new Surface('surfaceId');
+			var screen = new HtmlScreen();
+			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
+			screen.evaluateFavicon_().then(() => {
+				var element = document.querySelector('link[rel="Shortcut Icon"]');
+				var uri = new Uri(element.href);
+				assert.strictEqual('/for/favicon.ico', uri.getPathname());
+				assert.ok(uri.hasParameter('q'));
+				exitDocumentElement('surfaceId');
+				done();
+			});
+		}
 	});
 
 	it('should always evaluate tracked temporary scripts', (done) => {
