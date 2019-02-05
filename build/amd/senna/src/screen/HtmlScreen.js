@@ -354,7 +354,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			value: function runFaviconInElement_(elements) {
 				return new _Promise2.default(function (resolve) {
 					elements.forEach(function (element) {
-						return document.head.appendChild(_utils2.default.setElementWithRandomHref(element));
+						return document.head.appendChild(_UA2.default.isIe ? element : _utils2.default.setElementWithRandomHref(element));
 					});
 					resolve();
 				});

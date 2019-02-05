@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.3
+ * @version v2.7.4
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -9446,7 +9446,7 @@ var HtmlScreen = function (_RequestScreen) {
 		value: function runFaviconInElement_(elements) {
 			return new CancellablePromise(function (resolve) {
 				elements.forEach(function (element) {
-					return document.head.appendChild(utils.setElementWithRandomHref(element));
+					return document.head.appendChild(UA.isIe ? element : utils.setElementWithRandomHref(element));
 				});
 				resolve();
 			});
@@ -9856,7 +9856,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.3';
+var version = '2.7.4';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;
