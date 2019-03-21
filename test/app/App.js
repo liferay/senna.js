@@ -3,6 +3,7 @@
 import { dom, exitDocument } from 'metal-dom';
 import { EventEmitter } from 'metal-events';
 import CancellablePromise from 'metal-promise';
+import UA from 'metal-useragent';
 import globals from '../../src/globals/globals';
 import utils from '../../src/utils/utils';
 import App from '../../src/app/App';
@@ -400,6 +401,9 @@ describe('App', function() {
 	});
 
 	it('should not throw exceptions when clicking on a SVGElement link', function() {
+		if (UA.isEdge) {
+			this.skip();
+		}
 		class StubApp extends App {
 		}
 		this.app = new StubApp();
