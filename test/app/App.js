@@ -2021,7 +2021,14 @@ function enterDocumentFormElement(action, method) {
 }
 
 function enterDocumentSVGLinkElement(href) {
-	dom.enterDocument(`<svg id="svg"><g><circle r="50"><a id="svgLink" href="${href}"></a></circle></g></svg>`);
+	dom.enterDocument(`
+	<svg id="svg" height="100" width="100">
+		<g>
+		<a id="svgLink" xlink:href="${href}">
+			<circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
+		</a>
+		</g>
+	</svg>`);
 	return globals.document.getElementById('svgLink');
 }
 
