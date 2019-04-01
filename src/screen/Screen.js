@@ -25,6 +25,12 @@ class Screen extends Cacheable {
 		this.id = this.makeId_(getUid());
 
 		/**
+		 * Holds the screen meta tags. Relevant when the meta tags
+		 * should be updated when screen is rendered.
+		 */
+		this.metas = null;
+
+		/**
 		 * Holds the screen title. Relevant when the page title should be
 		 * upadated when screen is rendered.
 		 * @type {?string=}
@@ -159,6 +165,14 @@ class Screen extends Cacheable {
 	}
 
 	/**
+	 * Gets the screen meta tags.
+	 * @return {NodeList|Node}
+	 */
+	getMetas() {
+		return this.metas;
+	}
+
+	/**
 	 * Returns the content for the given surface, or null if the surface isn't
 	 * used by this screen. This will be called when a screen is initially
 	 * constructed or, if a screen is non-cacheable, when navigated.
@@ -210,6 +224,14 @@ class Screen extends Cacheable {
 	 */
 	setId(id) {
 		this.id = id;
+	}
+
+	/**
+	 * Sets the screen meta tags.
+	 * @param {NodeList|Node} metas
+	 */
+	setMetas(metas) {
+		this.metas = metas;
 	}
 
 	/**
