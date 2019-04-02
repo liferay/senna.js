@@ -237,12 +237,12 @@ class HtmlScreen extends RequestScreen {
 	}
 
 	updateMetaTags_() {
-		const currentMetaNodes = globals.document.head.querySelectorAll('meta');
-
+		const currentMetaNodes = this.querySelectorAll_('meta');
+		const metasFromVirtualDocument = this.metas;
 		if (currentMetaNodes) {
 			utils.removeElementsFromDocument(currentMetaNodes);
-			if (this.metas) {
-				this.metas.forEach(meta => globals.document.head.appendChild(meta));
+			if (metasFromVirtualDocument) {
+				metasFromVirtualDocument.forEach((meta) => globals.document.head.appendChild(meta));
 			}
 		}
 	}
