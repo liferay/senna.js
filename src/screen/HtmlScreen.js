@@ -22,6 +22,15 @@ class HtmlScreen extends RequestScreen {
 		super();
 
 		/**
+		 * Holds the meta selector. Relevant to extract <code>meta</code> tags
+		 * elements from request fragments to use as the screen.
+		 * @type {!string}
+		 * @default meta
+		 * @protected
+		 */
+		this.metaTagsSelector = 'meta';
+
+		/**
 		 * Holds the title selector. Relevant to extract the <code><title></code>
 		 * element from request fragments to use as the screen title.
 		 * @type {!string}
@@ -223,7 +232,19 @@ class HtmlScreen extends RequestScreen {
 			utils.clearNodeAttributes(globals.document.documentElement);
 			utils.copyNodeAttributes(this.virtualDocument, globals.document.documentElement);
 			this.evaluateFavicon_();
+			this.updateMetaTags_();
 		});
+	}
+
+	updateMetaTags_() {
+		const currentMetaNodes = this.querySelectorAll_('meta');
+		const metasFromVirtualDocument = this.metas;
+		if (currentMetaNodes) {
+			utils.removeElementsFromDocument(currentMetaNodes);
+			if (metasFromVirtualDocument) {
+				metasFromVirtualDocument.forEach((meta) => globals.document.head.appendChild(meta));
+			}
+		}
 	}
 
 	/**
@@ -266,6 +287,7 @@ class HtmlScreen extends RequestScreen {
 			.then(content => {
 				this.allocateVirtualDocumentForContent(content);
 				this.resolveTitleFromVirtualDocument();
+				this.resolveMetaTagsFromVirtualDocument();
 				this.assertSameBodyIdInVirtualDocument();
 				if (UA.isIe) {
 					this.makeTemporaryStylesHrefsUnique_();
@@ -342,9 +364,16 @@ class HtmlScreen extends RequestScreen {
 	 * Resolves title from allocated virtual document.
 	 */
 	resolveTitleFromVirtualDocument() {
-		var title = this.virtualDocument.querySelector(this.titleSelector);
+		const title = this.virtualDocument.querySelector(this.titleSelector);
 		if (title) {
 			this.setTitle(title.textContent.trim());
+		}
+	}
+
+	resolveMetaTagsFromVirtualDocument() {
+		const metas = this.virtualQuerySelectorAll_(this.metaTagsSelector);
+		if (metas) {
+			this.setMetas(metas);
 		}
 	}
 

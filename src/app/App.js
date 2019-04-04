@@ -604,7 +604,7 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	handleNavigateError_(path, nextScreen, error) {
-		console.log('Navigation error for [' + nextScreen + '] (' + error + ')');
+		console.log('Navigation error for [' + nextScreen + '] (' + error.stack + ')');
 		this.emit('navigationError', {
 			error,
 			nextScreen,
