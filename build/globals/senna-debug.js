@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.4
+ * @version v2.7.5
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -6102,6 +6102,12 @@ var Screen = function (_Cacheable) {
 		_this.id = _this.makeId_(getUid());
 
 		/**
+   * Holds the screen meta tags. Relevant when the meta tags
+   * should be updated when screen is rendered.
+   */
+		_this.metas = null;
+
+		/**
    * Holds the screen title. Relevant when the page title should be
    * upadated when screen is rendered.
    * @type {?string=}
@@ -6273,6 +6279,17 @@ var Screen = function (_Cacheable) {
 		}
 
 		/**
+   * Gets the screen meta tags.
+   * @return {NodeList|Node}
+   */
+
+	}, {
+		key: 'getMetas',
+		value: function getMetas() {
+			return this.metas;
+		}
+
+		/**
    * Returns the content for the given surface, or null if the surface isn't
    * used by this screen. This will be called when a screen is initially
    * constructed or, if a screen is non-cacheable, when navigated.
@@ -6339,6 +6356,17 @@ var Screen = function (_Cacheable) {
 		key: 'setId',
 		value: function setId(id) {
 			this.id = id;
+		}
+
+		/**
+   * Sets the screen meta tags.
+   * @param {NodeList|Node} metas
+   */
+
+	}, {
+		key: 'setMetas',
+		value: function setMetas(metas) {
+			this.metas = metas;
 		}
 
 		/**
@@ -7391,7 +7419,7 @@ var App$1 = function (_EventEmitter) {
 		value: function handleNavigateError_(path, nextScreen, error) {
 			var _this6 = this;
 
-			console.log('Navigation error for [' + nextScreen + '] (' + error + ')');
+			console.log('Navigation error for [' + nextScreen + '] (' + error.stack + ')');
 			this.emit('navigationError', {
 				error: error,
 				nextScreen: nextScreen,
@@ -9084,14 +9112,23 @@ var HtmlScreen = function (_RequestScreen) {
 		classCallCheck(this, HtmlScreen);
 
 		/**
+   * Holds the meta selector. Relevant to extract <code>meta</code> tags
+   * elements from request fragments to use as the screen.
+   * @type {!string}
+   * @default meta
+   * @protected
+   */
+		var _this = possibleConstructorReturn(this, (HtmlScreen.__proto__ || Object.getPrototypeOf(HtmlScreen)).call(this));
+
+		_this.metaTagsSelector = 'meta';
+
+		/**
    * Holds the title selector. Relevant to extract the <code><title></code>
    * element from request fragments to use as the screen title.
    * @type {!string}
    * @default title
    * @protected
    */
-		var _this = possibleConstructorReturn(this, (HtmlScreen.__proto__ || Object.getPrototypeOf(HtmlScreen)).call(this));
-
 		_this.titleSelector = 'title';
 		return _this;
 	}
@@ -9336,7 +9373,22 @@ var HtmlScreen = function (_RequestScreen) {
 				utils.clearNodeAttributes(globals.document.documentElement);
 				utils.copyNodeAttributes(_this6.virtualDocument, globals.document.documentElement);
 				_this6.evaluateFavicon_();
+				_this6.updateMetaTags_();
 			});
+		}
+	}, {
+		key: 'updateMetaTags_',
+		value: function updateMetaTags_() {
+			var currentMetaNodes = this.querySelectorAll_('meta');
+			var metasFromVirtualDocument = this.metas;
+			if (currentMetaNodes) {
+				utils.removeElementsFromDocument(currentMetaNodes);
+				if (metasFromVirtualDocument) {
+					metasFromVirtualDocument.forEach(function (meta) {
+						return globals.document.head.appendChild(meta);
+					});
+				}
+			}
 		}
 
 		/**
@@ -9392,6 +9444,7 @@ var HtmlScreen = function (_RequestScreen) {
 			return get(HtmlScreen.prototype.__proto__ || Object.getPrototypeOf(HtmlScreen.prototype), 'load', this).call(this, path).then(function (content) {
 				_this7.allocateVirtualDocumentForContent(content);
 				_this7.resolveTitleFromVirtualDocument();
+				_this7.resolveMetaTagsFromVirtualDocument();
 				_this7.assertSameBodyIdInVirtualDocument();
 				if (UA.isIe) {
 					_this7.makeTemporaryStylesHrefsUnique_();
@@ -9496,6 +9549,14 @@ var HtmlScreen = function (_RequestScreen) {
 			var title = this.virtualDocument.querySelector(this.titleSelector);
 			if (title) {
 				this.setTitle(title.textContent.trim());
+			}
+		}
+	}, {
+		key: 'resolveMetaTagsFromVirtualDocument',
+		value: function resolveMetaTagsFromVirtualDocument() {
+			var metas = this.virtualQuerySelectorAll_(this.metaTagsSelector);
+			if (metas) {
+				this.setMetas(metas);
 			}
 		}
 
@@ -9856,7 +9917,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.4';
+var version = '2.7.5';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;

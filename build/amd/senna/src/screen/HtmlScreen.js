@@ -113,6 +113,15 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 			var _this = _possibleConstructorReturn(this, (HtmlScreen.__proto__ || Object.getPrototypeOf(HtmlScreen)).call(this));
 
 			/**
+    * Holds the meta selector. Relevant to extract <code>meta</code> tags
+    * elements from request fragments to use as the screen.
+    * @type {!string}
+    * @default meta
+    * @protected
+    */
+			_this.metaTagsSelector = 'meta';
+
+			/**
     * Holds the title selector. Relevant to extract the <code><title></code>
     * element from request fragments to use as the screen title.
     * @type {!string}
@@ -289,7 +298,22 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					_utils2.default.clearNodeAttributes(_globals2.default.document.documentElement);
 					_utils2.default.copyNodeAttributes(_this6.virtualDocument, _globals2.default.document.documentElement);
 					_this6.evaluateFavicon_();
+					_this6.updateMetaTags_();
 				});
+			}
+		}, {
+			key: 'updateMetaTags_',
+			value: function updateMetaTags_() {
+				var currentMetaNodes = this.querySelectorAll_('meta');
+				var metasFromVirtualDocument = this.metas;
+				if (currentMetaNodes) {
+					_utils2.default.removeElementsFromDocument(currentMetaNodes);
+					if (metasFromVirtualDocument) {
+						metasFromVirtualDocument.forEach(function (meta) {
+							return _globals2.default.document.head.appendChild(meta);
+						});
+					}
+				}
 			}
 		}, {
 			key: 'getResourceKey_',
@@ -321,6 +345,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				return _get(HtmlScreen.prototype.__proto__ || Object.getPrototypeOf(HtmlScreen.prototype), 'load', this).call(this, path).then(function (content) {
 					_this7.allocateVirtualDocumentForContent(content);
 					_this7.resolveTitleFromVirtualDocument();
+					_this7.resolveMetaTagsFromVirtualDocument();
 					_this7.assertSameBodyIdInVirtualDocument();
 					if (_UA2.default.isIe) {
 						_this7.makeTemporaryStylesHrefsUnique_();
@@ -380,6 +405,14 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				var title = this.virtualDocument.querySelector(this.titleSelector);
 				if (title) {
 					this.setTitle(title.textContent.trim());
+				}
+			}
+		}, {
+			key: 'resolveMetaTagsFromVirtualDocument',
+			value: function resolveMetaTagsFromVirtualDocument() {
+				var metas = this.virtualQuerySelectorAll_(this.metaTagsSelector);
+				if (metas) {
+					this.setMetas(metas);
 				}
 			}
 		}, {

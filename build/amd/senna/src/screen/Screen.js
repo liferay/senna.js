@@ -111,6 +111,12 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 			_this.id = _this.makeId_((0, _metal.getUid)());
 
 			/**
+    * Holds the screen meta tags. Relevant when the meta tags
+    * should be updated when screen is rendered.
+    */
+			_this.metas = null;
+
+			/**
     * Holds the screen title. Relevant when the page title should be
     * upadated when screen is rendered.
     * @type {?string=}
@@ -201,6 +207,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 				return this.id;
 			}
 		}, {
+			key: 'getMetas',
+			value: function getMetas() {
+				return this.metas;
+			}
+		}, {
 			key: 'getSurfaceContent',
 			value: function getSurfaceContent() {
 				void 0;
@@ -225,6 +236,11 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 			key: 'setId',
 			value: function setId(id) {
 				this.id = id;
+			}
+		}, {
+			key: 'setMetas',
+			value: function setMetas(metas) {
+				this.metas = metas;
 			}
 		}, {
 			key: 'setTitle',
