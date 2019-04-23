@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.6
+ * @version v2.7.7
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -159,25 +159,11 @@ var slicedToArray = function () {
 }();
 
 /**
- * A collection of core utility functions.
- * @const
- */
-
-var compatibilityModeData_ = void 0;
-
-/**
- * Counter for unique id.
- * @type {Number}
- * @private
- */
-var uniqueIdCounter_ = 1;
-
-/**
  * Unique id property prefix.
  * @type {String}
  * @protected
  */
-var UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
+
 
 /**
  * When defining a class Foo with an abstract method bar(), you can do:
@@ -189,16 +175,12 @@ var UID_PROPERTY = 'core_' + (Math.random() * 1e9 >>> 0);
  * @type {!Function}
  * @throws {Error} when invoked to indicate the method should be overridden.
  */
-function abstractMethod() {
-  throw Error('Unimplemented abstract method');
-}
+
 
 /**
  * Disables Metal.js's compatibility mode.
  */
-function disableCompatibilityMode() {
-  compatibilityModeData_ = undefined;
-}
+
 
 /**
  * Enables Metal.js's compatibility mode with the following features from rc
@@ -216,52 +198,23 @@ function disableCompatibilityMode() {
  *           that extend from IncrementalDomRenderer.
  * @type {Object}
  */
-function enableCompatibilityMode() {
-  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  compatibilityModeData_ = data;
-}
 
 /**
  * Returns the data used for compatibility mode, or nothing if it hasn't been
  * enabled.
  * @return {Object}
  */
-function getCompatibilityModeData() {
-  // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
-  if (compatibilityModeData_ === undefined) {
-    if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
-      enableCompatibilityMode(window.__METAL_COMPATIBILITY__);
-    }
-  }
-  return compatibilityModeData_;
-}
 
-/**
- * Returns the first argument if it's truthy, or the second otherwise.
- * @param {*} a
- * @param {*} b
- * @return {*}
- * @protected
- */
-function getFirstTruthy_(a, b) {
-  return a || b;
-}
 
 /**
  * Gets the name of the given function. If the current browser doesn't
- * support the `name` property, this will calculate it from the function's
+ * support the `name` property, like IE11, this will calculate it from the function's
  * content string.
  * @param {!function()} fn
  * @return {string}
  */
-function getFunctionName(fn) {
-  if (!fn.name) {
-    var str = fn.toString();
-    fn.name = str.substring(9, str.indexOf('('));
-  }
-  return fn.name;
-}
+
 
 /**
  * Gets the value of a static property in the given class. The value will be
@@ -278,20 +231,7 @@ function getFunctionName(fn) {
  *     will be the first truthy value among ancestors.
  * @return {Object}
  */
-function getStaticProperty(ctor, propertyName) {
-  var mergeFn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : getFirstTruthy_;
 
-  var mergedName = propertyName + '_MERGED';
-  if (!ctor.hasOwnProperty(mergedName)) {
-    // eslint-disable-next-line
-    var merged = ctor.hasOwnProperty(propertyName) ? ctor[propertyName] : null;
-    if (ctor.__proto__ && !ctor.__proto__.isPrototypeOf(Function)) {
-      merged = mergeFn(merged, getStaticProperty(ctor.__proto__, propertyName, mergeFn));
-    }
-    ctor[mergedName] = merged;
-  }
-  return ctor[mergedName];
-}
 
 /**
  * Gets an unique id. If `object` argument is passed, the object is
@@ -305,34 +245,21 @@ function getStaticProperty(ctor, propertyName) {
  * @throws {Error} when invoked to indicate the method should be overridden.
  * @return {number}
  */
-function getUid(object, noInheritance) {
-  if (object) {
-    var id = object[UID_PROPERTY];
-    if (noInheritance && !object.hasOwnProperty(UID_PROPERTY)) {
-      id = null;
-    }
-    return id || (object[UID_PROPERTY] = uniqueIdCounter_++);
-  }
-  return uniqueIdCounter_++;
-}
+
 
 /**
  * The identity function. Returns its first argument.
  * @param {*=} returnValue The single value that will be returned.
  * @return {?} The first argument.
  */
-function identityFunction(returnValue) {
-  return returnValue;
-}
+
 
 /**
  * Returns true if the specified value is a boolean.
  * @param {?} val Variable to test.
  * @return {boolean} Whether variable is boolean.
  */
-function isBoolean(val) {
-  return typeof val === 'boolean';
-}
+
 
 /**
  * Returns true if the specified value is not undefined.
@@ -366,18 +293,14 @@ function isDocument(val) {
  * @param {*} val
  * @return {boolean}
  */
-function isDocumentFragment(val) {
-  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 11;
-}
+
 
 /**
  * Returns true if value is a dom element.
  * @param {*} val
  * @return {boolean}
  */
-function isElement(val) {
-  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 1;
-}
+
 
 /**
  * Returns true if the specified value is a function.
@@ -402,18 +325,14 @@ function isNull(val) {
  * @param {?} val Variable to test.
  * @return {boolean} Whether variable is a number.
  */
-function isNumber(val) {
-  return typeof val === 'number';
-}
+
 
 /**
  * Returns true if value is a window.
  * @param {*} val
  * @return {boolean}
  */
-function isWindow(val) {
-  return val !== null && val === val.window;
-}
+
 
 /**
  * Returns true if the specified value is an object. This includes arrays
@@ -431,9 +350,7 @@ function isObject(val) {
  * @param {*} val
  * @return {boolean}
  */
-function isPromise(val) {
-  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && typeof val.then === 'function';
-}
+
 
 /**
  * Returns true if value is a string.
@@ -466,36 +383,6 @@ function isServerSide() {
  * Null function used for default values of callbacks, etc.
  * @return {void} Nothing.
  */
-function nullFunction() {}
-
-
-
-var core$2 = Object.freeze({
-	UID_PROPERTY: UID_PROPERTY,
-	abstractMethod: abstractMethod,
-	disableCompatibilityMode: disableCompatibilityMode,
-	enableCompatibilityMode: enableCompatibilityMode,
-	getCompatibilityModeData: getCompatibilityModeData,
-	getFunctionName: getFunctionName,
-	getStaticProperty: getStaticProperty,
-	getUid: getUid,
-	identityFunction: identityFunction,
-	isBoolean: isBoolean,
-	isDef: isDef,
-	isDefAndNotNull: isDefAndNotNull,
-	isDocument: isDocument,
-	isDocumentFragment: isDocumentFragment,
-	isElement: isElement,
-	isFunction: isFunction,
-	isNull: isNull,
-	isNumber: isNumber,
-	isWindow: isWindow,
-	isObject: isObject,
-	isPromise: isPromise,
-	isString: isString,
-	isServerSide: isServerSide,
-	nullFunction: nullFunction
-});
 
 // This file exists just for backwards compatibility, making sure that old
 // default imports for this file still work. It's best to use the named exports
@@ -2242,7 +2129,8 @@ function addClassesWithNative_(element, classes) {
 }
 
 /**
- * Adds the requested CSS classes to an element without using classList.
+ * IE11 doesn't support Element.classList.add function, this method
+ * adds the requested CSS classes to an element without using classList.
  * @param {!Element} element The element to add CSS classes to.
  * @param {string} classes CSS classes to add.
  * @private
@@ -2323,7 +2211,8 @@ function attachDelegateEvent_(element, eventName) {
 }
 
 /**
- * Gets the closest element up the tree from the given element (including
+ * IE11 doesn't support Element.closest function, this method
+ * gets the closest element up the tree from the given element (including
  * itself) that matches the specified selector, or null if none match.
  * @param {Element} element
  * @param {string} selector
@@ -2337,7 +2226,8 @@ function closest(element, selector) {
 }
 
 /**
- * Appends a child node with text or other nodes to a parent node. If
+ * IE11 doesn't support Element.classList.add function, this method
+ * appends a child node with text or other nodes to a parent node. If
  * child is a HTML string it will be automatically converted to a document
  * fragment before appending it to the parent.
  * @param {!Element} parent The node to append nodes to.
@@ -2378,6 +2268,7 @@ function buildFragment(htmlString) {
 
 /**
  * Checks if the first element contains the second one.
+ * @deprecated Use element1.contains(element2) directly instead of this method
  * @param {!Element} element1
  * @param {!Element} element2
  * @return {boolean}
@@ -2518,7 +2409,8 @@ function handleDelegateEvent_(event) {
 
 
 /**
- * Check if an element matches a given selector.
+ * IE11 doesn't support Element.matches function, this method
+ * check if an element matches a given selector.
  * @param {Element} element
  * @param {string} selector
  * @return {boolean}
@@ -2607,6 +2499,7 @@ function on(element, eventName, callback, capture) {
 }
 
 /**
+ * IE11 doesn't support once event listener option, this method
  * Listens to the specified event on the given DOM element once. This
  * function normalizes DOM event payloads and functions so they'll work the
  * same way on all supported browsers.
@@ -2636,7 +2529,8 @@ function parent(element, selector) {
 }
 
 /**
- * Inserts a node before first child of the parent. If child is a HTML string
+ * IE11 doesn't support Element.prepend function, this method
+ * inserts a node before first child of the parent. If child is a HTML string
  * it will be converted to document fragment before prepending it to the parent.
  * @param {!Element} parent The node to prepend to.
  * @param {!(Element|NodeList|string)} child The thing to prepend to the parent.
@@ -2703,7 +2597,8 @@ function removeClassesWithNative_(element, classes) {
 }
 
 /**
- * Removes the requested CSS classes from an element without using classList.
+ * IE11 doesn't support Element.classList, this method
+ * removes the requested CSS classes from an element without using classList.
  * @param {!Element} element The element to remove CSS classes from.
  * @param {string} classes CSS classes to remove.
  * @private
@@ -2722,6 +2617,8 @@ function removeClassesWithoutNative_(element, classes) {
 
 /**
  * Replaces the first element with the second.
+ * @deprecated Use element1.parentNode.replaceChild(element2, element1)
+ * directly instead of this method
  * @param {Element} element1
  * @param {Element} element2
  */
@@ -3064,7 +2961,7 @@ var features = function () {
 		}
 
 		/**
-   * Some browsers (like IE9) change the order of element attributes, when html
+   * Some browsers (like IE11, Edge) change the order of element attributes, when html
    * is rendered. This method can be used to check if this behavior happens on
    * the current browser.
    * @return {boolean}
@@ -3292,12 +3189,12 @@ var globalEvalStyles = function () {
 			var callback = function callback() {
 				defaultFn && defaultFn();
 			};
-			if (style.rel && style.rel !== 'stylesheet') {
+			if (style.rel && style.rel !== 'stylesheet' && style.rel !== 'canonical' && style.rel !== 'alternate') {
 				async.nextTick(callback);
 				return;
 			}
 
-			if (style.tagName === 'STYLE') {
+			if (style.tagName === 'STYLE' || style.rel === 'canonical' || style.rel === 'alternate') {
 				async.nextTick(callback);
 			} else {
 				once(style, 'load', callback);
@@ -3404,6 +3301,988 @@ if (typeof document !== 'undefined') {
 }
 
 /**
+ * A collection of core utility functions.
+ * @const
+ */
+
+var compatibilityModeData_$1 = void 0;
+
+/**
+ * Counter for unique id.
+ * @type {Number}
+ * @private
+ */
+var uniqueIdCounter_$1 = 1;
+
+/**
+ * Unique id property prefix.
+ * @type {String}
+ * @protected
+ */
+var UID_PROPERTY$1 = 'core_' + (Math.random() * 1e9 >>> 0);
+
+/**
+ * When defining a class Foo with an abstract method bar(), you can do:
+ * Foo.prototype.bar = abstractMethod
+ *
+ * Now if a subclass of Foo fails to override bar(), an error will be thrown
+ * when bar() is invoked.
+ *
+ * @type {!Function}
+ * @throws {Error} when invoked to indicate the method should be overridden.
+ */
+function abstractMethod$1() {
+  throw Error('Unimplemented abstract method');
+}
+
+/**
+ * Disables Metal.js's compatibility mode.
+ */
+function disableCompatibilityMode$1() {
+  compatibilityModeData_$1 = undefined;
+}
+
+/**
+ * Enables Metal.js's compatibility mode with the following features from rc
+ * and 1.x versions:
+ *     - Using "key" to reference component instances. In the current version
+ *       this should be done via "ref" instead. This allows old code still
+ *       using "key" to keep working like before. NOTE: this may cause
+ *       problems, since "key" is meant to be used differently. Only use this
+ *       if it's not possible to upgrade the code to use "ref" instead.
+ * @param {Object=} data Optional object with data to specify more
+ *     details, such as:
+ *         - renderers {Array} the template renderers that should be in
+ *           compatibility mode, either their constructors or strings
+ *           representing them (e.g. 'soy' or 'jsx'). By default, all the ones
+ *           that extend from IncrementalDomRenderer.
+ * @type {Object}
+ */
+function enableCompatibilityMode$1() {
+  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  compatibilityModeData_$1 = data;
+}
+
+/**
+ * Returns the data used for compatibility mode, or nothing if it hasn't been
+ * enabled.
+ * @return {Object}
+ */
+function getCompatibilityModeData$1() {
+  // Compatibility mode can be set via the __METAL_COMPATIBILITY__ global var.
+  if (compatibilityModeData_$1 === undefined) {
+    if (typeof window !== 'undefined' && window.__METAL_COMPATIBILITY__) {
+      enableCompatibilityMode$1(window.__METAL_COMPATIBILITY__);
+    }
+  }
+  return compatibilityModeData_$1;
+}
+
+/**
+ * Returns the first argument if it's truthy, or the second otherwise.
+ * @param {*} a
+ * @param {*} b
+ * @return {*}
+ * @protected
+ */
+function getFirstTruthy_$1(a, b) {
+  return a || b;
+}
+
+/**
+ * Gets the name of the given function. If the current browser doesn't
+ * support the `name` property, this will calculate it from the function's
+ * content string.
+ * @param {!function()} fn
+ * @return {string}
+ */
+function getFunctionName$1(fn) {
+  if (!fn.name) {
+    var str = fn.toString();
+    fn.name = str.substring(9, str.indexOf('('));
+  }
+  return fn.name;
+}
+
+/**
+ * Gets the value of a static property in the given class. The value will be
+ * inherited from ancestors as expected, unless a custom merge function is given,
+ * which can change how the super classes' value for that property will be merged
+ * together.
+ * The final merged value will be stored in another property, so that it won't
+ * be recalculated even if this function is called multiple times.
+ * @param {!function()} ctor Class constructor.
+ * @param {string} propertyName Property name to be merged.
+ * @param {function(*, *):*=} mergeFn Function that receives the merged
+ *     value of the property so far and the next value to be merged to it.
+ *     Should return these two merged together. If not passed the final property
+ *     will be the first truthy value among ancestors.
+ * @return {Object}
+ */
+function getStaticProperty$1(ctor, propertyName) {
+  var mergeFn = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : getFirstTruthy_$1;
+
+  var mergedName = propertyName + '_MERGED';
+  if (!ctor.hasOwnProperty(mergedName)) {
+    // eslint-disable-next-line
+    var merged = ctor.hasOwnProperty(propertyName) ? ctor[propertyName] : null;
+    if (ctor.__proto__ && !ctor.__proto__.isPrototypeOf(Function)) {
+      merged = mergeFn(merged, getStaticProperty$1(ctor.__proto__, propertyName, mergeFn));
+    }
+    ctor[mergedName] = merged;
+  }
+  return ctor[mergedName];
+}
+
+/**
+ * Gets an unique id. If `object` argument is passed, the object is
+ * mutated with an unique id. Consecutive calls with the same object
+ * reference won't mutate the object again, instead the current object uid
+ * returns. See {@link UID_PROPERTY}.
+ * @param {Object=} object Optional object to be mutated with the uid. If
+ *     not specified this method only returns the uid.
+ * @param {boolean=} noInheritance Optional flag indicating if this
+ *     object's uid property can be inherited from parents or not.
+ * @throws {Error} when invoked to indicate the method should be overridden.
+ * @return {number}
+ */
+function getUid$1(object, noInheritance) {
+  if (object) {
+    var id = object[UID_PROPERTY$1];
+    if (noInheritance && !object.hasOwnProperty(UID_PROPERTY$1)) {
+      id = null;
+    }
+    return id || (object[UID_PROPERTY$1] = uniqueIdCounter_$1++);
+  }
+  return uniqueIdCounter_$1++;
+}
+
+/**
+ * The identity function. Returns its first argument.
+ * @param {*=} returnValue The single value that will be returned.
+ * @return {?} The first argument.
+ */
+function identityFunction$1(returnValue) {
+  return returnValue;
+}
+
+/**
+ * Returns true if the specified value is a boolean.
+ * @param {?} val Variable to test.
+ * @return {boolean} Whether variable is boolean.
+ */
+function isBoolean$1(val) {
+  return typeof val === 'boolean';
+}
+
+/**
+ * Returns true if the specified value is not undefined.
+ * @param {?} val Variable to test.
+ * @return {boolean} Whether variable is defined.
+ */
+function isDef$1(val) {
+  return val !== undefined;
+}
+
+/**
+ * Returns true if value is not undefined or null.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isDefAndNotNull$1(val) {
+  return isDef$1(val) && !isNull$1(val);
+}
+
+/**
+ * Returns true if value is a document.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isDocument$1(val) {
+  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 9;
+}
+
+/**
+ * Returns true if value is a document-fragment.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isDocumentFragment$1(val) {
+  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 11;
+}
+
+/**
+ * Returns true if value is a dom element.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isElement$1(val) {
+  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && val.nodeType === 1;
+}
+
+/**
+ * Returns true if the specified value is a function.
+ * @param {?} val Variable to test.
+ * @return {boolean} Whether variable is a function.
+ */
+function isFunction$1(val) {
+  return typeof val === 'function';
+}
+
+/**
+ * Returns true if value is null.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isNull$1(val) {
+  return val === null;
+}
+
+/**
+ * Returns true if the specified value is a number.
+ * @param {?} val Variable to test.
+ * @return {boolean} Whether variable is a number.
+ */
+function isNumber$1(val) {
+  return typeof val === 'number';
+}
+
+/**
+ * Returns true if value is a window.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isWindow$1(val) {
+  return val !== null && val === val.window;
+}
+
+/**
+ * Returns true if the specified value is an object. This includes arrays
+ * and functions.
+ * @param {?} val Variable to test.
+ * @return {boolean} Whether variable is an object.
+ */
+function isObject$1(val) {
+  var type = typeof val === 'undefined' ? 'undefined' : _typeof(val);
+  return type === 'object' && val !== null || type === 'function';
+}
+
+/**
+ * Returns true if value is a Promise.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isPromise$1(val) {
+  return val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object' && typeof val.then === 'function';
+}
+
+/**
+ * Returns true if value is a string.
+ * @param {*} val
+ * @return {boolean}
+ */
+function isString$1(val) {
+  return typeof val === 'string' || val instanceof String;
+}
+
+/**
+ * Sets to true if running inside Node.js environment with extra check for
+ * `process.browser` to skip Karma runner environment. Karma environment has
+ * `process` defined even though it runs on the browser.
+ * @param {?Object} options Contains `checkEnv` property which if true, checks
+ * the NODE_ENV variable. If NODE_ENV equals 'test', the function returns false.
+ * @return {boolean}
+ */
+function isServerSide$1() {
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { checkEnv: true };
+
+  var serverSide = typeof process !== 'undefined' && !process.browser;
+  if (serverSide && options.checkEnv) {
+    serverSide = typeof process.env !== 'undefined' && process.env.NODE_ENV !== 'test';
+  }
+  return serverSide;
+}
+
+/**
+ * Null function used for default values of callbacks, etc.
+ * @return {void} Nothing.
+ */
+function nullFunction$1() {}
+
+
+
+var core$4 = Object.freeze({
+	UID_PROPERTY: UID_PROPERTY$1,
+	abstractMethod: abstractMethod$1,
+	disableCompatibilityMode: disableCompatibilityMode$1,
+	enableCompatibilityMode: enableCompatibilityMode$1,
+	getCompatibilityModeData: getCompatibilityModeData$1,
+	getFunctionName: getFunctionName$1,
+	getStaticProperty: getStaticProperty$1,
+	getUid: getUid$1,
+	identityFunction: identityFunction$1,
+	isBoolean: isBoolean$1,
+	isDef: isDef$1,
+	isDefAndNotNull: isDefAndNotNull$1,
+	isDocument: isDocument$1,
+	isDocumentFragment: isDocumentFragment$1,
+	isElement: isElement$1,
+	isFunction: isFunction$1,
+	isNull: isNull$1,
+	isNumber: isNumber$1,
+	isWindow: isWindow$1,
+	isObject: isObject$1,
+	isPromise: isPromise$1,
+	isString: isString$1,
+	isServerSide: isServerSide$1,
+	nullFunction: nullFunction$1
+});
+
+// This file exists just for backwards compatibility, making sure that old
+// default imports for this file still work. It's best to use the named exports
+// for each function instead though, since that allows bundlers like Rollup to
+// reduce the bundle size by removing unused code.
+
+/**
+ * Set of utilities for array operations
+ */
+
+var array$2 = function () {
+	function array() {
+		classCallCheck(this, array);
+	}
+
+	createClass(array, null, [{
+		key: 'equal',
+
+		/**
+   * Checks if the given arrays have the same content.
+   * @param {!Array<*>} arr1
+   * @param {!Array<*>} arr2
+   * @return {boolean}
+   */
+		value: function equal(arr1, arr2) {
+			if (arr1 === arr2) {
+				return true;
+			}
+			if (arr1.length !== arr2.length) {
+				return false;
+			}
+			for (var i = 0; i < arr1.length; i++) {
+				if (arr1[i] !== arr2[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/**
+   * Returns the first value in the given array that isn't undefined.
+   * @param {!Array} arr
+   * @return {*}
+   */
+
+	}, {
+		key: 'firstDefinedValue',
+		value: function firstDefinedValue(arr) {
+			for (var i = 0; i < arr.length; i++) {
+				if (arr[i] !== undefined) {
+					return arr[i];
+				}
+			}
+		}
+
+		/**
+   * Transforms the input nested array to become flat.
+   * @param {Array.<*|Array.<*>>} arr Nested array to flatten.
+   * @param {Array.<*>=} output Optional output array.
+   * @return {Array.<*>} Flat array.
+   */
+
+	}, {
+		key: 'flatten',
+		value: function flatten(arr) {
+			var output = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+			for (var i = 0; i < arr.length; i++) {
+				if (Array.isArray(arr[i])) {
+					array.flatten(arr[i], output);
+				} else {
+					output.push(arr[i]);
+				}
+			}
+			return output;
+		}
+
+		/**
+   * Removes the first occurrence of a particular value from an array.
+   * @param {Array.<T>} arr Array from which to remove value.
+   * @param {T} obj Object to remove.
+   * @return {boolean} True if an element was removed.
+   * @template T
+   */
+
+	}, {
+		key: 'remove',
+		value: function remove(arr, obj) {
+			var i = arr.indexOf(obj);
+			var rv = void 0;
+			if (rv = i >= 0) {
+				array.removeAt(arr, i);
+			}
+			return rv;
+		}
+
+		/**
+   * Removes from an array the element at index i
+   * @param {Array} arr Array or array like object from which to remove value.
+   * @param {number} i The index to remove.
+   * @return {boolean} True if an element was removed.
+   */
+
+	}, {
+		key: 'removeAt',
+		value: function removeAt(arr, i) {
+			return Array.prototype.splice.call(arr, i, 1).length === 1;
+		}
+
+		/**
+   * Slices the given array, just like Array.prototype.slice, but this
+   * is faster and working on all array-like objects (like arguments).
+   * @param {!Object} arr Array-like object to slice.
+   * @param {number} start The index that should start the slice.
+   * @param {number=} end The index where the slice should end, not
+   *   included in the final array. If not given, all elements after the
+   *   start index will be included.
+   * @return {!Array}
+   */
+
+	}, {
+		key: 'slice',
+		value: function slice(arr, start) {
+			var end = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : arr.length;
+
+			var sliced = [];
+			for (var i = start; i < end; i++) {
+				sliced.push(arr[i]);
+			}
+			return sliced;
+		}
+	}]);
+	return array;
+}();
+
+/* !
+ * Polyfill from Google's Closure Library.
+ * Copyright 2013 The Closure Library Authors. All Rights Reserved.
+ */
+
+var async$2 = {};
+
+/**
+ * Throw an item without interrupting the current execution context.  For
+ * example, if processing a group of items in a loop, sometimes it is useful
+ * to report an error while still allowing the rest of the batch to be
+ * processed.
+ * @param {*} exception
+ */
+async$2.throwException = function (exception) {
+	// Each throw needs to be in its own context.
+	async$2.nextTick(function () {
+		throw exception;
+	});
+};
+
+/**
+ * Fires the provided callback just before the current callstack unwinds, or as
+ * soon as possible after the current JS execution context.
+ * @param {function(this:THIS)} callback
+ * @param {THIS=} context Object to use as the "this value" when calling
+ *     the provided function.
+ * @template THIS
+ */
+async$2.run = function (callback, context) {
+	if (!async$2.run.workQueueScheduled_) {
+		// Nothing is currently scheduled, schedule it now.
+		async$2.nextTick(async$2.run.processWorkQueue);
+		async$2.run.workQueueScheduled_ = true;
+	}
+
+	async$2.run.workQueue_.push(new async$2.run.WorkItem_(callback, context));
+};
+
+/** @private {boolean} */
+async$2.run.workQueueScheduled_ = false;
+
+/** @private {!Array.<!async.run.WorkItem_>} */
+async$2.run.workQueue_ = [];
+
+/**
+ * Run any pending async.run work items. This function is not intended
+ * for general use, but for use by entry point handlers to run items ahead of
+ * async.nextTick.
+ */
+async$2.run.processWorkQueue = function () {
+	// NOTE: additional work queue items may be pushed while processing.
+	while (async$2.run.workQueue_.length) {
+		// Don't let the work queue grow indefinitely.
+		var workItems = async$2.run.workQueue_;
+		async$2.run.workQueue_ = [];
+		for (var i = 0; i < workItems.length; i++) {
+			var workItem = workItems[i];
+			try {
+				workItem.fn.call(workItem.scope);
+			} catch (e) {
+				async$2.throwException(e);
+			}
+		}
+	}
+
+	// There are no more work items, reset the work queue.
+	async$2.run.workQueueScheduled_ = false;
+};
+
+/**
+ * @constructor
+ * @final
+ * @struct
+ * @private
+ *
+ * @param {function()} fn
+ * @param {Object|null|undefined} scope
+ */
+async$2.run.WorkItem_ = function (fn, scope) {
+	/** @const */
+	this.fn = fn;
+	/** @const */
+	this.scope = scope;
+};
+
+/**
+ * Fires the provided callbacks as soon as possible after the current JS
+ * execution context. setTimeout(…, 0) always takes at least 5ms for legacy
+ * reasons.
+ * @param {function(this:SCOPE)} callback Callback function to fire as soon as
+ *     possible.
+ * @param {SCOPE=} context Object in whose scope to call the listener.
+ * @template SCOPE
+ */
+async$2.nextTick = function (callback, context) {
+	var cb = callback;
+	if (context) {
+		cb = callback.bind(context);
+	}
+	cb = async$2.nextTick.wrapCallback_(cb);
+	// Look for and cache the custom fallback version of setImmediate.
+	if (!async$2.nextTick.setImmediate_) {
+		if (typeof setImmediate === 'function' && isServerSide$1({ checkEnv: false })) {
+			async$2.nextTick.setImmediate_ = setImmediate;
+		} else {
+			// eslint-disable-next-line
+			async$2.nextTick.setImmediate_ = async$2.nextTick.getSetImmediateEmulator_();
+		}
+	}
+	async$2.nextTick.setImmediate_(cb);
+};
+
+/**
+ * Cache for the setImmediate implementation.
+ * @type {function(function())}
+ * @private
+ */
+async$2.nextTick.setImmediate_ = null;
+
+/**
+ * Determines the best possible implementation to run a function as soon as
+ * the JS event loop is idle.
+ * @return {function(function())} The "setImmediate" implementation.
+ * @private
+ */
+async$2.nextTick.getSetImmediateEmulator_ = function () {
+	// Create a private message channel and use it to postMessage empty messages
+	// to ourselves.
+	var Channel = void 0;
+
+	// Verify if variable is defined on the current runtime (i.e., node, browser).
+	// Can't use typeof enclosed in a function (such as core.isFunction) or an
+	// exception will be thrown when the function is called on an environment
+	// where the variable is undefined.
+	if (typeof MessageChannel === 'function') {
+		Channel = MessageChannel;
+	}
+
+	// If MessageChannel is not available and we are in a browser, implement
+	// an iframe based polyfill in browsers that have postMessage and
+	// document.addEventListener. The latter excludes IE8 because it has a
+	// synchronous postMessage implementation.
+	if (typeof Channel === 'undefined' && typeof window !== 'undefined' && window.postMessage && window.addEventListener) {
+		/** @constructor */
+		Channel = function Channel() {
+			// Make an empty, invisible iframe.
+			var iframe = document.createElement('iframe');
+			iframe.style.display = 'none';
+			iframe.src = '';
+			iframe.title = '';
+			document.documentElement.appendChild(iframe);
+			var win = iframe.contentWindow;
+			var doc = win.document;
+			doc.open();
+			doc.write('');
+			doc.close();
+			var message = 'callImmediate' + Math.random();
+			var origin = win.location.protocol + '//' + win.location.host;
+			var onmessage = function (e) {
+				// Validate origin and message to make sure that this message was
+				// intended for us.
+				if (e.origin !== origin && e.data !== message) {
+					return;
+				}
+				this.port1.onmessage();
+			}.bind(this);
+			win.addEventListener('message', onmessage, false);
+			this.port1 = {};
+			this.port2 = {
+				postMessage: function postMessage() {
+					win.postMessage(message, origin);
+				}
+			};
+		};
+	}
+	if (typeof Channel !== 'undefined') {
+		var channel = new Channel();
+		// Use a fifo linked list to call callbacks in the right order.
+		var head = {};
+		var tail = head;
+		channel.port1.onmessage = function () {
+			head = head.next;
+			var cb = head.cb;
+			head.cb = null;
+			cb();
+		};
+		return function (cb) {
+			tail.next = {
+				cb: cb
+			};
+			tail = tail.next;
+			channel.port2.postMessage(0);
+		};
+	}
+	// Implementation for IE6-8: Script elements fire an asynchronous
+	// onreadystatechange event when inserted into the DOM.
+	if (typeof document !== 'undefined' && 'onreadystatechange' in document.createElement('script')) {
+		return function (cb) {
+			var script = document.createElement('script');
+			script.onreadystatechange = function () {
+				// Clean up and call the callback.
+				script.onreadystatechange = null;
+				script.parentNode.removeChild(script);
+				script = null;
+				cb();
+				cb = null;
+			};
+			document.documentElement.appendChild(script);
+		};
+	}
+	// Fall back to setTimeout with 0. In browsers this creates a delay of 5ms
+	// or more.
+	return function (cb) {
+		setTimeout(cb, 0);
+	};
+};
+
+/**
+ * Helper function that is overrided to protect callbacks with entry point
+ * monitor if the application monitors entry points.
+ * @param {function()} callback Callback function to fire as soon as possible.
+ * @return {function()} The wrapped callback.
+ * @private
+ */
+async$2.nextTick.wrapCallback_ = function (callback) {
+	return callback;
+};
+
+/**
+ * Disposable utility. When inherited provides the `dispose` function to its
+ * subclass, which is responsible for disposing of any object references
+ * when an instance won't be used anymore. Subclasses should override
+ * `disposeInternal` to implement any specific disposing logic.
+ * @constructor
+ */
+
+var Disposable$2 = function () {
+	/**
+  * Disposable constructor
+  */
+	function Disposable() {
+		classCallCheck(this, Disposable);
+
+		/**
+   * Flag indicating if this instance has already been disposed.
+   * @type {boolean}
+   * @protected
+   */
+		this.disposed_ = false;
+	}
+
+	/**
+  * Disposes of this instance's object references. Calls `disposeInternal`.
+  */
+
+
+	createClass(Disposable, [{
+		key: 'dispose',
+		value: function dispose() {
+			if (!this.disposed_) {
+				this.disposeInternal();
+				this.disposed_ = true;
+			}
+		}
+
+		/**
+   * Subclasses should override this method to implement any specific
+   * disposing logic (like clearing references and calling `dispose` on other
+   * disposables).
+   */
+
+	}, {
+		key: 'disposeInternal',
+		value: function disposeInternal() {}
+
+		/**
+   * Checks if this instance has already been disposed.
+   * @return {boolean}
+   */
+
+	}, {
+		key: 'isDisposed',
+		value: function isDisposed() {
+			return this.disposed_;
+		}
+	}]);
+	return Disposable;
+}();
+
+/**
+ * Set of utilities for object operations
+ */
+
+var object$2 = function () {
+	function object() {
+		classCallCheck(this, object);
+	}
+
+	createClass(object, null, [{
+		key: 'mixin',
+
+		/**
+   * Copies all the members of a source object to a target object.
+   * @param {Object} target Target object.
+   * @param {...Object} var_args The objects from which values will be copied.
+   * @return {Object} Returns the target object reference.
+   */
+		value: function mixin(target) {
+			var key = void 0;
+			var source = void 0;
+
+			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				args[_key - 1] = arguments[_key];
+			}
+
+			for (var i = 0; i < args.length; i++) {
+				source = args[i];
+				// Possible prototype chain leak, breaks 1 metal-dom and
+				// 1 metal-incremental-dom test if guard-for-in rule is addressed
+				// eslint-disable-next-line
+				for (key in source) {
+					target[key] = source[key];
+				}
+			}
+			return target;
+		}
+
+		/**
+   * Returns an object based on its fully qualified external name.
+   * @param {string} name The fully qualified name.
+   * @param {object=} scope The object within which to look; default is
+   *     <code>window</code>.
+   * @return {?} The value (object or primitive) or, if not found, undefined.
+   */
+
+	}, {
+		key: 'getObjectByName',
+		value: function getObjectByName(name) {
+			var scope = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
+
+			var parts = name.split('.');
+			return parts.reduce(function (part, key) {
+				return part[key];
+			}, scope);
+		}
+
+		/**
+   * Returns a new object with the same keys as the given one, but with
+   * their values set to the return values of the specified function.
+   * @param {!Object} obj
+   * @param {!function(string, *)} fn
+   * @return {!Object}
+   */
+
+	}, {
+		key: 'map',
+		value: function map(obj, fn) {
+			var mappedObj = {};
+			var keys = Object.keys(obj);
+			for (var i = 0; i < keys.length; i++) {
+				mappedObj[keys[i]] = fn(keys[i], obj[keys[i]]);
+			}
+			return mappedObj;
+		}
+
+		/**
+   * Checks if the two given objects are equal. This is done via a shallow
+   * check, including only the keys directly contained by the 2 objects.
+   * @param {Object} obj1
+   * @param {Object} obj2
+   * @return {boolean}
+   */
+
+	}, {
+		key: 'shallowEqual',
+		value: function shallowEqual(obj1, obj2) {
+			if (obj1 === obj2) {
+				return true;
+			}
+
+			var keys1 = Object.keys(obj1);
+			var keys2 = Object.keys(obj2);
+			if (keys1.length !== keys2.length) {
+				return false;
+			}
+
+			for (var i = 0; i < keys1.length; i++) {
+				if (obj1[keys1[i]] !== obj2[keys1[i]]) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}]);
+	return object;
+}();
+
+/**
+ * Set of utilities for string operations
+ */
+
+var string$2 = function () {
+	function string() {
+		classCallCheck(this, string);
+	}
+
+	createClass(string, null, [{
+		key: 'caseInsensitiveCompare',
+
+		/**
+   * Compares the given strings without taking the case into account.
+   * @param {string|number} str1
+   * @param {string|number} str2
+   * @return {number} Either -1, 0 or 1, according to if the first string is
+   *     "smaller", equal or "bigger" than the second given string.
+   */
+		value: function caseInsensitiveCompare(str1, str2) {
+			var test1 = String(str1).toLowerCase();
+			var test2 = String(str2).toLowerCase();
+
+			if (test1 < test2) {
+				return -1;
+			} else if (test1 === test2) {
+				return 0;
+			} else {
+				return 1;
+			}
+		}
+
+		/**
+   * Removes the breaking spaces from the left and right of the string and
+   * collapses the sequences of breaking spaces in the middle into single spaces.
+   * The original and the result strings render the same way in HTML.
+   * @param {string} str A string in which to collapse spaces.
+   * @return {string} Copy of the string with normalized breaking spaces.
+   */
+
+	}, {
+		key: 'collapseBreakingSpaces',
+		value: function collapseBreakingSpaces(str) {
+			return str.replace(/[\t\r\n ]+/g, ' ').replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, '');
+		}
+
+		/**
+   * Escapes characters in the string that are not safe to use in a RegExp.
+   * @param {*} str The string to escape. If not a string, it will be casted
+   *     to one.
+   * @return {string} A RegExp safe, escaped copy of {@code s}.
+   */
+
+	}, {
+		key: 'escapeRegex',
+		value: function escapeRegex(str) {
+			return String(str).replace(/([-()[\]{}+?*.$^|,:#<!\\])/g, '\\$1').replace(/\x08/g, '\\x08'); // eslint-disable-line
+		}
+
+		/**
+   * Returns a string with at least 64-bits of randomness.
+   * @return {string} A random string, e.g. sn1s7vb4gcic.
+   */
+
+	}, {
+		key: 'getRandomString',
+		value: function getRandomString() {
+			var x = 2147483648;
+			return Math.floor(Math.random() * x).toString(36) + Math.abs(Math.floor(Math.random() * x) ^ Date.now()).toString(36);
+		}
+
+		/**
+   * Calculates the hashcode for a string. The hashcode value is computed by
+   * the sum algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]. A nice
+   * property of using 31 prime is that the multiplication can be replaced by
+   * a shift and a subtraction for better performance: 31*i == (i<<5)-i.
+   * Modern VMs do this sort of optimization automatically.
+   * @param {String} val Target string.
+   * @return {Number} Returns the string hashcode.
+   */
+
+	}, {
+		key: 'hashCode',
+		value: function hashCode(val) {
+			var hash = 0;
+			for (var i = 0, len = val.length; i < len; i++) {
+				hash = 31 * hash + val.charCodeAt(i);
+				hash %= 0x100000000;
+			}
+			return hash;
+		}
+
+		/**
+   * Replaces interval into the string with specified value, e.g.
+   * `replaceInterval("abcde", 1, 4, "")` returns "ae".
+   * @param {string} str The input string.
+   * @param {Number} start Start interval position to be replaced.
+   * @param {Number} end End interval position to be replaced.
+   * @param {string} value The value that replaces the specified interval.
+   * @return {string}
+   */
+
+	}, {
+		key: 'replaceInterval',
+		value: function replaceInterval(str, start, end, value) {
+			return str.substring(0, start) + value + str.substring(end);
+		}
+	}]);
+	return string;
+}();
+
+/**
  * Parses the given uri string into an object.
  * @param {*=} opt_uri Optional string URI to parse
  */
@@ -3434,7 +4313,7 @@ function parseFromAnchor(opt_uri) {
  * @param {*=} opt_uri Optional string URI to parse
  */
 function parse(opt_uri) {
-	if (isFunction(URL) && URL.length) {
+	if (isFunction$1(URL) && URL.length) {
 		var url = new URL(opt_uri);
 
 		// Safari Browsers will cap port to the max 16-bit unsigned integer (65535) instead
@@ -3651,7 +4530,7 @@ var MultiMap = function (_Disposable) {
 		}
 	}]);
 	return MultiMap;
-}(Disposable);
+}(Disposable$2);
 
 /**
  * Generic tree node data structure with arbitrary number of child nodes.
@@ -3836,7 +4715,7 @@ var TreeNode = function () {
 	}, {
 		key: 'removeChild',
 		value: function removeChild(child) {
-			if (array.remove(this.getChildren(), child)) {
+			if (array$2.remove(this.getChildren(), child)) {
 				return child;
 			}
 			return null;
@@ -3970,7 +4849,7 @@ var Uri = function () {
 		key: 'addParameterValue',
 		value: function addParameterValue(name, value) {
 			this.ensureQueryInitialized_();
-			if (isDef(value)) {
+			if (isDef$1(value)) {
 				value = String(value);
 			}
 			this.query.add(name, value);
@@ -4018,7 +4897,7 @@ var Uri = function () {
 					    key = _param$split2[0],
 					    value = _param$split2[1];
 
-					if (isDef(value)) {
+					if (isDef$1(value)) {
 						value = Uri.urlDecode(value);
 					}
 					_this3.addParameterValue(key, value);
@@ -4184,7 +5063,7 @@ var Uri = function () {
 			this.getParameterNames().forEach(function (name) {
 				_this4.getParameterValues(name).forEach(function (value) {
 					querystring += name;
-					if (isDef(value)) {
+					if (isDef$1(value)) {
 						querystring += '=' + encodeURIComponent(value);
 					}
 					querystring += '&';
@@ -4218,7 +5097,7 @@ var Uri = function () {
 	}, {
 		key: 'makeUnique',
 		value: function makeUnique() {
-			this.setParameterValue(Uri.RANDOM_PARAM, string.getRandomString());
+			this.setParameterValue(Uri.RANDOM_PARAM, string$2.getRandomString());
 			return this;
 		}
 
@@ -4751,6 +5630,894 @@ var dataAttributes = {
 	updateScrollPosition: 'data-senna-update-scroll-position'
 };
 
+/**
+ * EventHandle utility. Holds information about an event subscription, and
+ * allows removing them easily.
+ * EventHandle is a Disposable, but it's important to note that the
+ * EventEmitter that created it is not the one responsible for disposing it.
+ * That responsibility is for the code that holds a reference to it.
+ * @extends {Disposable}
+ */
+
+var EventHandle$2 = function (_Disposable) {
+	inherits(EventHandle, _Disposable);
+
+	/**
+  * EventHandle constructor
+  * @param {!EventEmitter} emitter Emitter the event was subscribed to.
+  * @param {string} event The name of the event that was subscribed to.
+  * @param {!Function} listener The listener subscribed to the event.
+  */
+	function EventHandle(emitter, event, listener) {
+		classCallCheck(this, EventHandle);
+
+		/**
+   * The EventEmitter instance that the event was subscribed to.
+   * @type {EventEmitter}
+   * @protected
+   */
+		var _this = possibleConstructorReturn(this, (EventHandle.__proto__ || Object.getPrototypeOf(EventHandle)).call(this));
+
+		_this.emitter_ = emitter;
+
+		/**
+   * The name of the event that was subscribed to.
+   * @type {string}
+   * @protected
+   */
+		_this.event_ = event;
+
+		/**
+   * The listener subscribed to the event.
+   * @type {Function}
+   * @protected
+   */
+		_this.listener_ = listener;
+		return _this;
+	}
+
+	/**
+  * Disposes of this instance's object references.
+  * @override
+  */
+
+
+	createClass(EventHandle, [{
+		key: 'disposeInternal',
+		value: function disposeInternal() {
+			this.removeListener();
+			this.emitter_ = null;
+			this.listener_ = null;
+		}
+
+		/**
+   * Removes the listener subscription from the emitter.
+   */
+
+	}, {
+		key: 'removeListener',
+		value: function removeListener() {
+			if (!this.emitter_.isDisposed()) {
+				this.emitter_.removeListener(this.event_, this.listener_);
+			}
+		}
+	}]);
+	return EventHandle;
+}(Disposable$2);
+
+var singleArray_$1 = [0];
+
+/**
+ * EventEmitter utility.
+ * @extends {Disposable}
+ */
+
+var EventEmitter$4 = function (_Disposable) {
+	inherits(EventEmitter, _Disposable);
+
+	/**
+  * EventEmitter constructor
+  */
+	function EventEmitter() {
+		classCallCheck(this, EventEmitter);
+
+		/**
+   * Holds event listeners scoped by event type.
+   * @type {Object<string, !Array<!function()>>}
+   * @protected
+   */
+		var _this = possibleConstructorReturn(this, (EventEmitter.__proto__ || Object.getPrototypeOf(EventEmitter)).call(this));
+
+		_this.events_ = null;
+
+		/**
+   * Handlers that are triggered when an event is listened to.
+   * @type {Array}
+   */
+		_this.listenerHandlers_ = null;
+
+		/**
+   * Configuration option which determines if an event facade should be sent
+   * as a param of listeners when emitting events. If set to true, the facade
+   * will be passed as the first argument of the listener.
+   * @type {boolean}
+   * @protected
+   */
+		_this.shouldUseFacade_ = false;
+		return _this;
+	}
+
+	/**
+  * Adds a handler to given holder variable. If the holder doesn't have a
+  * value yet, it will receive the handler directly. If the holder is an array,
+  * the value will just be added to it. Otherwise, the holder will be set to a
+  * new array containing its previous value plus the new handler.
+  * @param {*} holder
+  * @param {!function()|Object} handler
+  * @return {*} The holder's new value.
+  * @protected
+  */
+
+
+	createClass(EventEmitter, [{
+		key: 'addHandler_',
+		value: function addHandler_(holder, handler) {
+			if (!holder) {
+				holder = handler;
+			} else {
+				if (!Array.isArray(holder)) {
+					holder = [holder];
+				}
+				holder.push(handler);
+			}
+			return holder;
+		}
+
+		/**
+   * Adds a listener to the end of the listeners array for the specified events.
+   * @param {!(Array|string)} event
+   * @param {!Function} listener
+   * @param {boolean} defaultListener Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+	}, {
+		key: 'addListener',
+		value: function addListener(event, listener, defaultListener) {
+			this.validateListener_(listener);
+
+			var events = this.toEventsArray_(event);
+			for (var i = 0; i < events.length; i++) {
+				this.addSingleListener_(events[i], listener, defaultListener);
+			}
+
+			return new EventHandle$2(this, event, listener);
+		}
+
+		/**
+   * Adds a listener to the end of the listeners array for a single event.
+   * @param {string} event
+   * @param {!Function} listener
+   * @param {boolean} defaultListener Flag indicating if this listener is a default
+   *   action for this event. Default actions are run last, and only if no previous
+   *   listener call `preventDefault()` on the received event facade.
+   * @param {Function=} origin The original function that was added as a
+   *   listener, if there is any.
+   * @protected
+   */
+
+	}, {
+		key: 'addSingleListener_',
+		value: function addSingleListener_(event, listener, defaultListener, origin) {
+			this.runListenerHandlers_(event);
+			if (defaultListener || origin) {
+				listener = {
+					default: defaultListener,
+					fn: listener,
+					origin: origin
+				};
+			}
+			this.events_ = this.events_ || {};
+			this.events_[event] = this.addHandler_(this.events_[event], listener);
+		}
+
+		/**
+   * Builds facade for the given event.
+   * @param {string} event
+   * @return {Object}
+   * @protected
+   */
+
+	}, {
+		key: 'buildFacade_',
+		value: function buildFacade_(event) {
+			if (this.getShouldUseFacade()) {
+				var facade = {
+					preventDefault: function preventDefault() {
+						facade.preventedDefault = true;
+					},
+					target: this,
+					type: event
+				};
+				return facade;
+			}
+		}
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+	}, {
+		key: 'disposeInternal',
+		value: function disposeInternal() {
+			this.events_ = null;
+		}
+
+		/**
+   * Execute each of the listeners in order with the supplied arguments.
+   * @param {string} event
+   * @param {*} opt_args [arg1], [arg2], [...]
+   * @return {boolean} Returns true if event had listeners, false otherwise.
+   */
+
+	}, {
+		key: 'emit',
+		value: function emit(event) {
+			var listeners = this.getRawListeners_(event);
+			if (listeners.length === 0) {
+				return false;
+			}
+
+			var args = array$2.slice(arguments, 1); // eslint-disable-line
+			this.runListeners_(listeners, args, this.buildFacade_(event));
+			return true;
+		}
+
+		/**
+   * Gets the listener objects for the given event, if there are any.
+   * @param {string} event
+   * @return {!Array}
+   * @protected
+   */
+
+	}, {
+		key: 'getRawListeners_',
+		value: function getRawListeners_(event) {
+			var directListeners = toArray$2(this.events_ && this.events_[event]);
+			return directListeners.concat(toArray$2(this.events_ && this.events_['*']));
+		}
+
+		/**
+   * Gets the configuration option which determines if an event facade should
+   * be sent as a param of listeners when emitting events. If set to true, the
+   * facade will be passed as the first argument of the listener.
+   * @return {boolean}
+   */
+
+	}, {
+		key: 'getShouldUseFacade',
+		value: function getShouldUseFacade() {
+			return this.shouldUseFacade_;
+		}
+
+		/**
+   * Returns an array of listeners for the specified event.
+   * @param {string} event
+   * @return {Array} Array of listeners.
+   */
+
+	}, {
+		key: 'listeners',
+		value: function listeners(event) {
+			return this.getRawListeners_(event).map(function (listener) {
+				return listener.fn ? listener.fn : listener;
+			});
+		}
+
+		/**
+   * Adds a listener that will be invoked a fixed number of times for the
+   * events. After each event is triggered the specified amount of times, the
+   * listener is removed for it.
+   * @param {!(Array|string)} event
+   * @param {number} amount The amount of times this event should be listened
+   * to.
+   * @param {!Function} listener
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+	}, {
+		key: 'many',
+		value: function many(event, amount, listener) {
+			var events = this.toEventsArray_(event);
+			for (var i = 0; i < events.length; i++) {
+				this.many_(events[i], amount, listener);
+			}
+
+			return new EventHandle$2(this, event, listener);
+		}
+
+		/**
+   * Adds a listener that will be invoked a fixed number of times for a single
+   * event. After the event is triggered the specified amount of times, the
+   * listener is removed.
+   * @param {string} event
+   * @param {number} amount The amount of times this event should be listened
+   * to.
+   * @param {!Function} listener
+   * @protected
+   */
+
+	}, {
+		key: 'many_',
+		value: function many_(event, amount, listener) {
+			var self = this;
+
+			if (amount <= 0) {
+				return;
+			}
+
+			/**
+    *
+    */
+			function handlerInternal() {
+				if (--amount === 0) {
+					self.removeListener(event, handlerInternal);
+				}
+				listener.apply(self, arguments); // eslint-disable-line
+			}
+
+			self.addSingleListener_(event, handlerInternal, false, listener);
+		}
+
+		/**
+   * Checks if a listener object matches the given listener function. To match,
+   * it needs to either point to that listener or have it as its origin.
+   * @param {!Object} listenerObj
+   * @param {!Function} listener
+   * @return {boolean}
+   * @protected
+   */
+
+	}, {
+		key: 'matchesListener_',
+		value: function matchesListener_(listenerObj, listener) {
+			var fn = listenerObj.fn || listenerObj;
+			return fn === listener || listenerObj.origin && listenerObj.origin === listener // eslint-disable-line
+			;
+		}
+
+		/**
+   * Removes a listener for the specified events.
+   * Caution: changes array indices in the listener array behind the listener.
+   * @param {!(Array|string)} event
+   * @param {!Function} listener
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+	}, {
+		key: 'off',
+		value: function off(event, listener) {
+			this.validateListener_(listener);
+			if (!this.events_) {
+				return this;
+			}
+
+			var events = this.toEventsArray_(event);
+			for (var i = 0; i < events.length; i++) {
+				this.events_[events[i]] = this.removeMatchingListenerObjs_(toArray$2(this.events_[events[i]]), listener);
+			}
+
+			return this;
+		}
+
+		/**
+   * Adds a listener to the end of the listeners array for the specified events.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+	}, {
+		key: 'on',
+		value: function on() {
+			return this.addListener.apply(this, arguments); // eslint-disable-line
+		}
+
+		/**
+   * Adds handler that gets triggered when an event is listened to on this
+   * instance.
+   * @param {!function()} handler
+   */
+
+	}, {
+		key: 'onListener',
+		value: function onListener(handler) {
+			this.listenerHandlers_ = this.addHandler_(this.listenerHandlers_, handler); // eslint-disable-line
+		}
+
+		/**
+   * Adds a one time listener for the events. This listener is invoked only the
+   * next time each event is fired, after which it is removed.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!EventHandle} Can be used to remove the listener.
+   */
+
+	}, {
+		key: 'once',
+		value: function once(events, listener) {
+			return this.many(events, 1, listener);
+		}
+
+		/**
+   * Removes all listeners, or those of the specified events. It's not a good
+   * idea to remove listeners that were added elsewhere in the code,
+   * especially when it's on an emitter that you didn't create.
+   * @param {(Array|string)=} event
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+	}, {
+		key: 'removeAllListeners',
+		value: function removeAllListeners(event) {
+			if (this.events_) {
+				if (event) {
+					var events = this.toEventsArray_(event);
+					for (var i = 0; i < events.length; i++) {
+						this.events_[events[i]] = null;
+					}
+				} else {
+					this.events_ = null;
+				}
+			}
+			return this;
+		}
+
+		/**
+   * Removes all listener objects from the given array that match the given
+   * listener function.
+   * @param {Array.<Object>} listenerObjs
+   * @param {!Function} listener
+   * @return {Array.<Object>|Object} The new listeners array for this event.
+   * @protected
+   */
+
+	}, {
+		key: 'removeMatchingListenerObjs_',
+		value: function removeMatchingListenerObjs_(listenerObjs, listener) {
+			var finalListeners = [];
+			for (var i = 0; i < listenerObjs.length; i++) {
+				if (!this.matchesListener_(listenerObjs[i], listener)) {
+					finalListeners.push(listenerObjs[i]);
+				}
+			}
+			return finalListeners.length > 0 ? finalListeners : null;
+		}
+
+		/**
+   * Removes a listener for the specified events.
+   * Caution: changes array indices in the listener array behind the listener.
+   * @param {!(Array|string)} events
+   * @param {!Function} listener
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+	}, {
+		key: 'removeListener',
+		value: function removeListener() {
+			return this.off.apply(this, arguments); // eslint-disable-line
+		}
+
+		/**
+   * Runs the handlers when an event is listened to.
+   * @param {string} event
+   * @protected
+   */
+
+	}, {
+		key: 'runListenerHandlers_',
+		value: function runListenerHandlers_(event) {
+			var handlers = this.listenerHandlers_;
+			if (handlers) {
+				handlers = toArray$2(handlers);
+				for (var i = 0; i < handlers.length; i++) {
+					handlers[i](event);
+				}
+			}
+		}
+
+		/**
+   * Runs the given listeners.
+   * @param {!Array} listeners
+   * @param {!Array} args
+   * @param {Object} facade
+   * @protected
+   */
+
+	}, {
+		key: 'runListeners_',
+		value: function runListeners_(listeners, args, facade) {
+			if (facade) {
+				args.push(facade);
+			}
+
+			var defaultListeners = [];
+			for (var i = 0; i < listeners.length; i++) {
+				var listener = listeners[i].fn || listeners[i];
+				if (listeners[i].default) {
+					defaultListeners.push(listener);
+				} else {
+					listener.apply(this, args);
+				}
+			}
+			if (!facade || !facade.preventedDefault) {
+				for (var j = 0; j < defaultListeners.length; j++) {
+					defaultListeners[j].apply(this, args);
+				}
+			}
+		}
+
+		/**
+   * Sets the configuration option which determines if an event facade should
+   * be sent as a param of listeners when emitting events. If set to true, the
+   * facade will be passed as the first argument of the listener.
+   * @param {boolean} shouldUseFacade
+   * @return {!Object} Returns emitter, so calls can be chained.
+   */
+
+	}, {
+		key: 'setShouldUseFacade',
+		value: function setShouldUseFacade(shouldUseFacade) {
+			this.shouldUseFacade_ = shouldUseFacade;
+			return this;
+		}
+
+		/**
+   * Converts the parameter to an array if only one event is given. Reuses the
+   * same array each time this conversion is done, to avoid using more memory
+   * than necessary.
+   * @param  {!(Array|string)} events
+   * @return {!Array}
+   * @protected
+   */
+
+	}, {
+		key: 'toEventsArray_',
+		value: function toEventsArray_(events) {
+			if (isString$1(events)) {
+				singleArray_$1[0] = events;
+				events = singleArray_$1;
+			}
+			return events;
+		}
+
+		/**
+   * Checks if the given listener is valid, throwing an exception when it's not.
+   * @param  {*} listener
+   * @protected
+   */
+
+	}, {
+		key: 'validateListener_',
+		value: function validateListener_(listener) {
+			if (!isFunction$1(listener)) {
+				throw new TypeError('Listener must be a function');
+			}
+		}
+	}]);
+	return EventEmitter;
+}(Disposable$2);
+
+/**
+ * Converts to an array
+ * @param {Object} val
+ * @return {Array}
+ */
+
+
+function toArray$2(val) {
+	val = val || [];
+	return Array.isArray(val) ? val : [val];
+}
+
+/**
+ * EventEmitterProxy utility. It's responsible for linking two EventEmitter
+ * instances together, emitting events from the first emitter through the
+ * second one. That means that listening to a supported event on the target
+ * emitter will mean listening to it on the origin emitter as well.
+ * @extends {Disposable}
+ */
+
+var EventEmitterProxy$2 = function (_Disposable) {
+	inherits(EventEmitterProxy, _Disposable);
+
+	/**
+  * @param {EventEmitter} originEmitter Events originated on this emitter
+  * will be fired for the target emitter's listeners as well.
+  * @param {EventEmitter} targetEmitter Event listeners attached to this emitter
+  * will also be triggered when the event is fired by the origin emitter.
+  * @param {Object} blacklist Optional blacklist of events that should not be
+  * proxied.
+  * @param {Object} whitelist
+  */
+	function EventEmitterProxy(originEmitter, targetEmitter, blacklist, whitelist) {
+		classCallCheck(this, EventEmitterProxy);
+
+		/**
+   * Map of events that should not be proxied.
+   * @type {Object}
+   * @protected
+   */
+		var _this = possibleConstructorReturn(this, (EventEmitterProxy.__proto__ || Object.getPrototypeOf(EventEmitterProxy)).call(this));
+
+		_this.blacklist_ = blacklist;
+
+		/**
+   * The origin emitter. This emitter's events will be proxied through the
+   * target emitter.
+   * @type {EventEmitter}
+   * @protected
+   */
+		_this.originEmitter_ = originEmitter;
+
+		/**
+   * A list of events that are pending to be listened by an actual origin
+   * emitter. Events are stored here when the origin doesn't exist, so they
+   * can be set on a new origin when one is set.
+   * @type {Array}
+   * @protected
+   */
+		_this.pendingEvents_ = null;
+
+		/**
+   * Holds a map of events from the origin emitter that are already being proxied.
+   * @type {Object<string, !EventHandle>}
+   * @protected
+   */
+		_this.proxiedEvents_ = null;
+
+		/**
+   * The target emitter. This emitter will emit all events that come from
+   * the origin emitter.
+   * @type {EventEmitter}
+   * @protected
+   */
+		_this.targetEmitter_ = targetEmitter;
+
+		/**
+   * Map of events that should be proxied. If whitelist is set blacklist is ignored.
+   * @type {Object}
+   * @protected
+   */
+		_this.whitelist_ = whitelist;
+
+		_this.startProxy_();
+		return _this;
+	}
+
+	/**
+  * Adds the given listener for the given event.
+  * @param {string} event
+  * @param {!function()} listener
+  * @return {!EventHandle} The listened event's handle.
+  * @protected
+  */
+
+
+	createClass(EventEmitterProxy, [{
+		key: 'addListener_',
+		value: function addListener_(event, listener) {
+			return this.originEmitter_.on(event, listener);
+		}
+
+		/**
+   * @inheritDoc
+   */
+
+	}, {
+		key: 'disposeInternal',
+		value: function disposeInternal() {
+			this.removeListeners_();
+			this.proxiedEvents_ = null;
+			this.originEmitter_ = null;
+			this.targetEmitter_ = null;
+		}
+
+		/**
+   * Emits the specified event type on the target emitter.
+   * @protected
+   */
+
+	}, {
+		key: 'emitOnTarget_',
+		value: function emitOnTarget_() {
+			var _targetEmitter_;
+
+			(_targetEmitter_ = this.targetEmitter_).emit.apply(_targetEmitter_, arguments);
+		}
+
+		/**
+   * Proxies the given event from the origin to the target emitter.
+   * @param {string} event
+   */
+
+	}, {
+		key: 'proxyEvent',
+		value: function proxyEvent(event) {
+			if (this.shouldProxyEvent_(event)) {
+				this.tryToAddListener_(event);
+			}
+		}
+
+		/**
+   * Removes the proxy listener for all events.
+   * @protected
+   */
+
+	}, {
+		key: 'removeListeners_',
+		value: function removeListeners_() {
+			if (this.proxiedEvents_) {
+				var events = Object.keys(this.proxiedEvents_);
+				for (var i = 0; i < events.length; i++) {
+					this.proxiedEvents_[events[i]].removeListener();
+				}
+				this.proxiedEvents_ = null;
+			}
+			this.pendingEvents_ = null;
+		}
+
+		/**
+   * Changes the origin emitter. This automatically detaches any events that
+   * were already being proxied from the previous emitter, and starts proxying
+   * them on the new emitter instead.
+   * @param {!EventEmitter} originEmitter
+   */
+
+	}, {
+		key: 'setOriginEmitter',
+		value: function setOriginEmitter(originEmitter) {
+			var _this2 = this;
+
+			var events = this.originEmitter_ && this.proxiedEvents_ ? Object.keys(this.proxiedEvents_) : this.pendingEvents_;
+			this.originEmitter_ = originEmitter;
+			if (events) {
+				this.removeListeners_();
+				events.forEach(function (event) {
+					return _this2.proxyEvent(event);
+				});
+			}
+		}
+
+		/**
+   * Checks if the given event should be proxied.
+   * @param {string} event
+   * @return {boolean}
+   * @protected
+   */
+
+	}, {
+		key: 'shouldProxyEvent_',
+		value: function shouldProxyEvent_(event) {
+			if (this.whitelist_ && !this.whitelist_[event]) {
+				return false;
+			}
+			if (this.blacklist_ && this.blacklist_[event]) {
+				return false;
+			}
+			return !this.proxiedEvents_ || !this.proxiedEvents_[event];
+		}
+
+		/**
+   * Starts proxying all events from the origin to the target emitter.
+   * @protected
+   */
+
+	}, {
+		key: 'startProxy_',
+		value: function startProxy_() {
+			this.targetEmitter_.onListener(this.proxyEvent.bind(this));
+		}
+
+		/**
+   * Adds a listener to the origin emitter, if it exists. Otherwise, stores
+   * the pending listener so it can be used on a future origin emitter.
+   * @param {string} event
+   * @protected
+   */
+
+	}, {
+		key: 'tryToAddListener_',
+		value: function tryToAddListener_(event) {
+			if (this.originEmitter_) {
+				this.proxiedEvents_ = this.proxiedEvents_ || {};
+				this.proxiedEvents_[event] = this.addListener_(event, this.emitOnTarget_.bind(this, event));
+			} else {
+				this.pendingEvents_ = this.pendingEvents_ || [];
+				this.pendingEvents_.push(event);
+			}
+		}
+	}]);
+	return EventEmitterProxy;
+}(Disposable$2);
+
+/**
+ * EventHandler utility. It's useful for easily removing a group of
+ * listeners from different EventEmitter instances.
+ * @extends {Disposable}
+ */
+
+var EventHandler$2 = function (_Disposable) {
+	inherits(EventHandler, _Disposable);
+
+	/**
+  * EventHandler constructor
+  */
+	function EventHandler() {
+		classCallCheck(this, EventHandler);
+
+		/**
+   * An array that holds the added event handles, so the listeners can be
+   * removed later.
+   * @type {Array.<EventHandle>}
+   * @protected
+   */
+		var _this = possibleConstructorReturn(this, (EventHandler.__proto__ || Object.getPrototypeOf(EventHandler)).call(this));
+
+		_this.eventHandles_ = [];
+		return _this;
+	}
+
+	/**
+  * Adds event handles to be removed later through the `removeAllListeners`
+  * method.
+  * @param {...(!EventHandle)} var_args
+  */
+
+
+	createClass(EventHandler, [{
+		key: 'add',
+		value: function add() {
+			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+				args[_key] = arguments[_key];
+			}
+
+			for (var i = 0; i < arguments.length; i++) {
+				this.eventHandles_.push(args[i]);
+			}
+		}
+
+		/**
+   * Disposes of this instance's object references.
+   * @override
+   */
+
+	}, {
+		key: 'disposeInternal',
+		value: function disposeInternal() {
+			this.eventHandles_ = null;
+		}
+
+		/**
+   * Removes all listeners that have been added through the `add` method.
+   */
+
+	}, {
+		key: 'removeAllListeners',
+		value: function removeAllListeners() {
+			for (var i = 0; i < this.eventHandles_.length; i++) {
+				this.eventHandles_[i].removeListener();
+			}
+
+			this.eventHandles_ = [];
+		}
+	}]);
+	return EventHandler;
+}(Disposable$2);
+
 /*!
  * Promises polyfill from Google's Closure Library.
  *
@@ -4830,12 +6597,12 @@ Thenable.addImplementation = function (ctor) {
  * @return {boolean} Whether a given instance implements {@code Thenable}.
  *     The class/superclass of the instance must call {@code addImplementation}.
  */
-Thenable.isImplementedBy = function (object$$1) {
-  if (!object$$1) {
+Thenable.isImplementedBy = function (object) {
+  if (!object) {
     return false;
   }
   try {
-    return !!object$$1.$goog_Thenable;
+    return !!object.$goog_Thenable;
   } catch (e) {
     // Property access seems to be forbidden.
     return false;
@@ -5155,7 +6922,7 @@ CancellablePromise.firstFulfilled = function (promises) {
  * @override
  */
 CancellablePromise.prototype.then = function (opt_onFulfilled, opt_onRejected, opt_context) {
-  return this.addChildPromise_(isFunction(opt_onFulfilled) ? opt_onFulfilled : null, isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+  return this.addChildPromise_(isFunction$1(opt_onFulfilled) ? opt_onFulfilled : null, isFunction$1(opt_onRejected) ? opt_onRejected : null, opt_context);
 };
 Thenable.addImplementation(CancellablePromise);
 
@@ -5234,7 +7001,7 @@ CancellablePromise.prototype.catch = CancellablePromise.prototype.thenCatch;
  */
 CancellablePromise.prototype.cancel = function (opt_message) {
   if (this.state_ === CancellablePromise.State_.PENDING) {
-    async.run(function () {
+    async$2.run(function () {
       var err = new CancellablePromise.CancellationError(opt_message);
       err.IS_CANCELLATION_ERROR = true;
       this.cancelInternal_(err);
@@ -5364,7 +7131,7 @@ CancellablePromise.prototype.addChildPromise_ = function (onFulfilled, onRejecte
     callbackEntry.onRejected = onRejected ? function (reason) {
       try {
         var result = onRejected.call(opt_context, reason);
-        if (!isDef(result) && reason.IS_CANCELLATION_ERROR) {
+        if (!isDef$1(result) && reason.IS_CANCELLATION_ERROR) {
           // Propagate cancellation to children if no other result is returned.
           reject(reason);
         } else {
@@ -5440,10 +7207,10 @@ CancellablePromise.prototype.resolve_ = function (state, x) {
     this.state_ = CancellablePromise.State_.BLOCKED;
     x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
     return;
-  } else if (isObject(x)) {
+  } else if (isObject$1(x)) {
     try {
       var then = x.then;
-      if (isFunction(then)) {
+      if (isFunction$1(then)) {
         this.tryThen_(x, then);
         return;
       }
@@ -5521,7 +7288,7 @@ CancellablePromise.prototype.tryThen_ = function (thenable, then) {
 CancellablePromise.prototype.scheduleCallbacks_ = function () {
   if (!this.executing_) {
     this.executing_ = true;
-    async.run(this.executeCallbacks_, this);
+    async$2.run(this.executeCallbacks_, this);
   }
 };
 
@@ -5601,7 +7368,7 @@ CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
     }, CancellablePromise.UNHANDLED_REJECTION_DELAY);
   } else if (CancellablePromise.UNHANDLED_REJECTION_DELAY === 0) {
     promise.hadUnhandledRejection_ = true;
-    async.run(function () {
+    async$2.run(function () {
       if (promise.hadUnhandledRejection_) {
         CancellablePromise.handleRejection_.call(null, reason);
       }
@@ -5615,7 +7382,7 @@ CancellablePromise.addUnhandledRejection_ = function (promise, reason) {
  * @type {function(*)}
  * @private
  */
-CancellablePromise.handleRejection_ = async.throwException;
+CancellablePromise.handleRejection_ = async$2.throwException;
 
 /**
  * Sets a handler that will be called with reasons from unhandled rejected
@@ -5711,7 +7478,7 @@ function convertMatchesToObj(matches) {
 function convertTokensToRegex(tokens) {
 	var regex = '';
 	for (var i = 0; i < tokens.length; i++) {
-		if (core$2.isString(tokens[i])) {
+		if (core$4.isString(tokens[i])) {
 			regex += escape(tokens[i]);
 		} else {
 			var capture = encloseNonCapturingGroup(tokens[i].pattern);
@@ -5771,7 +7538,7 @@ function makeTrailingSlashOptional(regex) {
  *     strings (part of the route) or objects containing informations on params.
  */
 function parse$2(routeOrTokens) {
-	if (!core$2.isString(routeOrTokens)) {
+	if (!core$4.isString(routeOrTokens)) {
 		return routeOrTokens;
 	}
 
@@ -5837,9 +7604,9 @@ function extractData(routeOrTokens, path) {
 
 	var paramIndex = 1;
 	for (var i = 0; i < tokens.length; i++) {
-		if (!core$2.isString(tokens[i])) {
+		if (!core$4.isString(tokens[i])) {
 			var value = match[paramIndex++];
-			if (core$2.isDef(value)) {
+			if (core$4.isDef(value)) {
 				if (tokens[i].repeat) {
 					value = value.split('/');
 				}
@@ -5861,10 +7628,10 @@ var Route = function () {
 	function Route(path, handler) {
 		classCallCheck(this, Route);
 
-		if (!isDefAndNotNull(path)) {
+		if (!isDefAndNotNull$1(path)) {
 			throw new Error('Route path not specified.');
 		}
-		if (!isFunction(handler)) {
+		if (!isFunction$1(handler)) {
 			throw new Error('Route handler is not a function.');
 		}
 
@@ -5915,7 +7682,7 @@ var Route = function () {
 	}, {
 		key: 'extractParams',
 		value: function extractParams(path) {
-			if (isString(this.path)) {
+			if (isString$1(this.path)) {
 				return extractData(this.buildParsedData_().tokens, path);
 			}
 			return {};
@@ -5954,10 +7721,10 @@ var Route = function () {
 		value: function matchesPath(value) {
 			var path = this.path;
 
-			if (isFunction(path)) {
+			if (isFunction$1(path)) {
 				return path(value);
 			}
-			if (isString(path)) {
+			if (isString$1(path)) {
 				path = this.buildParsedData_().regex;
 			}
 			if (path instanceof RegExp) {
@@ -6077,7 +7844,7 @@ var Cacheable = function (_Disposable) {
 		}
 	}]);
 	return Cacheable;
-}(Disposable);
+}(Disposable$2);
 
 var Screen = function (_Cacheable) {
 	inherits(Screen, _Cacheable);
@@ -6099,7 +7866,7 @@ var Screen = function (_Cacheable) {
    */
 		var _this = possibleConstructorReturn(this, (Screen.__proto__ || Object.getPrototypeOf(Screen)).call(this));
 
-		_this.id = _this.makeId_(getUid());
+		_this.id = _this.makeId_(getUid$1());
 
 		/**
    * Holds the screen meta tags. Relevant when the meta tags
@@ -6400,8 +8167,8 @@ var Screen = function (_Cacheable) {
  */
 
 
-Screen.isImplementedBy = function (object$$1) {
-	return object$$1 instanceof Screen;
+Screen.isImplementedBy = function (object) {
+	return object instanceof Screen;
 };
 
 var Surface = function (_Disposable) {
@@ -6486,7 +8253,7 @@ var Surface = function (_Disposable) {
 		value: function addContent(screenId, opt_content) {
 			var child = this.defaultChild;
 
-			if (isDefAndNotNull(opt_content)) {
+			if (isDefAndNotNull$1(opt_content)) {
 				child = this.getChild(screenId);
 				if (child) {
 					removeChildren(child);
@@ -6691,7 +8458,7 @@ var Surface = function (_Disposable) {
 		}
 	}]);
 	return Surface;
-}(Disposable);
+}(Disposable$2);
 
 /**
    * Holds the default surface name. Elements on the page must contain a child
@@ -6975,7 +8742,7 @@ var App$1 = function (_EventEmitter) {
    */
 		_this.updateScrollPosition = true;
 
-		_this.appEventHandlers_ = new EventHandler();
+		_this.appEventHandlers_ = new EventHandler$2();
 
 		_this.appEventHandlers_.add(on(globals.window, 'scroll', debounce(_this.onScroll_.bind(_this), 100)), on(globals.window, 'load', _this.onLoad_.bind(_this)), on(globals.window, 'popstate', _this.onPopstate_.bind(_this)));
 
@@ -7047,7 +8814,7 @@ var App$1 = function (_EventEmitter) {
 				surfaces = [surfaces];
 			}
 			surfaces.forEach(function (surface) {
-				if (isString(surface)) {
+				if (isString$1(surface)) {
 					surface = new Surface(surface);
 				}
 				_this3.surfaces[surface.getId()] = surface;
@@ -7507,7 +9274,7 @@ var App$1 = function (_EventEmitter) {
 					winner = true;
 				}
 			};
-			async.nextTick(switchScrollPositionRace);
+			async$2.nextTick(switchScrollPositionRace);
 			globals.document.addEventListener('scroll', switchScrollPositionRace, false);
 		}
 
@@ -7536,7 +9303,7 @@ var App$1 = function (_EventEmitter) {
 		key: 'maybeScheduleNavigation_',
 		value: function maybeScheduleNavigation_(href, event) {
 			if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
-				this.scheduledNavigationQueue = [object.mixin({
+				this.scheduledNavigationQueue = [object$2.mixin({
 					href: href,
 					isScheduledNavigation: true
 				}, event)];
@@ -8033,12 +9800,12 @@ var App$1 = function (_EventEmitter) {
 		key: 'prepareNavigateHistory_',
 		value: function prepareNavigateHistory_(path, nextScreen, opt_replaceHistory) {
 			var title = nextScreen.getTitle();
-			if (!isString(title)) {
+			if (!isString$1(title)) {
 				title = this.getDefaultTitle();
 			}
 			var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 			var historyState = {
-				form: isDefAndNotNull(globals.capturedFormElement),
+				form: isDefAndNotNull$1(globals.capturedFormElement),
 				path: path,
 				redirectPath: redirectPath,
 				scrollLeft: 0,
@@ -8091,7 +9858,7 @@ var App$1 = function (_EventEmitter) {
 	}, {
 		key: 'removeRoute',
 		value: function removeRoute(route) {
-			return array.remove(this.routes, route);
+			return array$2.remove(this.routes, route);
 		}
 
 		/**
@@ -8271,7 +10038,7 @@ var App$1 = function (_EventEmitter) {
 			};
 
 			return new CancellablePromise(function (resolve) {
-				return sync() & async.nextTick(function () {
+				return sync() & async$2.nextTick(function () {
 					return sync() & resolve();
 				});
 			});
@@ -8312,7 +10079,7 @@ var App$1 = function (_EventEmitter) {
 		}
 	}]);
 	return App;
-}(EventEmitter$1);
+}(EventEmitter$4);
 
 var Ajax = function () {
 	function Ajax() {
@@ -8425,9 +10192,9 @@ var Ajax = function () {
 				});
 			}
 
-			request.send(isDef(body) ? body : null);
+			request.send(isDef$1(body) ? body : null);
 
-			if (isDefAndNotNull(opt_timeout)) {
+			if (isDefAndNotNull$1(opt_timeout)) {
 				var timeout = setTimeout(function () {
 					promise.cancel('Request timeout');
 				}, opt_timeout);
@@ -8667,7 +10434,7 @@ var UA = function () {
 Object.defineProperty(UA, 'globals', {
 	writable: true,
 	value: {
-		window: isServerSide() ? null : window
+		window: isServerSide$1() ? null : window
 	}
 });
 
@@ -8896,7 +10663,7 @@ var RequestScreen = function (_Screen) {
 			var _this2 = this;
 
 			var cache = this.getCache();
-			if (isDefAndNotNull(cache)) {
+			if (isDefAndNotNull$1(cache)) {
 				return CancellablePromise.resolve(cache);
 			}
 			var body = null;
@@ -9198,7 +10965,7 @@ var HtmlScreen = function (_RequestScreen) {
 		value: function assertSameBodyIdInVirtualDocument() {
 			var bodySurface = this.virtualDocument.querySelector('body');
 			if (!globals.document.body.id) {
-				globals.document.body.id = 'senna_surface_' + getUid();
+				globals.document.body.id = 'senna_surface_' + getUid$1();
 			}
 			if (bodySurface) {
 				bodySurface.id = globals.document.body.id;
@@ -9643,7 +11410,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 	createClass(AppDataAttributeHandler, [{
 		key: 'handle',
 		value: function handle() {
-			if (!isElement(this.baseElement)) {
+			if (!isElement$1(this.baseElement)) {
 				throw new Error('Senna data attribute handler base element ' + 'not set or invalid, try setting a valid element that ' + 'contains a `data-senna` attribute.');
 			}
 
@@ -9774,8 +11541,8 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'maybeParseLinkRouteHandler_',
 		value: function maybeParseLinkRouteHandler_(link) {
 			var handler = link.getAttribute('type');
-			if (isDefAndNotNull(handler)) {
-				handler = object.getObjectByName(handler);
+			if (isDefAndNotNull$1(handler)) {
+				handler = object$2.getObjectByName(handler);
 			}
 			return handler;
 		}
@@ -9790,7 +11557,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'maybeParseLinkRoutePath_',
 		value: function maybeParseLinkRoutePath_(link) {
 			var path = link.getAttribute('href');
-			if (isDefAndNotNull(path)) {
+			if (isDefAndNotNull$1(path)) {
 				if (path.indexOf('regex:') === 0) {
 					path = new RegExp(path.substring(6));
 				}
@@ -9806,7 +11573,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'maybeSetBasePath_',
 		value: function maybeSetBasePath_() {
 			var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
-			if (isDefAndNotNull(basePath)) {
+			if (isDefAndNotNull$1(basePath)) {
 				this.app.setBasePath(basePath);
 				void 0;
 			}
@@ -9821,7 +11588,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'maybeSetLinkSelector_',
 		value: function maybeSetLinkSelector_() {
 			var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
-			if (isDefAndNotNull(linkSelector)) {
+			if (isDefAndNotNull$1(linkSelector)) {
 				this.app.setLinkSelector(linkSelector);
 				void 0;
 			}
@@ -9836,7 +11603,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'maybeSetLoadingCssClass_',
 		value: function maybeSetLoadingCssClass_() {
 			var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
-			if (isDefAndNotNull(loadingCssClass)) {
+			if (isDefAndNotNull$1(loadingCssClass)) {
 				this.app.setLoadingCssClass(loadingCssClass);
 				void 0;
 			}
@@ -9851,7 +11618,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'maybeSetUpdateScrollPosition_',
 		value: function maybeSetUpdateScrollPosition_() {
 			var updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
-			if (isDefAndNotNull(updateScrollPosition)) {
+			if (isDefAndNotNull$1(updateScrollPosition)) {
 				if (updateScrollPosition === 'false') {
 					this.app.setUpdateScrollPosition(false);
 				} else {
@@ -9884,7 +11651,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		key: 'updateElementIdIfSpecialSurface_',
 		value: function updateElementIdIfSpecialSurface_(element) {
 			if (!element.id && element === globals.document.body) {
-				element.id = 'senna_surface_' + getUid();
+				element.id = 'senna_surface_' + getUid$1();
 			}
 		}
 
@@ -9900,7 +11667,7 @@ var AppDataAttributeHandler = function (_Disposable) {
 		}
 	}]);
 	return AppDataAttributeHandler;
-}(Disposable);
+}(Disposable$2);
 
 /**
  * Data attribute handler.
@@ -9917,7 +11684,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.6';
+var version = '2.7.7';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;

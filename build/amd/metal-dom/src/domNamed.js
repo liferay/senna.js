@@ -95,7 +95,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Adds the requested CSS classes to an element without using classList.
+  * IE11 doesn't support Element.classList.add function, this method
+  * adds the requested CSS classes to an element without using classList.
   * @param {!Element} element The element to add CSS classes to.
   * @param {string} classes CSS classes to add.
   * @private
@@ -176,7 +177,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Gets the closest element up the tree from the given element (including
+  * IE11 doesn't support Element.closest function, this method
+  * gets the closest element up the tree from the given element (including
   * itself) that matches the specified selector, or null if none match.
   * @param {Element} element
   * @param {string} selector
@@ -190,7 +192,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Appends a child node with text or other nodes to a parent node. If
+  * IE11 doesn't support Element.classList.add function, this method
+  * appends a child node with text or other nodes to a parent node. If
   * child is a HTML string it will be automatically converted to a document
   * fragment before appending it to the parent.
   * @param {!Element} parent The node to append nodes to.
@@ -231,6 +234,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 
 	/**
   * Checks if the first element contains the second one.
+  * @deprecated Use element1.contains(element2) directly instead of this method
   * @param {!Element} element1
   * @param {!Element} element2
   * @return {boolean}
@@ -403,7 +407,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Check if an element matches a given selector.
+  * IE11 doesn't support Element.matches function, this method
+  * check if an element matches a given selector.
   * @param {Element} element
   * @param {string} selector
   * @return {boolean}
@@ -500,6 +505,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
+  * IE11 doesn't support once event listener option, this method
   * Listens to the specified event on the given DOM element once. This
   * function normalizes DOM event payloads and functions so they'll work the
   * same way on all supported browsers.
@@ -529,7 +535,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Inserts a node before first child of the parent. If child is a HTML string
+  * IE11 doesn't support Element.prepend function, this method
+  * inserts a node before first child of the parent. If child is a HTML string
   * it will be converted to document fragment before prepending it to the parent.
   * @param {!Element} parent The node to prepend to.
   * @param {!(Element|NodeList|string)} child The thing to prepend to the parent.
@@ -615,7 +622,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Removes the requested CSS classes from an element without using classList.
+  * IE11 doesn't support Element.classList, this method
+  * removes the requested CSS classes from an element without using classList.
   * @param {!Element} element The element to remove CSS classes from.
   * @param {string} classes CSS classes to remove.
   * @private
@@ -634,13 +642,14 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 
 	/**
   * Replaces the first element with the second.
+  * @deprecated Use element1.parentNode.replaceChild(element2, element1)
+  * directly instead of this method
   * @param {Element} element1
   * @param {Element} element2
   */
 	function replace(element1, element2) {
 		if (element1 && element2 && element1 !== element2 && element1.parentNode) {
-			element1.parentNode.insertBefore(element2, element1);
-			element1.parentNode.removeChild(element1);
+			element1.parentNode.replaceChild(element2, element1);
 		}
 	}
 
@@ -749,11 +758,7 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 		if ((0, _metal.isElement)(selectorOrElement) || (0, _metal.isDocument)(selectorOrElement) || (0, _metal.isDocumentFragment)(selectorOrElement)) {
 			return selectorOrElement;
 		} else if ((0, _metal.isString)(selectorOrElement)) {
-			if (selectorOrElement[0] === '#' && selectorOrElement.indexOf(' ') === -1) {
-				return document.getElementById(selectorOrElement.substr(1));
-			} else {
-				return document.querySelector(selectorOrElement);
-			}
+			return document.querySelector(selectorOrElement);
 		} else {
 			return null;
 		}
@@ -792,7 +797,8 @@ define(['exports', 'metal/src/metal', './domData', './DomDelegatedEventHandle', 
 	}
 
 	/**
-  * Adds or removes one or more classes from an element without using classList.
+  * IE11 doesn't support Element.classList, this method
+  * adds or removes one or more classes from an element without using classList.
   * If any of the classes is present, it will be removed from the element,
   * or added otherwise.
   * @param {!Element} element The element which classes will be toggled.

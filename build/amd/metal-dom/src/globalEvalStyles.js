@@ -61,12 +61,12 @@ define(['exports', 'metal/src/metal', './dom'], function (exports, _metal, _dom)
 				var callback = function callback() {
 					defaultFn && defaultFn();
 				};
-				if (style.rel && style.rel !== 'stylesheet') {
+				if (style.rel && style.rel !== 'stylesheet' && style.rel !== 'canonical' && style.rel !== 'alternate') {
 					_metal.async.nextTick(callback);
 					return;
 				}
 
-				if (style.tagName === 'STYLE') {
+				if (style.tagName === 'STYLE' || style.rel === 'canonical' || style.rel === 'alternate') {
 					_metal.async.nextTick(callback);
 				} else {
 					(0, _dom.once)(style, 'load', callback);
