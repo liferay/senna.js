@@ -887,7 +887,7 @@ class App extends EventEmitter {
 
         this.emit('beforeNavigate', {
 			event: opt_event,
-			path: path,
+			path,
 			replaceHistory: !!localOpt_replaceHistory
 		});
 
