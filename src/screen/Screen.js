@@ -145,11 +145,11 @@ class Screen extends Cacheable {
 	flip(surfaces) {
 		console.log('Screen [' + this + '] flip');
 
-		var transitions = [];
+		const transitions = [];
 
 		Object.keys(surfaces).forEach(sId => {
-			var surface = surfaces[sId];
-			var deferred = surface.show(this.id);
+			const surface = surfaces[sId];
+			const deferred = surface.show(this.id);
 			transitions.push(deferred);
 		});
 
