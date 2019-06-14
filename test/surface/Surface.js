@@ -5,7 +5,7 @@ import dom from 'metal-dom';
 import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'metal-promise';
 
-describe('Surface', function() {
+describe('Surface', () => {
 
 	describe('Constructor', () => {
 		it('should throws error when surface id not specified', () => {

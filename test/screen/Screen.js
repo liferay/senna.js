@@ -5,7 +5,7 @@ import Screen from '../../src/screen/Screen';
 import Surface from '../../src/surface/Surface';
 import CancellablePromise from 'metal-promise';
 
-describe('Screen', function() {
+describe('Screen', () => {
 	before(() => {
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');

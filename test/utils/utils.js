@@ -4,7 +4,7 @@ import utils from '../../src/utils/utils';
 import globals from '../../src/globals/globals';
 import Uri from 'metal-uri';
 
-describe('utils', function() {
+describe('utils', () => {
 
 	before(() => {
 		globals.window = {
