@@ -43,17 +43,18 @@ class utils {
 	 * @static
 	 */
 	static getNodeOffset(node) {
-		let [offsetLeft, offsetTop] = [0, 0];
-		do {
-			offsetLeft += node.offsetLeft;
-			offsetTop += node.offsetTop;
-			node = node.offsetParent;
-		} while (node);
-		return {
+        let localNode = node;
+        let [offsetLeft, offsetTop] = [0, 0];
+        do {
+			offsetLeft += localNode.offsetLeft;
+			offsetTop += localNode.offsetTop;
+			localNode = localNode.offsetParent;
+		} while (localNode);
+        return {
 			offsetLeft,
 			offsetTop
 		};
-	}
+    }
 
 	/**
 	 * Extracts the path part of an url.
@@ -148,12 +149,13 @@ class utils {
 	* @return {string}
 	*/
 	static removePathTrailingSlash(path) {
-		var length = path ? path.length : 0;
-		if (length > 1 && path[length - 1] === '/') {
-			path = path.substr(0, length - 1);
+        let localPath = path;
+        var length = localPath ? localPath.length : 0;
+        if (length > 1 && localPath[length - 1] === '/') {
+			localPath = localPath.substr(0, length - 1);
 		}
-		return path;
-	}
+        return localPath;
+    }
 
 	/**
 	 * Adds a random suffix to the href attribute of the element.

@@ -272,17 +272,19 @@ class App extends EventEmitter {
 	 * @chainable
 	 */
 	addRoutes(routes) {
-		if (!Array.isArray(routes)) {
-			routes = [routes];
+        let localRoutes = routes;
+        if (!Array.isArray(localRoutes)) {
+			localRoutes = [localRoutes];
 		}
-		routes.forEach((route) => {
-			if (!(route instanceof Route)) {
-				route = new Route(route.path, route.handler);
+        localRoutes.forEach((route) => {
+            let localRoute = route;
+            if (!(localRoute instanceof Route)) {
+				localRoute = new Route(localRoute.path, localRoute.handler);
 			}
-			this.routes.push(route);
-		});
-		return this;
-	}
+            this.routes.push(localRoute);
+        });
+        return this;
+    }
 
 	/**
 	 * Adds one or more surfaces to the application.
@@ -293,17 +295,19 @@ class App extends EventEmitter {
 	 * @chainable
 	 */
 	addSurfaces(surfaces) {
-		if (!Array.isArray(surfaces)) {
-			surfaces = [surfaces];
+        let localSurfaces = surfaces;
+        if (!Array.isArray(localSurfaces)) {
+			localSurfaces = [localSurfaces];
 		}
-		surfaces.forEach((surface) => {
-			if (isString(surface)) {
-				surface = new Surface(surface);
+        localSurfaces.forEach((surface) => {
+            let localSurface = surface;
+            if (isString(localSurface)) {
+				localSurface = new Surface(localSurface);
 			}
-			this.surfaces[surface.getId()] = surface;
-		});
-		return this;
-	}
+            this.surfaces[localSurface.getId()] = localSurface;
+        });
+        return this;
+    }
 
 	/**
 	 * Returns if can navigate to path.
@@ -504,16 +508,17 @@ class App extends EventEmitter {
 	 *     path is the same as the current url and the path contains a fragment.
 	 */
 	findRoute(path) {
-		path = this.getRoutePath(path);
-		for (var i = 0; i < this.routes.length; i++) {
+        let localPath = path;
+        localPath = this.getRoutePath(localPath);
+        for (var i = 0; i < this.routes.length; i++) {
 			var route = this.routes[i];
-			if (route.matchesPath(path)) {
+			if (route.matchesPath(localPath)) {
 				return route;
 			}
 		}
 
-		return null;
-	}
+        return null;
+    }
 
 	/**
 	 * Gets allow prevent navigate.
@@ -579,14 +584,15 @@ class App extends EventEmitter {
 	 * @return {string}
 	 */
 	getRoutePath(path) {
-		if (this.getIgnoreQueryStringFromRoutePath()) {
-			path = utils.getUrlPathWithoutHashAndSearch(path);
-			return utils.getUrlPathWithoutHashAndSearch(path.substr(this.basePath.length));
+        let localPath = path;
+        if (this.getIgnoreQueryStringFromRoutePath()) {
+			localPath = utils.getUrlPathWithoutHashAndSearch(localPath);
+			return utils.getUrlPathWithoutHashAndSearch(localPath.substr(this.basePath.length));
 		}
 
-		path = utils.getUrlPathWithoutHash(path);
-		return utils.getUrlPathWithoutHash(path.substr(this.basePath.length));
-	}
+        localPath = utils.getUrlPathWithoutHash(localPath);
+        return utils.getUrlPathWithoutHash(localPath.substr(this.basePath.length));
+    }
 
 	/**
 	 * Gets the update scroll position value.
@@ -863,29 +869,30 @@ class App extends EventEmitter {
 	 * @return {CancellablePromise} Returns a pending request cancellable promise.
 	 */
 	navigate(path, opt_replaceHistory, opt_event) {
-		if (!utils.isHtml5HistorySupported()) {
+        let localOpt_replaceHistory = opt_replaceHistory;
+        if (!utils.isHtml5HistorySupported()) {
 			throw new Error('HTML5 History is not supported. Senna will not intercept navigation.');
 		}
 
-		if (opt_event) {
+        if (opt_event) {
 			globals.capturedFormElement = opt_event.capturedFormElement;
 			globals.capturedFormButtonElement = opt_event.capturedFormButtonElement;
 		}
 
-		// When reloading the same path do replaceState instead of pushState to
-		// avoid polluting history with states with the same path.
-		if (path === this.activePath) {
-			opt_replaceHistory = true;
+        // When reloading the same path do replaceState instead of pushState to
+        // avoid polluting history with states with the same path.
+        if (path === this.activePath) {
+			localOpt_replaceHistory = true;
 		}
 
-		this.emit('beforeNavigate', {
+        this.emit('beforeNavigate', {
 			event: opt_event,
 			path: path,
-			replaceHistory: !!opt_replaceHistory
+			replaceHistory: !!localOpt_replaceHistory
 		});
 
-		return this.pendingNavigate;
-	}
+        return this.pendingNavigate;
+    }
 
 	/**
 	 * Befores navigation to a path.
