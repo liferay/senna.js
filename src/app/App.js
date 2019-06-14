@@ -847,7 +847,7 @@ class App extends EventEmitter {
   maybeRepositionScrollToHashedAnchor() {
     const hash = globals.window.location.hash;
     if (hash) {
-      let anchorElement = globals.document.getElementById(hash.substring(1));
+      const anchorElement = globals.document.getElementById(hash.substring(1));
       if (anchorElement) {
         const { offsetLeft, offsetTop } = utils.getNodeOffset(anchorElement);
         globals.window.scrollTo(offsetLeft, offsetTop);
@@ -1430,7 +1430,7 @@ class App extends EventEmitter {
 
     utils.setReferrer(referrer);
 
-    let titleNode = globals.document.querySelector("title");
+    const titleNode = globals.document.querySelector("title");
     if (titleNode) {
       titleNode.innerHTML = title;
     } else {

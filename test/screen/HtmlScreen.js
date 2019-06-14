@@ -190,7 +190,6 @@ describe("HtmlScreen", function() {
 
   it("should evaluate favicon", done => {
     enterDocumentSurfaceElement("surfaceId", "");
-    const surface = new Surface("surfaceId");
     const screen = new HtmlScreen();
     screen.allocateVirtualDocumentForContent(
       '<link rel="Shortcut Icon" href="/for/favicon.ico" />'
@@ -217,7 +216,6 @@ describe("HtmlScreen", function() {
       screen.evaluateFavicon_({}).then(() => {
         const element = document.querySelector('link[rel="Shortcut Icon"]');
         assert.ok(element);
-        const uri = new Uri(element.href);
         exitDocumentElement("favicon");
         done();
       });
@@ -233,7 +231,6 @@ describe("HtmlScreen", function() {
         "surfaceId",
         '<link rel="Shortcut Icon" href="/bar/favicon.ico" />'
       );
-      const surface = new Surface("surfaceId");
       const screen = new HtmlScreen();
       screen.allocateVirtualDocumentForContent(
         '<link rel="Shortcut Icon" href="/for/favicon.ico" />'
@@ -258,7 +255,6 @@ describe("HtmlScreen", function() {
         "surfaceId",
         '<link rel="Shortcut Icon" href="/bar/favicon.ico" />'
       );
-      const surface = new Surface("surfaceId");
       const screen = new HtmlScreen();
       screen.allocateVirtualDocumentForContent(
         '<link rel="Shortcut Icon" href="/for/favicon.ico" />'

@@ -1113,7 +1113,7 @@ describe("App", function() {
   it("should not navigate when clicking on target blank links", () => {
     this.app = new App();
     this.app.addRoutes(new Route("/path", Screen));
-    let link = enterDocumentLinkElement("/path");
+    const link = enterDocumentLinkElement("/path");
     link.setAttribute("target", "_blank");
     link.addEventListener("click", event => event.preventDefault());
     dom.triggerEvent(link, "click");
@@ -1308,7 +1308,7 @@ describe("App", function() {
     window.onbeforeunload = beforeunload;
     this.app = new App();
     this.app.addRoutes(new Route("/path", Screen));
-    let link = enterDocumentLinkElement("/path");
+    const link = enterDocumentLinkElement("/path");
     dom.triggerEvent(link, "click");
     exitDocumentLinkElement();
     assert.strictEqual(1, beforeunload.callCount);
@@ -1379,7 +1379,7 @@ describe("App", function() {
     this.app = new App();
     this.app.addRoutes(new Route("/path", Screen));
     const form = enterDocumentFormElement("/path", "post");
-    return new CancellablePromise((resolve, reject) => {
+    return new CancellablePromise(resolve => {
       dom.once(form, "submit", event => {
         event.preventDefault();
         assert.ok(!this.app.pendingNavigate);
@@ -1395,7 +1395,7 @@ describe("App", function() {
     this.app = new App();
     this.app.addRoutes(new Route("/path", Screen));
     const form = enterDocumentFormElement("/path", "post");
-    return new CancellablePromise((resolve, reject) => {
+    return new CancellablePromise(resolve => {
       dom.once(form, "submit", event => {
         event.preventDefault();
         assert.ok(!globals.capturedFormElement);
@@ -1498,8 +1498,8 @@ describe("App", function() {
     this.app.setAllowPreventNavigate(false);
     this.app.addRoutes(new Route("/path", StubScreen));
 
-    return new CancellablePromise((resolve, reject) => {
-      this.app.on("beforeNavigate", event => {
+    return new CancellablePromise(resolve => {
+      this.app.on("beforeNavigate", () => {
         assert.ok(globals.capturedFormButtonElement);
         resolve();
       });
@@ -2061,7 +2061,7 @@ describe("App", function() {
     return this.app.navigate("/path1").then(() => {
       window.history.replaceState(null, null, null);
       return this.app.navigate("/path2").then(() => {
-        return new CancellablePromise((resolve, reject) => {
+        return new CancellablePromise(resolve => {
           dom.once(globals.window, "popstate", () => {
             assert.strictEqual(0, this.app.reloadPage.callCount);
             resolve();

@@ -292,11 +292,11 @@ class RequestScreen extends Screen {
    */
   addSafariXHRPolyfill() {
     if (globals.capturedFormElement && UA.isSafari) {
-      let inputs = globals.capturedFormElement.querySelectorAll(
+      const inputs = globals.capturedFormElement.querySelectorAll(
         'input[type="file"]:not([disabled])'
       );
       for (let index = 0; index < inputs.length; index++) {
-        let input = inputs[index];
+        const input = inputs[index];
         if (input.files.length > 0) {
           return;
         }
@@ -315,7 +315,7 @@ class RequestScreen extends Screen {
    */
   removeSafariXHRPolyfill() {
     if (globals.capturedFormElement && UA.isSafari) {
-      let inputs = globals.capturedFormElement.querySelectorAll(
+      const inputs = globals.capturedFormElement.querySelectorAll(
         'input[type="file"][data-safari-temp-disabled]'
       );
       for (let index = 0; index < inputs.length; index++) {
