@@ -21,7 +21,7 @@
     "compile": "BABEL_ENV=compile babel -d lib/ src/",
     "checkFormat": "prettier --check '{src,test}/**/*.js'",
     "format": "prettier --write '{src,test}/**/*.js'",
-    "lint": "eslint {src,test}/ --config eslint.config.js",
+    "lint": "eslint '{src,test}/**/*.js' --config eslint.config.js",
     "prepublish": "gulp && npm run compile",
     "test": "gulp test",
     "test:watch": "gulp test:watch",
