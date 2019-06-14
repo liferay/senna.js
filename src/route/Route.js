@@ -45,9 +45,9 @@ class Route {
 			const tokens = parse(this.path);
 			const regex = toRegex(tokens);
 			this.parsedData_ = {
-				regex,
-				tokens
-			};
+                regex,
+                tokens,
+            };
 		}
 		return this.parsedData_;
 	}

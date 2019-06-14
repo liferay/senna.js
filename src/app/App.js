@@ -13,8 +13,8 @@ import Uri from 'metal-uri';
 import utils from '../utils/utils';
 
 const NavigationStrategy = {
-	IMMEDIATE: 'immediate',
-	SCHEDULE_LAST: 'scheduleLast'
+    IMMEDIATE: 'immediate',
+    SCHEDULE_LAST: 'scheduleLast',
 };
 
 class App extends EventEmitter {
@@ -611,11 +611,14 @@ class App extends EventEmitter {
 	 */
 	handleNavigateError_(path, nextScreen, error) {
 		console.log(`Navigation error for [${nextScreen}] (${error.stack})`);
-		this.emit('navigationError', {
-			error,
-			nextScreen,
-			path
-		});
+		this.emit(
+            'navigationError',
+            {
+                error,
+                nextScreen,
+                path,
+            },
+        );
 		if (!utils.isCurrentBrowserPath(path)) {
 			if (this.isNavigationPending && this.pendingNavigate) {
 				this.pendingNavigate.thenAlways(() => this.removeScreen(path), this);
@@ -707,10 +710,12 @@ class App extends EventEmitter {
 	 */
 	maybeScheduleNavigation_(href, event) {
 		if (this.isNavigationPending && this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
-			this.scheduledNavigationQueue = [object.mixin({
-				href,
-				isScheduledNavigation: true
-			}, event)];
+			this.scheduledNavigationQueue = [
+                object.mixin({
+                    href,
+                    isScheduledNavigation: true,
+                }, event),
+            ];
 			return true;
 		}
 		return false;
@@ -885,11 +890,14 @@ class App extends EventEmitter {
 			localOpt_replaceHistory = true;
 		}
 
-        this.emit('beforeNavigate', {
-			event: opt_event,
-			path,
-			replaceHistory: !!localOpt_replaceHistory
-		});
+        this.emit(
+            'beforeNavigate',
+            {
+                event: opt_event,
+                path,
+                replaceHistory: !!localOpt_replaceHistory,
+            },
+        );
 
         return this.pendingNavigate;
     }
@@ -922,11 +930,14 @@ class App extends EventEmitter {
 
 		this.emit('beforeUnload', event);
 
-		this.emit('startNavigate', {
-			form: event.form,
-			path: event.path,
-			replaceHistory: event.replaceHistory
-		});
+		this.emit(
+            'startNavigate',
+            {
+                form: event.form,
+                path: event.path,
+                replaceHistory: event.replaceHistory,
+            },
+        );
 	}
 
 	/**
@@ -1081,9 +1092,9 @@ class App extends EventEmitter {
 		addClasses(globals.document.documentElement, this.loadingCssClass);
 
 		const endNavigatePayload = {
-			form: event.form,
-			path: event.path
-		};
+            form: event.form,
+            path: event.path,
+        };
 
 		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
 			.catch((reason) => {
@@ -1138,13 +1149,13 @@ class App extends EventEmitter {
 		}
 		let redirectPath = nextScreen.beforeUpdateHistoryPath(path);
 		const historyState = {
-			form: isDefAndNotNull(globals.capturedFormElement),
-			path,
-			redirectPath,
-			scrollLeft: 0,
-			scrollTop: 0,
-			senna: true
-		};
+            form: isDefAndNotNull(globals.capturedFormElement),
+            path,
+            redirectPath,
+            scrollLeft: 0,
+            scrollTop: 0,
+            senna: true,
+        };
 		if (opt_replaceHistory) {
 			historyState.scrollTop = this.popstateScrollTop;
 			historyState.scrollLeft = this.popstateScrollLeft;

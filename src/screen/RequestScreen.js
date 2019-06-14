@@ -38,9 +38,9 @@ class RequestScreen extends Screen {
 		 * @protected
 		 */
 		this.httpHeaders = {
-			'X-PJAX': 'true',
-			'X-Requested-With': 'XMLHttpRequest'
-		};
+            'X-PJAX': 'true',
+            'X-Requested-With': 'XMLHttpRequest',
+        };
 
 		/**
 		 * Holds default http method to perform the request.

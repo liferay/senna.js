@@ -51,9 +51,9 @@ class utils {
 			localNode = localNode.offsetParent;
 		} while (localNode);
         return {
-			offsetLeft,
-			offsetTop
-		};
+            offsetLeft,
+            offsetTop,
+        };
     }
 
 	/**
@@ -173,12 +173,17 @@ class utils {
 	 * @static
 	 */
 	static setReferrer(referrer) {
-		Object.defineProperty(globals.document, 'referrer', {
-			configurable: true,
-			get() {
-				return referrer;
-			}
-		});
+		Object.defineProperty(
+            globals.document,
+            'referrer',
+            {
+                configurable: true,
+
+                get() {
+                    return referrer;
+                },
+            },
+        );
 	}
 }
 
