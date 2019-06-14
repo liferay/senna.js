@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-import globals from '../globals/globals';
-import AppDataAttributeHandler from './AppDataAttributeHandler';
+import globals from "../globals/globals";
+import AppDataAttributeHandler from "./AppDataAttributeHandler";
 
 /**
  * Data attribute handler.
@@ -9,9 +9,9 @@ import AppDataAttributeHandler from './AppDataAttributeHandler';
  */
 const dataAttributeHandler = new AppDataAttributeHandler();
 
-globals.document.addEventListener('DOMContentLoaded', () => {
-	dataAttributeHandler.setBaseElement(globals.document.body);
-	dataAttributeHandler.handle();
+globals.document.addEventListener("DOMContentLoaded", () => {
+  dataAttributeHandler.setBaseElement(globals.document.body);
+  dataAttributeHandler.handle();
 });
 
 export default dataAttributeHandler;
