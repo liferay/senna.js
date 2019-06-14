@@ -59,7 +59,7 @@ describe('RequestScreen', function() {
 		sinon.stub(screen, 'getRequest', () => {
 			return {
 				requestPath: '/path',
-				getResponseHeader: function() {
+				getResponseHeader() {
 					return null;
 				}
 			};

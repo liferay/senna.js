@@ -10,7 +10,7 @@ describe('AppDataAttributeHandler', () => {
 	before(() => {
 		globals.document.body.setAttribute('data-senna', '');
 		globals.window.senna = {
-			Screen: Screen
+			Screen
 		};
 
 		// Prevent log messages from showing up in test output.
