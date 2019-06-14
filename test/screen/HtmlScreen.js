@@ -410,7 +410,7 @@ describe('HtmlScreen', function() {
 });
 
 function enterDocumentSurfaceElement(surfaceId, opt_content) {
-	dom.enterDocument('<div id="' + surfaceId + '">' + (opt_content ? opt_content : '') + '</div>');
+	dom.enterDocument(`<div id="${surfaceId}">${opt_content ? opt_content : ''}</div>`);
 	return document.getElementById(surfaceId);
 }
 

@@ -17,7 +17,7 @@ describe('RequestScreen', function() {
 
 		// A fix for window.location.origin in Internet Explorer
 		if (!globals.window.location.origin) {
-			globals.window.location.origin = globals.window.location.protocol + '//' + globals.window.location.hostname + (globals.window.location.port ? ':' + globals.window.location.port : '');
+			globals.window.location.origin = `${globals.window.location.protocol}//${globals.window.location.hostname}${globals.window.location.port ? `:${globals.window.location.port}` : ''}`;
 		}
 	});
 
@@ -115,7 +115,7 @@ describe('RequestScreen', function() {
 		} else {
 			const screen = new RequestScreen();
 			screen.load('/url').then(() => {
-				assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
+				assert.strictEqual(`${globals.window.location.origin}/url`, screen.getRequest().url);
 				assert.deepEqual({
 					'X-PJAX': 'true',
 					'X-Requested-With': 'XMLHttpRequest'
@@ -297,7 +297,7 @@ describe('RequestScreen', function() {
 	it('should navigate over same protocol the page was viewed on', (done) => {
 		const screen = new RequestScreen();
 		const wrongProtocol = globals.window.location.origin.replace('http', 'https');
-		screen.load(wrongProtocol + '/url').then(() => {
+		screen.load(`${wrongProtocol}/url`).then(() => {
 			const url = screen.getRequest().url;
 			assert.ok(url.indexOf('http:') === 0);
 			done();

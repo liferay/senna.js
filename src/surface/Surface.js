@@ -157,7 +157,7 @@ class Surface extends Disposable {
 	 * @private
 	 */
 	makeId_(screenId) {
-		return this.id + '-' + screenId;
+		return `${this.id}-${screenId}`;
 	}
 
 	/**
