@@ -5,7 +5,7 @@ import globals from '../../src/globals/globals';
 import AppDataAttributeHandler from '../../src/app/AppDataAttributeHandler';
 import Screen from '../../src/screen/Screen';
 
-describe('AppDataAttributeHandler', function() {
+describe('AppDataAttributeHandler', () => {
 
 	before(() => {
 		globals.document.body.setAttribute('data-senna', '');

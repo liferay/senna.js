@@ -3,7 +3,7 @@
 import { core } from 'metal';
 import Route from '../../src/route/Route';
 
-describe('Route', function() {
+describe('Route', () => {
 
 	describe('Constructor', () => {
 		it('should throws error when path and handler not specified', () => {
@@ -69,9 +69,7 @@ describe('Route', function() {
 		});
 
 		it('should match route by function path', () => {
-			var route = new Route(function(path) {
-				return path === '/path';
-			}, core.nullFunction);
+			var route = new Route(path => path === '/path', core.nullFunction);
 			assert.ok(route.matchesPath('/path'));
 		});
 
@@ -86,7 +84,7 @@ describe('Route', function() {
 		});
 	});
 
-	describe('Extracting params', function() {
+	describe('Extracting params', () => {
 		it('should extract params from path matching route', () => {
 			var route = new Route('/path/:foo(\\d+)/:bar(\\w+)', core.nullFunction);
 			var params = route.extractParams('/path/123/abc');

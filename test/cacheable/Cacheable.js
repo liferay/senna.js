@@ -2,7 +2,7 @@
 
 import Cacheable from '../../src/cacheable/Cacheable';
 
-describe('Cacheable', function() {
+describe('Cacheable', () => {
 
 	it('should not be cacheable by default', () => {
 		assert.ok(!new Cacheable().isCacheable());
