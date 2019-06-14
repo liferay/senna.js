@@ -56,7 +56,7 @@ describe('RequestScreen', function() {
 
 	it('should screen beforeUpdateHistoryPath return request path if responseURL or X-Request-URL not present', () => {
 		const screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', () => {
+		sinon.stub(screen, 'getRequest').callsFake(() => {
 			return {
 				requestPath: '/path',
 				getResponseHeader() {
@@ -69,7 +69,7 @@ describe('RequestScreen', function() {
 
 	it('should screen beforeUpdateHistoryPath return responseURL if present', () => {
 		const screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', () => {
+		sinon.stub(screen, 'getRequest').callsFake(() => {
 			return {
                 requestPath: '/path',
                 responseURL: '/redirect',
@@ -80,7 +80,7 @@ describe('RequestScreen', function() {
 
 	it('should screen beforeUpdateHistoryPath return X-Request-URL if present and responseURL is not', () => {
 		const screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', () => {
+		sinon.stub(screen, 'getRequest').callsFake(() => {
 			return {
                 requestPath: '/path',
 
@@ -109,7 +109,7 @@ describe('RequestScreen', function() {
 		assert.strictEqual(null, screen.getRequestPath());
 	});
 
-	it('should send request to an url', (done) => {
+	it.only('should send request to an url', (done) => {
 		// This test will run only on Chrome to avoid unique url on test case
 		if (!UA.isChrome) {
 			done();
@@ -119,7 +119,8 @@ describe('RequestScreen', function() {
 				assert.strictEqual(`${globals.window.location.origin}/url`, screen.getRequest().url);
 				assert.deepEqual({
                     'X-PJAX': 'true',
-                    'X-Requested-With': 'XMLHttpRequest',
+					'X-Requested-With': 'XMLHttpRequest',
+					'Content-Type': 'text/plain;charset=utf-8',
                 }, screen.getRequest().requestHeaders);
 				done();
 			});
