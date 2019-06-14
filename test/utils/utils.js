@@ -8,16 +8,17 @@ describe('utils', () => {
 
 	before(() => {
 		globals.window = {
-			location: {
-				hostname: 'hostname',
-				pathname: '/path',
-				search: '?a=1',
-				hash: '#hash'
-			},
-			history: {
-				pushState: 1
-			}
-		};
+            location: {
+                hostname: 'hostname',
+                pathname: '/path',
+                search: '?a=1',
+                hash: '#hash',
+            },
+
+            history: {
+                pushState: 1,
+            },
+        };
 	});
 
 	after(() => {

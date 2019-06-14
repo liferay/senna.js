@@ -40,9 +40,9 @@ describe('RequestScreen', function() {
 	it('should set HTTP headers', () => {
 		const screen = new RequestScreen();
 		assert.deepEqual({
-			'X-PJAX': 'true',
-			'X-Requested-With': 'XMLHttpRequest'
-		}, screen.getHttpHeaders());
+            'X-PJAX': 'true',
+            'X-Requested-With': 'XMLHttpRequest',
+        }, screen.getHttpHeaders());
 		screen.setHttpHeaders({});
 		assert.deepEqual({}, screen.getHttpHeaders());
 	});
@@ -71,9 +71,9 @@ describe('RequestScreen', function() {
 		const screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				requestPath: '/path',
-				responseURL: '/redirect'
-			};
+                requestPath: '/path',
+                responseURL: '/redirect',
+            };
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
@@ -82,13 +82,14 @@ describe('RequestScreen', function() {
 		const screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				requestPath: '/path',
-				getResponseHeader: (header) => {
+                requestPath: '/path',
+
+                getResponseHeader: (header) => {
 					return {
-						'X-Request-URL': '/redirect'
-					}[header];
-				}
-			};
+                        'X-Request-URL': '/redirect',
+                    }[header];
+				},
+            };
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
@@ -96,11 +97,11 @@ describe('RequestScreen', function() {
 	it('should screen beforeUpdateHistoryState return null if form navigate to post-without-redirect-get', () => {
 		const screen = new RequestScreen();
 		assert.strictEqual(null, screen.beforeUpdateHistoryState({
-			senna: true,
-			form: true,
-			redirectPath: '/post',
-			path: '/post'
-		}));
+            senna: true,
+            form: true,
+            redirectPath: '/post',
+            path: '/post',
+        }));
 	});
 
 	it('should request path return null if no requests were made', () => {
@@ -117,9 +118,9 @@ describe('RequestScreen', function() {
 			screen.load('/url').then(() => {
 				assert.strictEqual(`${globals.window.location.origin}/url`, screen.getRequest().url);
 				assert.deepEqual({
-					'X-PJAX': 'true',
-					'X-Requested-With': 'XMLHttpRequest'
-				}, screen.getRequest().requestHeaders);
+                    'X-PJAX': 'true',
+                    'X-Requested-With': 'XMLHttpRequest',
+                }, screen.getRequest().requestHeaders);
 				done();
 			});
 			this.requests[0].respond(200);

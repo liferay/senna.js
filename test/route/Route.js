@@ -89,9 +89,9 @@ describe('Route', () => {
 			const route = new Route('/path/:foo(\\d+)/:bar(\\w+)', core.nullFunction);
 			const params = route.extractParams('/path/123/abc');
 			const expected = {
-				foo: '123',
-				bar: 'abc'
-			};
+                foo: '123',
+                bar: 'abc',
+            };
 			assert.deepEqual(expected, params);
 		});
 
