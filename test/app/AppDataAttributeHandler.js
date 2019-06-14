@@ -228,8 +228,8 @@ describe('AppDataAttributeHandler', () => {
 });
 
 function enterDocumentRouteElement(path) {
-	dom.enterDocument('<link href="' + path + '" rel="senna-route" type="senna.Screen"></link>');
-	return document.querySelector('link[href="' + path + '"]');
+	dom.enterDocument(`<link href="${path}" rel="senna-route" type="senna.Screen"></link>`);
+	return document.querySelector(`link[href="${path}"]`);
 }
 
 function enterDocumentRouteElementMissingPath() {
@@ -238,22 +238,22 @@ function enterDocumentRouteElementMissingPath() {
 }
 
 function enterDocumentRouteElementMissingScreenType(path) {
-	dom.enterDocument('<link href="' + path + '" rel="senna-route"></link>');
-	return document.querySelector('link[href="' + path + '"]');
+	dom.enterDocument(`<link href="${path}" rel="senna-route"></link>`);
+	return document.querySelector(`link[href="${path}"]`);
 }
 
 function enterDocumentSurfaceElement(surfaceId) {
-	dom.enterDocument('<div id="' + surfaceId + '" data-senna-surface></div>');
+	dom.enterDocument(`<div id="${surfaceId}" data-senna-surface></div>`);
 	return document.getElementById(surfaceId);
 }
 
 function enterDocumentSurfaceElementMissingId(surfaceId) {
-	dom.enterDocument('<div data-id="' + surfaceId + '" data-senna-surface></div>');
+	dom.enterDocument(`<div data-id="${surfaceId}" data-senna-surface></div>`);
 	return document.getElementById(surfaceId);
 }
 
 function exitDocumentRouteElement(path) {
-	return dom.exitDocument(document.querySelector('link[href="' + path + '"]'));
+	return dom.exitDocument(document.querySelector(`link[href="${path}"]`));
 }
 
 function exitDocumentRouteElementMissingPath() {
@@ -265,5 +265,5 @@ function exitDocumentSurfaceElement(surfaceId) {
 }
 
 function exitDocumentSurfaceElementMissingId(surfaceId) {
-	return dom.exitDocument(document.querySelector('[data-id="' + surfaceId + '"]'));
+	return dom.exitDocument(document.querySelector(`[data-id="${surfaceId}"]`));
 }

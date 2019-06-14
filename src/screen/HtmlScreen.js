@@ -92,7 +92,7 @@ class HtmlScreen extends RequestScreen {
 	assertSameBodyIdInVirtualDocument() {
 		const bodySurface = this.virtualDocument.querySelector('body');
 		if (!globals.document.body.id) {
-			globals.document.body.id = 'senna_surface_' + getUid();
+			globals.document.body.id = `senna_surface_${getUid()}`;
 		}
 		if (bodySurface) {
 			bodySurface.id = globals.document.body.id;
@@ -262,9 +262,9 @@ class HtmlScreen extends RequestScreen {
 	 * @inheritDoc
 	 */
 	getSurfaceContent(surfaceId) {
-		const surface = this.virtualDocument.querySelector('#' + surfaceId);
+		const surface = this.virtualDocument.querySelector(`#${surfaceId}`);
 		if (surface) {
-			const defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
+			const defaultChild = surface.querySelector(`#${surfaceId}-${Surface.DEFAULT}`);
 			if (defaultChild) {
 				return defaultChild.innerHTML;
 			}
