@@ -43,7 +43,7 @@ describe('Route', () => {
 		});
 
 		it('should set path and handler from constructor', () => {
-			var route = new Route('/path', core.nullFunction);
+			const route = new Route('/path', core.nullFunction);
 			assert.strictEqual('/path', route.getPath());
 			assert.strictEqual(core.nullFunction, route.getHandler());
 		});
@@ -51,12 +51,12 @@ describe('Route', () => {
 
 	describe('Matching', () => {
 		it('should match route by string path', () => {
-			var route = new Route('/path', core.nullFunction);
+			const route = new Route('/path', core.nullFunction);
 			assert.ok(route.matchesPath('/path'));
 		});
 
 		it('should match route by string path with params', () => {
-			var route = new Route('/path/:foo(\\d+)', core.nullFunction);
+			const route = new Route('/path/:foo(\\d+)', core.nullFunction);
 			assert.ok(route.matchesPath('/path/10'));
 			assert.ok(route.matchesPath('/path/10/'));
 			assert.ok(!route.matchesPath('/path/abc'));
@@ -64,31 +64,31 @@ describe('Route', () => {
 		});
 
 		it('should match route by regex path', () => {
-			var route = new Route(/\/path/, core.nullFunction);
+			const route = new Route(/\/path/, core.nullFunction);
 			assert.ok(route.matchesPath('/path'));
 		});
 
 		it('should match route by function path', () => {
-			var route = new Route(path => path === '/path', core.nullFunction);
+			const route = new Route(path => path === '/path', core.nullFunction);
 			assert.ok(route.matchesPath('/path'));
 		});
 
 		it('should not match any route', () => {
-			var route = new Route('/path', core.nullFunction);
+			const route = new Route('/path', core.nullFunction);
 			assert.ok(!route.matchesPath('/invalid'));
 		});
 
 		it('should not match any route for invalid path', () => {
-			var route = new Route({}, core.nullFunction);
+			const route = new Route({}, core.nullFunction);
 			assert.ok(!route.matchesPath('/invalid'));
 		});
 	});
 
 	describe('Extracting params', () => {
 		it('should extract params from path matching route', () => {
-			var route = new Route('/path/:foo(\\d+)/:bar(\\w+)', core.nullFunction);
-			var params = route.extractParams('/path/123/abc');
-			var expected = {
+			const route = new Route('/path/:foo(\\d+)/:bar(\\w+)', core.nullFunction);
+			const params = route.extractParams('/path/123/abc');
+			const expected = {
 				foo: '123',
 				bar: 'abc'
 			};
@@ -96,14 +96,14 @@ describe('Route', () => {
 		});
 
 		it('should return null if try to extract params from non matching route', () => {
-			var route = new Route('/path/:foo(\\d+)/:bar(\\w+)', core.nullFunction);
-			var params = route.extractParams('/path/abc/123');
+			const route = new Route('/path/:foo(\\d+)/:bar(\\w+)', core.nullFunction);
+			const params = route.extractParams('/path/abc/123');
 			assert.strictEqual(null, params);
 		});
 
 		it('should return empty object if trying to extract params from path given as function', () => {
-			var route = new Route(core.nullFunction, core.nullFunction);
-			var params = route.extractParams('/path/123/abc');
+			const route = new Route(core.nullFunction, core.nullFunction);
+			const params = route.extractParams('/path/123/abc');
 			assert.deepEqual({}, params);
 		});
 	});

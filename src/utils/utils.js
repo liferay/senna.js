@@ -62,7 +62,7 @@ class utils {
 	 * @static
 	 */
 	static getUrlPath(url) {
-		var uri = new Uri(url);
+		const uri = new Uri(url);
 		return uri.getPathname() + uri.getSearch() + uri.getHash();
 	}
 
@@ -72,7 +72,7 @@ class utils {
 	 * @static
 	 */
 	static getUrlPathWithoutHash(url) {
-		var uri = new Uri(url);
+		const uri = new Uri(url);
 		return uri.getPathname() + uri.getSearch();
 	}
 
@@ -82,7 +82,7 @@ class utils {
 	 * @static
 	 */
 	static getUrlPathWithoutHashAndSearch(url) {
-		var uri = new Uri(url);
+		const uri = new Uri(url);
 		return uri.getPathname();
 	}
 
@@ -150,7 +150,7 @@ class utils {
 	*/
 	static removePathTrailingSlash(path) {
         let localPath = path;
-        var length = localPath ? localPath.length : 0;
+        const length = localPath ? localPath.length : 0;
         if (length > 1 && localPath[length - 1] === '/') {
 			localPath = localPath.substr(0, length - 1);
 		}

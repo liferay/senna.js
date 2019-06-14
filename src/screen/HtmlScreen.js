@@ -71,12 +71,12 @@ class HtmlScreen extends RequestScreen {
 	 * @param {Element} newStyle
 	 */
 	appendStyleIntoDocument_(newStyle) {
-		var isTemporaryStyle = match(newStyle, HtmlScreen.selectors.stylesTemporary);
+		const isTemporaryStyle = match(newStyle, HtmlScreen.selectors.stylesTemporary);
 		if (isTemporaryStyle) {
 			this.pendingStyles.push(newStyle);
 		}
 		if (newStyle.id) {
-			var styleInDoc = globals.document.getElementById(newStyle.id);
+			const styleInDoc = globals.document.getElementById(newStyle.id);
 			if (styleInDoc) {
 				styleInDoc.parentNode.insertBefore(newStyle, styleInDoc.nextSibling);
 				return;
@@ -90,7 +90,7 @@ class HtmlScreen extends RequestScreen {
 	 * of the initial page.
 	 */
 	assertSameBodyIdInVirtualDocument() {
-		var bodySurface = this.virtualDocument.querySelector('body');
+		const bodySurface = this.virtualDocument.querySelector('body');
 		if (!globals.document.body.id) {
 			globals.document.body.id = 'senna_surface_' + getUid();
 		}
@@ -142,7 +142,7 @@ class HtmlScreen extends RequestScreen {
 	 * @Override
 	 */
 	evaluateScripts(surfaces) {
-		var evaluateTrackedScripts = this.evaluateTrackedResources_(
+		const evaluateTrackedScripts = this.evaluateTrackedResources_(
 			globalEval.runScriptsInElement, HtmlScreen.selectors.scripts,
 			HtmlScreen.selectors.scriptsTemporary, HtmlScreen.selectors.scriptsPermanent);
 
@@ -154,7 +154,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	evaluateStyles(surfaces) {
 		this.pendingStyles = [];
-		var evaluateTrackedStyles = this.evaluateTrackedResources_(
+		const evaluateTrackedStyles = this.evaluateTrackedResources_(
 			globalEvalStyles.runStylesInElement, HtmlScreen.selectors.styles,
 			HtmlScreen.selectors.stylesTemporary, HtmlScreen.selectors.stylesPermanent,
 			this.appendStyleIntoDocument_.bind(this));
@@ -192,21 +192,21 @@ class HtmlScreen extends RequestScreen {
 	 * @private
 	 */
 	evaluateTrackedResources_(evaluatorFn, selector, selectorTemporary, selectorPermanent, opt_appendResourceFn) {
-		var tracked = this.virtualQuerySelectorAll_(selector);
-		var temporariesInDoc = this.querySelectorAll_(selectorTemporary);
-		var permanentsInDoc = this.querySelectorAll_(selectorPermanent);
+		const tracked = this.virtualQuerySelectorAll_(selector);
+		const temporariesInDoc = this.querySelectorAll_(selectorTemporary);
+		const permanentsInDoc = this.querySelectorAll_(selectorPermanent);
 
 		// Adds permanent resources in document to cache.
 		permanentsInDoc.forEach((resource) => {
-			var resourceKey = this.getResourceKey_(resource);
+			const resourceKey = this.getResourceKey_(resource);
 			if (resourceKey) {
 				HtmlScreen.permanentResourcesInDoc[resourceKey] = true;
 			}
 		});
 
-		var frag = buildFragment();
+		const frag = buildFragment();
 		tracked.forEach((resource) => {
-			var resourceKey = this.getResourceKey_(resource);
+			const resourceKey = this.getResourceKey_(resource);
 			// Do not load permanent resources if already in document.
 			if (!HtmlScreen.permanentResourcesInDoc[resourceKey]) {
 				frag.appendChild(resource);
@@ -262,9 +262,9 @@ class HtmlScreen extends RequestScreen {
 	 * @inheritDoc
 	 */
 	getSurfaceContent(surfaceId) {
-		var surface = this.virtualDocument.querySelector('#' + surfaceId);
+		const surface = this.virtualDocument.querySelector('#' + surfaceId);
 		if (surface) {
-			var defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
+			const defaultChild = surface.querySelector('#' + surfaceId + '-' + Surface.DEFAULT);
 			if (defaultChild) {
 				return defaultChild.innerHTML;
 			}
@@ -303,7 +303,7 @@ class HtmlScreen extends RequestScreen {
 	 * IE11. https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7940171/
 	 */
 	makeTemporaryStylesHrefsUnique_() {
-		var temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
+		const temporariesInDoc = this.virtualQuerySelectorAll_(HtmlScreen.selectors.stylesTemporary);
 		temporariesInDoc.forEach((style) => this.replaceStyleAndMakeUnique_(style));
 	}
 
@@ -313,7 +313,7 @@ class HtmlScreen extends RequestScreen {
 	 */
 	replaceStyleAndMakeUnique_(style) {
 		if (style.href) {
-			var newStyle = globals.document.createElement(style.tagName);
+			const newStyle = globals.document.createElement(style.tagName);
 			style.href = new Uri(style.href).makeUnique().toString();
 			utils.copyNodeAttributes(style, newStyle);
 			style.parentNode.replaceChild(newStyle, style);

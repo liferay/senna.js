@@ -64,12 +64,12 @@ describe('Screen', () => {
 	});
 
 	it('should wait to flip all surfaces', (done) => {
-		var surfaces = {
+		const surfaces = {
 			surface1: new Surface('surface1'),
 			surface2: new Surface('surface2')
 		};
-		var stub1 = sinon.stub();
-		var stub2 = sinon.stub();
+		const stub1 = sinon.stub();
+		const stub2 = sinon.stub();
 		surfaces.surface1.show = () => {
 			stub1();
 			return CancellablePromise.resolve();
@@ -86,14 +86,14 @@ describe('Screen', () => {
 	});
 
 	it('should get screen id', () => {
-		var screen = new Screen();
+		const screen = new Screen();
 		assert.ok(screen.getId());
 		screen.setId('otherId');
 		assert.strictEqual('otherId', screen.getId());
 	});
 
 	it('should get screen title', () => {
-		var screen = new Screen();
+		const screen = new Screen();
 		assert.strictEqual(null, screen.getTitle());
 		screen.setTitle('other');
 		assert.strictEqual('other', screen.getTitle());
@@ -105,8 +105,8 @@ describe('Screen', () => {
 
 	it('should evaluate surface scripts', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '<script>window.sentinel=true;</script>');
-		var surface = new Surface('surfaceId');
-		var screen = new Screen();
+		const surface = new Surface('surfaceId');
+		const screen = new Screen();
 		assert.ok(!window.sentinel);
 		screen.evaluateScripts({
 			surfaceId: surface
@@ -120,8 +120,8 @@ describe('Screen', () => {
 
 	it('should evaluate surface styles', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '<style>body{background-color:rgb(0, 255, 0);}</style>');
-		var surface = new Surface('surfaceId');
-		var screen = new Screen();
+		const surface = new Surface('surfaceId');
+		const screen = new Screen();
 		screen.evaluateStyles({
 			surfaceId: surface
 		}).then(() => {
