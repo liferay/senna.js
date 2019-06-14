@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @returns String containing the current senna version
  */
