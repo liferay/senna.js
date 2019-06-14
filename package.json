@@ -19,10 +19,11 @@
   "scripts": {
     "build": "gulp build build:amd",
     "compile": "BABEL_ENV=compile babel -d lib/ src/",
-    "lint": "gulp lint",
+    "format": "prettier --write '{src,test}/**/*.js'",
+    "lint": "eslint {src,test}/ --config eslint.config.js",
     "prepublish": "gulp && npm run compile",
-    "test": "gulp test",
-    "test:debug": "karma start --debug"
+    "test:debug": "karma start --debug",
+    "test": "gulp test"
   },
   "keywords": [
     "spa",
@@ -44,6 +45,8 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-metal": "^4.0.0",
     "es6-object-assign": "^1.1.0",
+    "eslint": "^5.16.0",
+    "eslint-config-liferay": "^3.0.0",
     "gulp": "^3.8.11",
     "gulp-connect": "^5.0.0",
     "gulp-header": "^1.7.1",
@@ -56,6 +59,7 @@
     "metal-karma-config": "^2.3.1",
     "metal-tools-build-rollup": "^2.0.6",
     "promise-polyfill": "^8.1.3",
+    "prettier": "^1.18.2",
     "run-sequence": "^1.1.5",
     "sinon": "^5.0.0",
     "whatwg-fetch": "^3.0.0"
