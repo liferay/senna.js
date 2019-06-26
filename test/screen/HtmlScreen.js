@@ -58,15 +58,6 @@ describe('HtmlScreen', function() {
 		this.requests[0].respond(200, null, '');
 	});
 
-	it('should cancel load request to an url', (done) => {
-		var screen = new HtmlScreen();
-		screen.load('/url')
-			.catch(reason => {
-				assert.ok(reason instanceof Error);
-				done();
-			}).cancel();
-	});
-
 	it('should copy surface root node attributes from response content', (done) => {
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<html attributeA="valueA"><div id="surfaceId">surface</div></html>');
@@ -157,7 +148,6 @@ describe('HtmlScreen', function() {
 
 	it('should evaluate favicon', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '');
-		var surface = new Surface('surfaceId');
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 		screen.evaluateFavicon_().then(() => {
@@ -180,7 +170,6 @@ describe('HtmlScreen', function() {
 					.then(() => {
 						var element = document.querySelector('link[rel="Shortcut Icon"]');
 						assert.ok(element);
-						var uri = new Uri(element.href);
 						exitDocumentElement('favicon');
 						done();
 					});
@@ -193,7 +182,6 @@ describe('HtmlScreen', function() {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-			var surface = new Surface('surfaceId');
 			var screen = new HtmlScreen();
 			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 			screen.evaluateFavicon_().then(() => {
@@ -213,7 +201,6 @@ describe('HtmlScreen', function() {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-			var surface = new Surface('surfaceId');
 			var screen = new HtmlScreen();
 			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 			screen.evaluateFavicon_().then(() => {

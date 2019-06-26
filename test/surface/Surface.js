@@ -197,13 +197,6 @@ describe('Surface', function() {
 			assert.ok(surfaceChildNext.parentNode);
 			exitDocumentSurfaceElement('surfaceId');
 		});
-
-		it('should transition deferred be cancellable', (done) => {
-			var surface = new Surface('surfaceId');
-			var transitionFn = () => CancellablePromise.resolve();
-			surface.setTransitionFn(transitionFn);
-			surface.transition(null, null).catch(() => done()).cancel();
-		});
 	});
 
 });

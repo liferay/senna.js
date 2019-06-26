@@ -79,12 +79,6 @@ describe('utils', function() {
 		assert.strictEqual('/path?a=1', utils.getCurrentBrowserPathWithoutHash());
 	});
 
-	it('should test if Html5 history is supported', () => {
-		assert.ok(utils.isHtml5HistorySupported());
-		globals.window.history = null;
-		assert.ok(!utils.isHtml5HistorySupported());
-	});
-
 	it('should test if a given url is a valid web (http/https) uri', () => {
 		assert.ok(!utils.isWebUri('tel:+999999999'), 'tel:+999999999 is not a valid url');
 		assert.instanceOf(utils.isWebUri('http://localhost:12345'), Uri);

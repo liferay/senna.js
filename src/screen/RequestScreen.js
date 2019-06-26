@@ -3,7 +3,6 @@
 import { isDefAndNotNull } from 'metal';
 import Ajax from 'metal-ajax';
 import { MultiMap } from 'metal-structs';
-import CancellablePromise from 'metal-promise';
 import errors from '../errors/errors';
 import utils from '../utils/utils';
 import globals from '../globals/globals';
@@ -195,7 +194,7 @@ class RequestScreen extends Screen {
 	load(path) {
 		const cache = this.getCache();
 		if (isDefAndNotNull(cache)) {
-			return CancellablePromise.resolve(cache);
+			return Promise.resolve(cache);
 		}
 		let body = null;
 		let httpMethod = this.httpMethod;

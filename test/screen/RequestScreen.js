@@ -150,17 +150,6 @@ describe('RequestScreen', function() {
 		this.requests[0].respond(200);
 	});
 
-	it('should cancel load request to an url', (done) => {
-		var screen = new RequestScreen();
-		screen.load('/url')
-			.then(() => assert.fail())
-			.catch(() => {
-				assert.ok(this.requests[0].aborted);
-				done();
-			})
-			.cancel();
-	});
-
 	it('should fail for timeout request', (done) => {
 		var screen = new RequestScreen();
 		screen.setTimeout(0);
