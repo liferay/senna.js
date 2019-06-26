@@ -5,10 +5,13 @@ module.exports = function(config) {
 		browserDisconnectTimeout: 3000,
 		browserNoActivityTimeout: 35000,
 		client: {
-	      mocha: {
-	        timeout : 35000
-	      }
-	    }
+			mocha: {
+				timeout : 35000
+			}
+		},
+		files: [
+			'https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js'
+		]
 	});
 	metalKarmaConfig(config);
 };
