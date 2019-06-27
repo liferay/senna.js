@@ -725,7 +725,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path2', Screen));
 		this.app.once('startNavigate', () => {
 			this.app.once('startNavigate', () => assert.ok(containsLoadingCssClass()));
-			this.app.once('endNavigate', () => assert.ok(containsLoadingCssClass()));
+			this.app.once('endNavigate', () => assert.ok(!containsLoadingCssClass()));
 			this.app.navigate('/path2').then(() => {
 				assert.ok(!containsLoadingCssClass());
 				done();
@@ -736,9 +736,6 @@ describe('App', function() {
 
 	it('should not navigate to unrouted paths', (done) => {
 		this.app = new App();
-		this.app.on('endNavigate', (payload) => {
-			assert.ok(payload.error instanceof Error);
-		});
 		this.app.navigate('/path', true).catch((reason) => {
 			assert.ok(reason instanceof Error);
 			done();
@@ -873,9 +870,6 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path1', NoNavigateScreen));
 		this.app.addRoutes(new Route('/path2', Screen));
 		this.app.navigate('/path1').then(() => {
-			this.app.on('endNavigate', (payload) => {
-				assert.ok(payload.error instanceof Error);
-			});
 			this.app.navigate('/path2').catch((reason) => {
 				assert.ok(reason instanceof Error);
 				done();
@@ -895,9 +889,6 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path1', NoNavigateScreen));
 		this.app.addRoutes(new Route('/path2', Screen));
 		this.app.navigate('/path1').then(() => {
-			this.app.on('endNavigate', (payload) => {
-				assert.ok(payload.error instanceof Error);
-			});
 			this.app.navigate('/path2').catch((reason) => {
 				assert.ok(reason instanceof Error);
 				done();
@@ -914,9 +905,6 @@ describe('App', function() {
 
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', NoNavigateScreen));
-		this.app.on('endNavigate', (payload) => {
-			assert.ok(payload.error instanceof Error);
-		});
 		this.app.navigate('/path')
 			.catch((reason) => {
 				assert.ok(reason instanceof Error);
@@ -1682,7 +1670,7 @@ describe('App', function() {
 			}
 
 			evaluateScripts(surfaces) {
-				assert.ok(app.scheduledNavigationEvent);
+				assert.ok(app.scheduledNavigationQueue.length > 0);
 				return super.evaluateScripts(surfaces);
 			}
 		}
@@ -1695,7 +1683,7 @@ describe('App', function() {
 			}
 
 			evaluateScripts(surfaces) {
-				assert.ok(app.scheduledNavigationEvent);
+				assert.ok(app.scheduledNavigationQueue.length > 0);
 				return super.evaluateScripts(surfaces);
 			}
 		}
@@ -1708,7 +1696,7 @@ describe('App', function() {
 
 		this.app.on('endNavigate', (event) => {
 			if (event.path === '/path3') {
-				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.ok(!this.app.scheduledNavigationQueue.length);
 				assert.strictEqual(globals.window.location.pathname, '/path3');
 				done();
 			}
@@ -1741,11 +1729,11 @@ describe('App', function() {
 
 		this.app.navigate('/path1');
 
-		assert.ok(!this.app.scheduledNavigationEvent);
+		assert.ok(this.app.scheduledNavigationQueue.length < 1);
 
 		this.app.on('endNavigate', (event) => {
 			if (event.path === '/path3') {
-				assert.ok(!this.app.scheduledNavigationEvent);
+				assert.ok(this.app.scheduledNavigationQueue.length < 1);
 				assert.strictEqual(globals.window.location.pathname, '/path3');
 				done();
 			}
