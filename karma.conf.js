@@ -8,10 +8,13 @@ module.exports = function(config) {
 			mocha: {
 				timeout : 35000
 			}
-		},
-		files: [
-			'https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js'
-		]
+		}
 	});
 	metalKarmaConfig(config);
+
+	// Add required polyfills for IE11
+	config.files.unshift(
+		'node_modules/es-object-assign/dist/object-assign-auto.min.js',
+		'node_modules/promise-polyfill/dist/polyfill.min.js'
+	);
 };
