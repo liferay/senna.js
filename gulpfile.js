@@ -68,11 +68,6 @@ var options = {
 			browserName: 'iphone',
 			version: '12.2'
 		},
-		sl_ios_10: {
-			base: 'SauceLabs',
-			browserName: 'iphone',
-			version: '10.3'
-		},
 		sl_android_5: {
 			base: 'SauceLabs',
 			browserName: 'android',
