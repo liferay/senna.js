@@ -14,7 +14,7 @@ module.exports = function(config) {
 
 	// Add required polyfills for IE11
 	config.files.unshift(
-		'node_modules/es-object-assign/dist/object-assign-auto.min.js',
+		'node_modules/es6-object-assign/dist/object-assign-auto.min.js',
 		'node_modules/promise-polyfill/dist/polyfill.min.js'
 	);
 };
