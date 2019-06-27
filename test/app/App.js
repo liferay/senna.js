@@ -742,7 +742,7 @@ describe('App', function() {
 		});
 	});
 
-	it('should store scroll position on page scroll', (done) => {
+	xit('should store scroll position on page scroll', (done) => {
 		if (!canScrollIFrame_) {
 			done();
 			return;
@@ -820,7 +820,7 @@ describe('App', function() {
 		});
 	});
 
-	it('should restore scroll position on navigate back', (done) => {
+	xit('should restore scroll position on navigate back', (done) => {
 		if (!canScrollIFrame_) {
 			done();
 			return;
