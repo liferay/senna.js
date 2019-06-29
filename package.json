@@ -1,6 +1,6 @@
 {
   "name": "senna",
-  "version": "2.7.7",
+  "version": "3.0.0",
   "description": "A blazing-fast Single Page Application engine",
   "license": "BSD-3-Clause",
   "repository": "liferay/senna.js",
@@ -19,7 +19,10 @@
   "scripts": {
     "build": "gulp build build:amd",
     "compile": "BABEL_ENV=compile babel -d lib/ src/",
-    "prepublish": "gulp && npm run compile"
+    "lint": "gulp lint",
+    "prepublish": "gulp && npm run compile",
+    "test": "gulp test",
+    "test:debug": "./node_modules/gulp-metal/node_modules/karma/bin/karma start --debug"
   },
   "keywords": [
     "spa",
@@ -30,13 +33,10 @@
   "dependencies": {
     "bootstrap": "^3.3.6",
     "metal": "^2.16.5",
-    "metal-ajax": "^2.1.1",
     "metal-debounce": "^2.0.0",
     "metal-dom": "^2.16.8",
     "metal-events": "^2.16.5",
     "metal-path-parser": "^1.0.3",
-    "metal-promise": "^2.0.1",
-    "metal-structs": "^1.0.0",
     "metal-uri": "^2.2.6",
     "metal-useragent": "^3.0.0"
   },
@@ -45,6 +45,7 @@
     "babel-plugin-search-and-replace": "0.3.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "babel-preset-metal": "^4.0.0",
+    "es6-object-assign": "^1.1.0",
     "gulp": "^3.8.11",
     "gulp-connect": "^5.0.0",
     "gulp-header": "^1.7.1",
@@ -55,7 +56,9 @@
     "gulp-template": "^4.0.0",
     "metal-karma-config": "^2.3.1",
     "metal-tools-build-rollup": "^2.0.6",
+    "promise-polyfill": "^8.1.3",
     "run-sequence": "^1.1.5",
-    "sinon": "1.17.7"
+    "sinon": "1.17.7",
+    "whatwg-fetch": "^3.0.0"
   }
 }

@@ -10,17 +10,11 @@ import Uri from 'metal-uri';
 describe('HtmlScreen', function() {
 
 	beforeEach(() => {
-		var requests = this.requests = [];
-		this.xhr = sinon.useFakeXMLHttpRequest();
-		this.xhr.onCreate = (xhr) => {
-			requests.push(xhr);
-		};
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');
 	});
 
 	afterEach(() => {
-		this.xhr.restore();
 		console.log.restore();
 	});
 
@@ -33,38 +27,51 @@ describe('HtmlScreen', function() {
 
 	it('should returns loaded content', (done) => {
 		var screen = new HtmlScreen();
+
+		const stub = sinon.stub(window, 'fetch', () => {
+			return Promise.resolve(new Response('content', {
+				status: 200
+			}));
+		});
+
 		screen.load('/url').then((content) => {
 			assert.strictEqual('content', content);
+			stub.restore();
 			done();
 		});
-		this.requests[0].respond(200, null, 'content');
 	});
 
 	it('should set title from response content', (done) => {
 		var screen = new HtmlScreen();
+
+		const stub = sinon.stub(window, 'fetch', () => {
+			return Promise.resolve(new Response('<title>new</title>', {
+				status: 200
+			}));
+		});
+
 		screen.load('/url').then(() => {
 			assert.strictEqual('new', screen.getTitle());
+			stub.restore();
 			done();
 		});
-		this.requests[0].respond(200, null, '<title>new</title>');
 	});
 
 	it('should not set title from response content if not present', (done) => {
 		var screen = new HtmlScreen();
+
+		const stub = sinon.stub(window, 'fetch', () => {
+			return Promise.resolve(new Response('', {
+				status: 200
+			}));
+		});
+
 		screen.load('/url').then(() => {
 			assert.strictEqual(null, screen.getTitle());
+			stub.restore();
 			done();
 		});
-		this.requests[0].respond(200, null, '');
-	});
 
-	it('should cancel load request to an url', (done) => {
-		var screen = new HtmlScreen();
-		screen.load('/url')
-			.catch(reason => {
-				assert.ok(reason instanceof Error);
-				done();
-			}).cancel();
 	});
 
 	it('should copy surface root node attributes from response content', (done) => {
@@ -157,7 +164,6 @@ describe('HtmlScreen', function() {
 
 	it('should evaluate favicon', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '');
-		var surface = new Surface('surfaceId');
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 		screen.evaluateFavicon_().then(() => {
@@ -180,7 +186,6 @@ describe('HtmlScreen', function() {
 					.then(() => {
 						var element = document.querySelector('link[rel="Shortcut Icon"]');
 						assert.ok(element);
-						var uri = new Uri(element.href);
 						exitDocumentElement('favicon');
 						done();
 					});
@@ -193,7 +198,6 @@ describe('HtmlScreen', function() {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-			var surface = new Surface('surfaceId');
 			var screen = new HtmlScreen();
 			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 			screen.evaluateFavicon_().then(() => {
@@ -213,7 +217,6 @@ describe('HtmlScreen', function() {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-			var surface = new Surface('surfaceId');
 			var screen = new HtmlScreen();
 			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 			screen.evaluateFavicon_().then(() => {
@@ -345,16 +348,21 @@ describe('HtmlScreen', function() {
 		} else {
 			var screen = new HtmlScreen();
 
+			const stub = sinon.stub(window, 'fetch', () => {
+				return Promise.resolve(new Response('<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">', {
+					status: 200
+				}));
+			});
+
 			screen.load('/url').then(() => {
 				screen.evaluateStyles({})
 					.then(() => {
 						assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
+						stub.restore();
 						done();
 					});
 				screen.activate();
 			});
-
-			this.requests[0].respond(200, null, '<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">');
 		}
 	});
 
@@ -365,6 +373,12 @@ describe('HtmlScreen', function() {
 		} else {
 			var screen = new HtmlScreen();
 			window.sentinelLoadCount = 0;
+
+			const stub = sinon.stub(window, 'fetch', () => {
+				return Promise.resolve(new Response('<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">', {
+					status: 200
+				}));
+			});
 
 			screen.load('/url').then(() => {
 				var style = screen.virtualQuerySelectorAll_('#style')[0];
@@ -379,12 +393,11 @@ describe('HtmlScreen', function() {
 					.then(() => {
 						assert.strictEqual(1, window.sentinelLoadCount);
 						delete window.sentinelLoadCount;
+						stub.restore();
 						done();
 					});
 				screen.activate();
 			});
-
-			this.requests[0].respond(200, null, '<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">');
 		}
 	});
 
@@ -421,5 +434,3 @@ function exitDocumentElement(surfaceId) {
 function assertComputedStyle(property, value) {
 	assert.strictEqual(value, window.getComputedStyle(document.body, null)[property]);
 }
-
-

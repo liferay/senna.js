@@ -1,9 +1,6 @@
 'use strict';
 
 import { isDefAndNotNull } from 'metal';
-import Ajax from 'metal-ajax';
-import { MultiMap } from 'metal-structs';
-import CancellablePromise from 'metal-promise';
 import errors from '../errors/errors';
 import utils from '../utils/utils';
 import globals from '../globals/globals';
@@ -151,7 +148,7 @@ class RequestScreen extends Screen {
 	getRequestPath() {
 		var request = this.getRequest();
 		if (request) {
-			var requestPath = request.requestPath;
+			var requestPath = request.url;
 			var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
 			if (responseUrl) {
 				requestPath = responseUrl;
@@ -195,50 +192,72 @@ class RequestScreen extends Screen {
 	load(path) {
 		const cache = this.getCache();
 		if (isDefAndNotNull(cache)) {
-			return CancellablePromise.resolve(cache);
+			return Promise.resolve(cache);
 		}
 		let body = null;
 		let httpMethod = this.httpMethod;
-		const headers = new MultiMap();
-		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
+
+		const headers = new Headers();
+
+		Object.keys(this.httpHeaders).forEach(header => {
+			headers.append(header, this.httpHeaders[header]);
+		});
+
 		if (globals.capturedFormElement) {
 			this.addSafariXHRPolyfill();
 			body = new FormData(globals.capturedFormElement);
 			this.maybeAppendSubmitButtonValue_(body);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
-				headers.add('If-None-Match', '"0"');
+				headers.append('If-None-Match', '"0"');
 			}
 		}
+
 		const requestPath = this.formatLoadPath(path);
-		return Ajax
-			.request(requestPath, httpMethod, body, headers, null, this.timeout)
-			.then(xhr => {
-				this.removeSafariXHRPolyfill();
-				this.setRequest(xhr);
-				this.assertValidResponseStatusCode(xhr.status);
-				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
-					this.addCache(xhr.responseText);
-				}
-				xhr.requestPath = requestPath;
-				return xhr.responseText;
+
+		const request = new Request(requestPath, {
+			body: body,
+			credentials: 'include',
+			headers: headers,
+			method: httpMethod
+		});
+
+		this.setRequest(request);
+
+		return Promise.race([
+			fetch(request)
+				.then(resp => {
+					this.removeSafariXHRPolyfill();
+					this.assertValidResponseStatusCode(resp.status);
+					return resp.text();
+				})
+				.then(text => {
+					if (httpMethod === RequestScreen.GET && this.isCacheable()) {
+						this.addCache(text);
+					}
+					return text;
+				}).catch((err) => {
+					throw err;
+				}),
+			new Promise((_, reject) => {
+				setTimeout(() => reject(new Error(errors.REQUEST_TIMEOUT)) , this.timeout);
 			})
-			.catch((reason) => {
-				this.removeSafariXHRPolyfill();
-				switch (reason.message) {
-					case errors.REQUEST_TIMEOUT:
-						reason.timeout = true;
-						break;
-					case errors.REQUEST_ERROR:
-						reason.requestError = true;
-						break;
-					case errors.REQUEST_PREMATURE_TERMINATION:
-						reason.requestError = true;
-						reason.requestPrematureTermination = true;
-						break;
-				}
-				throw reason;
-			});
+		]).catch((reason) => {
+			this.removeSafariXHRPolyfill();
+			switch (reason.message) {
+				case errors.REQUEST_TIMEOUT:
+					reason.timeout = true;
+					break;
+				case errors.REQUEST_ERROR:
+					reason.requestError = true;
+					break;
+				case errors.REQUEST_PREMATURE_TERMINATION:
+					reason.requestError = true;
+					reason.requestPrematureTermination = true;
+					break;
+			}
+			throw reason;
+		});
 	}
 
 	/**
@@ -266,17 +285,13 @@ class RequestScreen extends Screen {
 	 * @return {?string} Response url best match.
 	 */
 	maybeExtractResponseUrlFromRequest(request) {
-		var responseUrl = request.responseURL;
-		if (responseUrl) {
-			return responseUrl;
-		}
-		return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
+		return request.headers.get(RequestScreen.X_REQUEST_URL_HEADER);
 	}
 
 	/**
-	 * This function set attribute data-safari-temp-disabled to 
+	 * This function set attribute data-safari-temp-disabled to
 	 * true and set disable attribute of an input type="file" tag
-	 * is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1 
+	 * is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1
 	 * empty <input type="file"> XHR bug.
 	 * https://github.com/rails/rails/issues/32440
 	 * https://bugs.webkit.org/show_bug.cgi?id=184490
