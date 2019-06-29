@@ -32,25 +32,15 @@ var options = {
 			base: 'SauceLabs',
 			browserName: 'chrome'
 		},
-		sl_chrome_57: {
+		sl_chrome_73: {
 			base: 'SauceLabs',
 			browserName: 'chrome',
-			version: '57'
+			version: '73'
 		},
-		sl_safari_8: {
+		sl_safari_11: {
 			base: 'SauceLabs',
 			browserName: 'safari',
-			version: '8'
-		},
-		sl_safari_9: {
-			base: 'SauceLabs',
-			browserName: 'safari',
-			version: '9'
-		},
-		sl_safari_10: {
-			base: 'SauceLabs',
-			browserName: 'safari',
-			version: '10'
+			version: '11.1'
 		},
 		sl_firefox: {
 			base: 'SauceLabs',
@@ -61,50 +51,28 @@ var options = {
 			browserName: 'firefox',
 			version: '53'
 		},
-		sl_ie_10: {
-			base: 'SauceLabs',
-			browserName: 'internet explorer',
-			platform: 'Windows 7',
-			version: '10'
-		},
 		sl_ie_11: {
 			base: 'SauceLabs',
 			browserName: 'internet explorer',
 			platform: 'Windows 8.1',
 			version: '11'
 		},
-		sl_edge_20: {
+		sl_edge_18: {
 			base: 'SauceLabs',
 			browserName: 'microsoftedge',
 			platform: 'Windows 10',
-			version: '17'
+			version: '18'
 		},
-		sl_iphone: {
+		sl_ios: {
 			base: 'SauceLabs',
 			browserName: 'iphone',
-			platform: 'OS X 10.10',
-			version: '9.3'
-		},
-		sl_ios_10: {
-			appiumVersion: '1.6.4',
-			base: 'SauceLabs',
-			browserName: 'Safari',
-			deviceName: 'iPhone Simulator',
-			deviceOrientation: 'portrait',
-			platformName: 'iOS',
-			platformVersion: '10.2'
-		},
-		sl_android_4: {
-			base: 'SauceLabs',
-			browserName: 'android',
-			platform: 'Linux',
-			version: '4.4'
+			version: '12.2'
 		},
 		sl_android_5: {
 			base: 'SauceLabs',
 			browserName: 'android',
 			platform: 'Linux',
-			version: '5.0'
+			version: '5.1'
 		}
 	}
 };
