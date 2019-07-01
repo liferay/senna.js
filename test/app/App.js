@@ -1698,7 +1698,7 @@ describe('App', function() {
 		this.app.navigate('/path1');
 
 		this.app.on('endNavigate', (event) => {
-			if (event.path === '/path3')
+			if (event.path === '/path3') {
 				assert.ok(!this.app.scheduledNavigationQueue.length);
 				assert.strictEqual(globals.window.location.pathname, '/path3');
 				done();
