@@ -9,6 +9,7 @@ import Route from '../../src/route/Route';
 import Screen from '../../src/screen/Screen';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
+import UA from 'metal-useragent';
 
 class StubScreen extends Screen {
 }
@@ -1660,6 +1661,10 @@ describe('App', function() {
 
 
 	it('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
+		if (!UA.isIE) {
+			done();
+		}
+
 		this.app = new App();
 
 		class TestScreen extends Screen {
@@ -1693,7 +1698,7 @@ describe('App', function() {
 		this.app.navigate('/path1');
 
 		this.app.on('endNavigate', (event) => {
-			if (event.path === '/path3') {
+			if (event.path === '/path3')
 				assert.ok(!this.app.scheduledNavigationQueue.length);
 				assert.strictEqual(globals.window.location.pathname, '/path3');
 				done();
@@ -1703,6 +1708,10 @@ describe('App', function() {
 
 
 	it('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
+		if (!UA.isIE) {
+			done();
+		}
+
 		this.app = new App();
 
 		class TestScreen extends Screen {
