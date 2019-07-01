@@ -149,6 +149,10 @@ describe('RequestScreen', function() {
 	});
 
 	it('should not load response content from cache for post requests', (done) => {
+		if (UA.isIE) {
+			done();
+		}
+
 		fetchStub.returns(Promise.resolve(
 			new Response('stuff', {status: 200})
 		));

@@ -18,4 +18,6 @@ module.exports = function(config) {
 		'node_modules/promise-polyfill/dist/polyfill.min.js',
 		'node_modules/whatwg-fetch/dist/fetch.umd.js'
 	);
+
+	config.plugins.push('karma-safari-launcher');
 };
