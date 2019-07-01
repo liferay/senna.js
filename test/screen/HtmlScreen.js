@@ -9,13 +9,17 @@ import Uri from 'metal-uri';
 
 describe('HtmlScreen', function() {
 
+	let fetchStub;
+
 	beforeEach(() => {
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');
+		fetchStub = sinon.stub(window, 'fetch');
 	});
 
 	afterEach(() => {
 		console.log.restore();
+		fetchStub.restore();
 	});
 
 	it('should get title selector', () => {
@@ -28,15 +32,12 @@ describe('HtmlScreen', function() {
 	it('should returns loaded content', (done) => {
 		var screen = new HtmlScreen();
 
-		const stub = sinon.stub(window, 'fetch', () => {
-			return Promise.resolve(new Response('content', {
-				status: 200
-			}));
-		});
+		fetchStub.returns(Promise.resolve(
+			new Response('content', {status: 200})
+		));
 
 		screen.load('/url').then((content) => {
 			assert.strictEqual('content', content);
-			stub.restore();
 			done();
 		});
 	});
@@ -44,15 +45,12 @@ describe('HtmlScreen', function() {
 	it('should set title from response content', (done) => {
 		var screen = new HtmlScreen();
 
-		const stub = sinon.stub(window, 'fetch', () => {
-			return Promise.resolve(new Response('<title>new</title>', {
-				status: 200
-			}));
-		});
+		fetchStub.returns(Promise.resolve(
+			new Response('<title>new</title>', {status: 200})
+		));
 
 		screen.load('/url').then(() => {
 			assert.strictEqual('new', screen.getTitle());
-			stub.restore();
 			done();
 		});
 	});
@@ -60,15 +58,12 @@ describe('HtmlScreen', function() {
 	it('should not set title from response content if not present', (done) => {
 		var screen = new HtmlScreen();
 
-		const stub = sinon.stub(window, 'fetch', () => {
-			return Promise.resolve(new Response('', {
-				status: 200
-			}));
-		});
+		fetchStub.returns(Promise.resolve(
+			new Response('', {status: 200})
+		));
 
 		screen.load('/url').then(() => {
 			assert.strictEqual(null, screen.getTitle());
-			stub.restore();
 			done();
 		});
 
@@ -348,17 +343,14 @@ describe('HtmlScreen', function() {
 		} else {
 			var screen = new HtmlScreen();
 
-			const stub = sinon.stub(window, 'fetch', () => {
-				return Promise.resolve(new Response('<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">', {
-					status: 200
-				}));
-			});
+			fetchStub.returns(Promise.resolve(
+				new Response('<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">', {status: 200})
+			));
 
 			screen.load('/url').then(() => {
 				screen.evaluateStyles({})
 					.then(() => {
 						assert.ok(document.getElementById('testIEStlye').href.indexOf('?zx=') > -1);
-						stub.restore();
 						done();
 					});
 				screen.activate();
@@ -374,11 +366,9 @@ describe('HtmlScreen', function() {
 			var screen = new HtmlScreen();
 			window.sentinelLoadCount = 0;
 
-			const stub = sinon.stub(window, 'fetch', () => {
-				return Promise.resolve(new Response('<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">', {
-					status: 200
-				}));
-			});
+			fetchStub.returns(Promise.resolve(
+				new Response('<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">', {status: 200})
+			));
 
 			screen.load('/url').then(() => {
 				var style = screen.virtualQuerySelectorAll_('#style')[0];
@@ -393,7 +383,6 @@ describe('HtmlScreen', function() {
 					.then(() => {
 						assert.strictEqual(1, window.sentinelLoadCount);
 						delete window.sentinelLoadCount;
-						stub.restore();
 						done();
 					});
 				screen.activate();
