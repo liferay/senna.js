@@ -26,30 +26,19 @@ var options = {
 	rollupConfig: {
 		exports: 'named'
 	},
-	testBrowsers: ['Chrome', 'Firefox', 'Safari', 'IE10 - Win7', 'IE11 - Win7'],
+	testBrowsers: ['Chrome', 'Firefox', 'Safari', 'IE11 - Win7'],
 	testSaucelabsBrowsers: {
 		sl_chrome: {
 			base: 'SauceLabs',
 			browserName: 'chrome'
 		},
-		sl_chrome_73: {
+		sl_safari: {
 			base: 'SauceLabs',
-			browserName: 'chrome',
-			version: '73'
-		},
-		sl_safari_11: {
-			base: 'SauceLabs',
-			browserName: 'safari',
-			version: '11.1'
+			browserName: 'safari'
 		},
 		sl_firefox: {
 			base: 'SauceLabs',
 			browserName: 'firefox'
-		},
-		sl_firefox_53: {
-			base: 'SauceLabs',
-			browserName: 'firefox',
-			version: '53'
 		},
 		sl_ie_11: {
 			base: 'SauceLabs',
@@ -57,11 +46,10 @@ var options = {
 			platform: 'Windows 8.1',
 			version: '11'
 		},
-		sl_edge_18: {
+		sl_edge: {
 			base: 'SauceLabs',
 			browserName: 'microsoftedge',
-			platform: 'Windows 10',
-			version: '18'
+			platform: 'Windows 10'
 		},
 		sl_ios: {
 			base: 'SauceLabs',
@@ -71,8 +59,7 @@ var options = {
 		sl_android_5: {
 			base: 'SauceLabs',
 			browserName: 'android',
-			platform: 'Linux',
-			version: '5.1'
+			platform: 'Linux'
 		}
 	}
 };
