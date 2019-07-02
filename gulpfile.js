@@ -28,34 +28,34 @@ var options = {
 	},
 	testBrowsers: ['Chrome', 'Firefox', 'Safari', 'IE11 - Win7'],
 	testSaucelabsBrowsers: {
-		sl_chrome: {
-			base: 'SauceLabs',
-			browserName: 'chrome'
-		},
-		sl_safari: {
-			base: 'SauceLabs',
-			browserName: 'safari'
-		},
-		sl_firefox: {
-			base: 'SauceLabs',
-			browserName: 'firefox'
-		},
+		// sl_chrome: {
+		// 	base: 'SauceLabs',
+		// 	browserName: 'chrome'
+		// },
+		// sl_safari: {
+		// 	base: 'SauceLabs',
+		// 	browserName: 'safari'
+		// },
+		// sl_firefox: {
+		// 	base: 'SauceLabs',
+		// 	browserName: 'firefox'
+		// },
 		sl_ie_11: {
 			base: 'SauceLabs',
 			browserName: 'internet explorer',
 			platform: 'Windows 8.1',
 			version: '11'
 		},
-		sl_ios: {
-			base: 'SauceLabs',
-			browserName: 'iphone',
-			version: '12.2'
-		},
-		sl_android_5: {
-			base: 'SauceLabs',
-			browserName: 'android',
-			platform: 'Linux'
-		}
+		// sl_ios: {
+		// 	base: 'SauceLabs',
+		// 	browserName: 'iphone',
+		// 	version: '12.2'
+		// },
+		// sl_android_5: {
+		// 	base: 'SauceLabs',
+		// 	browserName: 'android',
+		// 	platform: 'Linux'
+		// }
 	}
 };
 
