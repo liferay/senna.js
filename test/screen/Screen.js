@@ -3,7 +3,6 @@
 import dom from 'metal-dom';
 import Screen from '../../src/screen/Screen';
 import Surface from '../../src/surface/Surface';
-import CancellablePromise from 'metal-promise';
 
 describe('Screen', function() {
 	before(() => {
@@ -72,11 +71,11 @@ describe('Screen', function() {
 		var stub2 = sinon.stub();
 		surfaces.surface1.show = () => {
 			stub1();
-			return CancellablePromise.resolve();
+			return Promise.resolve();
 		};
 		surfaces.surface2.show = () => {
 			stub2();
-			return CancellablePromise.resolve();
+			return Promise.resolve();
 		};
 		new Screen().flip(surfaces).then(() => {
 			assert.strictEqual(1, stub1.callCount);

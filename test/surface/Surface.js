@@ -3,7 +3,6 @@
 import { core } from 'metal';
 import dom from 'metal-dom';
 import Surface from '../../src/surface/Surface';
-import CancellablePromise from 'metal-promise';
 
 describe('Surface', function() {
 
@@ -185,7 +184,7 @@ describe('Surface', function() {
 			var surface = new Surface('surfaceId');
 			var surfaceChild = surface.addContent('screenId', 'content');
 			var surfaceChildNext = surface.addContent('screenNextId', 'content');
-			var transitionFn = () => CancellablePromise.resolve();
+			var transitionFn = () => Promise.resolve();
 			surface.setTransitionFn(transitionFn);
 			surface.show('screenId');
 			surface.show('screenNextId').then(() => {
@@ -196,13 +195,6 @@ describe('Surface', function() {
 			assert.ok(surfaceChild.parentNode);
 			assert.ok(surfaceChildNext.parentNode);
 			exitDocumentSurfaceElement('surfaceId');
-		});
-
-		it('should transition deferred be cancellable', (done) => {
-			var surface = new Surface('surfaceId');
-			var transitionFn = () => CancellablePromise.resolve();
-			surface.setTransitionFn(transitionFn);
-			surface.transition(null, null).catch(() => done()).cancel();
 		});
 	});
 

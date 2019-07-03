@@ -3,7 +3,6 @@
 import globals from '../globals/globals';
 import { Disposable, isDefAndNotNull } from 'metal';
 import { append, removeChildren, exitDocument } from 'metal-dom';
-import CancellablePromise from 'metal-promise';
 
 class Surface extends Disposable {
 
@@ -198,7 +197,7 @@ class Surface extends Disposable {
 	/**
 	 * Shows screen content from a surface.
 	 * @param {String} screenId The screen id to show.
-	 * @return {CancellablePromise} Pauses the navigation until it is resolved.
+	 * @return {Promise} Pauses the navigation until it is resolved.
 	 */
 	show(screenId) {
 		var from = this.activeChild;
@@ -207,7 +206,7 @@ class Surface extends Disposable {
 			to = this.defaultChild;
 		}
 		this.activeChild = to;
-		return this.transition(from, to).thenAlways(() => {
+		return this.transition(from, to).then(() => {
 			if (from && from !== to) {
 				exitDocument(from);
 			}
@@ -236,12 +235,12 @@ class Surface extends Disposable {
 	 * Invokes the transition function specified on <code>transition</code> attribute.
 	 * @param {?Element=} from
 	 * @param {?Element=} to
-	 * @return {?CancellablePromise=} This can return a promise, which will pause the
+	 * @return {?Promise=} This can return a promise, which will pause the
 	 *     navigation until it is resolved.
 	 */
 	transition(from, to) {
 		var transitionFn = this.transitionFn || Surface.defaultTransition;
-		return CancellablePromise.resolve(transitionFn.call(this, from, to));
+		return Promise.resolve(transitionFn.call(this, from, to));
 	}
 
 }

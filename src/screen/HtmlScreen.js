@@ -2,7 +2,6 @@
 
 import { getUid } from 'metal';
 import { buildFragment, globalEval, globalEvalStyles, match } from 'metal-dom';
-import CancellablePromise from 'metal-promise';
 import globals from '../globals/globals';
 import RequestScreen from './RequestScreen';
 import Surface from '../surface/Surface';
@@ -163,13 +162,13 @@ class HtmlScreen extends RequestScreen {
 
 	/**
 	 * Allows a screen to evaluate the favicon style before the screen becomes visible.
-	 * @return {CancellablePromise}
+	 * @return {Promise}
 	 */
 	evaluateFavicon_() {
 		const resourcesInVirtual = this.virtualQuerySelectorAll_(HtmlScreen.selectors.favicon);
 		const resourcesInDocument = this.querySelectorAll_(HtmlScreen.selectors.favicon);
 
-		return new CancellablePromise((resolve) => {
+		return new Promise((resolve) => {
 			utils.removeElementsFromDocument(resourcesInDocument);
 			this.runFaviconInElement_(resourcesInVirtual).then(() => resolve());
 		});
@@ -186,7 +185,7 @@ class HtmlScreen extends RequestScreen {
 	 *     resources to track.
 	 * @param {!function} opt_appendResourceFn Optional function used to
 	 *     evaluate fragment containing resources.
-	 * @return {CancellablePromise} Deferred that waits resources evaluation to
+	 * @return {Promise} Deferred that waits resources evaluation to
 	 *     complete.
 	 * @private
 	 */
@@ -216,7 +215,7 @@ class HtmlScreen extends RequestScreen {
 			}
 		});
 
-		return new CancellablePromise((resolve) => {
+		return new Promise((resolve) => {
 			evaluatorFn(frag, () => {
 				utils.removeElementsFromDocument(temporariesInDoc);
 				resolve();
@@ -324,10 +323,10 @@ class HtmlScreen extends RequestScreen {
 	 * Adds the favicon elements to the document.
 	 * @param {!Array<Element>} elements
 	 * @private
-	 * @return {CancellablePromise}
+	 * @return {Promise}
 	 */
 	runFaviconInElement_(elements) {
-		return new CancellablePromise((resolve) => {
+		return new Promise((resolve) => {
 			elements.forEach((element) => document.head.appendChild(
 				UA.isIe ? element : utils.setElementWithRandomHref(element)
 			));
