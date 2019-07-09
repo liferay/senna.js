@@ -5,15 +5,15 @@ stages:
 language: node_js
 node_js: '8'
 
-env: PATH=~/npm/node_modules/.bin:$PATH
+env:
+  global:
+    - PATH=~/npm/node_modules/.bin:$PATH
 
 before_install: |
   [[ ! -x ~/npm/node_modules/.bin/npm ]] && {
     cd ~/npm && npm install npm@^5.8.0
     cd -
   } || true
-  # avoids bugs around https://github.com/travis-ci/travis-ci/issues/5092
-  export PATH=~/npm/node_modules/.bin:$PATH
 install: npm ci --ignore-scripts
 
 cache:
