@@ -299,8 +299,8 @@ class RequestScreen extends Screen {
 	}
 
 	/**
-	 * This function set attribute data-safari-temp-disabled to
-	 * true and set disable attribute of an input type="file" tag
+	 * This function sets attribute data-safari-temp-disabled to
+	 * true and sets disable attribute of an input type="file" tag
 	 * is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1
 	 * empty <input type="file"> XHR bug.
 	 * https://github.com/rails/rails/issues/32440
