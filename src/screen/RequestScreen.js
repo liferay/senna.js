@@ -248,8 +248,6 @@ class RequestScreen extends Screen {
 						this.addCache(text);
 					}
 					return text;
-				}).catch((err) => {
-					throw err;
 				}),
 			new Promise((_, reject) => {
 				setTimeout(() => reject(new Error(errors.REQUEST_TIMEOUT)) , this.timeout);
