@@ -248,13 +248,12 @@ describe('RequestScreen', function() {
 		let formData = new FormData(globals.capturedFormElement);
 
 		fetchStub.returns(Promise.resolve(
-			new Response('', {status: 200})
+			new Response(formData, {status: 200})
 		));
 
 		var screen = new RequestScreen();
-		screen.load('/url').then(() => {
+		screen.load('/url').then(res => {
 			assert.strictEqual(RequestScreen.POST, screen.getRequest().method.toLowerCase());
-			// assert.ok(res instanceof FormData);
 			globals.capturedFormElement = null;
 			done();
 		});
