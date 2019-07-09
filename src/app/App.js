@@ -619,7 +619,12 @@ class App extends EventEmitter {
 		});
 		if (!utils.isCurrentBrowserPath(path)) {
 			if (this.isNavigationPending && this.pendingNavigate) {
-				this.pendingNavigate.then(() => this.removeScreen(path), this);
+				this.pendingNavigate
+					.then(() => this.removeScreen(path))
+					.catch(error => {
+						this.removeScreen(path);
+						throw error;
+					});
 			} else {
 				this.removeScreen(path);
 			}

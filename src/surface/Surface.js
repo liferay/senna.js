@@ -206,11 +206,17 @@ class Surface extends Disposable {
 			to = this.defaultChild;
 		}
 		this.activeChild = to;
-		return this.transition(from, to).then(() => {
+
+
+		const transitionEnd = () => {
 			if (from && from !== to) {
 				exitDocument(from);
 			}
-		});
+		};
+
+		return this.transition(from, to)
+			.then(transitionEnd)
+			.catch(transitionEnd);
 	}
 
 	/**
