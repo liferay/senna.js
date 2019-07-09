@@ -245,10 +245,8 @@ describe('RequestScreen', function() {
 	it('should form navigate force post method and request body wrapped in FormData', (done) => {
 		globals.capturedFormElement = globals.document.createElement('form');
 
-		let formData = new FormData(globals.capturedFormElement);
-
 		fetchStub.returns(Promise.resolve(
-			new Response(formData, {status: 200})
+			new Response('', {status: 200})
 		));
 
 		var screen = new RequestScreen();
