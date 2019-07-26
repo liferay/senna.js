@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.7
+ * @version v2.7.8
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -10654,6 +10654,22 @@ var RequestScreen = function (_Screen) {
 		}
 
 		/**
+   * Returns the form data
+   * This method can be extended in order to have a custom implementation of the form params
+   * @param {!Element} formElement
+   * @param {!Element} submittedButtonElement
+   * @return {!FormData}
+   */
+
+	}, {
+		key: 'getFormData',
+		value: function getFormData(formElement, submittedButtonElement) {
+			var formData = new FormData(formElement);
+			this.maybeAppendSubmitButtonValue_(formData, submittedButtonElement);
+			return formData;
+		}
+
+		/**
    * @inheritDoc
    */
 
@@ -10674,8 +10690,7 @@ var RequestScreen = function (_Screen) {
 			});
 			if (globals.capturedFormElement) {
 				this.addSafariXHRPolyfill();
-				body = new FormData(globals.capturedFormElement);
-				this.maybeAppendSubmitButtonValue_(body);
+				body = this.getFormData(globals.capturedFormElement, globals.capturedFormButtonElement);
 				httpMethod = RequestScreen.POST;
 				if (UA.isIeOrEdge) {
 					headers.add('If-None-Match', '"0"');
@@ -10713,15 +10728,15 @@ var RequestScreen = function (_Screen) {
    * Adds aditional data to the body of the request in case a submit button
    * is captured during form submission.
    * @param {!FormData} body The FormData containing the request body.
-   * @protected
+    * @param {!Element} submittedButtonElement
+    * @protected
    */
 
 	}, {
 		key: 'maybeAppendSubmitButtonValue_',
-		value: function maybeAppendSubmitButtonValue_(body) {
-			var button = globals.capturedFormButtonElement;
-			if (button && button.name) {
-				body.append(button.name, button.value);
+		value: function maybeAppendSubmitButtonValue_(formData, submittedButtonElement) {
+			if (submittedButtonElement && submittedButtonElement.name) {
+				formData.append(submittedButtonElement.name, submittedButtonElement.value);
 			}
 		}
 
@@ -11684,7 +11699,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.7';
+var version = '2.7.8';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;

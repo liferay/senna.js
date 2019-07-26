@@ -233,6 +233,13 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				return statusCode >= 200 && statusCode <= 399;
 			}
 		}, {
+			key: 'getFormData',
+			value: function getFormData(formElement, submittedButtonElement) {
+				var formData = new FormData(formElement);
+				this.maybeAppendSubmitButtonValue_(formData, submittedButtonElement);
+				return formData;
+			}
+		}, {
 			key: 'load',
 			value: function load(path) {
 				var _this2 = this;
@@ -249,8 +256,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 				});
 				if (_globals2.default.capturedFormElement) {
 					this.addSafariXHRPolyfill();
-					body = new FormData(_globals2.default.capturedFormElement);
-					this.maybeAppendSubmitButtonValue_(body);
+					body = this.getFormData(_globals2.default.capturedFormElement, _globals2.default.capturedFormButtonElement);
 					httpMethod = RequestScreen.POST;
 					if (_UA2.default.isIeOrEdge) {
 						headers.add('If-None-Match', '"0"');
@@ -285,10 +291,9 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 			}
 		}, {
 			key: 'maybeAppendSubmitButtonValue_',
-			value: function maybeAppendSubmitButtonValue_(body) {
-				var button = _globals2.default.capturedFormButtonElement;
-				if (button && button.name) {
-					body.append(button.name, button.value);
+			value: function maybeAppendSubmitButtonValue_(formData, submittedButtonElement) {
+				if (submittedButtonElement && submittedButtonElement.name) {
+					formData.append(submittedButtonElement.name, submittedButtonElement.value);
 				}
 			}
 		}, {
