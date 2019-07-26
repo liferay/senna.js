@@ -189,6 +189,19 @@ class RequestScreen extends Screen {
 		return statusCode >= 200 && statusCode <= 399;
 	}
 
+  /**
+   * Returns the form data
+   * This method can be extended in order to have a custom implementation of the form params
+   * @param {!Element} formElement
+   * @param {!Element} submittedButtonElement
+   * @return {!FormData}
+   */
+	getFormData(formElement, submittedButtonElement) {
+    let formData = new FormData(formElement);
+    this.maybeAppendSubmitButtonValue_(formData, submittedButtonElement);
+    return formData;
+  }
+
 	/**
 	 * @inheritDoc
 	 */
@@ -203,8 +216,7 @@ class RequestScreen extends Screen {
 		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
 		if (globals.capturedFormElement) {
 			this.addSafariXHRPolyfill();
-			body = new FormData(globals.capturedFormElement);
-			this.maybeAppendSubmitButtonValue_(body);
+			body = this.getFormData(globals.capturedFormElement, globals.capturedFormButtonElement);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
 				headers.add('If-None-Match', '"0"');
@@ -245,12 +257,12 @@ class RequestScreen extends Screen {
 	 * Adds aditional data to the body of the request in case a submit button
 	 * is captured during form submission.
 	 * @param {!FormData} body The FormData containing the request body.
-	 * @protected
+   * @param {!Element} submittedButtonElement
+   * @protected
 	 */
-	maybeAppendSubmitButtonValue_(body) {
-		const button = globals.capturedFormButtonElement;
-		if (button && button.name) {
-			body.append(button.name, button.value);
+	maybeAppendSubmitButtonValue_(formData, submittedButtonElement) {
+		if (submittedButtonElement && submittedButtonElement.name) {
+      formData.append(submittedButtonElement.name, submittedButtonElement.value);
 		}
 	}
 
