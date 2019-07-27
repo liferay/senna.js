@@ -217,6 +217,7 @@ class RequestScreen extends Screen {
 		if (globals.capturedFormElement) {
 			this.addSafariXHRPolyfill();
 			body = this.getFormData(globals.capturedFormElement, globals.capturedFormButtonElement);
+			headers.add('Content-type', globals.capturedFormElement.enctype);
 			httpMethod = RequestScreen.POST;
 			if (UA.isIeOrEdge) {
 				headers.add('If-None-Match', '"0"');
