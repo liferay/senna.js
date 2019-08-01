@@ -789,7 +789,7 @@ class App extends EventEmitter {
 			})
 			.then(prevent => {
 				if (prevent) {
-					this.pendingNavigate = Promise.reject(new Error('Cancelled by next screen'));
+					this.pendingNavigate = Promise.reject('Cancelled by next screen');
 					return this.pendingNavigate;
 				}
 			});
@@ -1327,7 +1327,13 @@ class App extends EventEmitter {
 			}
 		};
 
-		return new Promise((resolve) => sync() & async.nextTick(() => sync() & resolve()));
+		return new Promise(resolve => {
+			sync();
+			setTimeout(() => {
+				sync();
+				resolve();
+			}, 0);
+		});
 	}
 
 	/**

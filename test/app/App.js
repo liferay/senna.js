@@ -907,7 +907,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path', NoNavigateScreen));
 		this.app.navigate('/path')
 			.catch((reason) => {
-				assert.ok(reason instanceof Error);
+				assert.ok(reason === 'Cancelled by next screen');
 				done();
 			});
 	});
