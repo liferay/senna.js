@@ -33,7 +33,6 @@
   "dependencies": {
     "bootstrap": "^3.3.6",
     "metal": "^2.16.5",
-    "metal-debounce": "^2.0.0",
     "metal-dom": "^2.16.8",
     "metal-events": "^2.16.5",
     "metal-path-parser": "^1.0.3",

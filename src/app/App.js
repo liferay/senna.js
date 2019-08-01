@@ -3,7 +3,6 @@
 import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
 import { array, async, isDefAndNotNull, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
-import debounce from 'metal-debounce';
 import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';
@@ -235,7 +234,7 @@ class App extends EventEmitter {
 		this.appEventHandlers_ = new EventHandler();
 
 		this.appEventHandlers_.add(
-			on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 100)),
+			on(globals.window, 'scroll', utils.debounce(this.onScroll_.bind(this), 100)),
 			on(globals.window, 'load', this.onLoad_.bind(this)),
 			on(globals.window, 'popstate', this.onPopstate_.bind(this))
 		);

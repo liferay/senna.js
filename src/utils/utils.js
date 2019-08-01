@@ -20,6 +20,30 @@ class utils {
 	}
 
 	/**
+	 * Debounces function execution.
+	 * @param {!function()} fn
+	 * @param {number} delay
+	 * @return {!function()}
+	 */
+	static debounce(fn, delay) {
+		return function debounced() {
+			const args = arguments;
+			utils.cancelDebounce(debounced);
+			debounced.id = setTimeout(function() {
+				fn(Array.prototype.slice.call(args));
+			}, delay);
+		};
+	}
+
+	/**
+	 * Cancels the scheduled debounced function.
+	 * @param {function()} debounced
+	 */
+	static cancelDebounce(debounced) {
+		clearTimeout(debounced.id);
+	}
+
+	/**
 	 * Gets the current browser path including hashbang.
 	 * @return {!string}
 	 * @static
