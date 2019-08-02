@@ -6,7 +6,6 @@ import utils from '../utils/utils';
 import globals from '../globals/globals';
 import Screen from './Screen';
 import Uri from 'metal-uri';
-import UA from 'metal-useragent';
 
 class RequestScreen extends Screen {
 
@@ -118,7 +117,7 @@ class RequestScreen extends Screen {
 			uri.setPort(globals.window.location.port);
 		}
 
-		if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+		if (utils.isIeOrEdge() && this.httpMethod === RequestScreen.GET) {
 			return uri.makeUnique().toString();
 		}
 
@@ -153,7 +152,7 @@ class RequestScreen extends Screen {
 			if (responseUrl) {
 				requestPath = responseUrl;
 			}
-			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+			if (utils.isIeOrEdge() && this.httpMethod === RequestScreen.GET) {
 				requestPath = new Uri(requestPath).removeUnique().toString();
 			}
 			return utils.getUrlPath(requestPath);
@@ -220,7 +219,7 @@ class RequestScreen extends Screen {
 			this.addSafariXHRPolyfill();
 			body = this.getFormData(globals.capturedFormElement, globals.capturedFormButtonElement);
 			httpMethod = RequestScreen.POST;
-			if (UA.isIeOrEdge) {
+			if (utils.isIeOrEdge()) {
 				headers.append('If-None-Match', '"0"');
 			}
 		}
@@ -307,7 +306,7 @@ class RequestScreen extends Screen {
 	 * https://bugs.webkit.org/show_bug.cgi?id=184490
 	 */
 	addSafariXHRPolyfill() {
-		if (globals.capturedFormElement && UA.isSafari) {
+		if (globals.capturedFormElement && utils.isSafari()) {
 			let inputs = globals.capturedFormElement.querySelectorAll('input[type="file"]:not([disabled])');
 			for (let index = 0; index < inputs.length; index++) {
 				let input = inputs[index];
@@ -328,7 +327,7 @@ class RequestScreen extends Screen {
 	 * https://bugs.webkit.org/show_bug.cgi?id=184490
 	 */
 	removeSafariXHRPolyfill() {
-		if (globals.capturedFormElement && UA.isSafari) {
+		if (globals.capturedFormElement && utils.isSafari()) {
 			let inputs = globals.capturedFormElement.querySelectorAll('input[type="file"][data-safari-temp-disabled]');
 			for (let index = 0; index < inputs.length; index++) {
 				const input = inputs[index];

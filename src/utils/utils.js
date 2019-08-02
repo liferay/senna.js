@@ -125,6 +125,43 @@ class utils {
 		return false;
 	}
 
+	static isChrome() {
+		return (utils.matchUserAgent('Chrome') || utils.matchUserAgent('CriOs')) &&
+			!utils.isOpera() &&
+			!utils.isEdge();
+	}
+
+	static isEdge() {
+		return utils.matchUserAgent('Edge');
+	}
+
+	static isIe() {
+		return utils.matchUserAgent('Trident') || utils.matchUserAgent('MSIE');
+	}
+
+	static isIeOrEdge() {
+		return utils.isIe() || utils.isEdge();
+	}
+
+	static isOpera() {
+		return utils.matchUserAgent('Opera') || utils.matchUserAgent('OPR');
+	}
+
+	static isSafari() {
+		return utils.matchUserAgent('Safari') &&
+			!(utils.isChrome() || utils.isOpera() || utils.isEdge());
+	}
+
+	static matchUserAgent(str) {
+		const navigator = globals.window.navigator;
+		if (!navigator || !navigator.userAgent) {
+			return false;
+		}
+
+		const userAgent = navigator.userAgent;
+		return userAgent.indexOf(str) !== -1;
+	}
+
 	/**
 	 * Returns true if HTML5 History api is supported.
 	 * @return {boolean}

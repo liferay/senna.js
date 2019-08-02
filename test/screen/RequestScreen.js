@@ -3,15 +3,13 @@
 import errors from '../../src/errors/errors';
 import globals from '../../src/globals/globals';
 import RequestScreen from '../../src/screen/RequestScreen';
-import UA from 'metal-useragent';
+import utils from '../../src/utils/utils';
 
 describe('RequestScreen', function() {
 
 	let fetchStub;
 
 	beforeEach(() => {
-		UA.testUserAgent(UA.getNativeUserAgent(), UA.getNativePlatform());
-
 		// A fix for window.location.origin in Internet Explorer
 		if (!globals.window.location.origin) {
 			globals.window.location.origin = globals.window.location.protocol + '//' + globals.window.location.hostname + (globals.window.location.port ? ':' + globals.window.location.port : '');
@@ -114,7 +112,7 @@ describe('RequestScreen', function() {
 
 	it('should send request to an url', (done) => {
 		// This test will run only on Chrome to avoid unique url on test case
-		if (!UA.isChrome) {
+		if (!utils.isChrome()) {
 			done();
 		} else {
 			fetchStub.returns(Promise.resolve(
@@ -149,7 +147,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should not load response content from cache for post requests', (done) => {
-		if (UA.isIE) {
+		if (utils.isIe()) {
 			done();
 		}
 
@@ -283,7 +281,7 @@ describe('RequestScreen', function() {
 
 	it('should not cache get requests on ie browsers', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			fetchStub.returns(Promise.resolve(
@@ -302,7 +300,7 @@ describe('RequestScreen', function() {
 
 	it('should not cache get requests on edge browsers', (done) => {
 		// This test will run only on Edge
-		if (!UA.isEdge) {
+		if (!utils.isEdge()) {
 			done();
 		} else {
 			fetchStub.returns(Promise.resolve(
@@ -321,7 +319,7 @@ describe('RequestScreen', function() {
 
 	it('should not cache redirected requests on edge browsers', (done) => {
 		// This test will run only on Edge
-		if (!UA.isEdge) {
+		if (!utils.isEdge()) {
 			done();
 		} else {
 			fetchStub.returns(Promise.resolve(

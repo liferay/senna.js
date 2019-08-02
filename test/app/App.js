@@ -1660,7 +1660,7 @@ describe('App', function() {
 
 
 	xit('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
-		if (!UA.isIE) {
+		if (!utils.isIe()) {
 			done();
 		}
 
@@ -1707,7 +1707,7 @@ describe('App', function() {
 
 
 	xit('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
-		if (!UA.isIE) {
+		if (!utils.isIe()) {
 			done();
 		}
 

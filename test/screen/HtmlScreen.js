@@ -4,7 +4,7 @@ import dom from 'metal-dom';
 import globals from '../../src/globals/globals';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
-import UA from 'metal-useragent';
+import utils from '../../src/utils/utils';
 import Uri from 'metal-uri';
 
 describe('HtmlScreen', function() {
@@ -189,7 +189,7 @@ describe('HtmlScreen', function() {
 
 	it('should not force favicon to change whenever the href change when the browser is IE', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
@@ -208,7 +208,7 @@ describe('HtmlScreen', function() {
 
 	it('should force favicon to change whenever change the href when the browser is not IE', (done) => {
 		// This test will run on all browsers except in IE
-		if (UA.isIe) {
+		if (utils.isIe()) {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
@@ -338,7 +338,7 @@ describe('HtmlScreen', function() {
 
 	it('should mutate temporary style hrefs to be unique on ie browsers', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			var screen = new HtmlScreen();
@@ -360,7 +360,7 @@ describe('HtmlScreen', function() {
 
 	it('link elements should only be loaded once in IE', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			var screen = new HtmlScreen();

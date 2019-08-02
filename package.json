@@ -36,8 +36,7 @@
     "metal-dom": "^2.16.8",
     "metal-events": "^2.16.5",
     "metal-path-parser": "^1.0.3",
-    "metal-uri": "^2.2.6",
-    "metal-useragent": "^3.0.0"
+    "metal-uri": "^2.2.6"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
