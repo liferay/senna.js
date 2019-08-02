@@ -248,7 +248,7 @@ describe('RequestScreen', function() {
 		));
 
 		var screen = new RequestScreen();
-		screen.load('/url').then(res => {
+		screen.load('/url').then(() => {
 			assert.strictEqual(RequestScreen.POST, screen.getRequest().method.toLowerCase());
 			globals.capturedFormElement = null;
 			done();
