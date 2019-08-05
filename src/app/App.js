@@ -418,6 +418,15 @@ class App extends EventEmitter {
 
 		var nextScreen = this.createScreenInstance(path, route);
 
+		const finalize = () => {
+			this.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+			if (this.scheduledNavigationQueue.length) {
+				const scheduledNavigation = this.scheduledNavigationQueue.shift();
+				this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
+			}
+		};
+
 		return this.maybePreventDeactivate_()
 			.then(() => this.maybePreventActivate_(nextScreen))
 			.then(() => nextScreen.load(path))
@@ -444,26 +453,14 @@ class App extends EventEmitter {
 			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.then(() => this.maybeOverloadBeforeUnload_())
 			.then(() => {
-				this.doNavigateEnd_();
+				finalize();
 			})
 			.catch((reason) => {
 				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
-				this.doNavigateEnd_();
+				finalize();
 				throw reason;
 			});
-	}
-
-	/**
-	 * @protected
-	 */
-	doNavigateEnd_() {
-		this.navigationStrategy = NavigationStrategy.IMMEDIATE;
-
-		if (this.scheduledNavigationQueue.length) {
-			const scheduledNavigation = this.scheduledNavigationQueue.shift();
-			this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
-		}
 	}
 
 	/**
@@ -1089,29 +1086,26 @@ class App extends EventEmitter {
 			path: event.path
 		};
 
+		const finalize = (endNavigatePayload) => {
+			if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
+				removeClasses(globals.document.documentElement, this.loadingCssClass);
+				this.maybeRestoreNativeScrollRestoration();
+				this.captureScrollPositionFromScrollEvent = true;
+			}
+			this.emit('endNavigate', endNavigatePayload);
+		};
+
 		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
 			.then(() => {
-				this.onStartNavigateEnd_(endNavigatePayload);
+				finalize(endNavigatePayload);
 			})
 			.catch((reason) => {
-				this.onStartNavigateEnd_(endNavigatePayload);
+				finalize(endNavigatePayload);
 				endNavigatePayload.error = reason;
 				throw reason;
 			});
 
 		this.pendingNavigate.path = event.path;
-	}
-
-	/**
-	 * @protected
-	 */
-	onStartNavigateEnd_(endNavigatePayload) {
-		if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
-			removeClasses(globals.document.documentElement, this.loadingCssClass);
-			this.maybeRestoreNativeScrollRestoration();
-			this.captureScrollPositionFromScrollEvent = true;
-		}
-		this.emit('endNavigate', endNavigatePayload);
 	}
 
 	/**
