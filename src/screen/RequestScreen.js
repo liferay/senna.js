@@ -1,15 +1,11 @@
 'use strict';
 
 import { isDefAndNotNull } from 'metal';
-import Ajax from 'metal-ajax';
-import { MultiMap } from 'metal-structs';
-import CancellablePromise from 'metal-promise';
 import errors from '../errors/errors';
 import utils from '../utils/utils';
 import globals from '../globals/globals';
 import Screen from './Screen';
 import Uri from 'metal-uri';
-import UA from 'metal-useragent';
 
 class RequestScreen extends Screen {
 
@@ -121,7 +117,7 @@ class RequestScreen extends Screen {
 			uri.setPort(globals.window.location.port);
 		}
 
-		if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+		if (utils.isIeOrEdge() && this.httpMethod === RequestScreen.GET) {
 			return uri.makeUnique().toString();
 		}
 
@@ -151,12 +147,12 @@ class RequestScreen extends Screen {
 	getRequestPath() {
 		var request = this.getRequest();
 		if (request) {
-			var requestPath = request.requestPath;
+			var requestPath = request.url;
 			var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
 			if (responseUrl) {
 				requestPath = responseUrl;
 			}
-			if (UA.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+			if (utils.isIeOrEdge() && this.httpMethod === RequestScreen.GET) {
 				requestPath = new Uri(requestPath).removeUnique().toString();
 			}
 			return utils.getUrlPath(requestPath);
@@ -208,49 +204,69 @@ class RequestScreen extends Screen {
 	load(path) {
 		const cache = this.getCache();
 		if (isDefAndNotNull(cache)) {
-			return CancellablePromise.resolve(cache);
+			return Promise.resolve(cache);
 		}
 		let body = null;
 		let httpMethod = this.httpMethod;
-		const headers = new MultiMap();
-		Object.keys(this.httpHeaders).forEach(header => headers.add(header, this.httpHeaders[header]));
+
+		const headers = new Headers();
+
+		Object.keys(this.httpHeaders).forEach(header => {
+			headers.append(header, this.httpHeaders[header]);
+		});
+
 		if (globals.capturedFormElement) {
 			this.addSafariXHRPolyfill();
 			body = this.getFormData(globals.capturedFormElement, globals.capturedFormButtonElement);
 			httpMethod = RequestScreen.POST;
-			if (UA.isIeOrEdge) {
-				headers.add('If-None-Match', '"0"');
+			if (utils.isIeOrEdge()) {
+				headers.append('If-None-Match', '"0"');
 			}
 		}
+
 		const requestPath = this.formatLoadPath(path);
-		return Ajax
-			.request(requestPath, httpMethod, body, headers, null, this.timeout)
-			.then(xhr => {
-				this.removeSafariXHRPolyfill();
-				this.setRequest(xhr);
-				this.assertValidResponseStatusCode(xhr.status);
-				if (httpMethod === RequestScreen.GET && this.isCacheable()) {
-					this.addCache(xhr.responseText);
-				}
-				xhr.requestPath = requestPath;
-				return xhr.responseText;
+
+		const request = new Request(requestPath, {
+			body: body,
+			credentials: 'include',
+			headers: headers,
+			method: httpMethod
+		});
+
+		this.setRequest(request);
+
+		return Promise.race([
+			fetch(request)
+				.then(resp => {
+					this.removeSafariXHRPolyfill();
+					this.assertValidResponseStatusCode(resp.status);
+					return resp.text();
+				})
+				.then(text => {
+					if (httpMethod === RequestScreen.GET && this.isCacheable()) {
+						this.addCache(text);
+					}
+					return text;
+				}),
+			new Promise((_, reject) => {
+				setTimeout(() => reject(new Error(errors.REQUEST_TIMEOUT)) , this.timeout);
 			})
-			.catch((reason) => {
-				this.removeSafariXHRPolyfill();
-				switch (reason.message) {
-					case errors.REQUEST_TIMEOUT:
-						reason.timeout = true;
-						break;
-					case errors.REQUEST_ERROR:
-						reason.requestError = true;
-						break;
-					case errors.REQUEST_PREMATURE_TERMINATION:
-						reason.requestError = true;
-						reason.requestPrematureTermination = true;
-						break;
-				}
-				throw reason;
-			});
+		]).catch((reason) => {
+			this.removeSafariXHRPolyfill();
+			switch (reason.message) {
+				case errors.REQUEST_TIMEOUT:
+					reason.timeout = true;
+					break;
+				case errors.REQUEST_ERROR:
+					reason.requestError = true;
+					break;
+				case errors.REQUEST_PREMATURE_TERMINATION:
+					reason.requestError = true;
+					reason.requestPrematureTermination = true;
+					break;
+			}
+			throw reason;
+		});
 	}
 
 	/**
@@ -278,23 +294,19 @@ class RequestScreen extends Screen {
 	 * @return {?string} Response url best match.
 	 */
 	maybeExtractResponseUrlFromRequest(request) {
-		var responseUrl = request.responseURL;
-		if (responseUrl) {
-			return responseUrl;
-		}
-		return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
+		return request.headers.get(RequestScreen.X_REQUEST_URL_HEADER);
 	}
 
 	/**
-	 * This function set attribute data-safari-temp-disabled to 
-	 * true and set disable attribute of an input type="file" tag
-	 * is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1 
+	 * This function sets attribute data-safari-temp-disabled to
+	 * true and sets disable attribute of an input type="file" tag
+	 * is used as a polyfill for iOS 11.3 Safari / macOS Safari 11.1
 	 * empty <input type="file"> XHR bug.
 	 * https://github.com/rails/rails/issues/32440
 	 * https://bugs.webkit.org/show_bug.cgi?id=184490
 	 */
 	addSafariXHRPolyfill() {
-		if (globals.capturedFormElement && UA.isSafari) {
+		if (globals.capturedFormElement && utils.isSafari()) {
 			let inputs = globals.capturedFormElement.querySelectorAll('input[type="file"]:not([disabled])');
 			for (let index = 0; index < inputs.length; index++) {
 				let input = inputs[index];
@@ -315,7 +327,7 @@ class RequestScreen extends Screen {
 	 * https://bugs.webkit.org/show_bug.cgi?id=184490
 	 */
 	removeSafariXHRPolyfill() {
-		if (globals.capturedFormElement && UA.isSafari) {
+		if (globals.capturedFormElement && utils.isSafari()) {
 			let inputs = globals.capturedFormElement.querySelectorAll('input[type="file"][data-safari-temp-disabled]');
 			for (let index = 0; index < inputs.length; index++) {
 				const input = inputs[index];

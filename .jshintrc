@@ -8,6 +8,9 @@
   "evil": false,
   "forin": false,
   "globals": {
+    "Headers": true,
+    "Response": true,
+    "Request": true,
     "after": true,
     "afterEach": true,
     "assert": true,

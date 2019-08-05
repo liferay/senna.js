@@ -4,24 +4,20 @@ import dom from 'metal-dom';
 import globals from '../../src/globals/globals';
 import HtmlScreen from '../../src/screen/HtmlScreen';
 import Surface from '../../src/surface/Surface';
-import UA from 'metal-useragent';
+import utils from '../../src/utils/utils';
 import Uri from 'metal-uri';
 
 describe('HtmlScreen', function() {
 
 	beforeEach(() => {
-		var requests = this.requests = [];
-		this.xhr = sinon.useFakeXMLHttpRequest();
-		this.xhr.onCreate = (xhr) => {
-			requests.push(xhr);
-		};
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');
+		sinon.stub(window, 'fetch');
 	});
 
 	afterEach(() => {
-		this.xhr.restore();
 		console.log.restore();
+		window.fetch.restore();
 	});
 
 	it('should get title selector', () => {
@@ -33,38 +29,42 @@ describe('HtmlScreen', function() {
 
 	it('should returns loaded content', (done) => {
 		var screen = new HtmlScreen();
+
+		window.fetch.returns(Promise.resolve(
+			new Response('content', {status: 200})
+		));
+
 		screen.load('/url').then((content) => {
 			assert.strictEqual('content', content);
 			done();
 		});
-		this.requests[0].respond(200, null, 'content');
 	});
 
 	it('should set title from response content', (done) => {
 		var screen = new HtmlScreen();
+
+		window.fetch.returns(Promise.resolve(
+			new Response('<title>new</title>', {status: 200})
+		));
+
 		screen.load('/url').then(() => {
 			assert.strictEqual('new', screen.getTitle());
 			done();
 		});
-		this.requests[0].respond(200, null, '<title>new</title>');
 	});
 
 	it('should not set title from response content if not present', (done) => {
 		var screen = new HtmlScreen();
+
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 200})
+		));
+
 		screen.load('/url').then(() => {
 			assert.strictEqual(null, screen.getTitle());
 			done();
 		});
-		this.requests[0].respond(200, null, '');
-	});
 
-	it('should cancel load request to an url', (done) => {
-		var screen = new HtmlScreen();
-		screen.load('/url')
-			.catch(reason => {
-				assert.ok(reason instanceof Error);
-				done();
-			}).cancel();
 	});
 
 	it('should copy surface root node attributes from response content', (done) => {
@@ -157,7 +157,6 @@ describe('HtmlScreen', function() {
 
 	it('should evaluate favicon', (done) => {
 		enterDocumentSurfaceElement('surfaceId', '');
-		var surface = new Surface('surfaceId');
 		var screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 		screen.evaluateFavicon_().then(() => {
@@ -180,7 +179,6 @@ describe('HtmlScreen', function() {
 					.then(() => {
 						var element = document.querySelector('link[rel="Shortcut Icon"]');
 						assert.ok(element);
-						var uri = new Uri(element.href);
 						exitDocumentElement('favicon');
 						done();
 					});
@@ -189,11 +187,10 @@ describe('HtmlScreen', function() {
 
 	it('should not force favicon to change whenever the href change when the browser is IE', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-			var surface = new Surface('surfaceId');
 			var screen = new HtmlScreen();
 			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 			screen.evaluateFavicon_().then(() => {
@@ -209,11 +206,10 @@ describe('HtmlScreen', function() {
 
 	it('should force favicon to change whenever change the href when the browser is not IE', (done) => {
 		// This test will run on all browsers except in IE
-		if (UA.isIe) {
+		if (utils.isIe()) {
 			done();
 		} else {
 			enterDocumentSurfaceElement('surfaceId', '<link rel="Shortcut Icon" href="/bar/favicon.ico" />');
-			var surface = new Surface('surfaceId');
 			var screen = new HtmlScreen();
 			screen.allocateVirtualDocumentForContent('<link rel="Shortcut Icon" href="/for/favicon.ico" />');
 			screen.evaluateFavicon_().then(() => {
@@ -340,10 +336,14 @@ describe('HtmlScreen', function() {
 
 	it('should mutate temporary style hrefs to be unique on ie browsers', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			var screen = new HtmlScreen();
+
+			window.fetch.returns(Promise.resolve(
+				new Response('<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">', {status: 200})
+			));
 
 			screen.load('/url').then(() => {
 				screen.evaluateStyles({})
@@ -353,18 +353,20 @@ describe('HtmlScreen', function() {
 					});
 				screen.activate();
 			});
-
-			this.requests[0].respond(200, null, '<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">');
 		}
 	});
 
 	it('link elements should only be loaded once in IE', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
 			var screen = new HtmlScreen();
 			window.sentinelLoadCount = 0;
+
+			window.fetch.returns(Promise.resolve(
+				new Response('<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">', {status: 200})
+			));
 
 			screen.load('/url').then(() => {
 				var style = screen.virtualQuerySelectorAll_('#style')[0];
@@ -383,8 +385,6 @@ describe('HtmlScreen', function() {
 					});
 				screen.activate();
 			});
-
-			this.requests[0].respond(200, null, '<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">');
 		}
 	});
 
@@ -421,5 +421,3 @@ function exitDocumentElement(surfaceId) {
 function assertComputedStyle(property, value) {
 	assert.strictEqual(value, window.getComputedStyle(document.body, null)[property]);
 }
-
-

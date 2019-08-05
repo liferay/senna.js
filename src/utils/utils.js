@@ -20,6 +20,30 @@ class utils {
 	}
 
 	/**
+	 * Debounces function execution.
+	 * @param {!function()} fn
+	 * @param {number} delay
+	 * @return {!function()}
+	 */
+	static debounce(fn, delay) {
+		return function debounced() {
+			const args = arguments;
+			utils.cancelDebounce(debounced);
+			debounced.id = setTimeout(function() {
+				fn(Array.prototype.slice.call(args));
+			}, delay);
+		};
+	}
+
+	/**
+	 * Cancels the scheduled debounced function.
+	 * @param {function()} debounced
+	 */
+	static cancelDebounce(debounced) {
+		clearTimeout(debounced.id);
+	}
+
+	/**
 	 * Gets the current browser path including hashbang.
 	 * @return {!string}
 	 * @static
@@ -99,6 +123,43 @@ class utils {
 			return utils.getUrlPathWithoutHash(url) === this.getUrlPath(currentBrowserPath);
 		}
 		return false;
+	}
+
+	static isChrome() {
+		return (utils.matchUserAgent('Chrome') || utils.matchUserAgent('CriOs')) &&
+			!utils.isOpera() &&
+			!utils.isEdge();
+	}
+
+	static isEdge() {
+		return utils.matchUserAgent('Edge');
+	}
+
+	static isIe() {
+		return utils.matchUserAgent('Trident') || utils.matchUserAgent('MSIE');
+	}
+
+	static isIeOrEdge() {
+		return utils.isIe() || utils.isEdge();
+	}
+
+	static isOpera() {
+		return utils.matchUserAgent('Opera') || utils.matchUserAgent('OPR');
+	}
+
+	static isSafari() {
+		return utils.matchUserAgent('Safari') &&
+			!(utils.isChrome() || utils.isOpera() || utils.isEdge());
+	}
+
+	static matchUserAgent(str) {
+		const navigator = globals.window.navigator;
+		if (!navigator || !navigator.userAgent) {
+			return false;
+		}
+
+		const userAgent = navigator.userAgent;
+		return userAgent.indexOf(str) !== -1;
 	}
 
 	/**

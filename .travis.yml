@@ -1,14 +1,37 @@
+stages:
+  - precache
+  - test
+
 language: node_js
-node_js:
-  - '6'
-sudo: false
-addons:
-  sauce_connect:
-    no_ssl_bump_domains: all
-  jwt:
-    secure: dnd9n+qRlUFxKH82yHMSdfjkeK4Q+x8WkDdcwLb/A2n1dhSkfaekbi2pcUCUsVSueG3kl2gGD+Y4nYX0nbQ6C1lUovQv2aoLi9pooE0k4rAWEpEG1rCz55QsJT5wllQUGDUAYPbFFD7qwL2pPehMQWcl7OrScXeCdIZXF4dEVPM=
-before_install:
-  - npm install -g bower
-  - bower install
-  - npm install -g npm@'>=3.0.0'
-script: gulp test:saucelabs
+node_js: '8'
+
+env:
+  global:
+    - PATH=~/npm/node_modules/.bin:$PATH
+
+before_install: |
+  [[ ! -x ~/npm/node_modules/.bin/npm ]] && {
+    cd ~/npm && npm install npm@^5.8.0
+    cd -
+  } || true
+install: npm ci --ignore-scripts
+
+cache:
+  directories:
+    - ~/.npm # cache npm's cache
+    - ~/npm # cache latest npm
+
+jobs:
+  include:
+    - stage: test
+      install: npm ci
+      addons:
+        sauce_connect:
+              no_ssl_bump_domains: all
+        jwt:
+          secure: dnd9n+qRlUFxKH82yHMSdfjkeK4Q+x8WkDdcwLb/A2n1dhSkfaekbi2pcUCUsVSueG3kl2gGD+Y4nYX0nbQ6C1lUovQv2aoLi9pooE0k4rAWEpEG1rCz55QsJT5wllQUGDUAYPbFFD7qwL2pPehMQWcl7OrScXeCdIZXF4dEVPM=
+        chrome: stable
+      script: gulp test:saucelabs
+
+    - stage: precache
+      script: true

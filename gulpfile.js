@@ -26,7 +26,7 @@ var options = {
 	rollupConfig: {
 		exports: 'named'
 	},
-	testBrowsers: ['Chrome', 'Firefox', 'Safari', 'IE10 - Win7', 'IE11 - Win7'],
+	testBrowsers: ['Chrome', 'Firefox', 'Safari', 'IE11 - Win7'],
 	testSaucelabsBrowsers: {
 		sl_chrome: {
 			base: 'SauceLabs',
@@ -55,17 +55,6 @@ var options = {
 		sl_firefox: {
 			base: 'SauceLabs',
 			browserName: 'firefox'
-		},
-		sl_firefox_53: {
-			base: 'SauceLabs',
-			browserName: 'firefox',
-			version: '53'
-		},
-		sl_ie_10: {
-			base: 'SauceLabs',
-			browserName: 'internet explorer',
-			platform: 'Windows 7',
-			version: '10'
 		},
 		sl_ie_11: {
 			base: 'SauceLabs',

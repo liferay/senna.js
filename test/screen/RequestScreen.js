@@ -1,28 +1,23 @@
 'use strict';
 
+import errors from '../../src/errors/errors';
 import globals from '../../src/globals/globals';
 import RequestScreen from '../../src/screen/RequestScreen';
-import UA from 'metal-useragent';
+import utils from '../../src/utils/utils';
 
 describe('RequestScreen', function() {
 
 	beforeEach(() => {
-		var requests = this.requests = [];
-		this.xhr = sinon.useFakeXMLHttpRequest();
-		this.xhr.onCreate = (xhr) => {
-			requests.push(xhr);
-		};
-
-		UA.testUserAgent(UA.getNativeUserAgent(), UA.getNativePlatform());
-
 		// A fix for window.location.origin in Internet Explorer
 		if (!globals.window.location.origin) {
 			globals.window.location.origin = globals.window.location.protocol + '//' + globals.window.location.hostname + (globals.window.location.port ? ':' + globals.window.location.port : '');
 		}
+
+		sinon.stub(window, 'fetch');
 	});
 
 	afterEach(() => {
-		this.xhr.restore();
+		window.fetch.restore();
 	});
 
 	it('should be cacheable', () => {
@@ -58,10 +53,12 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				requestPath: '/path',
-				getResponseHeader: function() {
-					return null;
-				}
+				headers: {
+					get() {
+						return null;
+					}
+				},
+				url: '/path'
 			};
 		});
 		assert.strictEqual('/path', screen.beforeUpdateHistoryPath('/path'));
@@ -71,8 +68,12 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				requestPath: '/path',
-				responseURL: '/redirect'
+				headers: {
+					get() {
+						return '/redirect';
+					}
+				},
+				url: '/path'
 			};
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
@@ -82,11 +83,10 @@ describe('RequestScreen', function() {
 		var screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				requestPath: '/path',
-				getResponseHeader: (header) => {
-					return {
-						'X-Request-URL': '/redirect'
-					}[header];
+				headers: {
+					get() {
+						return '/redirect';
+					}
 				}
 			};
 		});
@@ -110,23 +110,31 @@ describe('RequestScreen', function() {
 
 	it('should send request to an url', (done) => {
 		// This test will run only on Chrome to avoid unique url on test case
-		if (!UA.isChrome) {
+		if (!utils.isChrome()) {
 			done();
 		} else {
+			window.fetch.returns(Promise.resolve(
+				new Response('', {status: 200})
+			));
+
 			var screen = new RequestScreen();
 			screen.load('/url').then(() => {
 				assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
-				assert.deepEqual({
-					'X-PJAX': 'true',
-					'X-Requested-With': 'XMLHttpRequest'
-				}, screen.getRequest().requestHeaders);
+
+				const request = screen.getRequest();
+				assert.deepEqual(request.headers.get('X-PJAX'), 'true');
+				assert.deepEqual(request.headers.get('X-Requested-With'), 'XMLHttpRequest');
+
 				done();
 			});
-			this.requests[0].respond(200);
 		}
 	});
 
 	it('should load response content from cache', (done) => {
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 200})
+		));
+
 		var screen = new RequestScreen();
 		var cache = {};
 		screen.addCache(cache);
@@ -137,31 +145,38 @@ describe('RequestScreen', function() {
 	});
 
 	it('should not load response content from cache for post requests', (done) => {
+		if (utils.isIe()) {
+			done();
+		}
+
+		window.fetch.returns(Promise.resolve(
+			new Response('stuff', {status: 200})
+		));
+
 		var screen = new RequestScreen();
 		var cache = {};
 		screen.setHttpMethod(RequestScreen.POST);
 		screen.load('/url').then(() => {
-			screen.load('/url').then((cachedContent) => {
+			window.fetch.reset();
+			window.fetch.returns(Promise.resolve(
+				new Response('stuff', {status: 200})
+			));
+
+			screen.load('/url').then(cachedContent => {
 				assert.notStrictEqual(cache, cachedContent);
 				done();
 			});
-			this.requests[1].respond(200);
 		});
-		this.requests[0].respond(200);
-	});
-
-	it('should cancel load request to an url', (done) => {
-		var screen = new RequestScreen();
-		screen.load('/url')
-			.then(() => assert.fail())
-			.catch(() => {
-				assert.ok(this.requests[0].aborted);
-				done();
-			})
-			.cancel();
 	});
 
 	it('should fail for timeout request', (done) => {
+		let id;
+		window.fetch.returns(new Promise((resolve) => {
+			setTimeout(() => {
+				resolve(new Response('', {status: 200}));
+			}, 100);
+		}));
+
 		var screen = new RequestScreen();
 		screen.setTimeout(0);
 		screen.load('/url')
@@ -170,63 +185,79 @@ describe('RequestScreen', function() {
 				clearTimeout(id);
 				done();
 			});
-		var id = setTimeout(() => this.requests[0].respond(200), 100);
 	});
 
 	it('should fail for invalid status code response', (done) => {
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 404})
+		));
+
 		new RequestScreen()
 			.load('/url')
 			.catch((error) => {
 				assert.ok(error.invalidStatus);
 				done();
 			});
-		this.requests[0].respond(404);
 	});
 
 	it('should return the correct http status code for "page not found"', (done) => {
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 404})
+		));
+
 		new RequestScreen()
 			.load('/url')
 			.catch((error) => {
 				assert.strictEqual(error.statusCode, 404);
 				done();
 			});
-		this.requests[0].respond(404);
 	});
 
 	it('should return the correct http status code for "unauthorised"', (done) => {
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 401})
+		));
+
 		new RequestScreen()
 			.load('/url')
 			.catch((error) => {
 				assert.strictEqual(error.statusCode, 401);
 				done();
 			});
-		this.requests[0].respond(401);
 	});
 
-
 	it('should fail for request errors response', (done) => {
+		window.fetch.returns(Promise.reject(
+			new Error(errors.REQUEST_ERROR)));
+
 		new RequestScreen()
 			.load('/url')
 			.catch((error) => {
 				assert.ok(error.requestError);
 				done();
 			});
-		this.requests[0].error();
 	});
 
 	it('should form navigate force post method and request body wrapped in FormData', (done) => {
 		globals.capturedFormElement = globals.document.createElement('form');
+
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 200})
+		));
+
 		var screen = new RequestScreen();
 		screen.load('/url').then(() => {
-			assert.strictEqual(RequestScreen.POST, screen.getRequest().method);
-			assert.ok(screen.getRequest().requestBody instanceof FormData);
+			assert.strictEqual(RequestScreen.POST, screen.getRequest().method.toLowerCase());
 			globals.capturedFormElement = null;
 			done();
 		});
-		this.requests[0].respond(200);
 	});
 
 	it('should add submit input button value into request FormData', (done) => {
+		window.fetch.returns(new Promise(resolve => {
+			resolve(new Response('', {status: 200}));
+		}));
+
 		globals.capturedFormElement = globals.document.createElement('form');
 		const submitButton = globals.document.createElement('button');
 		submitButton.name = 'submitButton';
@@ -244,14 +275,17 @@ describe('RequestScreen', function() {
 				spy.restore();
 				done();
 			});
-		this.requests[0].respond(200);
 	});
 
 	it('should not cache get requests on ie browsers', (done) => {
 		// This test will run only on IE
-		if (!UA.isIe) {
+		if (!utils.isIe()) {
 			done();
 		} else {
+			window.fetch.returns(Promise.resolve(
+				new Response('', {status: 200})
+			));
+
 			var url = '/url';
 			var screen = new RequestScreen();
 			screen.load(url).then(() => {
@@ -259,42 +293,53 @@ describe('RequestScreen', function() {
 				assert.strictEqual(url, screen.getRequestPath());
 				done();
 			});
-			this.requests[0].respond(200);
 		}
 	});
 
 	it('should not cache get requests on edge browsers', (done) => {
 		// This test will run only on Edge
-		if (!UA.isEdge) {
+		if (!utils.isEdge()) {
 			done();
 		} else {
+			window.fetch.returns(Promise.resolve(
+				new Response('', {status: 200})
+			));
+
+
 			var url = '/url';
 			var screen = new RequestScreen();
 			screen.load(url).then(() => {
 				assert.notStrictEqual(url, screen.getRequest().url);
 				done();
 			});
-			this.requests[0].respond(200);
 		}
 	});
 
 	it('should not cache redirected requests on edge browsers', (done) => {
 		// This test will run only on Edge
-		if (!UA.isEdge) {
+		if (!utils.isEdge()) {
 			done();
 		} else {
+			window.fetch.returns(Promise.resolve(
+				new Response('', {status: 200})
+			));
+
+
 			globals.capturedFormElement = globals.document.createElement('form');
 			var url = '/url';
 			var screen = new RequestScreen();
 			screen.load(url).then(() => {
-				assert.ok('"0"', screen.getRequest().requestHeaders['If-None-Match']);
+				assert.ok('"0"', screen.getRequest().headers.get('If-None-Match'));
 				done();
 			});
-			this.requests[0].respond(200);
 		}
 	});
 
 	it('should navigate over same protocol the page was viewed on', (done) => {
+		window.fetch.returns(Promise.resolve(
+			new Response('', {status: 200})
+		));
+
 		var screen = new RequestScreen();
 		var wrongProtocol = globals.window.location.origin.replace('http', 'https');
 		screen.load(wrongProtocol + '/url').then(() => {
@@ -302,7 +347,5 @@ describe('RequestScreen', function() {
 			assert.ok(url.indexOf('http:') === 0);
 			done();
 		});
-		this.requests[0].respond(200);
 	});
-
 });

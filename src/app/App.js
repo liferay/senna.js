@@ -3,8 +3,6 @@
 import { addClasses, delegate, match, on, removeClasses } from 'metal-dom';
 import { array, async, isDefAndNotNull, isString, object } from 'metal';
 import { EventEmitter, EventHandler } from 'metal-events';
-import CancellablePromise from 'metal-promise';
-import debounce from 'metal-debounce';
 import globals from '../globals/globals';
 import Route from '../route/Route';
 import Screen from '../screen/Screen';
@@ -150,7 +148,7 @@ class App extends EventEmitter {
 
 		/**
 		 * Holds a deferred with the current navigation.
-		 * @type {?CancellablePromise}
+		 * @type {?Promise}
 		 * @default null
 		 * @protected
 		 */
@@ -236,7 +234,7 @@ class App extends EventEmitter {
 		this.appEventHandlers_ = new EventHandler();
 
 		this.appEventHandlers_.add(
-			on(globals.window, 'scroll', debounce(this.onScroll_.bind(this), 100)),
+			on(globals.window, 'scroll', utils.debounce(this.onScroll_.bind(this), 100)),
 			on(globals.window, 'load', this.onLoad_.bind(this)),
 			on(globals.window, 'popstate', this.onPopstate_.bind(this))
 		);
@@ -394,7 +392,7 @@ class App extends EventEmitter {
 	/**
 	 * Dispatches to the first route handler that matches the current path, if
 	 * any.
-	 * @return {CancellablePromise} Returns a pending request cancellable promise.
+	 * @return {Promise} Returns a pending request promise.
 	 */
 	dispatch() {
 		return this.navigate(utils.getCurrentBrowserPath(), true);
@@ -404,12 +402,12 @@ class App extends EventEmitter {
 	 * Starts navigation to a path.
 	 * @param {!string} path Path containing the querystring part.
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
-	 * @return {CancellablePromise} Returns a pending request cancellable promise.
+	 * @return {Promise} Returns a pending request promise.
 	 */
 	doNavigate_(path, opt_replaceHistory) {
 		var route = this.findRoute(path);
 		if (!route) {
-			this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
+			this.pendingNavigate = Promise.reject(new Error('No route for ' + path));
 			return this.pendingNavigate;
 		}
 
@@ -419,6 +417,15 @@ class App extends EventEmitter {
 		this.isNavigationPending = true;
 
 		var nextScreen = this.createScreenInstance(path, route);
+
+		const finalize = () => {
+			this.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+			if (this.scheduledNavigationQueue.length) {
+				const scheduledNavigation = this.scheduledNavigationQueue.shift();
+				this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
+			}
+		};
 
 		return this.maybePreventDeactivate_()
 			.then(() => this.maybePreventActivate_(nextScreen))
@@ -445,18 +452,14 @@ class App extends EventEmitter {
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.then(() => this.maybeOverloadBeforeUnload_())
+			.then(() => {
+				finalize();
+			})
 			.catch((reason) => {
 				this.isNavigationPending = false;
 				this.handleNavigateError_(path, nextScreen, reason);
+				finalize();
 				throw reason;
-			})
-			.thenAlways(() => {
-				this.navigationStrategy = NavigationStrategy.IMMEDIATE;
-
-				if (this.scheduledNavigationQueue.length) {
-					const scheduledNavigation = this.scheduledNavigationQueue.shift();
-					this.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
-				}
 			});
 	}
 
@@ -612,7 +615,12 @@ class App extends EventEmitter {
 		});
 		if (!utils.isCurrentBrowserPath(path)) {
 			if (this.isNavigationPending && this.pendingNavigate) {
-				this.pendingNavigate.thenAlways(() => this.removeScreen(path), this);
+				this.pendingNavigate
+					.then(() => this.removeScreen(path))
+					.catch(error => {
+						this.removeScreen(path);
+						throw error;
+					});
 			} else {
 				this.removeScreen(path);
 			}
@@ -768,16 +776,16 @@ class App extends EventEmitter {
 	 * Cancels navigation if nextScreen's beforeActivate lifecycle method
 	 * resolves to true.
 	 * @param {!Screen} nextScreen
-	 * @return {!CancellablePromise}
+	 * @return {!Promise}
 	 */
 	maybePreventActivate_(nextScreen) {
-		return CancellablePromise.resolve()
+		return Promise.resolve()
 			.then(() => {
 				return nextScreen.beforeActivate();
 			})
 			.then(prevent => {
 				if (prevent) {
-					this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by next screen'));
+					this.pendingNavigate = Promise.reject('Cancelled by next screen');
 					return this.pendingNavigate;
 				}
 			});
@@ -786,10 +794,10 @@ class App extends EventEmitter {
 	/**
 	 * Cancels navigation if activeScreen's beforeDeactivate lifecycle
 	 * method resolves to true.
-	 * @return {!CancellablePromise}
+	 * @return {!Promise}
 	 */
 	maybePreventDeactivate_() {
-		return CancellablePromise.resolve()
+		return Promise.resolve()
 			.then(() => {
 				if (this.activeScreen) {
 					return this.activeScreen.beforeDeactivate();
@@ -797,7 +805,7 @@ class App extends EventEmitter {
 			})
 			.then(prevent => {
 				if (prevent) {
-					this.pendingNavigate = CancellablePromise.reject(new CancellablePromise.CancellationError('Cancelled by active screen'));
+					this.pendingNavigate = Promise.reject(new Error('Cancelled by active screen'));
 					return this.pendingNavigate;
 				}
 			});
@@ -860,7 +868,7 @@ class App extends EventEmitter {
 	 * @param {!string} path Path to navigate containing the base path.
 	 * @param {boolean=} opt_replaceHistory Replaces browser history.
 	 * @param {Event=} event Optional event object that triggered the navigation.
-	 * @return {CancellablePromise} Returns a pending request cancellable promise.
+	 * @return {Promise} Returns a pending request promise.
 	 */
 	navigate(path, opt_replaceHistory, opt_event) {
 		if (!utils.isHtml5HistorySupported()) {
@@ -1078,18 +1086,23 @@ class App extends EventEmitter {
 			path: event.path
 		};
 
+		const finalize = (endNavigatePayload) => {
+			if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
+				removeClasses(globals.document.documentElement, this.loadingCssClass);
+				this.maybeRestoreNativeScrollRestoration();
+				this.captureScrollPositionFromScrollEvent = true;
+			}
+			this.emit('endNavigate', endNavigatePayload);
+		};
+
 		this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory)
+			.then(() => {
+				finalize(endNavigatePayload);
+			})
 			.catch((reason) => {
+				finalize(endNavigatePayload);
 				endNavigatePayload.error = reason;
 				throw reason;
-			})
-			.thenAlways(() => {
-				if (!this.pendingNavigate && !this.scheduledNavigationQueue.length) {
-					removeClasses(globals.document.documentElement, this.loadingCssClass);
-					this.maybeRestoreNativeScrollRestoration();
-					this.captureScrollPositionFromScrollEvent = true;
-				}
-				this.emit('endNavigate', endNavigatePayload);
 			});
 
 		this.pendingNavigate.path = event.path;
@@ -1098,12 +1111,12 @@ class App extends EventEmitter {
 	/**
 	 * Prefetches the specified path if there is a route handler that matches.
 	 * @param {!string} path Path to navigate containing the base path.
-	 * @return {CancellablePromise} Returns a pending request cancellable promise.
+	 * @return {Promise} Returns a pending request promise.
 	 */
 	prefetch(path) {
 		var route = this.findRoute(path);
 		if (!route) {
-			return CancellablePromise.reject(new CancellablePromise.CancellationError('No route for ' + path));
+			return Promise.reject(new Error('No route for ' + path));
 		}
 
 		console.log('Prefetching [' + path + ']');
@@ -1278,13 +1291,10 @@ class App extends EventEmitter {
 	}
 
 	/**
-	 * Cancels pending navigate with <code>Cancel pending navigation</code> error.
+	 * Resets pending navigate.
 	 * @protected
 	 */
 	stopPendingNavigate_() {
-		if (this.pendingNavigate) {
-			this.pendingNavigate.cancel('Cancel pending navigation');
-		}
 		this.pendingNavigate = null;
 	}
 
@@ -1293,7 +1303,7 @@ class App extends EventEmitter {
 	 * one inside <code>async.nextTick</code>. Relevant to browsers that fires
 	 * scroll restoration asynchronously after popstate.
 	 * @protected
-	 * @return {?CancellablePromise=}
+	 * @return {?Promise=}
 	 */
 	syncScrollPositionSyncThenAsync_() {
 		var state = globals.window.history.state;
@@ -1310,7 +1320,13 @@ class App extends EventEmitter {
 			}
 		};
 
-		return new CancellablePromise((resolve) => sync() & async.nextTick(() => sync() & resolve()));
+		return new Promise(resolve => {
+			sync();
+			setTimeout(() => {
+				sync();
+				resolve();
+			}, 0);
+		});
 	}
 
 	/**

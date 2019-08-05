@@ -3,7 +3,6 @@
 import { getUid } from 'metal';
 import { globalEval } from 'metal-dom';
 import Cacheable from '../cacheable/Cacheable';
-import CancellablePromise from 'metal-promise';
 
 class Screen extends Cacheable {
 
@@ -52,7 +51,7 @@ class Screen extends Cacheable {
 	 * Gives the Screen a chance to cancel the navigation and stop itself from
 	 * activating. Can be used, for example, to prevent navigation if a user
 	 * is not authenticated. Lifecycle.
-	 * @return {boolean=|?CancellablePromise=} If returns or resolves to true,
+	 * @return {boolean=|?Promise=} If returns or resolves to true,
 	 *     the current screen is locked and the next nagivation interrupted.
 	 */
 	beforeActivate() {
@@ -64,7 +63,7 @@ class Screen extends Cacheable {
 	 * being deactivated. Can be used, for example, if the screen has unsaved
 	 * state. Lifecycle. Clean-up should not be preformed here, since the
 	 * navigation may still be cancelled. Do clean-up in deactivate.
-	 * @return {boolean=|?CancellablePromise=} If returns or resolves to true,
+	 * @return {boolean=|?Promise=} If returns or resolves to true,
 	 *     the current screen is locked and the next nagivation interrupted.
 	 */
 	beforeDeactivate() {
@@ -112,7 +111,7 @@ class Screen extends Cacheable {
 	 * Allows a screen to evaluate scripts before the element is made visible.
 	 * Lifecycle.
 	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
-	 * @return {?CancellablePromise=} This can return a promise, which will
+	 * @return {?Promise=} This can return a promise, which will
 	 *     pause the navigation until it is resolved.
 	 */
 	evaluateScripts(surfaces) {
@@ -121,25 +120,25 @@ class Screen extends Cacheable {
 				globalEval.runScriptsInElement(surfaces[sId].activeChild);
 			}
 		});
-		return CancellablePromise.resolve();
+		return Promise.resolve();
 	}
 
 	/**
 	 * Allows a screen to evaluate styles before the element is made visible.
 	 * Lifecycle.
 	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
-	 * @return {?CancellablePromise=} This can return a promise, which will
+	 * @return {?Promise=} This can return a promise, which will
 	 *     pause the navigation until it is resolved.
 	 */
 	evaluateStyles() {
-		return CancellablePromise.resolve();
+		return Promise.resolve();
 	}
 
 	/**
 	 * Allows a screen to perform any setup immediately before the element is
 	 * made visible. Lifecycle.
 	 * @param {!object} surfaces Map of surfaces to flip keyed by surface id.
-	 * @return {?CancellablePromise=} This can return a promise, which will pause the
+	 * @return {?Promise=} This can return a promise, which will pause the
 	 *     navigation until it is resolved.
 	 */
 	flip(surfaces) {
@@ -153,7 +152,7 @@ class Screen extends Cacheable {
 			transitions.push(deferred);
 		});
 
-		return CancellablePromise.all(transitions);
+		return Promise.all(transitions);
 	}
 
 	/**
@@ -199,13 +198,13 @@ class Screen extends Cacheable {
 	 * to <code>Screen.load</code> with all information you
 	 * need to fulfill the surfaces. Lifecycle.
 	 * @param {!string=} path The requested path.
-	 * @return {!CancellablePromise} This can return a string representing the
+	 * @return {!Promise} This can return a string representing the
 	 *     contents of the surfaces or a promise, which will pause the navigation
 	 *     until it is resolved. This is useful for loading async content.
 	 */
 	load() {
 		console.log('Screen [' + this + '] load');
-		return CancellablePromise.resolve();
+		return Promise.resolve();
 	}
 
 	/**
