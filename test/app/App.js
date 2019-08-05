@@ -820,7 +820,7 @@ describe('App', function() {
 		});
 	});
 
-	xit('should restore scroll position on navigate back', (done) => {
+	it('should restore scroll position on navigate back', (done) => {
 		if (!canScrollIFrame_) {
 			done();
 			return;
@@ -1659,7 +1659,7 @@ describe('App', function() {
 	});
 
 
-	xit('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
+	it('should navigate cancelling navigation to multiple paths after navigation is scheduled to keep only the last one', (done) => {
 		if (!utils.isIe()) {
 			done();
 		}
@@ -1706,10 +1706,7 @@ describe('App', function() {
 	});
 
 
-	xit('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
-		if (!utils.isIe()) {
-			done();
-		}
+	it('should navigate cancelling navigation to multiple paths when navigation strategy is setted up to be immediate', (done) => {
 
 		this.app = new App();
 
