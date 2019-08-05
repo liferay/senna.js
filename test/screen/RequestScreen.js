@@ -7,19 +7,17 @@ import utils from '../../src/utils/utils';
 
 describe('RequestScreen', function() {
 
-	let fetchStub;
-
 	beforeEach(() => {
 		// A fix for window.location.origin in Internet Explorer
 		if (!globals.window.location.origin) {
 			globals.window.location.origin = globals.window.location.protocol + '//' + globals.window.location.hostname + (globals.window.location.port ? ':' + globals.window.location.port : '');
 		}
 
-		fetchStub = sinon.stub(window, 'fetch');
+		sinon.stub(window, 'fetch');
 	});
 
 	afterEach(() => {
-		fetchStub.restore();
+		window.fetch.restore();
 	});
 
 	it('should be cacheable', () => {
@@ -115,7 +113,7 @@ describe('RequestScreen', function() {
 		if (!utils.isChrome()) {
 			done();
 		} else {
-			fetchStub.returns(Promise.resolve(
+			window.fetch.returns(Promise.resolve(
 				new Response('', {status: 200})
 			));
 
@@ -133,7 +131,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should load response content from cache', (done) => {
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 200})
 		));
 
@@ -151,7 +149,7 @@ describe('RequestScreen', function() {
 			done();
 		}
 
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('stuff', {status: 200})
 		));
 
@@ -159,8 +157,8 @@ describe('RequestScreen', function() {
 		var cache = {};
 		screen.setHttpMethod(RequestScreen.POST);
 		screen.load('/url').then(() => {
-			fetchStub.reset();
-			fetchStub.returns(Promise.resolve(
+			window.fetch.reset();
+			window.fetch.returns(Promise.resolve(
 				new Response('stuff', {status: 200})
 			));
 
@@ -173,7 +171,7 @@ describe('RequestScreen', function() {
 
 	it('should fail for timeout request', (done) => {
 		let id;
-		fetchStub.returns(new Promise((resolve) => {
+		window.fetch.returns(new Promise((resolve) => {
 			setTimeout(() => {
 				resolve(new Response('', {status: 200}));
 			}, 100);
@@ -190,7 +188,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should fail for invalid status code response', (done) => {
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 404})
 		));
 
@@ -203,7 +201,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should return the correct http status code for "page not found"', (done) => {
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 404})
 		));
 
@@ -216,7 +214,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should return the correct http status code for "unauthorised"', (done) => {
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 401})
 		));
 
@@ -229,7 +227,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should fail for request errors response', (done) => {
-		fetchStub.returns(Promise.reject(
+		window.fetch.returns(Promise.reject(
 			new Error(errors.REQUEST_ERROR)));
 
 		new RequestScreen()
@@ -243,7 +241,7 @@ describe('RequestScreen', function() {
 	it('should form navigate force post method and request body wrapped in FormData', (done) => {
 		globals.capturedFormElement = globals.document.createElement('form');
 
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 200})
 		));
 
@@ -256,7 +254,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should add submit input button value into request FormData', (done) => {
-		fetchStub.returns(new Promise(resolve => {
+		window.fetch.returns(new Promise(resolve => {
 			resolve(new Response('', {status: 200}));
 		}));
 
@@ -284,7 +282,7 @@ describe('RequestScreen', function() {
 		if (!utils.isIe()) {
 			done();
 		} else {
-			fetchStub.returns(Promise.resolve(
+			window.fetch.returns(Promise.resolve(
 				new Response('', {status: 200})
 			));
 
@@ -303,7 +301,7 @@ describe('RequestScreen', function() {
 		if (!utils.isEdge()) {
 			done();
 		} else {
-			fetchStub.returns(Promise.resolve(
+			window.fetch.returns(Promise.resolve(
 				new Response('', {status: 200})
 			));
 
@@ -322,7 +320,7 @@ describe('RequestScreen', function() {
 		if (!utils.isEdge()) {
 			done();
 		} else {
-			fetchStub.returns(Promise.resolve(
+			window.fetch.returns(Promise.resolve(
 				new Response('', {status: 200})
 			));
 
@@ -338,7 +336,7 @@ describe('RequestScreen', function() {
 	});
 
 	it('should navigate over same protocol the page was viewed on', (done) => {
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 200})
 		));
 

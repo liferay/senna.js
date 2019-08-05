@@ -9,17 +9,15 @@ import Uri from 'metal-uri';
 
 describe('HtmlScreen', function() {
 
-	let fetchStub;
-
 	beforeEach(() => {
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');
-		fetchStub = sinon.stub(window, 'fetch');
+		sinon.stub(window, 'fetch');
 	});
 
 	afterEach(() => {
 		console.log.restore();
-		fetchStub.restore();
+		window.fetch.restore();
 	});
 
 	it('should get title selector', () => {
@@ -32,7 +30,7 @@ describe('HtmlScreen', function() {
 	it('should returns loaded content', (done) => {
 		var screen = new HtmlScreen();
 
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('content', {status: 200})
 		));
 
@@ -45,7 +43,7 @@ describe('HtmlScreen', function() {
 	it('should set title from response content', (done) => {
 		var screen = new HtmlScreen();
 
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('<title>new</title>', {status: 200})
 		));
 
@@ -58,7 +56,7 @@ describe('HtmlScreen', function() {
 	it('should not set title from response content if not present', (done) => {
 		var screen = new HtmlScreen();
 
-		fetchStub.returns(Promise.resolve(
+		window.fetch.returns(Promise.resolve(
 			new Response('', {status: 200})
 		));
 
@@ -343,7 +341,7 @@ describe('HtmlScreen', function() {
 		} else {
 			var screen = new HtmlScreen();
 
-			fetchStub.returns(Promise.resolve(
+			window.fetch.returns(Promise.resolve(
 				new Response('<link id="testIEStlye" data-senna-track="temporary" rel="stylesheet" href="testIEStlye.css">', {status: 200})
 			));
 
@@ -366,7 +364,7 @@ describe('HtmlScreen', function() {
 			var screen = new HtmlScreen();
 			window.sentinelLoadCount = 0;
 
-			fetchStub.returns(Promise.resolve(
+			window.fetch.returns(Promise.resolve(
 				new Response('<link id="style" data-senna-track="temporary" rel="stylesheet" href="/base/src/senna.js">', {status: 200})
 			));
 
