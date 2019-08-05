@@ -22,7 +22,7 @@
     "lint": "gulp lint",
     "prepublish": "gulp && npm run compile",
     "test": "gulp test",
-    "test:debug": "./node_modules/gulp-metal/node_modules/karma/bin/karma start --debug"
+    "test:debug": "karma start --debug"
   },
   "keywords": [
     "spa",
