@@ -10,7 +10,7 @@ describe('RequestScreen', () => {
 	beforeEach(() => {
 		// A fix for window.location.origin in Internet Explorer
 		if (!globals.window.location.origin) {
-			globals.window.location.origin = globals.window.location.protocol + '//' + globals.window.location.hostname + (globals.window.location.port ? ':' + globals.window.location.port : '');
+			globals.window.location.origin = `${globals.window.location.protocol}//${globals.window.location.hostname}${globals.window.location.port ? `:${globals.window.location.port}` : ''}`;
 		}
 
 		sinon.stub(window, 'fetch');
@@ -119,7 +119,7 @@ describe('RequestScreen', () => {
 
 			const screen = new RequestScreen();
 			screen.load('/url').then(() => {
-				assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
+				assert.strictEqual(`${globals.window.location.origin}/url`, screen.getRequest().url);
 
 				const request = screen.getRequest();
 				assert.deepEqual(request.headers.get('X-PJAX'), 'true');
@@ -342,7 +342,7 @@ describe('RequestScreen', () => {
 
 		const screen = new RequestScreen();
 		const wrongProtocol = globals.window.location.origin.replace('http', 'https');
-		screen.load(wrongProtocol + '/url').then(() => {
+		screen.load(`${wrongProtocol}/url`).then(() => {
 			const url = screen.getRequest().url;
 			assert.ok(url.indexOf('http:') === 0);
 			done();

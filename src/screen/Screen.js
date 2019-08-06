@@ -44,7 +44,7 @@ class Screen extends Cacheable {
 	 * that requires its DOM to be visible. Lifecycle.
 	 */
 	activate() {
-		console.log('Screen [' + this + '] activate');
+		console.log(`Screen [${this}] activate`);
 	}
 
 	/**
@@ -55,7 +55,7 @@ class Screen extends Cacheable {
 	 *     the current screen is locked and the next nagivation interrupted.
 	 */
 	beforeActivate() {
-		console.log('Screen [' + this + '] beforeActivate');
+		console.log(`Screen [${this}] beforeActivate`);
 	}
 
 	/**
@@ -67,7 +67,7 @@ class Screen extends Cacheable {
 	 *     the current screen is locked and the next nagivation interrupted.
 	 */
 	beforeDeactivate() {
-		console.log('Screen [' + this + '] beforeDeactivate');
+		console.log(`Screen [${this}] beforeDeactivate`);
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Screen extends Cacheable {
 	 * timers. Lifecycle.
 	 */
 	deactivate() {
-		console.log('Screen [' + this + '] deactivate');
+		console.log(`Screen [${this}] deactivate`);
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Screen extends Cacheable {
 	 */
 	disposeInternal() {
 		super.disposeInternal();
-		console.log('Screen [' + this + '] dispose');
+		console.log(`Screen [${this}] dispose`);
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Screen extends Cacheable {
 	 *     navigation until it is resolved.
 	 */
 	flip(surfaces) {
-		console.log('Screen [' + this + '] flip');
+		console.log(`Screen [${this}] flip`);
 
 		const transitions = [];
 
@@ -182,7 +182,7 @@ class Screen extends Cacheable {
 	 *     content is restored.
 	 */
 	getSurfaceContent() {
-		console.log('Screen [' + this + '] getSurfaceContent');
+		console.log(`Screen [${this}] getSurfaceContent`);
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Screen extends Cacheable {
 	 *     until it is resolved. This is useful for loading async content.
 	 */
 	load() {
-		console.log('Screen [' + this + '] load');
+		console.log(`Screen [${this}] load`);
 		return Promise.resolve();
 	}
 
@@ -214,7 +214,7 @@ class Screen extends Cacheable {
 	 * @private
 	 */
 	makeId_(id) {
-		return 'screen_' + id;
+		return `screen_${id}`;
 	}
 
 	/**

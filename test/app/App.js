@@ -1857,7 +1857,7 @@ function detectCanScrollIFrame(done) {
 }
 
 function enterDocumentLinkElement(href) {
-	dom.enterDocument('<a id="link" href="' + href + '">link</a>');
+	dom.enterDocument(`<a id="link" href="${href}">link</a>`);
 	return document.getElementById('link');
 }
 

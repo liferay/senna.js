@@ -334,7 +334,7 @@ class App extends EventEmitter {
 			return false;
 		}
 		if (!this.findRoute(path)) {
-			console.log('No route for ' + path);
+			console.log(`No route for ${path}`);
 			return false;
 		}
 
@@ -374,7 +374,7 @@ class App extends EventEmitter {
 			} else {
 				screen = handler(route) || new Screen();
 			}
-			console.log('Create screen for [' + path + '] [' + screen + ']');
+			console.log(`Create screen for [${path}] [${screen}]`);
 		}
 		return screen;
 	}
@@ -411,11 +411,11 @@ class App extends EventEmitter {
 	doNavigate_(path, opt_replaceHistory) {
 		const route = this.findRoute(path);
 		if (!route) {
-			this.pendingNavigate = Promise.reject(new Error('No route for ' + path));
+			this.pendingNavigate = Promise.reject(new Error(`No route for ${path}`));
 			return this.pendingNavigate;
 		}
 
-		console.log('Navigate to [' + path + ']');
+		console.log(`Navigate to [${path}]`);
 
 		this.stopPendingNavigate_();
 		this.isNavigationPending = true;
@@ -613,7 +613,7 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	handleNavigateError_(path, nextScreen, error) {
-		console.log('Navigation error for [' + nextScreen + '] (' + error.stack + ')');
+		console.log(`Navigation error for [${nextScreen}] (${error.stack})`);
 		this.emit('navigationError', {
 			error,
 			nextScreen,
@@ -1044,7 +1044,7 @@ class App extends EventEmitter {
 		}
 
 		if (state.senna) {
-			console.log('History navigation to [' + state.path + ']');
+			console.log(`History navigation to [${state.path}]`);
 			this.popstateScrollTop = state.scrollTop;
 			this.popstateScrollLeft = state.scrollLeft;
 			if (!this.nativeScrollRestorationSupported) {
@@ -1123,10 +1123,10 @@ class App extends EventEmitter {
 	prefetch(path) {
 		const route = this.findRoute(path);
 		if (!route) {
-			return Promise.reject(new Error('No route for ' + path));
+			return Promise.reject(new Error(`No route for ${path}`));
 		}
 
-		console.log('Prefetching [' + path + ']');
+		console.log(`Prefetching [${path}]`);
 
 		const nextScreen = this.createScreenInstance(path, route);
 
@@ -1178,8 +1178,7 @@ class App extends EventEmitter {
 		Object.keys(surfaces).forEach((id) => {
 			const surfaceContent = nextScreen.getSurfaceContent(id, params);
 			surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-			console.log('Screen [' + nextScreen.getId() + '] add content to surface ' +
-				'[' + surfaces[id] + '] [' + (isDefAndNotNull(surfaceContent) ? '...' : 'empty') + ']');
+			console.log(`Screen [${nextScreen.getId()}] add content to surface [${surfaces[id]}] [${isDefAndNotNull(surfaceContent) ? '...' : 'empty'}]`);
 		});
 	}
 

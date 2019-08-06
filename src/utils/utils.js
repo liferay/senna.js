@@ -224,7 +224,7 @@ class utils {
 	 * @return {element}
 	 */
 	static setElementWithRandomHref(element) {
-		element.href = element.href + '?q=' + Math.random();
+		element.href = `${element.href}?q=${Math.random()}`;
 		return element;
 	}
 
