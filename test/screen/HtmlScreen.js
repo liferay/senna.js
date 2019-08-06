@@ -7,7 +7,7 @@ import Surface from '../../src/surface/Surface';
 import utils from '../../src/utils/utils';
 import Uri from 'metal-uri';
 
-describe('HtmlScreen', function() {
+describe('HtmlScreen', () => {
 
 	beforeEach(() => {
 		// Prevent log messages from showing up in test output.

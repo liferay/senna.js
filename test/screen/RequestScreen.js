@@ -5,7 +5,7 @@ import globals from '../../src/globals/globals';
 import RequestScreen from '../../src/screen/RequestScreen';
 import utils from '../../src/utils/utils';
 
-describe('RequestScreen', function() {
+describe('RequestScreen', () => {
 
 	beforeEach(() => {
 		// A fix for window.location.origin in Internet Explorer

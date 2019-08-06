@@ -9,7 +9,7 @@ import AppDataAttributeHandler from './AppDataAttributeHandler';
  */
 var dataAttributeHandler = new AppDataAttributeHandler();
 
-globals.document.addEventListener('DOMContentLoaded', function() {
+globals.document.addEventListener('DOMContentLoaded', () => {
 	dataAttributeHandler.setBaseElement(globals.document.body);
 	dataAttributeHandler.handle();
 });

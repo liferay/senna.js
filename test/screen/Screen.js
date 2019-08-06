@@ -4,7 +4,7 @@ import dom from 'metal-dom';
 import Screen from '../../src/screen/Screen';
 import Surface from '../../src/surface/Surface';
 
-describe('Screen', function() {
+describe('Screen', () => {
 	before(() => {
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');

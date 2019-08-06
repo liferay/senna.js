@@ -29,7 +29,7 @@ class utils {
 		return function debounced() {
 			const args = arguments;
 			utils.cancelDebounce(debounced);
-			debounced.id = setTimeout(function() {
+			debounced.id = setTimeout(() => {
 				fn(Array.prototype.slice.call(args));
 			}, delay);
 		};
