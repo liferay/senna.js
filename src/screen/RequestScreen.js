@@ -227,9 +227,9 @@ class RequestScreen extends Screen {
 		const requestPath = this.formatLoadPath(path);
 
 		const request = new Request(requestPath, {
-			body: body,
+			body,
 			credentials: 'include',
-			headers: headers,
+			headers,
 			method: httpMethod
 		});
 

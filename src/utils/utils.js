@@ -236,7 +236,7 @@ class utils {
 	static setReferrer(referrer) {
 		Object.defineProperty(globals.document, 'referrer', {
 			configurable: true,
-			get: function() {
+			get() {
 				return referrer;
 			}
 		});
