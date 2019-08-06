@@ -10,8 +10,8 @@ describe('AppDataAttributeHandler', () => {
 	before(() => {
 		globals.document.body.setAttribute('data-senna', '');
 		globals.window.senna = {
-			Screen
-		};
+            Screen,
+        };
 
 		// Prevent log messages from showing up in test output.
 		sinon.stub(console, 'log');

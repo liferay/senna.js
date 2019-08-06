@@ -35,9 +35,9 @@ describe('RequestScreen', () => {
 	it('should set HTTP headers', () => {
 		const screen = new RequestScreen();
 		assert.deepEqual({
-			'X-PJAX': 'true',
-			'X-Requested-With': 'XMLHttpRequest'
-		}, screen.getHttpHeaders());
+            'X-PJAX': 'true',
+            'X-Requested-With': 'XMLHttpRequest',
+        }, screen.getHttpHeaders());
 		screen.setHttpHeaders({});
 		assert.deepEqual({}, screen.getHttpHeaders());
 	});
@@ -53,13 +53,14 @@ describe('RequestScreen', () => {
 		const screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				headers: {
-					get() {
+                headers: {
+                    get() {
 						return null;
-					}
-				},
-				url: '/path'
-			};
+					},
+                },
+
+                url: '/path',
+            };
 		});
 		assert.strictEqual('/path', screen.beforeUpdateHistoryPath('/path'));
 	});
@@ -68,13 +69,14 @@ describe('RequestScreen', () => {
 		const screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				headers: {
-					get() {
+                headers: {
+                    get() {
 						return '/redirect';
-					}
-				},
-				url: '/path'
-			};
+					},
+                },
+
+                url: '/path',
+            };
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
@@ -83,12 +85,12 @@ describe('RequestScreen', () => {
 		const screen = new RequestScreen();
 		sinon.stub(screen, 'getRequest', () => {
 			return {
-				headers: {
-					get() {
+                headers: {
+                    get() {
 						return '/redirect';
-					}
-				}
-			};
+					},
+                },
+            };
 		});
 		assert.strictEqual('/redirect', screen.beforeUpdateHistoryPath('/path'));
 	});
@@ -96,11 +98,11 @@ describe('RequestScreen', () => {
 	it('should screen beforeUpdateHistoryState return null if form navigate to post-without-redirect-get', () => {
 		const screen = new RequestScreen();
 		assert.strictEqual(null, screen.beforeUpdateHistoryState({
-			senna: true,
-			form: true,
-			redirectPath: '/post',
-			path: '/post'
-		}));
+            senna: true,
+            form: true,
+            redirectPath: '/post',
+            path: '/post',
+        }));
 	});
 
 	it('should request path return null if no requests were made', () => {

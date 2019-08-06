@@ -132,8 +132,8 @@ describe('HtmlScreen', () => {
 		screen.allocateVirtualDocumentForContent('');
 		assert.ok(!window.sentinel);
 		screen.evaluateScripts({
-			surfaceId: surface
-		}).then(() => {
+            surfaceId: surface,
+        }).then(() => {
 			assert.ok(window.sentinel);
 			delete window.sentinel;
 			exitDocumentElement('surfaceId');
@@ -147,8 +147,8 @@ describe('HtmlScreen', () => {
 		const screen = new HtmlScreen();
 		screen.allocateVirtualDocumentForContent('');
 		screen.evaluateStyles({
-			surfaceId: surface
-		}).then(() => {
+            surfaceId: surface,
+        }).then(() => {
 			assertComputedStyle('backgroundColor', 'rgb(0, 255, 0)');
 			exitDocumentElement('surfaceId');
 			done();

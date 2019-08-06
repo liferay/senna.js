@@ -64,9 +64,9 @@ describe('Screen', () => {
 
 	it('should wait to flip all surfaces', (done) => {
 		const surfaces = {
-			surface1: new Surface('surface1'),
-			surface2: new Surface('surface2')
-		};
+            surface1: new Surface('surface1'),
+            surface2: new Surface('surface2'),
+        };
 		const stub1 = sinon.stub();
 		const stub2 = sinon.stub();
 		surfaces.surface1.show = () => {
@@ -108,8 +108,8 @@ describe('Screen', () => {
 		const screen = new Screen();
 		assert.ok(!window.sentinel);
 		screen.evaluateScripts({
-			surfaceId: surface
-		}).then(() => {
+            surfaceId: surface,
+        }).then(() => {
 			assert.ok(window.sentinel);
 			delete window.sentinel;
 			exitDocumentSurfaceElement('surfaceId');
@@ -122,8 +122,8 @@ describe('Screen', () => {
 		const surface = new Surface('surfaceId');
 		const screen = new Screen();
 		screen.evaluateStyles({
-			surfaceId: surface
-		}).then(() => {
+            surfaceId: surface,
+        }).then(() => {
 			assertComputedStyle('backgroundColor', 'rgb(0, 255, 0)');
 			exitDocumentSurfaceElement('surfaceId');
 			done();

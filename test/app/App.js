@@ -76,9 +76,9 @@ describe('App', function() {
 	it('should add route from object', () => {
 		this.app = new App();
 		this.app.addRoutes({
-			path: '/path',
-			handler: Screen
-		});
+            path: '/path',
+            handler: Screen,
+        });
 		const route = this.app.findRoute('/path');
 		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
@@ -88,10 +88,12 @@ describe('App', function() {
 
 	it('should add route from array', () => {
 		this.app = new App();
-		this.app.addRoutes([{
-			path: '/path',
-			handler: Screen
-		}, new Route('/pathOther', Screen)]);
+		this.app.addRoutes(
+            [{
+                path: '/path',
+                handler: Screen,
+            }, new Route('/pathOther', Screen)],
+        );
 		const route = this.app.findRoute('/path');
 		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
@@ -120,10 +122,10 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path', Screen));
 
 		withWindow({
-			location: {
-				pathname: '/path1'
-			}
-		}, () => {
+            location: {
+                pathname: '/path1',
+            },
+        }, () => {
 			assert.strictEqual(true, this.app.canNavigate('/path#hashbang'));
 		});
 	});
@@ -429,11 +431,11 @@ describe('App', function() {
 		this.app.addRoutes([new Route('/', Screen), new Route('/path', Screen)]);
 
 		withWindow({
-			location: {
-				host: 'localhost',
-				pathname: '/path'
-			}
-		}, () => {
+            location: {
+                host: 'localhost',
+                pathname: '/path',
+            },
+        }, () => {
 			assert.ok(this.app.canNavigate('http://localhost/base/'));
 			assert.ok(this.app.canNavigate('http://localhost/base'));
 			assert.ok(this.app.canNavigate('http://localhost/base/path'));
@@ -451,11 +453,11 @@ describe('App', function() {
 	 	this.app.addRoutes([new Route('/', Screen), new Route('/path', Screen)]);
 
 	 	withWindow({
-			location: {
-				host: 'localhost',
-				pathname: '/path'
-			}
-		}, () => {
+            location: {
+                host: 'localhost',
+                pathname: '/path',
+            },
+        }, () => {
 			assert.ok(this.app.canNavigate('http://localhost/base/'));
 			assert.ok(this.app.canNavigate('http://localhost/base'));
 			assert.ok(this.app.canNavigate('http://localhost/base/path'));
@@ -470,11 +472,11 @@ describe('App', function() {
 		this.app.addRoutes([new Route('/path/', Screen), new Route('/path/(\\d+)/', Screen)]);
 
 		withWindow({
-			location: {
-				host: 'localhost',
-				pathname: '/path'
-			}
-		}, () => {
+            location: {
+                host: 'localhost',
+                pathname: '/path',
+            },
+        }, () => {
 			assert.ok(this.app.canNavigate('http://localhost/path'));
 			assert.ok(this.app.canNavigate('http://localhost/path/'));
 			assert.ok(this.app.canNavigate('http://localhost/path/123'));
@@ -487,11 +489,11 @@ describe('App', function() {
 		this.app.addRoutes([new Route('/path/', Screen), new Route('/path/(\\d+)/', Screen)]);
 
 		withWindow({
-			location: {
-				host: 'localhost:8080',
-				pathname: '/path'
-			}
-		}, () => {
+            location: {
+                host: 'localhost:8080',
+                pathname: '/path',
+            },
+        }, () => {
 			assert.isFalse(this.app.canNavigate('http://localhost:9080/path'));
 			assert.isFalse(this.app.canNavigate('http://localhost:9081/path/'));
 			assert.isFalse(this.app.canNavigate('http://localhost:9082/path/123'));
@@ -504,11 +506,11 @@ describe('App', function() {
 		this.app.addRoutes([new Route('/path/', Screen), new Route('/path/(\\d+)/', Screen)]);
 
 		withWindow({
-			location: {
-				host: 'localhost',
-				pathname: '/path',
-			}
-		}, () => {
+            location: {
+                host: 'localhost',
+                pathname: '/path',
+            },
+        }, () => {
 			assert.isTrue(this.app.canNavigate('http://localhost:80/path'));
 			assert.isTrue(this.app.canNavigate('http://localhost:80/path/'));
 			assert.isTrue(this.app.canNavigate('http://localhost:80/path/123'));
@@ -1036,21 +1038,41 @@ describe('App', function() {
 		this.app.setAllowPreventNavigate(false);
 		this.app.addRoutes(new Route('/path', Screen));
 		dom.on(link, 'click', preventDefault);
-		dom.triggerEvent(link, 'click', {
-			altKey: true
-		});
-		dom.triggerEvent(link, 'click', {
-			ctrlKey: true
-		});
-		dom.triggerEvent(link, 'click', {
-			metaKey: true
-		});
-		dom.triggerEvent(link, 'click', {
-			shiftKey: true
-		});
-		dom.triggerEvent(link, 'click', {
-			button: true
-		});
+		dom.triggerEvent(
+            link,
+            'click',
+            {
+                altKey: true,
+            },
+        );
+		dom.triggerEvent(
+            link,
+            'click',
+            {
+                ctrlKey: true,
+            },
+        );
+		dom.triggerEvent(
+            link,
+            'click',
+            {
+                metaKey: true,
+            },
+        );
+		dom.triggerEvent(
+            link,
+            'click',
+            {
+                shiftKey: true,
+            },
+        );
+		dom.triggerEvent(
+            link,
+            'click',
+            {
+                button: true,
+            },
+        );
 		assert.strictEqual(null, this.app.pendingNavigate);
 		exitDocumentLinkElement();
 	});
@@ -1459,20 +1481,20 @@ describe('App', function() {
 		return this.app.navigate('/path1').then(() => {
 			this.app.navigate('/path2').then(() => {
 				const lifecycleOrder = [
-					StubScreen.prototype.load,
-					StubScreen.prototype.evaluateStyles,
-					StubScreen.prototype.flip,
-					StubScreen.prototype.evaluateScripts,
-					StubScreen.prototype.activate,
-					StubScreen.prototype.beforeDeactivate,
-					StubScreen2.prototype.load,
-					StubScreen.prototype.deactivate,
-					StubScreen2.prototype.evaluateStyles,
-					StubScreen2.prototype.flip,
-					StubScreen2.prototype.evaluateScripts,
-					StubScreen2.prototype.activate,
-					StubScreen.prototype.disposeInternal
-				];
+                    StubScreen.prototype.load,
+                    StubScreen.prototype.evaluateStyles,
+                    StubScreen.prototype.flip,
+                    StubScreen.prototype.evaluateScripts,
+                    StubScreen.prototype.activate,
+                    StubScreen.prototype.beforeDeactivate,
+                    StubScreen2.prototype.load,
+                    StubScreen.prototype.deactivate,
+                    StubScreen2.prototype.evaluateStyles,
+                    StubScreen2.prototype.flip,
+                    StubScreen2.prototype.evaluateScripts,
+                    StubScreen2.prototype.activate,
+                    StubScreen.prototype.disposeInternal,
+                ];
 				for (let i = 1; i < lifecycleOrder.length - 1; i++) {
 					assert.ok(lifecycleOrder[i - 1].calledBefore(lifecycleOrder[i]));
 				}
@@ -1525,9 +1547,9 @@ describe('App', function() {
 			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
 
 			const expectedParams = {
-				foo: '123',
-				bar: 'abc'
-			};
+                foo: '123',
+                bar: 'abc',
+            };
 			assert.deepEqual(expectedParams, screen.getSurfaceContent.args[0][1]);
 			done();
 		});
@@ -1557,9 +1579,9 @@ describe('App', function() {
 			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
 
 			const expectedParams = {
-				foo: '123',
-				bar: 'abc'
-			};
+                foo: '123',
+                bar: 'abc',
+            };
 			assert.deepEqual(expectedParams, screen.getSurfaceContent.args[0][1]);
 			done();
 		});
@@ -1572,9 +1594,9 @@ describe('App', function() {
 		});
 		const params = this.app.extractParams(route, '/path/123/abc');
 		const expectedParams = {
-			foo: '123',
-			bar: 'abc'
-		};
+            foo: '123',
+            bar: 'abc',
+        };
 		assert.deepEqual(expectedParams, params);
 	});
 
@@ -1937,7 +1959,7 @@ function withWindow(options, cb) {
 	globals.window = {
         ...window,
         ...globals.window,
-        ...options
+        ...options,
     };
 	try {
 		cb();

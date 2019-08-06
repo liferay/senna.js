@@ -34,9 +34,9 @@ class RequestScreen extends Screen {
 		 * @protected
 		 */
 		this.httpHeaders = {
-			'X-PJAX': 'true',
-			'X-Requested-With': 'XMLHttpRequest'
-		};
+            'X-PJAX': 'true',
+            'X-Requested-With': 'XMLHttpRequest',
+        };
 
 		/**
 		 * Holds default http method to perform the request.
@@ -226,17 +226,20 @@ class RequestScreen extends Screen {
 
 		const requestPath = this.formatLoadPath(path);
 
-		const request = new Request(requestPath, {
-			body,
-			credentials: 'include',
-			headers,
-			method: httpMethod
-		});
+		const request = new Request(
+            requestPath,
+            {
+                body,
+                credentials: 'include',
+                headers,
+                method: httpMethod,
+            },
+        );
 
 		this.setRequest(request);
 
 		return Promise.race([
-			fetch(request)
+            fetch(request)
 				.then(resp => {
 					this.removeSafariXHRPolyfill();
 					this.assertValidResponseStatusCode(resp.status);
@@ -248,10 +251,10 @@ class RequestScreen extends Screen {
 					}
 					return text;
 				}),
-			new Promise((_, reject) => {
+            new Promise((_, reject) => {
 				setTimeout(() => reject(new Error(errors.REQUEST_TIMEOUT)) , this.timeout);
-			})
-		]).catch((reason) => {
+			}),
+        ]).catch((reason) => {
 			this.removeSafariXHRPolyfill();
 			switch (reason.message) {
 				case errors.REQUEST_TIMEOUT:

@@ -398,13 +398,13 @@ const ignoreFavicon = ':not([rel="Shortcut Icon"]):not([rel="shortcut icon"]):no
  * @static
  */
 HtmlScreen.selectors = {
-	favicon: 'link[rel="Shortcut Icon"],link[rel="shortcut icon"],link[rel="icon"],link[href$="favicon.icon"]',
-	scripts: 'script[data-senna-track]',
-	scriptsPermanent: 'script[data-senna-track="permanent"]',
-	scriptsTemporary: 'script[data-senna-track="temporary"]',
-	styles: `style[data-senna-track],link[data-senna-track]${ignoreFavicon}`,
-	stylesPermanent: `style[data-senna-track="permanent"],link[data-senna-track="permanent"]${ignoreFavicon}`,
-	stylesTemporary: `style[data-senna-track="temporary"],link[data-senna-track="temporary"]${ignoreFavicon}`
+    favicon: 'link[rel="Shortcut Icon"],link[rel="shortcut icon"],link[rel="icon"],link[href$="favicon.icon"]',
+    scripts: 'script[data-senna-track]',
+    scriptsPermanent: 'script[data-senna-track="permanent"]',
+    scriptsTemporary: 'script[data-senna-track="temporary"]',
+    styles: `style[data-senna-track],link[data-senna-track]${ignoreFavicon}`,
+    stylesPermanent: `style[data-senna-track="permanent"],link[data-senna-track="permanent"]${ignoreFavicon}`,
+    stylesTemporary: `style[data-senna-track="temporary"],link[data-senna-track="temporary"]${ignoreFavicon}`,
 };
 
 /**
