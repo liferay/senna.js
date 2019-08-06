@@ -192,7 +192,7 @@ class RequestScreen extends Screen {
    * @return {!FormData}
    */
   getFormData(formElement, submittedButtonElement) {
-    let formData = new FormData(formElement);
+    const formData = new FormData(formElement);
     this.maybeAppendSubmitButtonValue_(formData, submittedButtonElement);
     return formData;
   }
@@ -315,11 +315,11 @@ class RequestScreen extends Screen {
    */
   addSafariXHRPolyfill() {
     if (globals.capturedFormElement && utils.isSafari()) {
-      let inputs = globals.capturedFormElement.querySelectorAll(
+      const inputs = globals.capturedFormElement.querySelectorAll(
         'input[type="file"]:not([disabled])'
       );
       for (let index = 0; index < inputs.length; index++) {
-        let input = inputs[index];
+        const input = inputs[index];
         if (input.files.length > 0) {
           return;
         }
@@ -338,7 +338,7 @@ class RequestScreen extends Screen {
    */
   removeSafariXHRPolyfill() {
     if (globals.capturedFormElement && utils.isSafari()) {
-      let inputs = globals.capturedFormElement.querySelectorAll(
+      const inputs = globals.capturedFormElement.querySelectorAll(
         'input[type="file"][data-safari-temp-disabled]'
       );
       for (let index = 0; index < inputs.length; index++) {

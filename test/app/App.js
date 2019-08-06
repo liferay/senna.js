@@ -1043,7 +1043,7 @@ describe("App", function() {
   it("should not navigate when clicking on target blank links", () => {
     this.app = new App();
     this.app.addRoutes(new Route("/path", Screen));
-    let link = enterDocumentLinkElement("/path");
+    const link = enterDocumentLinkElement("/path");
     link.setAttribute("target", "_blank");
     link.addEventListener("click", event => event.preventDefault());
     dom.triggerEvent(link, "click");
@@ -1238,7 +1238,7 @@ describe("App", function() {
     window.onbeforeunload = beforeunload;
     this.app = new App();
     this.app.addRoutes(new Route("/path", Screen));
-    let link = enterDocumentLinkElement("/path");
+    const link = enterDocumentLinkElement("/path");
     dom.triggerEvent(link, "click");
     exitDocumentLinkElement();
     assert.strictEqual(1, beforeunload.callCount);
