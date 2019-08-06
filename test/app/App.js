@@ -1934,7 +1934,11 @@ function restorePreventDOMException18() {
 
 function withWindow(options, cb) {
 	const originalWindow = globals.window;
-	globals.window = Object.assign({}, window, globals.window, options);
+	globals.window = {
+        ...window,
+        ...globals.window,
+        ...options
+    };
 	try {
 		cb();
 	} catch (err) {
