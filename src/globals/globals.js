@@ -1,3 +1,4 @@
+'use strict';
 const globals = globals || {};
 
 if (typeof window !== 'undefined') {
