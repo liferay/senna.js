@@ -23,19 +23,19 @@ describe("RequestScreen", () => {
     window.fetch.restore();
   });
 
-  it("should be cacheable", () => {
+  it("be cacheable", () => {
     const screen = new RequestScreen();
     assert.ok(screen.isCacheable());
   });
 
-  it("should set HTTP method", () => {
+  it("set HTTP method", () => {
     const screen = new RequestScreen();
     assert.strictEqual(RequestScreen.GET, screen.getHttpMethod());
     screen.setHttpMethod(RequestScreen.POST);
     assert.strictEqual(RequestScreen.POST, screen.getHttpMethod());
   });
 
-  it("should set HTTP headers", () => {
+  it("set HTTP headers", () => {
     const screen = new RequestScreen();
     assert.deepEqual(
       {
@@ -48,14 +48,14 @@ describe("RequestScreen", () => {
     assert.deepEqual({}, screen.getHttpHeaders());
   });
 
-  it("should set timeout", () => {
+  it("set timeout", () => {
     const screen = new RequestScreen();
     assert.strictEqual(30000, screen.getTimeout());
     screen.setTimeout(0);
     assert.strictEqual(0, screen.getTimeout());
   });
 
-  it("should screen beforeUpdateHistoryPath return request path if responseURL or X-Request-URL not present", () => {
+  it("screen beforeUpdateHistoryPath return request path if responseURL or X-Request-URL not present", () => {
     const screen = new RequestScreen();
     sinon.stub(screen, "getRequest").callsFake(() => {
       return {
@@ -71,7 +71,7 @@ describe("RequestScreen", () => {
     assert.strictEqual("/path", screen.beforeUpdateHistoryPath("/path"));
   });
 
-  it("should screen beforeUpdateHistoryPath return responseURL if present", () => {
+  it("screen beforeUpdateHistoryPath return responseURL if present", () => {
     const screen = new RequestScreen();
     sinon.stub(screen, "getRequest").callsFake(() => {
       return {
@@ -87,7 +87,7 @@ describe("RequestScreen", () => {
     assert.strictEqual("/redirect", screen.beforeUpdateHistoryPath("/path"));
   });
 
-  it("should screen beforeUpdateHistoryPath return X-Request-URL if present and responseURL is not", () => {
+  it("screen beforeUpdateHistoryPath return X-Request-URL if present and responseURL is not", () => {
     const screen = new RequestScreen();
     sinon.stub(screen, "getRequest").callsFake(() => {
       return {
@@ -101,7 +101,7 @@ describe("RequestScreen", () => {
     assert.strictEqual("/redirect", screen.beforeUpdateHistoryPath("/path"));
   });
 
-  it("should screen beforeUpdateHistoryState return null if form navigate to post-without-redirect-get", () => {
+  it("screen beforeUpdateHistoryState return null if form navigate to post-without-redirect-get", () => {
     const screen = new RequestScreen();
     assert.strictEqual(
       null,
@@ -114,12 +114,12 @@ describe("RequestScreen", () => {
     );
   });
 
-  it("should request path return null if no requests were made", () => {
+  it("request path return null if no requests were made", () => {
     const screen = new RequestScreen();
     assert.strictEqual(null, screen.getRequestPath());
   });
 
-  it("should send request to an url", done => {
+  it("send request to an url", done => {
     // This test will run only on Chrome to avoid unique url on test case
     if (!utils.isChrome()) {
       done();
@@ -145,7 +145,7 @@ describe("RequestScreen", () => {
     }
   });
 
-  it("should load response content from cache", done => {
+  it("load response content from cache", done => {
     window.fetch.returns(Promise.resolve(new Response("", { status: 200 })));
 
     const screen = new RequestScreen();
@@ -157,7 +157,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should not load response content from cache for post requests", done => {
+  it("not load response content from cache for post requests", done => {
     if (utils.isIe()) {
       done();
     }
@@ -182,7 +182,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should fail for timeout request", done => {
+  it("fail for timeout request", done => {
     let id;
     window.fetch.returns(
       new Promise(resolve => {
@@ -201,7 +201,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should fail for invalid status code response", done => {
+  it("fail for invalid status code response", done => {
     window.fetch.returns(Promise.resolve(new Response("", { status: 404 })));
 
     new RequestScreen().load("/url").catch(error => {
@@ -210,7 +210,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it('should return the correct http status code for "page not found"', done => {
+  it('return the correct http status code for "page not found"', done => {
     window.fetch.returns(Promise.resolve(new Response("", { status: 404 })));
 
     new RequestScreen().load("/url").catch(error => {
@@ -219,7 +219,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it('should return the correct http status code for "unauthorised"', done => {
+  it('return the correct http status code for "unauthorised"', done => {
     window.fetch.returns(Promise.resolve(new Response("", { status: 401 })));
 
     new RequestScreen().load("/url").catch(error => {
@@ -228,7 +228,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should fail for request errors response", done => {
+  it("fail for request errors response", done => {
     window.fetch.returns(Promise.reject(new Error(errors.REQUEST_ERROR)));
 
     new RequestScreen().load("/url").catch(error => {
@@ -237,7 +237,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should form navigate force post method and request body wrapped in FormData", done => {
+  it("form navigate force post method and request body wrapped in FormData", done => {
     globals.capturedFormElement = globals.document.createElement("form");
 
     window.fetch.returns(Promise.resolve(new Response("", { status: 200 })));
@@ -253,7 +253,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should add submit input button value into request FormData", done => {
+  it("add submit input button value into request FormData", done => {
     window.fetch.returns(
       new Promise(resolve => {
         resolve(new Response("", { status: 200 }));
@@ -278,7 +278,7 @@ describe("RequestScreen", () => {
     });
   });
 
-  it("should not cache get requests on ie browsers", done => {
+  it("not cache get requests on ie browsers", done => {
     // This test will run only on IE
     if (!utils.isIe()) {
       done();
@@ -295,7 +295,7 @@ describe("RequestScreen", () => {
     }
   });
 
-  it("should not cache get requests on edge browsers", done => {
+  it("not cache get requests on edge browsers", done => {
     // This test will run only on Edge
     if (!utils.isEdge()) {
       done();
@@ -311,7 +311,7 @@ describe("RequestScreen", () => {
     }
   });
 
-  it("should not cache redirected requests on edge browsers", done => {
+  it("not cache redirected requests on edge browsers", done => {
     // This test will run only on Edge
     if (!utils.isEdge()) {
       done();
@@ -328,7 +328,7 @@ describe("RequestScreen", () => {
     }
   });
 
-  it("should navigate over same protocol the page was viewed on", done => {
+  it("navigate over same protocol the page was viewed on", done => {
     window.fetch.returns(Promise.resolve(new Response("", { status: 200 })));
 
     const screen = new RequestScreen();

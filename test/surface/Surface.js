@@ -6,13 +6,13 @@ import Surface from "../../src/surface/Surface";
 
 describe("Surface", () => {
   describe("Constructor", () => {
-    it("should throws error when surface id not specified", () => {
+    it("throws error when surface id not specified", () => {
       assert.throws(() => {
         new Surface();
       }, Error);
     });
 
-    it("should not throw error when surface id specified", () => {
+    it("not throw error when surface id specified", () => {
       assert.doesNotThrow(() => {
         new Surface("id");
       });
@@ -20,7 +20,7 @@ describe("Surface", () => {
   });
 
   describe("Surfaces", () => {
-    it("should create surface child when adding screen content to surface", () => {
+    it("create surface child when adding screen content to surface", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
@@ -28,20 +28,20 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should create surface child when adding screen content to surface outside document", () => {
+    it("create surface child when adding screen content to surface outside document", () => {
       const surface = new Surface("virtualSurfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
       assert.strictEqual("content", surfaceChild.innerHTML);
     });
 
-    it("should wrap initial surface content as default child if default wrapper missing", () => {
+    it("wrap initial surface content as default child if default wrapper missing", () => {
       enterDocumentSurfaceElement("surfaceId", "default");
       const surface = new Surface("surfaceId");
       assert.strictEqual("default", surface.defaultChild.innerHTML);
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should add screen content to surface child", () => {
+    it("add screen content to surface child", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
@@ -49,7 +49,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should add empty string as screen content to surface child", () => {
+    it("add empty string as screen content to surface child", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "");
@@ -57,7 +57,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should not add null/undefined as screen content to surface child", () => {
+    it("not add null/undefined as screen content to surface child", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       let surfaceChild = surface.addContent("screenId", undefined);
@@ -67,7 +67,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should surface child be inserted into surface element", () => {
+    it("surface child be inserted into surface element", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
@@ -75,7 +75,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should surface child enter document invisible", () => {
+    it("surface child enter document invisible", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
@@ -83,7 +83,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should surface child become visible for its screen", () => {
+    it("surface child become visible for its screen", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
@@ -92,7 +92,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should only one surface child be visible at time", () => {
+    it("only one surface child be visible at time", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");
@@ -105,7 +105,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should remove screen content from surface child", () => {
+    it("remove screen content from surface child", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       surface.addContent("screenId", "content");
@@ -114,7 +114,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should remove screen content from surface child outside document", () => {
+    it("remove screen content from surface child outside document", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       surface.remove("screenId");
@@ -122,27 +122,27 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should create surface child relating surface id and screen id", () => {
+    it("create surface child relating surface id and screen id", () => {
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.createChild("screenId");
       assert.strictEqual("surfaceId-screenId", surfaceChild.id);
     });
 
-    it("should get surface element by surfaceId", () => {
+    it("get surface element by surfaceId", () => {
       const surfaceElement = enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       assert.strictEqual(surfaceElement, surface.getElement());
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should get surface id", () => {
+    it("get surface id", () => {
       const surface = new Surface("surfaceId");
       assert.strictEqual("surfaceId", surface.getId());
       surface.setId("otherId");
       assert.strictEqual("otherId", surface.getId());
     });
 
-    it("should show default surface child if screen id not found and hide when found", () => {
+    it("show default surface child if screen id not found and hide when found", () => {
       const defaultChild = enterDocumentSurfaceElement("surfaceId-default");
       enterDocumentSurfaceElement("surfaceId").appendChild(defaultChild);
       const surface = new Surface("surfaceId");
@@ -156,7 +156,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should remove surface child content if already in document", () => {
+    it("remove surface child content if already in document", () => {
       const surfaceChild = enterDocumentSurfaceElement("surfaceId-screenId");
       enterDocumentSurfaceElement("surfaceId").appendChild(surfaceChild);
       surfaceChild.innerHTML = "temp";
@@ -166,7 +166,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should be able to overwrite default transition", () => {
+    it("be able to overwrite default transition", () => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       surface.addContent("screenId", "content");
@@ -178,7 +178,7 @@ describe("Surface", () => {
       exitDocumentSurfaceElement("surfaceId");
     });
 
-    it("should be able to wait deferred transition before removing visible surface child", done => {
+    it("be able to wait deferred transition before removing visible surface child", done => {
       enterDocumentSurfaceElement("surfaceId");
       const surface = new Surface("surfaceId");
       const surfaceChild = surface.addContent("screenId", "content");

@@ -22,13 +22,13 @@ describe("AppDataAttributeHandler", () => {
     console.log.restore();
   });
 
-  it("should throw error when base element not specified", () => {
+  it("throws an error when base element not specified", () => {
     assert.throws(() => {
       new AppDataAttributeHandler().handle();
     }, Error);
   });
 
-  it("should throw error when base element not valid", () => {
+  it("throws an error when base element not valid", () => {
     assert.throws(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
       appDataAttributeHandler.setBaseElement({});
@@ -36,7 +36,7 @@ describe("AppDataAttributeHandler", () => {
     }, Error);
   });
 
-  it("should throw error when already handled", () => {
+  it("throws an error when already handled", () => {
     assert.throws(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
       appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -45,7 +45,7 @@ describe("AppDataAttributeHandler", () => {
     }, Error);
   });
 
-  it("should not throw error when base element specified", () => {
+  it("not throw error when base element specified", () => {
     assert.doesNotThrow(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
       appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -54,7 +54,7 @@ describe("AppDataAttributeHandler", () => {
     });
   });
 
-  it("should dispose internal app when disposed", () => {
+  it("dispose internal app when disposed", () => {
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
     appDataAttributeHandler.handle();
@@ -62,14 +62,14 @@ describe("AppDataAttributeHandler", () => {
     assert.ok(appDataAttributeHandler.getApp().isDisposed());
   });
 
-  it("should dispose when not handled", () => {
+  it("dispose when not handled", () => {
     assert.doesNotThrow(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
       appDataAttributeHandler.dispose();
     });
   });
 
-  it("should get app", () => {
+  it("get app", () => {
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
     appDataAttributeHandler.handle();
@@ -77,7 +77,7 @@ describe("AppDataAttributeHandler", () => {
     appDataAttributeHandler.dispose();
   });
 
-  it("should get base element", () => {
+  it("get base element", () => {
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
     assert.strictEqual(
@@ -86,7 +86,7 @@ describe("AppDataAttributeHandler", () => {
     );
   });
 
-  it("should add app surfaces from document", () => {
+  it("add app surfaces from document", () => {
     enterDocumentSurfaceElement("surfaceId");
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -96,7 +96,7 @@ describe("AppDataAttributeHandler", () => {
     exitDocumentSurfaceElement("surfaceId");
   });
 
-  it("should adds random id to body without id when used as app surface", () => {
+  it("add random id to body without id when used as app surface", () => {
     globals.document.body.setAttribute("data-senna-surface", "");
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -106,7 +106,7 @@ describe("AppDataAttributeHandler", () => {
     globals.document.body.removeAttribute("data-senna-surface");
   });
 
-  it("should throw error when adding app surfaces from document missing id", () => {
+  it("throws an error when adding app surfaces from document missing id", () => {
     enterDocumentSurfaceElementMissingId("surfaceId");
     assert.throws(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
@@ -116,7 +116,7 @@ describe("AppDataAttributeHandler", () => {
     exitDocumentSurfaceElementMissingId("surfaceId");
   });
 
-  it("should add default route if not found in document", () => {
+  it("add default route if not found in document", () => {
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
     appDataAttributeHandler.handle();
@@ -124,7 +124,7 @@ describe("AppDataAttributeHandler", () => {
     appDataAttributeHandler.dispose();
   });
 
-  it("should add routes from document", () => {
+  it("add routes from document", () => {
     enterDocumentRouteElement("/path1");
     enterDocumentRouteElement("/path2");
     const appDataAttributeHandler = new AppDataAttributeHandler();
@@ -136,7 +136,7 @@ describe("AppDataAttributeHandler", () => {
     exitDocumentRouteElement("/path2");
   });
 
-  it("should add routes from document with regex paths", () => {
+  it("add routes from document with regex paths", () => {
     enterDocumentRouteElement("regex:[a-z]");
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -148,7 +148,7 @@ describe("AppDataAttributeHandler", () => {
     exitDocumentRouteElement("regex:[a-z]");
   });
 
-  it("should throw error when adding routes from document with missing screen type", () => {
+  it("throws an error when adding routes from document with missing screen type", () => {
     enterDocumentRouteElementMissingScreenType("/path");
     assert.throws(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
@@ -158,7 +158,7 @@ describe("AppDataAttributeHandler", () => {
     exitDocumentRouteElement("/path");
   });
 
-  it("should throw error when adding routes from document with missing path", () => {
+  it("throws an error when adding routes from document with missing path", () => {
     enterDocumentRouteElementMissingPath();
     assert.throws(() => {
       const appDataAttributeHandler = new AppDataAttributeHandler();
@@ -168,7 +168,7 @@ describe("AppDataAttributeHandler", () => {
     exitDocumentRouteElementMissingPath();
   });
 
-  it("should set base path from data attribute", () => {
+  it("set base path from data attribute", () => {
     globals.document.body.setAttribute("data-senna-base-path", "/base");
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -178,7 +178,7 @@ describe("AppDataAttributeHandler", () => {
     globals.document.body.removeAttribute("data-senna-base-path");
   });
 
-  it("should set link selector from data attribute", () => {
+  it("set link selector from data attribute", () => {
     globals.document.body.setAttribute("data-senna-link-selector", "a");
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
@@ -188,7 +188,7 @@ describe("AppDataAttributeHandler", () => {
     globals.document.body.removeAttribute("data-senna-link-selector");
   });
 
-  it("should set loading css class from data attribute", () => {
+  it("set loading css class from data attribute", () => {
     globals.document.body.setAttribute(
       "data-senna-loading-css-class",
       "loading"
@@ -204,7 +204,7 @@ describe("AppDataAttributeHandler", () => {
     globals.document.body.removeAttribute("data-senna-loading-css-class");
   });
 
-  it("should set update scroll position to false from data attribute", () => {
+  it("set update scroll position to false from data attribute", () => {
     globals.document.body.setAttribute(
       "data-senna-update-scroll-position",
       "false"
@@ -220,7 +220,7 @@ describe("AppDataAttributeHandler", () => {
     globals.document.body.removeAttribute("data-senna-update-scroll-position");
   });
 
-  it("should set update scroll position to true from data attribute", () => {
+  it("set update scroll position to true from data attribute", () => {
     globals.document.body.setAttribute(
       "data-senna-update-scroll-position",
       "true"
@@ -236,7 +236,7 @@ describe("AppDataAttributeHandler", () => {
     globals.document.body.removeAttribute("data-senna-update-scroll-position");
   });
 
-  it("should dispatch app from data attribute", () => {
+  it("dispatch app from data attribute", () => {
     globals.document.body.setAttribute("data-senna-dispatch", "");
     const appDataAttributeHandler = new AppDataAttributeHandler();
     appDataAttributeHandler.setBaseElement(globals.document.body);
