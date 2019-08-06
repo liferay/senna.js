@@ -2,7 +2,7 @@ const version = require('./package.json').version;
 
 module.exports = () => ({
     presets: [
-        require("babel-preset-metal"),
+        require("babel-preset-env"),
     ],
     plugins: [
         [
@@ -12,6 +12,8 @@ module.exports = () => ({
                 "replace": version
             }]
         ],
-        require("babel-plugin-transform-remove-console")
+        require("babel-plugin-transform-remove-console"),
+        require("babel-plugin-transform-class-properties"),
+        require("babel-plugin-transform-object-rest-spread")
     ]
 })
