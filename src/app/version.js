@@ -2,8 +2,8 @@
  * @returns String containing the current senna version
  */
 
-'use strict';
+"use strict";
 
-const version = '<%= version %>';
+const version = "<%= version %>";
 
 export default version;
