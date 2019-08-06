@@ -8,7 +8,8 @@
 	env: {
         browser: true
 	},
-	extends: [require.resolve('eslint-config-liferay')],
+	extends: [require.resolve('eslint-config-liferay'), require.resolve('eslint-config-prettier')],
+	plugins:['babel'],
 	globals: {
         after: true,
         assert: true,
