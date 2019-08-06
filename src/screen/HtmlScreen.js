@@ -101,22 +101,23 @@ class HtmlScreen extends RequestScreen {
 	 * Copies attributes from the <html> tag of content to the given node.
 	 */
 	copyNodeAttributesFromContent_(content, node) {
-		content = content.replace(/[<]\s*html/ig, '<senna');
-		content = content.replace(/\/html\s*\>/ig, '/senna>');
-		let placeholder;
-		if (utils.isIe()) {
-			const tempNode = globals.document.createRange().createContextualFragment(content);
+        let localContent = content;
+        localContent = localContent.replace(/[<]\s*html/ig, '<senna');
+        localContent = localContent.replace(/\/html\s*\>/ig, '/senna>');
+        let placeholder;
+        if (utils.isIe()) {
+			const tempNode = globals.document.createRange().createContextualFragment(localContent);
 			placeholder = tempNode.querySelector('senna');
 		} else {
-			node.innerHTML = content;
+			node.innerHTML = localContent;
 			placeholder = node.querySelector('senna');
 		}
 
-		if (placeholder) {
+        if (placeholder) {
 			utils.clearNodeAttributes(node);
 			utils.copyNodeAttributes(placeholder, node);
 		}
-	}
+    }
 
 	/**
 	 * @Override
