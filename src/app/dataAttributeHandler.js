@@ -7,7 +7,7 @@ import AppDataAttributeHandler from './AppDataAttributeHandler';
  * Data attribute handler.
  * @type {AppDataAttributeHandler}
  */
-var dataAttributeHandler = new AppDataAttributeHandler();
+const dataAttributeHandler = new AppDataAttributeHandler();
 
 globals.document.addEventListener('DOMContentLoaded', () => {
 	dataAttributeHandler.setBaseElement(globals.document.body);

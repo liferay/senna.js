@@ -96,7 +96,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * Maybe adds app routes from link elements that are `senna-route`.
 	 */
 	maybeAddRoutes_() {
-		var routesSelector = 'link[rel="senna-route"]';
+		const routesSelector = 'link[rel="senna-route"]';
 		this.querySelectorAllAsArray_(routesSelector).forEach((link) => this.maybeParseLinkRoute_(link));
 		if (!this.app.hasRoutes()) {
 			this.app.addRoutes(new Route(/.*/, HtmlScreen));
@@ -108,7 +108,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * Maybe adds app surfaces by scanning `data-senna-surface` data attribute.
 	 */
 	maybeAddSurfaces_() {
-		var surfacesSelector = '[' + dataAttributes.surface + ']';
+		const surfacesSelector = '[' + dataAttributes.surface + ']';
 		this.querySelectorAllAsArray_(surfacesSelector).forEach((surfaceElement) => {
 			this.updateElementIdIfSpecialSurface_(surfaceElement);
 			this.app.addSurfaces(surfaceElement.id);
@@ -130,7 +130,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * @param {Element} link
 	 */
 	maybeParseLinkRoute_(link) {
-		var route = new Route(this.maybeParseLinkRoutePath_(link), this.maybeParseLinkRouteHandler_(link));
+		const route = new Route(this.maybeParseLinkRoutePath_(link), this.maybeParseLinkRouteHandler_(link));
 		this.app.addRoutes(route);
 		console.log('Senna scanned route ' + route.getPath());
 	}
@@ -141,7 +141,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * @return {?string}
 	 */
 	maybeParseLinkRouteHandler_(link) {
-		var handler = link.getAttribute('type');
+		let handler = link.getAttribute('type');
 		if (isDefAndNotNull(handler)) {
 			handler = object.getObjectByName(handler);
 		}
@@ -154,7 +154,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * @return {?string}
 	 */
 	maybeParseLinkRoutePath_(link) {
-		var path = link.getAttribute('href');
+		let path = link.getAttribute('href');
 		if (isDefAndNotNull(path)) {
 			if (path.indexOf('regex:') === 0) {
 				path = new RegExp(path.substring(6));
@@ -167,7 +167,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * Maybe sets app base path from `data-senna-base-path` data attribute.
 	 */
 	maybeSetBasePath_() {
-		var basePath = this.baseElement.getAttribute(dataAttributes.basePath);
+		const basePath = this.baseElement.getAttribute(dataAttributes.basePath);
 		if (isDefAndNotNull(basePath)) {
 			this.app.setBasePath(basePath);
 			console.log('Senna scanned base path ' + basePath);
@@ -179,7 +179,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * attribute.
 	 */
 	maybeSetLinkSelector_() {
-		var linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
+		const linkSelector = this.baseElement.getAttribute(dataAttributes.linkSelector);
 		if (isDefAndNotNull(linkSelector)) {
 			this.app.setLinkSelector(linkSelector);
 			console.log('Senna scanned link selector ' + linkSelector);
@@ -191,7 +191,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * data attribute.
 	 */
 	maybeSetLoadingCssClass_() {
-		var loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
+		const loadingCssClass = this.baseElement.getAttribute(dataAttributes.loadingCssClass);
 		if (isDefAndNotNull(loadingCssClass)) {
 			this.app.setLoadingCssClass(loadingCssClass);
 			console.log('Senna scanned loading css class ' + loadingCssClass);
@@ -203,7 +203,7 @@ class AppDataAttributeHandler extends Disposable {
 	 * `data-senna-update-scroll-position` data attribute.
 	 */
 	maybeSetUpdateScrollPosition_() {
-		var updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
+		const updateScrollPosition = this.baseElement.getAttribute(dataAttributes.updateScrollPosition);
 		if (isDefAndNotNull(updateScrollPosition)) {
 			if (updateScrollPosition === 'false') {
 				this.app.setUpdateScrollPosition(false);

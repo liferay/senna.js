@@ -76,7 +76,7 @@ class Surface extends Disposable {
 	 * @return {Element}
 	 */
 	addContent(screenId, opt_content) {
-		var child = this.defaultChild;
+		let child = this.defaultChild;
 
 		if (isDefAndNotNull(opt_content)) {
 			child = this.getChild(screenId);
@@ -89,7 +89,7 @@ class Surface extends Disposable {
 			append(child, opt_content);
 		}
 
-		var element = this.getElement();
+		const element = this.getElement();
 
 		if (element && child) {
 			append(element, child);
@@ -104,7 +104,7 @@ class Surface extends Disposable {
 	 * @return {Element}
 	 */
 	createChild(screenId) {
-		var child = globals.document.createElement('div');
+		const child = globals.document.createElement('div');
 		child.setAttribute('id', this.makeId_(screenId));
 		return child;
 	}
@@ -166,9 +166,9 @@ class Surface extends Disposable {
 	 * inside the default child will be replaced by navigation.
 	 */
 	maybeWrapContentAsDefault_() {
-		var element = this.getElement();
+		const element = this.getElement();
 		if (element && !this.defaultChild) {
-			var fragment = globals.document.createDocumentFragment();
+			const fragment = globals.document.createDocumentFragment();
 			while (element.firstChild) {
 				fragment.appendChild(element.firstChild);
 			}
@@ -200,8 +200,8 @@ class Surface extends Disposable {
 	 * @return {Promise} Pauses the navigation until it is resolved.
 	 */
 	show(screenId) {
-		var from = this.activeChild;
-		var to = this.getChild(screenId);
+		const from = this.activeChild;
+		let to = this.getChild(screenId);
 		if (!to) {
 			to = this.defaultChild;
 		}
@@ -224,7 +224,7 @@ class Surface extends Disposable {
 	 * @param {!string} screenId The screen id to remove.
 	 */
 	remove(screenId) {
-		var child = this.getChild(screenId);
+		const child = this.getChild(screenId);
 		if (child) {
 			exitDocument(child);
 		}
@@ -245,7 +245,7 @@ class Surface extends Disposable {
 	 *     navigation until it is resolved.
 	 */
 	transition(from, to) {
-		var transitionFn = this.transitionFn || Surface.defaultTransition;
+		const transitionFn = this.transitionFn || Surface.defaultTransition;
 		return Promise.resolve(transitionFn.call(this, from, to));
 	}
 

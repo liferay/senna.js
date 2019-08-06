@@ -42,8 +42,8 @@ class Route {
 	*/
 	buildParsedData_() {
 		if (!this.parsedData_) {
-			var tokens = parse(this.path);
-			var regex = toRegex(tokens);
+			const tokens = parse(this.path);
+			const regex = toRegex(tokens);
 			this.parsedData_ = {
 				regex,
 				tokens
@@ -87,7 +87,7 @@ class Route {
 	 * @return {boolean} Returns true if matches any route.
 	 */
 	matchesPath(value) {
-		var path = this.path;
+		let path = this.path;
 
 		if (isFunction(path)) {
 			return path(value);

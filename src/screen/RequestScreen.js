@@ -70,7 +70,7 @@ class RequestScreen extends Screen {
 	 */
 	assertValidResponseStatusCode(status) {
 		if (!this.isValidResponseStatusCode(status)) {
-			var error = new Error(errors.INVALID_STATUS);
+			const error = new Error(errors.INVALID_STATUS);
 			error.invalidStatus = true;
 			error.statusCode = status;
 			throw error;
@@ -81,7 +81,7 @@ class RequestScreen extends Screen {
 	 * @inheritDoc
 	 */
 	beforeUpdateHistoryPath(path) {
-		var redirectPath = this.getRequestPath();
+		const redirectPath = this.getRequestPath();
 		if (redirectPath && redirectPath !== path) {
 			return redirectPath;
 		}
@@ -108,7 +108,7 @@ class RequestScreen extends Screen {
 	 * @protected
 	 */
 	formatLoadPath(path) {
-		var uri = new Uri(path);
+		const uri = new Uri(path);
 
 		uri.setHostname(globals.window.location.hostname);
 		uri.setProtocol(globals.window.location.protocol);
@@ -145,10 +145,10 @@ class RequestScreen extends Screen {
 	 * @return {string=}
 	 */
 	getRequestPath() {
-		var request = this.getRequest();
+		const request = this.getRequest();
 		if (request) {
-			var requestPath = request.url;
-			var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
+			let requestPath = request.url;
+			const responseUrl = this.maybeExtractResponseUrlFromRequest(request);
 			if (responseUrl) {
 				requestPath = responseUrl;
 			}

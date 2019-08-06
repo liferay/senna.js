@@ -9,13 +9,13 @@ describe('Cacheable', () => {
 	});
 
 	it('should be cacheable', () => {
-		var cacheable = new Cacheable();
+		const cacheable = new Cacheable();
 		cacheable.setCacheable(true);
 		assert.ok(cacheable.isCacheable());
 	});
 
 	it('should clear cache when toggle cacheable state', () => {
-		var cacheable = new Cacheable();
+		const cacheable = new Cacheable();
 		cacheable.setCacheable(true);
 		cacheable.addCache('data');
 		assert.strictEqual('data', cacheable.getCache());
@@ -24,7 +24,7 @@ describe('Cacheable', () => {
 	});
 
 	it('should clear cache on dispose', () => {
-		var cacheable = new Cacheable();
+		const cacheable = new Cacheable();
 		cacheable.setCacheable(true);
 		cacheable.addCache('data');
 		cacheable.dispose();

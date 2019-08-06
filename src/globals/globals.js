@@ -1,4 +1,4 @@
-var globals = globals || {};
+const globals = globals || {};
 
 if (typeof window !== 'undefined') {
 	globals.window = window;

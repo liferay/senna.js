@@ -30,7 +30,7 @@ describe('App', function() {
 	});
 
 	beforeEach(() => {
-		var requests = this.requests = [];
+		const requests = this.requests = [];
 		globals.window = window;
 		globals.capturedFormElement = undefined;
 		globals.capturedFormButtonElement = undefined;
@@ -59,7 +59,7 @@ describe('App', function() {
 	it('should add route', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
-		var route = this.app.findRoute('/path');
+		const route = this.app.findRoute('/path');
 		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
 		assert.strictEqual('/path', route.getPath());
@@ -68,7 +68,7 @@ describe('App', function() {
 
 	it('should remove route', () => {
 		this.app = new App();
-		var route = new Route('/path', Screen);
+		const route = new Route('/path', Screen);
 		this.app.addRoutes(route);
 		assert.ok(this.app.removeRoute(route));
 	});
@@ -79,7 +79,7 @@ describe('App', function() {
 			path: '/path',
 			handler: Screen
 		});
-		var route = this.app.findRoute('/path');
+		const route = this.app.findRoute('/path');
 		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
 		assert.strictEqual('/path', route.getPath());
@@ -92,12 +92,12 @@ describe('App', function() {
 			path: '/path',
 			handler: Screen
 		}, new Route('/pathOther', Screen)]);
-		var route = this.app.findRoute('/path');
+		const route = this.app.findRoute('/path');
 		assert.ok(this.app.hasRoutes());
 		assert.ok(route instanceof Route);
 		assert.strictEqual('/path', route.getPath());
 		assert.strictEqual(Screen, route.getHandler());
-		var routeOther = this.app.findRoute('/pathOther');
+		const routeOther = this.app.findRoute('/pathOther');
 		assert.ok(routeOther instanceof Route);
 		assert.strictEqual('/pathOther', routeOther.getPath());
 		assert.strictEqual(Screen, routeOther.getHandler());
@@ -179,21 +179,21 @@ describe('App', function() {
 
 	it('should create screen instance to a route', () => {
 		this.app = new App();
-		var screen = this.app.createScreenInstance('/path', new Route('/path', Screen));
+		const screen = this.app.createScreenInstance('/path', new Route('/path', Screen));
 		assert.ok(screen instanceof Screen);
 	});
 
 	it('should create screen instance to a route for Screen class child', () => {
 		this.app = new App();
-		var screen = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
+		const screen = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
 		assert.ok(screen instanceof HtmlScreen);
 	});
 
 	it('should create screen instance to a route with function handler', () => {
 		this.app = new App();
-		var stub = sinon.stub();
-		var route = new Route('/path', stub);
-		var screen = this.app.createScreenInstance('/path', route);
+		const stub = sinon.stub();
+		const route = new Route('/path', stub);
+		const screen = this.app.createScreenInstance('/path', route);
 		assert.strictEqual(1, stub.callCount);
 		assert.strictEqual(route, stub.args[0][0]);
 		assert.strictEqual(undefined, stub.returnValues[0]);
@@ -202,20 +202,20 @@ describe('App', function() {
 
 	it('should get same screen instance to a route', () => {
 		this.app = new App();
-		var route = new Route('/path', Screen);
-		var screen = this.app.createScreenInstance('/path', route);
+		const route = new Route('/path', Screen);
+		const screen = this.app.createScreenInstance('/path', route);
 		this.app.screens['/path'] = screen;
 		assert.strictEqual(screen, this.app.createScreenInstance('/path', route));
 	});
 
 	it('should use same screen instance when simulating navigate refresh', () => {
 		this.app = new App();
-		var route = new Route('/path', HtmlScreen);
-		var screen = this.app.createScreenInstance('/path', route);
+		const route = new Route('/path', HtmlScreen);
+		const screen = this.app.createScreenInstance('/path', route);
 		this.app.screens['/path'] = screen;
 		this.app.activePath = '/path';
 		this.app.activeScreen = screen;
-		var screenRefresh = this.app.createScreenInstance('/path', route);
+		const screenRefresh = this.app.createScreenInstance('/path', route);
 		assert.strictEqual(screen, screenRefresh);
 	});
 
@@ -250,7 +250,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path2', NoCacheScreen));
 
 		this.app.navigate('/path1?foo=1').then(() => {
-			var screenFirstNavigate = this.app.screens['/path1?foo=1'];
+			const screenFirstNavigate = this.app.screens['/path1?foo=1'];
 			this.app.navigate('/path2').then(() => {
 				this.app.navigate('/path1?foo=2').then(() => {
 					assert.notStrictEqual(screenFirstNavigate, this.app.screens['/path1?foo=2']);
@@ -271,7 +271,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path1', NoCacheScreen));
 		this.app.addRoutes(new Route('/path2', NoCacheScreen));
 		this.app.navigate('/path1').then(() => {
-			var screenFirstNavigate = this.app.screens['/path1'];
+			const screenFirstNavigate = this.app.screens['/path1'];
 			this.app.navigate('/path2').then(() => {
 				this.app.navigate('/path1').then(() => {
 					assert.notStrictEqual(screenFirstNavigate, this.app.screens['/path1']);
@@ -292,7 +292,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path1', CacheScreen));
 		this.app.addRoutes(new Route('/path2', CacheScreen));
 		this.app.navigate('/path1').then(() => {
-			var screenFirstNavigate = this.app.screens['/path1'];
+			const screenFirstNavigate = this.app.screens['/path1'];
 			this.app.navigate('/path2').then(() => {
 				this.app.navigate('/path1').then(() => {
 					assert.strictEqual(screenFirstNavigate, this.app.screens['/path1']);
@@ -311,8 +311,8 @@ describe('App', function() {
 
 	it('should clear all screen caches on app dispose', () => {
 		this.app = new App();
-		var screen1 = this.app.createScreenInstance('/path1', new Route('/path1', HtmlScreen));
-		var screen2 = this.app.createScreenInstance('/path2', new Route('/path2', HtmlScreen));
+		const screen1 = this.app.createScreenInstance('/path1', new Route('/path1', HtmlScreen));
+		const screen2 = this.app.createScreenInstance('/path2', new Route('/path2', HtmlScreen));
 		this.app.activePath = '/path1';
 		this.app.activeScreen = screen1;
 		this.app.screens['/path1'] = screen1;
@@ -323,7 +323,7 @@ describe('App', function() {
 
 	it('should clear screen cache and remove surfaces', () => {
 		this.app = new App();
-		var surface = new Surface('surfaceId');
+		const surface = new Surface('surfaceId');
 		surface.remove = sinon.stub();
 		this.app.addSurfaces(surface);
 		this.app.screens['/path'] = this.app.createScreenInstance('/path', new Route('/path', HtmlScreen));
@@ -363,7 +363,7 @@ describe('App', function() {
 			done();
 		};
 
-		var route = new Route('/path1', StubScreen);
+		const route = new Route('/path1', StubScreen);
 
 		this.app = new App();
 		this.app.addSurfaces(new Surface('surfaceId'));
@@ -533,8 +533,8 @@ describe('App', function() {
 	});
 
 	it('should navigate emit startNavigate and endNavigate custom event', (done) => {
-		var startNavigateStub = sinon.stub();
-		var endNavigateStub = sinon.stub();
+		const startNavigateStub = sinon.stub();
+		const endNavigateStub = sinon.stub();
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.on('startNavigate', startNavigateStub);
@@ -550,8 +550,8 @@ describe('App', function() {
 	});
 
 	it('should navigate emit startNavigate and endNavigate custom event with replace history', (done) => {
-		var startNavigateStub = sinon.stub();
-		var endNavigateStub = sinon.stub();
+		const startNavigateStub = sinon.stub();
+		const endNavigateStub = sinon.stub();
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
 		this.app.on('startNavigate', startNavigateStub);
@@ -598,8 +598,8 @@ describe('App', function() {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', CacheScreen));
 		this.app.navigate('/path').then(() => {
-			var pendingNavigate1 = this.app.navigate('/path');
-			var pendingNavigate2 = this.app.navigate('/path');
+			const pendingNavigate1 = this.app.navigate('/path');
+			const pendingNavigate2 = this.app.navigate('/path');
 			assert.ok(pendingNavigate1);
 			assert.ok(pendingNavigate2);
 			assert.strictEqual(pendingNavigate1, pendingNavigate2);
@@ -614,7 +614,7 @@ describe('App', function() {
 		this.app.navigate('/path1')
 			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				var activeScreen = this.app.activeScreen;
+				const activeScreen = this.app.activeScreen;
 				assert.strictEqual('/path2', globals.window.location.pathname);
 				this.app.once('endNavigate', () => {
 					assert.strictEqual('/path1', globals.window.location.pathname);
@@ -632,7 +632,7 @@ describe('App', function() {
 		this.app.navigate('/path1')
 			.then(() => this.app.navigate('/path1#hash'))
 			.then(() => {
-				var startNavigate = sinon.stub();
+				const startNavigate = sinon.stub();
 				this.app.on('startNavigate', startNavigate);
 				dom.once(globals.window, 'popstate', () => {
 					assert.strictEqual(0, startNavigate.callCount);
@@ -653,8 +653,8 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path', CacheScreen));
 		this.app.navigate('/path').then(() => {
 			this.app.navigate('/path');
-			var beforeNavigate = sinon.stub();
-			var startNavigate = sinon.stub();
+			const beforeNavigate = sinon.stub();
+			const startNavigate = sinon.stub();
 			this.app.on('beforeNavigate', beforeNavigate);
 			this.app.on('startNavigate', startNavigate);
 			this.app.navigate('/path');
@@ -677,8 +677,8 @@ describe('App', function() {
 		this.app.navigate('/path1')
 			.then(() => this.app.navigate('/path2'))
 			.then(() => {
-				var pendingNavigate1 = this.app.navigate('/path1');
-				var pendingNavigate2 = this.app.navigate('/path2');
+				const pendingNavigate1 = this.app.navigate('/path1');
+				const pendingNavigate2 = this.app.navigate('/path2');
 				assert.ok(pendingNavigate1);
 				assert.ok(pendingNavigate2);
 				assert.notStrictEqual(pendingNavigate1, pendingNavigate2);
@@ -703,7 +703,7 @@ describe('App', function() {
 	});
 
 	it('should add loading css class on navigate', (done) => {
-		var containsLoadingCssClass = () => {
+		const containsLoadingCssClass = () => {
 			return globals.document.documentElement.classList.contains(this.app.getLoadingCssClass());
 		};
 		this.app = new App();
@@ -717,7 +717,7 @@ describe('App', function() {
 	});
 
 	it('should not remove loading css class on navigate if there is pending navigate', (done) => {
-		var containsLoadingCssClass = () => {
+		const containsLoadingCssClass = () => {
 			return globals.document.documentElement.classList.contains(this.app.getLoadingCssClass());
 		};
 		this.app = new App();
@@ -1000,7 +1000,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when clicking on external links', () => {
-		var link = enterDocumentLinkElement('http://sennajs.com');
+		const link = enterDocumentLinkElement('http://sennajs.com');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		dom.on(link, 'click', preventDefault);
@@ -1010,7 +1010,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when clicking on links outside basepath', () => {
-		var link = enterDocumentLinkElement('/path');
+		const link = enterDocumentLinkElement('/path');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		this.app.setBasePath('/base');
@@ -1021,7 +1021,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when clicking on unrouted links', () => {
-		var link = enterDocumentLinkElement('/path');
+		const link = enterDocumentLinkElement('/path');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		dom.on(link, 'click', preventDefault);
@@ -1031,7 +1031,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when clicking on links with invalid mouse button or modifier keys pressed', () => {
-		var link = enterDocumentLinkElement('/path');
+		const link = enterDocumentLinkElement('/path');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		this.app.addRoutes(new Route('/path', Screen));
@@ -1056,7 +1056,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when navigate fails synchronously', () => {
-		var link = enterDocumentLinkElement('/path');
+		const link = enterDocumentLinkElement('/path');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		this.app.addRoutes(new Route('/path', Screen));
@@ -1187,7 +1187,7 @@ describe('App', function() {
 		}
 
 		showPageScrollbar();
-		var link = enterDocumentLinkElement('/path');
+		const link = enterDocumentLinkElement('/path');
 		link.style.position = 'absolute';
 		link.style.top = '1000px';
 		link.style.left = '1000px';
@@ -1227,7 +1227,7 @@ describe('App', function() {
 	it('should not navigate when submitting routed forms if submit event was prevented', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
-		var form = enterDocumentFormElement('/path', 'post');
+		const form = enterDocumentFormElement('/path', 'post');
 		return new Promise((resolve) => {
 			dom.once(form, 'submit', (event) => {
 				event.preventDefault();
@@ -1243,7 +1243,7 @@ describe('App', function() {
 	it('should not capture form element when submit event was prevented', () => {
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', Screen));
-		var form = enterDocumentFormElement('/path', 'post');
+		const form = enterDocumentFormElement('/path', 'post');
 		return new Promise((resolve) => {
 			dom.once(form, 'submit', (event) => {
 				event.preventDefault();
@@ -1272,7 +1272,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when submitting forms with method get', () => {
-		var form = enterDocumentFormElement('/path', 'get');
+		const form = enterDocumentFormElement('/path', 'get');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		this.app.addRoutes(new Route('/path', Screen));
@@ -1283,7 +1283,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when submitting on external forms', () => {
-		var form = enterDocumentFormElement('http://sennajs.com', 'post');
+		const form = enterDocumentFormElement('http://sennajs.com', 'post');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
@@ -1293,7 +1293,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when submitting on forms outside basepath', () => {
-		var form = enterDocumentFormElement('/path', 'post');
+		const form = enterDocumentFormElement('/path', 'post');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		this.app.setBasePath('/base');
@@ -1304,7 +1304,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when submitting on unrouted forms', () => {
-		var form = enterDocumentFormElement('/path', 'post');
+		const form = enterDocumentFormElement('/path', 'post');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
@@ -1314,7 +1314,7 @@ describe('App', function() {
 	});
 
 	it('should not capture form if navigate fails when submitting forms', () => {
-		var form = enterDocumentFormElement('/path', 'post');
+		const form = enterDocumentFormElement('/path', 'post');
 		this.app = new App();
 		this.app.setAllowPreventNavigate(false);
 		dom.on(form, 'submit', preventDefault);
@@ -1458,7 +1458,7 @@ describe('App', function() {
 		this.app.addRoutes(new Route('/path2', StubScreen2));
 		return this.app.navigate('/path1').then(() => {
 			this.app.navigate('/path2').then(() => {
-				var lifecycleOrder = [
+				const lifecycleOrder = [
 					StubScreen.prototype.load,
 					StubScreen.prototype.evaluateStyles,
 					StubScreen.prototype.flip,
@@ -1473,7 +1473,7 @@ describe('App', function() {
 					StubScreen2.prototype.activate,
 					StubScreen.prototype.disposeInternal
 				];
-				for (var i = 1; i < lifecycleOrder.length - 1; i++) {
+				for (let i = 1; i < lifecycleOrder.length - 1; i++) {
 					assert.ok(lifecycleOrder[i - 1].calledBefore(lifecycleOrder[i]));
 				}
 			});
@@ -1489,7 +1489,7 @@ describe('App', function() {
 				return 'screenId';
 			}
 		}
-		var surface = new Surface('surfaceId');
+		const surface = new Surface('surfaceId');
 		surface.addContent = sinon.stub();
 		this.app = new App();
 		this.app.addRoutes(new Route('/path', ContentScreen));
@@ -1503,7 +1503,7 @@ describe('App', function() {
 	});
 
 	it('should pass extracted params to "getSurfaceContent"', (done) => {
-		var screen;
+		let screen;
 		class ContentScreen extends Screen {
 			constructor() {
 				super();
@@ -1516,7 +1516,7 @@ describe('App', function() {
 		}
 		ContentScreen.prototype.getSurfaceContent = sinon.stub();
 
-		var surface = new Surface('surfaceId');
+		const surface = new Surface('surfaceId');
 		this.app = new App();
 		this.app.addRoutes(new Route('/path/:foo(\\d+)/:bar', ContentScreen));
 		this.app.addSurfaces(surface);
@@ -1524,7 +1524,7 @@ describe('App', function() {
 			assert.strictEqual(1, screen.getSurfaceContent.callCount);
 			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
 
-			var expectedParams = {
+			const expectedParams = {
 				foo: '123',
 				bar: 'abc'
 			};
@@ -1534,7 +1534,7 @@ describe('App', function() {
 	});
 
 	it('should pass extracted params to "getSurfaceContent" with base path', (done) => {
-		var screen;
+		let screen;
 		class ContentScreen extends Screen {
 			constructor() {
 				super();
@@ -1547,7 +1547,7 @@ describe('App', function() {
 		}
 		ContentScreen.prototype.getSurfaceContent = sinon.stub();
 
-		var surface = new Surface('surfaceId');
+		const surface = new Surface('surfaceId');
 		this.app = new App();
 		this.app.setBasePath('/path');
 		this.app.addRoutes(new Route('/:foo(\\d+)/:bar', ContentScreen));
@@ -1556,7 +1556,7 @@ describe('App', function() {
 			assert.strictEqual(1, screen.getSurfaceContent.callCount);
 			assert.strictEqual('surfaceId', screen.getSurfaceContent.args[0][0]);
 
-			var expectedParams = {
+			const expectedParams = {
 				foo: '123',
 				bar: 'abc'
 			};
@@ -1568,10 +1568,10 @@ describe('App', function() {
 	it('should extract params for the given route and path', () => {
 		this.app = new App();
 		this.app.setBasePath('/path');
-		var route = new Route('/:foo(\\d+)/:bar', () => {
+		const route = new Route('/:foo(\\d+)/:bar', () => {
 		});
-		var params = this.app.extractParams(route, '/path/123/abc');
-		var expectedParams = {
+		const params = this.app.extractParams(route, '/path/123/abc');
+		const expectedParams = {
 			foo: '123',
 			bar: 'abc'
 		};
@@ -1601,8 +1601,8 @@ describe('App', function() {
 		}
 		dom.enterDocument('<div id="surfaceId1"><div id="surfaceId1-default">default1</div></div>');
 		dom.enterDocument('<div id="surfaceId2"><div id="surfaceId2-default">default2</div></div>');
-		var surface1 = new Surface('surfaceId1');
-		var surface2 = new Surface('surfaceId2');
+		const surface1 = new Surface('surfaceId1');
+		const surface2 = new Surface('surfaceId2');
 		surface1.addContent = sinon.stub();
 		surface2.addContent = sinon.stub();
 		this.app = new App();
@@ -1633,7 +1633,7 @@ describe('App', function() {
 	});
 
 	it('should add surface content after history path is updated', (done) => {
-		var surface = new Surface('surfaceId');
+		const surface = new Surface('surfaceId');
 		surface.addContent = () => {
 			assert.strictEqual('/path', globals.window.location.pathname);
 		};
@@ -1646,7 +1646,7 @@ describe('App', function() {
 	});
 
 	it('should not navigate when HTML5 History api is not supported', () => {
-		var original = utils.isHtml5HistorySupported;
+		const original = utils.isHtml5HistorySupported;
 		assert.throws(() => {
 			this.app = new App();
 			this.app.addRoutes(new Route('/path', Screen));
@@ -1933,7 +1933,7 @@ function restorePreventDOMException18() {
 }
 
 function withWindow(options, cb) {
-	var originalWindow = globals.window;
+	const originalWindow = globals.window;
 	globals.window = Object.assign({}, window, globals.window, options);
 	try {
 		cb();
