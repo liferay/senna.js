@@ -1188,7 +1188,9 @@ class App extends EventEmitter {
 
     return nextScreen
       .load(path)
-      .then(() => (this.screens[path] = nextScreen))
+      .then(() => {
+        this.screens[path] = nextScreen;
+      })
       .catch(reason => {
         this.handleNavigateError_(path, nextScreen, reason);
         throw reason;
