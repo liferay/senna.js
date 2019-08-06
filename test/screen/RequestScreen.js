@@ -51,7 +51,7 @@ describe('RequestScreen', () => {
 
 	it('should screen beforeUpdateHistoryPath return request path if responseURL or X-Request-URL not present', () => {
 		const screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', () => {
+		sinon.stub(screen, 'getRequest').callsFake(() => {
 			return {
                 headers: {
                     get() {
@@ -67,7 +67,7 @@ describe('RequestScreen', () => {
 
 	it('should screen beforeUpdateHistoryPath return responseURL if present', () => {
 		const screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', () => {
+		sinon.stub(screen, 'getRequest').callsFake(() => {
 			return {
                 headers: {
                     get() {
@@ -83,7 +83,7 @@ describe('RequestScreen', () => {
 
 	it('should screen beforeUpdateHistoryPath return X-Request-URL if present and responseURL is not', () => {
 		const screen = new RequestScreen();
-		sinon.stub(screen, 'getRequest', () => {
+		sinon.stub(screen, 'getRequest').callsFake(() => {
 			return {
                 headers: {
                     get() {
