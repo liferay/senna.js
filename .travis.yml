@@ -1,19 +1,20 @@
 stages:
   - precache
+  - lint
   - test
 
 language: node_js
 node_js: '8'
 
-env:
-  global:
-    - PATH=~/npm/node_modules/.bin:$PATH
+env: PATH=~/npm/node_modules/.bin:$PATH
 
 before_install: |
   [[ ! -x ~/npm/node_modules/.bin/npm ]] && {
     cd ~/npm && npm install npm@^5.8.0
     cd -
   } || true
+  # avoids bugs around https://github.com/travis-ci/travis-ci/issues/5092
+  export PATH=~/npm/node_modules/.bin:$PATH
 install: npm ci --ignore-scripts
 
 cache:
@@ -31,7 +32,10 @@ jobs:
         jwt:
           secure: dnd9n+qRlUFxKH82yHMSdfjkeK4Q+x8WkDdcwLb/A2n1dhSkfaekbi2pcUCUsVSueG3kl2gGD+Y4nYX0nbQ6C1lUovQv2aoLi9pooE0k4rAWEpEG1rCz55QsJT5wllQUGDUAYPbFFD7qwL2pPehMQWcl7OrScXeCdIZXF4dEVPM=
         chrome: stable
-      script: gulp test:saucelabs
+      script: npm run test:saucelabs
+
+    - stage: lint
+      script: npm run checkFormat && npm run lint
 
     - stage: precache
       script: true

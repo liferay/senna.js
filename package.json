@@ -19,11 +19,14 @@
   "scripts": {
     "build": "gulp build build:amd",
     "compile": "BABEL_ENV=compile babel -d lib/ src/",
+    "checkFormat": "prettier --check '{src,test}/**/*.js'",
     "format": "prettier --write '{src,test}/**/*.js'",
     "lint": "eslint {src,test}/ --config eslint.config.js",
     "prepublish": "gulp && npm run compile",
+    "test": "gulp test",
     "test:debug": "karma start --debug",
-    "test": "gulp test"
+    "test:watch": "gulp test:watch",
+    "test:saucelabs": "gulp test:saucelabs"
   },
   "keywords": [
     "spa",
