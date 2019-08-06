@@ -1,3 +1,8 @@
+/**
+ * © 2019 Liferay, Inc. <https://liferay.com>
+ *
+ * SPDX-License-Identifier: MIT
+ */
 "use strict";
 
 import { addClasses, delegate, match, on, removeClasses } from "metal-dom";
