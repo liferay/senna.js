@@ -23,6 +23,10 @@
 			}
 		}
 	],
+	parser: 'babel-eslint',
+	parserOptions: {
+		ecmaVersion: 2018
+	},
     root: true,
     rules: {
         "no-console": 0
