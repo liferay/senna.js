@@ -8,7 +8,7 @@
 	env: {
         browser: true
 	},
-	extends: [require.resolve('eslint-config-liferay')],
+	extends: ['liferay'],
 	plugins:['babel'],
 	globals: {
         after: true,
