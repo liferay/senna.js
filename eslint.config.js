@@ -10,18 +10,16 @@
 	},
 	extends: ['liferay'],
 	plugins:['babel'],
-	globals: {
-        after: true,
-        assert: true,
-        before: true,
-        sinon: true
-	},
 	overrides: [
 		{
 			files: ['**/test/**/*.js'],
 			env: {
                 mocha: true
-			}
+			},
+			globals: {
+				assert: true,
+				sinon: true
+			},
 		}
 	],
 	parser: 'babel-eslint',
