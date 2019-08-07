@@ -112,7 +112,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 				}
 
 				if (!this.baseElement.hasAttribute(_dataAttributes2.default.senna)) {
-					void 0;
+					console.log('Senna was not initialized from data attributes. ' + 'In order to enable its usage from data attributes try setting ' + 'in the base element, e.g. `<body data-senna>`.');
 					return;
 				}
 
@@ -120,7 +120,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 					throw new Error('Senna app was already initialized.');
 				}
 
-				void 0;
+				console.log('Senna initialized from data attribute.');
 
 				this.app = new _App2.default();
 				this.maybeAddRoutes_();
@@ -159,7 +159,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 				});
 				if (!this.app.hasRoutes()) {
 					this.app.addRoutes(new _Route2.default(/.*/, _HtmlScreen2.default));
-					void 0;
+					console.log('Senna can\'t find route elements, adding default.');
 				}
 			}
 		}, {
@@ -185,7 +185,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 			value: function maybeParseLinkRoute_(link) {
 				var route = new _Route2.default(this.maybeParseLinkRoutePath_(link), this.maybeParseLinkRouteHandler_(link));
 				this.app.addRoutes(route);
-				void 0;
+				console.log('Senna scanned route ' + route.getPath());
 			}
 		}, {
 			key: 'maybeParseLinkRouteHandler_',
@@ -213,7 +213,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 				var basePath = this.baseElement.getAttribute(_dataAttributes2.default.basePath);
 				if ((0, _metal.isDefAndNotNull)(basePath)) {
 					this.app.setBasePath(basePath);
-					void 0;
+					console.log('Senna scanned base path ' + basePath);
 				}
 			}
 		}, {
@@ -222,7 +222,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 				var linkSelector = this.baseElement.getAttribute(_dataAttributes2.default.linkSelector);
 				if ((0, _metal.isDefAndNotNull)(linkSelector)) {
 					this.app.setLinkSelector(linkSelector);
-					void 0;
+					console.log('Senna scanned link selector ' + linkSelector);
 				}
 			}
 		}, {
@@ -231,7 +231,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 				var loadingCssClass = this.baseElement.getAttribute(_dataAttributes2.default.loadingCssClass);
 				if ((0, _metal.isDefAndNotNull)(loadingCssClass)) {
 					this.app.setLoadingCssClass(loadingCssClass);
-					void 0;
+					console.log('Senna scanned loading css class ' + loadingCssClass);
 				}
 			}
 		}, {
@@ -244,7 +244,7 @@ define(['exports', 'metal/src/metal', './dataAttributes', '../globals/globals', 
 					} else {
 						this.app.setUpdateScrollPosition(true);
 					}
-					void 0;
+					console.log('Senna scanned update scroll position ' + updateScrollPosition);
 				}
 			}
 		}, {

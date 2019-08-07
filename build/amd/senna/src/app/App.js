@@ -1,13 +1,9 @@
-define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src/events', 'metal-promise/src/promise/Promise', 'metal-debounce/src/debounce', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri', '../utils/utils'], function (exports, _dom, _metal, _events, _Promise, _debounce, _globals, _Route, _Screen, _Surface, _Uri, _utils) {
+define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src/events', '../globals/globals', '../route/Route', '../screen/Screen', '../surface/Surface', 'metal-uri/src/Uri', '../utils/utils'], function (exports, _dom, _metal, _events, _globals, _Route, _Screen, _Surface, _Uri, _utils) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _Promise2 = _interopRequireDefault(_Promise);
-
-	var _debounce2 = _interopRequireDefault(_debounce);
 
 	var _globals2 = _interopRequireDefault(_globals);
 
@@ -241,7 +237,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 
 			/**
     * Holds a deferred with the current navigation.
-    * @type {?CancellablePromise}
+    * @type {?Promise}
     * @default null
     * @protected
     */
@@ -326,7 +322,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 
 			_this.appEventHandlers_ = new _events.EventHandler();
 
-			_this.appEventHandlers_.add((0, _dom.on)(_globals2.default.window, 'scroll', (0, _debounce2.default)(_this.onScroll_.bind(_this), 100)), (0, _dom.on)(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), (0, _dom.on)(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
+			_this.appEventHandlers_.add((0, _dom.on)(_globals2.default.window, 'scroll', _utils2.default.debounce(_this.onScroll_.bind(_this), 100)), (0, _dom.on)(_globals2.default.window, 'load', _this.onLoad_.bind(_this)), (0, _dom.on)(_globals2.default.window, 'popstate', _this.onPopstate_.bind(_this)));
 
 			_this.on('startNavigate', _this.onStartNavigate_);
 			_this.on('beforeNavigate', _this.onBeforeNavigate_);
@@ -405,11 +401,11 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				var path = _utils2.default.getUrlPath(url);
 
 				if (!this.isLinkSameOrigin_(uri.getHost())) {
-					void 0;
+					console.log('Offsite link clicked');
 					return false;
 				}
 				if (!this.isSameBasePath_(path)) {
-					void 0;
+					console.log('Link clicked outside app\'s base path');
 					return false;
 				}
 				// Prevents navigation if it's a hash change on the same url.
@@ -417,7 +413,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					return false;
 				}
 				if (!this.findRoute(path)) {
-					void 0;
+					console.log('No route for ' + path);
 					return false;
 				}
 
@@ -440,7 +436,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			key: 'createScreenInstance',
 			value: function createScreenInstance(path, route) {
 				if (!this.pendingNavigate && path === this.activePath) {
-					void 0;
+					console.log('Already at destination, refresh navigation');
 					return this.activeScreen;
 				}
 				/* jshint newcap: false */
@@ -452,7 +448,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					} else {
 						screen = handler(route) || new _Screen2.default();
 					}
-					void 0;
+					console.log('Create screen for [' + path + '] [' + screen + ']');
 				}
 				return screen;
 			}
@@ -480,16 +476,25 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 
 				var route = this.findRoute(path);
 				if (!route) {
-					this.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
+					this.pendingNavigate = Promise.reject(new Error('No route for ' + path));
 					return this.pendingNavigate;
 				}
 
-				void 0;
+				console.log('Navigate to [' + path + ']');
 
 				this.stopPendingNavigate_();
 				this.isNavigationPending = true;
 
 				var nextScreen = this.createScreenInstance(path, route);
+
+				var finalize = function finalize() {
+					_this5.navigationStrategy = NavigationStrategy.IMMEDIATE;
+
+					if (_this5.scheduledNavigationQueue.length) {
+						var scheduledNavigation = _this5.scheduledNavigationQueue.shift();
+						_this5.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
+					}
+				};
 
 				return this.maybePreventDeactivate_().then(function () {
 					return _this5.maybePreventActivate_(nextScreen);
@@ -519,17 +524,13 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					return _this5.finalizeNavigate_(path, nextScreen);
 				}).then(function () {
 					return _this5.maybeOverloadBeforeUnload_();
+				}).then(function () {
+					finalize();
 				}).catch(function (reason) {
 					_this5.isNavigationPending = false;
 					_this5.handleNavigateError_(path, nextScreen, reason);
+					finalize();
 					throw reason;
-				}).thenAlways(function () {
-					_this5.navigationStrategy = NavigationStrategy.IMMEDIATE;
-
-					if (_this5.scheduledNavigationQueue.length) {
-						var scheduledNavigation = _this5.scheduledNavigationQueue.shift();
-						_this5.maybeNavigate_(scheduledNavigation.href, scheduledNavigation);
-					}
 				});
 			}
 		}, {
@@ -556,7 +557,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				this.pendingNavigate = null;
 				_globals2.default.capturedFormElement = null;
 				_globals2.default.capturedFormButtonElement = null;
-				void 0;
+				console.log('Navigation done');
 			}
 		}, {
 			key: 'findRoute',
@@ -627,7 +628,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function handleNavigateError_(path, nextScreen, error) {
 				var _this6 = this;
 
-				void 0;
+				console.log('Navigation error for [' + nextScreen + '] (' + error.stack + ')');
 				this.emit('navigationError', {
 					error: error,
 					nextScreen: nextScreen,
@@ -635,9 +636,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				});
 				if (!_utils2.default.isCurrentBrowserPath(path)) {
 					if (this.isNavigationPending && this.pendingNavigate) {
-						this.pendingNavigate.thenAlways(function () {
+						this.pendingNavigate.then(function () {
 							return _this6.removeScreen(path);
-						}, this);
+						}).catch(function (error) {
+							_this6.removeScreen(path);
+							throw error;
+						});
 					} else {
 						this.removeScreen(path);
 					}
@@ -757,11 +761,11 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function maybePreventActivate_(nextScreen) {
 				var _this8 = this;
 
-				return _Promise2.default.resolve().then(function () {
+				return Promise.resolve().then(function () {
 					return nextScreen.beforeActivate();
 				}).then(function (prevent) {
 					if (prevent) {
-						_this8.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('Cancelled by next screen'));
+						_this8.pendingNavigate = Promise.reject('Cancelled by next screen');
 						return _this8.pendingNavigate;
 					}
 				});
@@ -771,13 +775,13 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function maybePreventDeactivate_() {
 				var _this9 = this;
 
-				return _Promise2.default.resolve().then(function () {
+				return Promise.resolve().then(function () {
 					if (_this9.activeScreen) {
 						return _this9.activeScreen.beforeDeactivate();
 					}
 				}).then(function (prevent) {
 					if (prevent) {
-						_this9.pendingNavigate = _Promise2.default.reject(new _Promise2.default.CancellationError('Cancelled by active screen'));
+						_this9.pendingNavigate = Promise.reject(new Error('Cancelled by active screen'));
 						return _this9.pendingNavigate;
 					}
 				});
@@ -863,7 +867,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function onBeforeNavigateDefault_(event) {
 				if (this.pendingNavigate) {
 					if (this.pendingNavigate.path === event.path || this.navigationStrategy === NavigationStrategy.SCHEDULE_LAST) {
-						void 0;
+						console.log('Waiting...');
 						return;
 					}
 				}
@@ -888,7 +892,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			key: 'onDocClickDelegate_',
 			value: function onDocClickDelegate_(event) {
 				if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.button) {
-					void 0;
+					console.log('Navigate aborted, invalid mouse button or modifier key pressed.');
 					return;
 				}
 				this.maybeNavigate_(event.delegateTarget.href, event);
@@ -898,7 +902,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 			value: function onDocSubmitDelegate_(event) {
 				var form = event.delegateTarget;
 				if (form.method === 'get') {
-					void 0;
+					console.log('GET method not supported');
 					return;
 				}
 				event.capturedFormElement = form;
@@ -958,7 +962,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				}
 
 				if (state.senna) {
-					void 0;
+					console.log('History navigation to [' + state.path + ']');
 					this.popstateScrollTop = state.scrollTop;
 					this.popstateScrollLeft = state.scrollLeft;
 					if (!this.nativeScrollRestorationSupported) {
@@ -1000,16 +1004,21 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					path: event.path
 				};
 
-				this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).catch(function (reason) {
-					endNavigatePayload.error = reason;
-					throw reason;
-				}).thenAlways(function () {
+				var finalize = function finalize(endNavigatePayload) {
 					if (!_this11.pendingNavigate && !_this11.scheduledNavigationQueue.length) {
 						(0, _dom.removeClasses)(_globals2.default.document.documentElement, _this11.loadingCssClass);
 						_this11.maybeRestoreNativeScrollRestoration();
 						_this11.captureScrollPositionFromScrollEvent = true;
 					}
 					_this11.emit('endNavigate', endNavigatePayload);
+				};
+
+				this.pendingNavigate = this.doNavigate_(event.path, event.replaceHistory).then(function () {
+					finalize(endNavigatePayload);
+				}).catch(function (reason) {
+					finalize(endNavigatePayload);
+					endNavigatePayload.error = reason;
+					throw reason;
 				});
 
 				this.pendingNavigate.path = event.path;
@@ -1021,10 +1030,10 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 
 				var route = this.findRoute(path);
 				if (!route) {
-					return _Promise2.default.reject(new _Promise2.default.CancellationError('No route for ' + path));
+					return Promise.reject(new Error('No route for ' + path));
 				}
 
-				void 0;
+				console.log('Prefetching [' + path + ']');
 
 				var nextScreen = this.createScreenInstance(path, route);
 
@@ -1066,7 +1075,7 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 				Object.keys(surfaces).forEach(function (id) {
 					var surfaceContent = nextScreen.getSurfaceContent(id, params);
 					surfaces[id].addContent(nextScreen.getId(), surfaceContent);
-					void 0;
+					console.log('Screen [' + nextScreen.getId() + '] add content to surface ' + '[' + surfaces[id] + '] [' + ((0, _metal.isDefAndNotNull)(surfaceContent) ? '...' : 'empty') + ']');
 				});
 			}
 		}, {
@@ -1156,9 +1165,6 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 		}, {
 			key: 'stopPendingNavigate_',
 			value: function stopPendingNavigate_() {
-				if (this.pendingNavigate) {
-					this.pendingNavigate.cancel('Cancel pending navigation');
-				}
 				this.pendingNavigate = null;
 			}
 		}, {
@@ -1180,10 +1186,12 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					}
 				};
 
-				return new _Promise2.default(function (resolve) {
-					return sync() & _metal.async.nextTick(function () {
-						return sync() & resolve();
-					});
+				return new Promise(function (resolve) {
+					sync();
+					setTimeout(function () {
+						sync();
+						resolve();
+					}, 0);
 				});
 			}
 		}, {

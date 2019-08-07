@@ -1,19 +1,15 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise', '../globals/globals', './RequestScreen', '../surface/Surface', 'metal-useragent/src/UA', 'metal-uri/src/Uri', '../utils/utils'], function (exports, _metal, _dom, _Promise, _globals, _RequestScreen2, _Surface, _UA, _Uri, _utils) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../globals/globals', './RequestScreen', '../surface/Surface', 'metal-uri/src/Uri', '../utils/utils'], function (exports, _metal, _dom, _globals, _RequestScreen2, _Surface, _Uri, _utils) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _Promise2 = _interopRequireDefault(_Promise);
-
 	var _globals2 = _interopRequireDefault(_globals);
 
 	var _RequestScreen3 = _interopRequireDefault(_RequestScreen2);
 
 	var _Surface2 = _interopRequireDefault(_Surface);
-
-	var _UA2 = _interopRequireDefault(_UA);
 
 	var _Uri2 = _interopRequireDefault(_Uri);
 
@@ -188,7 +184,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				content = content.replace(/[<]\s*html/ig, '<senna');
 				content = content.replace(/\/html\s*\>/ig, '/senna>');
 				var placeholder = void 0;
-				if (_UA2.default.isIe) {
+				if (_utils2.default.isIe()) {
 					var tempNode = _globals2.default.document.createRange().createContextualFragment(content);
 					placeholder = tempNode.querySelector('senna');
 				} else {
@@ -245,7 +241,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 				var resourcesInVirtual = this.virtualQuerySelectorAll_(HtmlScreen.selectors.favicon);
 				var resourcesInDocument = this.querySelectorAll_(HtmlScreen.selectors.favicon);
 
-				return new _Promise2.default(function (resolve) {
+				return new Promise(function (resolve) {
 					_utils2.default.removeElementsFromDocument(resourcesInDocument);
 					_this4.runFaviconInElement_(resourcesInVirtual).then(function () {
 						return resolve();
@@ -282,7 +278,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					}
 				});
 
-				return new _Promise2.default(function (resolve) {
+				return new Promise(function (resolve) {
 					evaluatorFn(frag, function () {
 						_utils2.default.removeElementsFromDocument(temporariesInDoc);
 						resolve();
@@ -347,7 +343,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 					_this7.resolveTitleFromVirtualDocument();
 					_this7.resolveMetaTagsFromVirtualDocument();
 					_this7.assertSameBodyIdInVirtualDocument();
-					if (_UA2.default.isIe) {
+					if (_utils2.default.isIe()) {
 						_this7.makeTemporaryStylesHrefsUnique_();
 					}
 					return content;
@@ -377,9 +373,9 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/sr
 		}, {
 			key: 'runFaviconInElement_',
 			value: function runFaviconInElement_(elements) {
-				return new _Promise2.default(function (resolve) {
+				return new Promise(function (resolve) {
 					elements.forEach(function (element) {
-						return document.head.appendChild(_UA2.default.isIe ? element : _utils2.default.setElementWithRandomHref(element));
+						return document.head.appendChild(_utils2.default.isIe() ? element : _utils2.default.setElementWithRandomHref(element));
 					});
 					resolve();
 				});
