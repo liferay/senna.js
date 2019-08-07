@@ -1,13 +1,9 @@
-define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/all/structs', 'metal-promise/src/promise/Promise', '../errors/errors', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri', 'metal-useragent/src/UA'], function (exports, _metal, _Ajax, _structs, _Promise, _errors, _utils, _globals, _Screen2, _Uri, _UA) {
+define(['exports', 'metal/src/metal', '../errors/errors', '../utils/utils', '../globals/globals', './Screen', 'metal-uri/src/Uri'], function (exports, _metal, _errors, _utils, _globals, _Screen2, _Uri) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _Ajax2 = _interopRequireDefault(_Ajax);
-
-	var _Promise2 = _interopRequireDefault(_Promise);
 
 	var _errors2 = _interopRequireDefault(_errors);
 
@@ -18,8 +14,6 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 	var _Screen3 = _interopRequireDefault(_Screen2);
 
 	var _Uri2 = _interopRequireDefault(_Uri);
-
-	var _UA2 = _interopRequireDefault(_UA);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -184,7 +178,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 					uri.setPort(_globals2.default.window.location.port);
 				}
 
-				if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+				if (_utils2.default.isIeOrEdge() && this.httpMethod === RequestScreen.GET) {
 					return uri.makeUnique().toString();
 				}
 
@@ -205,12 +199,12 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 			value: function getRequestPath() {
 				var request = this.getRequest();
 				if (request) {
-					var requestPath = request.requestPath;
+					var requestPath = request.url;
 					var responseUrl = this.maybeExtractResponseUrlFromRequest(request);
 					if (responseUrl) {
 						requestPath = responseUrl;
 					}
-					if (_UA2.default.isIeOrEdge && this.httpMethod === RequestScreen.GET) {
+					if (_utils2.default.isIeOrEdge() && this.httpMethod === RequestScreen.GET) {
 						requestPath = new _Uri2.default(requestPath).removeUnique().toString();
 					}
 					return _utils2.default.getUrlPath(requestPath);
@@ -246,33 +240,51 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 
 				var cache = this.getCache();
 				if ((0, _metal.isDefAndNotNull)(cache)) {
-					return _Promise2.default.resolve(cache);
+					return Promise.resolve(cache);
 				}
 				var body = null;
 				var httpMethod = this.httpMethod;
-				var headers = new _structs.MultiMap();
+
+				var headers = new Headers();
+
 				Object.keys(this.httpHeaders).forEach(function (header) {
-					return headers.add(header, _this2.httpHeaders[header]);
+					headers.append(header, _this2.httpHeaders[header]);
 				});
+
 				if (_globals2.default.capturedFormElement) {
 					this.addSafariXHRPolyfill();
 					body = this.getFormData(_globals2.default.capturedFormElement, _globals2.default.capturedFormButtonElement);
 					httpMethod = RequestScreen.POST;
-					if (_UA2.default.isIeOrEdge) {
-						headers.add('If-None-Match', '"0"');
+					if (_utils2.default.isIeOrEdge()) {
+						headers.append('If-None-Match', '"0"');
 					}
 				}
+
 				var requestPath = this.formatLoadPath(path);
-				return _Ajax2.default.request(requestPath, httpMethod, body, headers, null, this.timeout).then(function (xhr) {
+
+				var request = new Request(requestPath, {
+					body: body,
+					credentials: 'include',
+					headers: headers,
+					method: httpMethod
+				});
+
+				this.setRequest(request);
+
+				return Promise.race([fetch(request).then(function (resp) {
 					_this2.removeSafariXHRPolyfill();
-					_this2.setRequest(xhr);
-					_this2.assertValidResponseStatusCode(xhr.status);
+					_this2.assertValidResponseStatusCode(resp.status);
+					return resp.text();
+				}).then(function (text) {
 					if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
-						_this2.addCache(xhr.responseText);
+						_this2.addCache(text);
 					}
-					xhr.requestPath = requestPath;
-					return xhr.responseText;
-				}).catch(function (reason) {
+					return text;
+				}), new Promise(function (_, reject) {
+					setTimeout(function () {
+						return reject(new Error(_errors2.default.REQUEST_TIMEOUT));
+					}, _this2.timeout);
+				})]).catch(function (reason) {
 					_this2.removeSafariXHRPolyfill();
 					switch (reason.message) {
 						case _errors2.default.REQUEST_TIMEOUT:
@@ -299,16 +311,12 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 		}, {
 			key: 'maybeExtractResponseUrlFromRequest',
 			value: function maybeExtractResponseUrlFromRequest(request) {
-				var responseUrl = request.responseURL;
-				if (responseUrl) {
-					return responseUrl;
-				}
-				return request.getResponseHeader(RequestScreen.X_REQUEST_URL_HEADER);
+				return request.headers.get(RequestScreen.X_REQUEST_URL_HEADER);
 			}
 		}, {
 			key: 'addSafariXHRPolyfill',
 			value: function addSafariXHRPolyfill() {
-				if (_globals2.default.capturedFormElement && _UA2.default.isSafari) {
+				if (_globals2.default.capturedFormElement && _utils2.default.isSafari()) {
 					var inputs = _globals2.default.capturedFormElement.querySelectorAll('input[type="file"]:not([disabled])');
 					for (var index = 0; index < inputs.length; index++) {
 						var input = inputs[index];
@@ -323,7 +331,7 @@ define(['exports', 'metal/src/metal', 'metal-ajax/src/Ajax', 'metal-structs/src/
 		}, {
 			key: 'removeSafariXHRPolyfill',
 			value: function removeSafariXHRPolyfill() {
-				if (_globals2.default.capturedFormElement && _UA2.default.isSafari) {
+				if (_globals2.default.capturedFormElement && _utils2.default.isSafari()) {
 					var inputs = _globals2.default.capturedFormElement.querySelectorAll('input[type="file"][data-safari-temp-disabled]');
 					for (var index = 0; index < inputs.length; index++) {
 						var input = inputs[index];

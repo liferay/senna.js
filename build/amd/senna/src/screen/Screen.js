@@ -1,4 +1,4 @@
-define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cacheable', 'metal-promise/src/promise/Promise'], function (exports, _metal, _dom, _Cacheable2, _Promise) {
+define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cacheable'], function (exports, _metal, _dom, _Cacheable2) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -6,8 +6,6 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 	});
 
 	var _Cacheable3 = _interopRequireDefault(_Cacheable2);
-
-	var _Promise2 = _interopRequireDefault(_Promise);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -136,17 +134,17 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		_createClass(Screen, [{
 			key: 'activate',
 			value: function activate() {
-				void 0;
+				console.log('Screen [' + this + '] activate');
 			}
 		}, {
 			key: 'beforeActivate',
 			value: function beforeActivate() {
-				void 0;
+				console.log('Screen [' + this + '] beforeActivate');
 			}
 		}, {
 			key: 'beforeDeactivate',
 			value: function beforeDeactivate() {
-				void 0;
+				console.log('Screen [' + this + '] beforeDeactivate');
 			}
 		}, {
 			key: 'beforeUpdateHistoryPath',
@@ -161,13 +159,13 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}, {
 			key: 'deactivate',
 			value: function deactivate() {
-				void 0;
+				console.log('Screen [' + this + '] deactivate');
 			}
 		}, {
 			key: 'disposeInternal',
 			value: function disposeInternal() {
 				_get(Screen.prototype.__proto__ || Object.getPrototypeOf(Screen.prototype), 'disposeInternal', this).call(this);
-				void 0;
+				console.log('Screen [' + this + '] dispose');
 			}
 		}, {
 			key: 'evaluateScripts',
@@ -177,19 +175,19 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 						_dom.globalEval.runScriptsInElement(surfaces[sId].activeChild);
 					}
 				});
-				return _Promise2.default.resolve();
+				return Promise.resolve();
 			}
 		}, {
 			key: 'evaluateStyles',
 			value: function evaluateStyles() {
-				return _Promise2.default.resolve();
+				return Promise.resolve();
 			}
 		}, {
 			key: 'flip',
 			value: function flip(surfaces) {
 				var _this2 = this;
 
-				void 0;
+				console.log('Screen [' + this + '] flip');
 
 				var transitions = [];
 
@@ -199,7 +197,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 					transitions.push(deferred);
 				});
 
-				return _Promise2.default.all(transitions);
+				return Promise.all(transitions);
 			}
 		}, {
 			key: 'getId',
@@ -214,7 +212,7 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}, {
 			key: 'getSurfaceContent',
 			value: function getSurfaceContent() {
-				void 0;
+				console.log('Screen [' + this + '] getSurfaceContent');
 			}
 		}, {
 			key: 'getTitle',
@@ -224,8 +222,8 @@ define(['exports', 'metal/src/metal', 'metal-dom/src/all/dom', '../cacheable/Cac
 		}, {
 			key: 'load',
 			value: function load() {
-				void 0;
-				return _Promise2.default.resolve();
+				console.log('Screen [' + this + '] load');
+				return Promise.resolve();
 			}
 		}, {
 			key: 'makeId_',

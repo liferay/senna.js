@@ -1,4 +1,4 @@
-define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/dom', 'metal-promise/src/promise/Promise'], function (exports, _globals, _metal, _dom, _Promise) {
+define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/dom'], function (exports, _globals, _metal, _dom) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -6,8 +6,6 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 	});
 
 	var _globals2 = _interopRequireDefault(_globals);
-
-	var _Promise2 = _interopRequireDefault(_Promise);
 
 	function _interopRequireDefault(obj) {
 		return obj && obj.__esModule ? obj : {
@@ -232,11 +230,14 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 					to = this.defaultChild;
 				}
 				this.activeChild = to;
-				return this.transition(from, to).thenAlways(function () {
+
+				var transitionEnd = function transitionEnd() {
 					if (from && from !== to) {
 						(0, _dom.exitDocument)(from);
 					}
-				});
+				};
+
+				return this.transition(from, to).then(transitionEnd).catch(transitionEnd);
 			}
 		}, {
 			key: 'remove',
@@ -255,7 +256,7 @@ define(['exports', '../globals/globals', 'metal/src/metal', 'metal-dom/src/all/d
 			key: 'transition',
 			value: function transition(from, to) {
 				var transitionFn = this.transitionFn || Surface.defaultTransition;
-				return _Promise2.default.resolve(transitionFn.call(this, from, to));
+				return Promise.resolve(transitionFn.call(this, from, to));
 			}
 		}]);
 

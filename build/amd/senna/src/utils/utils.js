@@ -52,6 +52,22 @@ define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src
 				});
 			}
 		}, {
+			key: 'debounce',
+			value: function debounce(fn, delay) {
+				return function debounced() {
+					var args = arguments;
+					utils.cancelDebounce(debounced);
+					debounced.id = setTimeout(function () {
+						fn(Array.prototype.slice.call(args));
+					}, delay);
+				};
+			}
+		}, {
+			key: 'cancelDebounce',
+			value: function cancelDebounce(debounced) {
+				clearTimeout(debounced.id);
+			}
+		}, {
 			key: 'getCurrentBrowserPath',
 			value: function getCurrentBrowserPath() {
 				return this.getCurrentBrowserPathWithoutHash() + _globals2.default.window.location.hash;
@@ -107,6 +123,47 @@ define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src
 				return false;
 			}
 		}, {
+			key: 'isChrome',
+			value: function isChrome() {
+				return (utils.matchUserAgent('Chrome') || utils.matchUserAgent('CriOs')) && !utils.isOpera() && !utils.isEdge();
+			}
+		}, {
+			key: 'isEdge',
+			value: function isEdge() {
+				return utils.matchUserAgent('Edge');
+			}
+		}, {
+			key: 'isIe',
+			value: function isIe() {
+				return utils.matchUserAgent('Trident') || utils.matchUserAgent('MSIE');
+			}
+		}, {
+			key: 'isIeOrEdge',
+			value: function isIeOrEdge() {
+				return utils.isIe() || utils.isEdge();
+			}
+		}, {
+			key: 'isOpera',
+			value: function isOpera() {
+				return utils.matchUserAgent('Opera') || utils.matchUserAgent('OPR');
+			}
+		}, {
+			key: 'isSafari',
+			value: function isSafari() {
+				return utils.matchUserAgent('Safari') && !(utils.isChrome() || utils.isOpera() || utils.isEdge());
+			}
+		}, {
+			key: 'matchUserAgent',
+			value: function matchUserAgent(str) {
+				var navigator = _globals2.default.window.navigator;
+				if (!navigator || !navigator.userAgent) {
+					return false;
+				}
+
+				var userAgent = navigator.userAgent;
+				return userAgent.indexOf(str) !== -1;
+			}
+		}, {
 			key: 'isHtml5HistorySupported',
 			value: function isHtml5HistorySupported() {
 				return !!(_globals2.default.window.history && _globals2.default.window.history.pushState);
@@ -117,7 +174,7 @@ define(['exports', 'metal-dom/src/all/dom', '../globals/globals', 'metal-uri/src
 				try {
 					return new _Uri2.default(url);
 				} catch (err) {
-					void 0;
+					console.error(err.message + ' ' + url);
 					return false;
 				}
 			}
