@@ -1,165 +1,166 @@
 /**
  * © 2019 Liferay, Inc. <https://liferay.com>
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-"use strict";
 
-import dom from "metal-dom";
-import Screen from "../../src/screen/Screen";
-import Surface from "../../src/surface/Surface";
+'use strict';
 
-describe("Screen", () => {
-  before(() => {
-    // Prevent log messages from showing up in test output.
-    sinon.stub(console, "log");
-  });
+import dom from 'metal-dom';
+import Screen from '../../src/screen/Screen';
+import Surface from '../../src/surface/Surface';
 
-  after(() => {
-    console.log.restore();
-  });
+describe('Screen', () => {
+	before(() => {
+		// Prevent log messages from showing up in test output.
+		sinon.stub(console, 'log');
+	});
 
-  it("expose lifecycle activate", () => {
-    assert.doesNotThrow(() => {
-      new Screen().activate();
-    });
-  });
+	after(() => {
+		console.log.restore();
+	});
 
-  it("expose lifecycle deactivate", () => {
-    assert.doesNotThrow(() => {
-      new Screen().deactivate();
-    });
-  });
+	it('expose lifecycle activate', () => {
+		assert.doesNotThrow(() => {
+			new Screen().activate();
+		});
+	});
 
-  it("expose lifecycle beforeActivate", () => {
-    assert.doesNotThrow(() => {
-      new Screen().beforeActivate();
-    });
-  });
+	it('expose lifecycle deactivate', () => {
+		assert.doesNotThrow(() => {
+			new Screen().deactivate();
+		});
+	});
 
-  it("expose lifecycle beforeDeactivate", () => {
-    assert.doesNotThrow(() => {
-      new Screen().beforeDeactivate();
-    });
-  });
+	it('expose lifecycle beforeActivate', () => {
+		assert.doesNotThrow(() => {
+			new Screen().beforeActivate();
+		});
+	});
 
-  it("expose lifecycle load", () => {
-    assert.doesNotThrow(() => {
-      new Screen().load();
-    });
-  });
+	it('expose lifecycle beforeDeactivate', () => {
+		assert.doesNotThrow(() => {
+			new Screen().beforeDeactivate();
+		});
+	});
 
-  it("expose lifecycle getSurfaceContent", () => {
-    assert.doesNotThrow(() => {
-      new Screen().getSurfaceContent();
-    });
-  });
+	it('expose lifecycle load', () => {
+		assert.doesNotThrow(() => {
+			new Screen().load();
+		});
+	});
 
-  it("expose lifecycle dispose", () => {
-    assert.doesNotThrow(() => {
-      new Screen().dispose();
-    });
-  });
+	it('expose lifecycle getSurfaceContent', () => {
+		assert.doesNotThrow(() => {
+			new Screen().getSurfaceContent();
+		});
+	});
 
-  it("expose lifecycle flip", () => {
-    assert.doesNotThrow(() => {
-      new Screen().flip({});
-    });
-  });
+	it('expose lifecycle dispose', () => {
+		assert.doesNotThrow(() => {
+			new Screen().dispose();
+		});
+	});
 
-  it("wait to flip all surfaces", done => {
-    const surfaces = {
-      surface1: new Surface("surface1"),
-      surface2: new Surface("surface2")
-    };
-    const stub1 = sinon.stub();
-    const stub2 = sinon.stub();
-    surfaces.surface1.show = () => {
-      stub1();
-      return Promise.resolve();
-    };
-    surfaces.surface2.show = () => {
-      stub2();
-      return Promise.resolve();
-    };
-    new Screen().flip(surfaces).then(() => {
-      assert.strictEqual(1, stub1.callCount);
-      assert.strictEqual(1, stub2.callCount);
-      done();
-    });
-  });
+	it('expose lifecycle flip', () => {
+		assert.doesNotThrow(() => {
+			new Screen().flip({});
+		});
+	});
 
-  it("get screen id", () => {
-    const screen = new Screen();
-    assert.ok(screen.getId());
-    screen.setId("otherId");
-    assert.strictEqual("otherId", screen.getId());
-  });
+	it('wait to flip all surfaces', done => {
+		const surfaces = {
+			surface1: new Surface('surface1'),
+			surface2: new Surface('surface2'),
+		};
+		const stub1 = sinon.stub();
+		const stub2 = sinon.stub();
+		surfaces.surface1.show = () => {
+			stub1();
+			return Promise.resolve();
+		};
+		surfaces.surface2.show = () => {
+			stub2();
+			return Promise.resolve();
+		};
+		new Screen().flip(surfaces).then(() => {
+			assert.strictEqual(1, stub1.callCount);
+			assert.strictEqual(1, stub2.callCount);
+			done();
+		});
+	});
 
-  it("get screen title", () => {
-    const screen = new Screen();
-    assert.strictEqual(null, screen.getTitle());
-    screen.setTitle("other");
-    assert.strictEqual("other", screen.getTitle());
-  });
+	it('get screen id', () => {
+		const screen = new Screen();
+		assert.ok(screen.getId());
+		screen.setId('otherId');
+		assert.strictEqual('otherId', screen.getId());
+	});
 
-  it("check if object implements a screen", () => {
-    assert.ok(Screen.isImplementedBy(new Screen()));
-  });
+	it('get screen title', () => {
+		const screen = new Screen();
+		assert.strictEqual(null, screen.getTitle());
+		screen.setTitle('other');
+		assert.strictEqual('other', screen.getTitle());
+	});
 
-  it("evaluate surface scripts", done => {
-    enterDocumentSurfaceElement(
-      "surfaceId",
-      "<script>window.sentinel=true;</script>"
-    );
-    const surface = new Surface("surfaceId");
-    const screen = new Screen();
-    assert.ok(!window.sentinel);
-    screen
-      .evaluateScripts({
-        surfaceId: surface
-      })
-      .then(() => {
-        assert.ok(window.sentinel);
-        delete window.sentinel;
-        exitDocumentSurfaceElement("surfaceId");
-        done();
-      });
-  });
+	it('check if object implements a screen', () => {
+		assert.ok(Screen.isImplementedBy(new Screen()));
+	});
 
-  it("evaluate surface styles", done => {
-    enterDocumentSurfaceElement(
-      "surfaceId",
-      "<style>body{background-color:rgb(0, 255, 0);}</style>"
-    );
-    const surface = new Surface("surfaceId");
-    const screen = new Screen();
-    screen
-      .evaluateStyles({
-        surfaceId: surface
-      })
-      .then(() => {
-        assertComputedStyle("backgroundColor", "rgb(0, 255, 0)");
-        exitDocumentSurfaceElement("surfaceId");
-        done();
-      });
-  });
+	it('evaluate surface scripts', done => {
+		enterDocumentSurfaceElement(
+			'surfaceId',
+			'<script>window.sentinel=true;</script>'
+		);
+		const surface = new Surface('surfaceId');
+		const screen = new Screen();
+		assert.ok(!window.sentinel);
+		screen
+			.evaluateScripts({
+				surfaceId: surface,
+			})
+			.then(() => {
+				assert.ok(window.sentinel);
+				delete window.sentinel;
+				exitDocumentSurfaceElement('surfaceId');
+				done();
+			});
+	});
+
+	it('evaluate surface styles', done => {
+		enterDocumentSurfaceElement(
+			'surfaceId',
+			'<style>body{background-color:rgb(0, 255, 0);}</style>'
+		);
+		const surface = new Surface('surfaceId');
+		const screen = new Screen();
+		screen
+			.evaluateStyles({
+				surfaceId: surface,
+			})
+			.then(() => {
+				assertComputedStyle('backgroundColor', 'rgb(0, 255, 0)');
+				exitDocumentSurfaceElement('surfaceId');
+				done();
+			});
+	});
 });
 
 function enterDocumentSurfaceElement(surfaceId, opt_content) {
-  dom.enterDocument(
-    `<div id="${surfaceId}">${opt_content ? opt_content : ""}</div>`
-  );
-  return document.getElementById(surfaceId);
+	dom.enterDocument(
+		`<div id="${surfaceId}">${opt_content ? opt_content : ''}</div>`
+	);
+	return document.getElementById(surfaceId);
 }
 
 function exitDocumentSurfaceElement(surfaceId) {
-  return dom.exitDocument(document.getElementById(surfaceId));
+	return dom.exitDocument(document.getElementById(surfaceId));
 }
 
 function assertComputedStyle(property, value) {
-  assert.strictEqual(
-    value,
-    window.getComputedStyle(document.body, null)[property]
-  );
+	assert.strictEqual(
+		value,
+		window.getComputedStyle(document.body, null)[property]
+	);
 }

@@ -1,109 +1,117 @@
 /**
  * © 2019 Liferay, Inc. <https://liferay.com>
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-"use strict";
 
-import utils from "../../src/utils/utils";
-import globals from "../../src/globals/globals";
-import Uri from "metal-uri";
+'use strict';
 
-describe("utils", () => {
-  before(() => {
-    globals.window = {
-      location: {
-        hostname: "hostname",
-        pathname: "/path",
-        search: "?a=1",
-        hash: "#hash"
-      },
+import utils from '../../src/utils/utils';
+import globals from '../../src/globals/globals';
+import Uri from 'metal-uri';
 
-      history: {
-        pushState: 1
-      }
-    };
-  });
+describe('utils', () => {
+	before(() => {
+		globals.window = {
+			location: {
+				hostname: 'hostname',
+				pathname: '/path',
+				search: '?a=1',
+				hash: '#hash',
+			},
 
-  after(() => {
-    globals.window = window;
-  });
+			history: {
+				pushState: 1,
+			},
+		};
+	});
 
-  it("copy attributes from source node to target node", () => {
-    const nodeA = document.createElement("div");
-    nodeA.setAttribute("a", "valueA");
-    nodeA.setAttribute("b", "valueB");
+	after(() => {
+		globals.window = window;
+	});
 
-    const nodeB = document.createElement("div");
-    utils.copyNodeAttributes(nodeA, nodeB);
+	it('copy attributes from source node to target node', () => {
+		const nodeA = document.createElement('div');
+		nodeA.setAttribute('a', 'valueA');
+		nodeA.setAttribute('b', 'valueB');
 
-    assert.strictEqual(nodeA.attributes.length, nodeB.attributes.length);
-    assert.strictEqual(nodeA.getAttribute("a"), nodeB.getAttribute("a"));
-    assert.strictEqual(nodeA.getAttribute("b"), nodeB.getAttribute("b"));
-    assert.strictEqual(nodeB.getAttribute("a"), "valueA");
-    assert.strictEqual(nodeB.getAttribute("b"), "valueB");
-  });
+		const nodeB = document.createElement('div');
+		utils.copyNodeAttributes(nodeA, nodeB);
 
-  it("clear attributes from a given node", () => {
-    const node = document.createElement("div");
-    node.setAttribute("a", "valueA");
-    node.setAttribute("b", "valueB");
+		assert.strictEqual(nodeA.attributes.length, nodeB.attributes.length);
+		assert.strictEqual(nodeA.getAttribute('a'), nodeB.getAttribute('a'));
+		assert.strictEqual(nodeA.getAttribute('b'), nodeB.getAttribute('b'));
+		assert.strictEqual(nodeB.getAttribute('a'), 'valueA');
+		assert.strictEqual(nodeB.getAttribute('b'), 'valueB');
+	});
 
-    utils.clearNodeAttributes(node);
+	it('clear attributes from a given node', () => {
+		const node = document.createElement('div');
+		node.setAttribute('a', 'valueA');
+		node.setAttribute('b', 'valueB');
 
-    assert.strictEqual(node.getAttribute("a"), null);
-    assert.strictEqual(node.getAttribute("b"), null);
-    assert.strictEqual(node.attributes.length, 0);
-  });
+		utils.clearNodeAttributes(node);
 
-  it("get path from url", () => {
-    assert.strictEqual(
-      "/path?a=1#hash",
-      utils.getUrlPath("http://hostname/path?a=1#hash")
-    );
-  });
+		assert.strictEqual(node.getAttribute('a'), null);
+		assert.strictEqual(node.getAttribute('b'), null);
+		assert.strictEqual(node.attributes.length, 0);
+	});
 
-  it("get path from url excluding hashbang", () => {
-    assert.strictEqual(
-      "/path?a=1",
-      utils.getUrlPathWithoutHash("http://hostname/path?a=1#hash")
-    );
-  });
+	it('get path from url', () => {
+		assert.strictEqual(
+			'/path?a=1#hash',
+			utils.getUrlPath('http://hostname/path?a=1#hash')
+		);
+	});
 
-  it("get path from url excluding hashbang and search", () => {
-    assert.strictEqual(
-      "/path",
-      utils.getUrlPathWithoutHashAndSearch("http://hostname/path?a=1#hash")
-    );
-  });
+	it('get path from url excluding hashbang', () => {
+		assert.strictEqual(
+			'/path?a=1',
+			utils.getUrlPathWithoutHash('http://hostname/path?a=1#hash')
+		);
+	});
 
-  it("test if path is current browser path", () => {
-    assert.ok(utils.isCurrentBrowserPath("http://hostname/path?a=1"));
-    assert.ok(utils.isCurrentBrowserPath("http://hostname/path?a=1#hash"));
-    assert.ok(!utils.isCurrentBrowserPath("http://hostname/path1?a=1"));
-    assert.ok(!utils.isCurrentBrowserPath("http://hostname/path1?a=1#hash"));
-    assert.ok(!utils.isCurrentBrowserPath());
-  });
+	it('get path from url excluding hashbang and search', () => {
+		assert.strictEqual(
+			'/path',
+			utils.getUrlPathWithoutHashAndSearch(
+				'http://hostname/path?a=1#hash'
+			)
+		);
+	});
 
-  it("get current browser path", () => {
-    assert.strictEqual("/path?a=1#hash", utils.getCurrentBrowserPath());
-  });
+	it('test if path is current browser path', () => {
+		assert.ok(utils.isCurrentBrowserPath('http://hostname/path?a=1'));
+		assert.ok(utils.isCurrentBrowserPath('http://hostname/path?a=1#hash'));
+		assert.ok(!utils.isCurrentBrowserPath('http://hostname/path1?a=1'));
+		assert.ok(
+			!utils.isCurrentBrowserPath('http://hostname/path1?a=1#hash')
+		);
+		assert.ok(!utils.isCurrentBrowserPath());
+	});
 
-  it("get current browser path excluding hashbang", () => {
-    assert.strictEqual("/path?a=1", utils.getCurrentBrowserPathWithoutHash());
-  });
+	it('get current browser path', () => {
+		assert.strictEqual('/path?a=1#hash', utils.getCurrentBrowserPath());
+	});
 
-  it("test if Html5 history is supported", () => {
-    assert.ok(utils.isHtml5HistorySupported());
-    globals.window.history = null;
-    assert.ok(!utils.isHtml5HistorySupported());
-  });
+	it('get current browser path excluding hashbang', () => {
+		assert.strictEqual(
+			'/path?a=1',
+			utils.getCurrentBrowserPathWithoutHash()
+		);
+	});
 
-  it("test if a given url is a valid web (http/https) uri", () => {
-    assert.ok(
-      !utils.isWebUri("tel:+999999999"),
-      "tel:+999999999 is not a valid url"
-    );
-    assert.instanceOf(utils.isWebUri("http://localhost:12345"), Uri);
-  });
+	it('test if Html5 history is supported', () => {
+		assert.ok(utils.isHtml5HistorySupported());
+		globals.window.history = null;
+		assert.ok(!utils.isHtml5HistorySupported());
+	});
+
+	it('test if a given url is a valid web (http/https) uri', () => {
+		assert.ok(
+			!utils.isWebUri('tel:+999999999'),
+			'tel:+999999999 is not a valid url'
+		);
+		assert.instanceOf(utils.isWebUri('http://localhost:12345'), Uri);
+	});
 });

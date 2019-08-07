@@ -1,37 +1,38 @@
 /**
  * © 2019 Liferay, Inc. <https://liferay.com>
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-"use strict";
 
-import Cacheable from "../../src/cacheable/Cacheable";
+'use strict';
 
-describe("Cacheable", () => {
-  it("cannot be cacheable by default", () => {
-    assert.isTrue(!new Cacheable().isCacheable());
-  });
+import Cacheable from '../../src/cacheable/Cacheable';
 
-  it("be cacheable", () => {
-    const cacheable = new Cacheable();
-    cacheable.setCacheable(true);
-    assert.isTrue(cacheable.isCacheable());
-  });
+describe('Cacheable', () => {
+	it('cannot be cacheable by default', () => {
+		assert.isTrue(!new Cacheable().isCacheable());
+	});
 
-  it("clear cache when toggle cacheable state", () => {
-    const cacheable = new Cacheable();
-    cacheable.setCacheable(true);
-    cacheable.addCache("data");
-    assert.strictEqual("data", cacheable.getCache());
-    cacheable.setCacheable(false);
-    assert.strictEqual(null, cacheable.getCache());
-  });
+	it('be cacheable', () => {
+		const cacheable = new Cacheable();
+		cacheable.setCacheable(true);
+		assert.isTrue(cacheable.isCacheable());
+	});
 
-  it("clear cache on dispose", () => {
-    const cacheable = new Cacheable();
-    cacheable.setCacheable(true);
-    cacheable.addCache("data");
-    cacheable.dispose();
-    assert.strictEqual(null, cacheable.getCache());
-  });
+	it('clear cache when toggle cacheable state', () => {
+		const cacheable = new Cacheable();
+		cacheable.setCacheable(true);
+		cacheable.addCache('data');
+		assert.strictEqual('data', cacheable.getCache());
+		cacheable.setCacheable(false);
+		assert.strictEqual(null, cacheable.getCache());
+	});
+
+	it('clear cache on dispose', () => {
+		const cacheable = new Cacheable();
+		cacheable.setCacheable(true);
+		cacheable.addCache('data');
+		cacheable.dispose();
+		assert.strictEqual(null, cacheable.getCache());
+	});
 });

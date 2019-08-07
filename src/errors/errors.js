@@ -1,9 +1,10 @@
 /**
  * © 2019 Liferay, Inc. <https://liferay.com>
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: BSD-3-Clause
  */
-"use strict";
+
+'use strict';
 
 /**
  * Holds value error messages.
@@ -16,27 +17,27 @@ class errors {}
  * @type {string}
  * @static
  */
-errors.INVALID_STATUS = "Invalid status code";
+errors.INVALID_STATUS = 'Invalid status code';
 
 /**
  * Request error message.
  * @type {string}
  * @static
  */
-errors.REQUEST_ERROR = "Request error";
+errors.REQUEST_ERROR = 'Request error';
 
 /**
  * Request timeout error message.
  * @type {string}
  * @static
  */
-errors.REQUEST_TIMEOUT = "Request timeout";
+errors.REQUEST_TIMEOUT = 'Request timeout';
 
 /**
  * Request is blocked by CORS issue message.
  * @type {string}
  * @static
  */
-errors.REQUEST_PREMATURE_TERMINATION = "Request terminated prematurely";
+errors.REQUEST_PREMATURE_TERMINATION = 'Request terminated prematurely';
 
 export default errors;
