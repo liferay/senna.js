@@ -727,7 +727,7 @@ class App extends EventEmitter {
 	maybeTriggerFocusOnAutoFocusItems_(){
 		const autoFocusElement = globals.document.querySelector("[autoFocus]");
 
-		if (globals.document.activeElement !== autoFocusElement) {
+		if (autoFocusElement && globals.document.activeElement !== autoFocusElement) {
 			autoFocusElement.focus();
 		}
 	}
