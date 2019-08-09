@@ -449,6 +449,7 @@ class App extends EventEmitter {
 			.then(() => nextScreen.flip(this.surfaces))
 			.then(() => nextScreen.evaluateScripts(this.surfaces))
 			.then(() => this.maybeUpdateScrollPositionState_())
+			.then(() => this.maybeTriggerFocusOnAutoFocusItems_())
 			.then(() => this.syncScrollPositionSyncThenAsync_())
 			.then(() => this.finalizeNavigate_(path, nextScreen))
 			.then(() => this.maybeOverloadBeforeUnload_())
@@ -716,6 +717,19 @@ class App extends EventEmitter {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * An element with the autofocus attribute may gain focus before the DOMContentLoaded
+	 * event is fired. However, this event isn't triggered when navigating using Senna.
+	 * This is a wrapper that polyfills Browser's behavior.
+	 */
+	maybeTriggerFocusOnAutoFocusItems_(){
+		const autoFocusElement = globals.document.querySelector("[autoFocus]");
+
+		if (globals.document.activeElement !== autoFocusElement) {
+			autoFocusElement.focus();
+		}
 	}
 
 	/**
