@@ -212,7 +212,7 @@ class RequestScreen extends Screen {
 		const headers = new Headers();
 
 		Object.keys(this.httpHeaders).forEach(header => {
-			headers.append(header, this.httpHeaders[header]);
+			headers.set(header, this.httpHeaders[header]);
 		});
 
 		if (globals.capturedFormElement) {
@@ -226,21 +226,27 @@ class RequestScreen extends Screen {
 
 		const requestPath = this.formatLoadPath(path);
 
+
 		const request = new Request(requestPath, {
 			body: body,
 			credentials: 'include',
 			headers: headers,
-			method: httpMethod
+			method: httpMethod,
+			mode: 'no-cors'
 		});
 
-		this.setRequest(request);
 
 		return Promise.race([
 			fetch(request)
 				.then(resp => {
+					this.setRequest(request.clone());
+
 					this.removeSafariXHRPolyfill();
 					this.assertValidResponseStatusCode(resp.status);
-					return resp.text();
+
+					if (resp.ok) {
+						return resp.clone().text();
+					}
 				})
 				.then(text => {
 					if (httpMethod === RequestScreen.GET && this.isCacheable()) {
