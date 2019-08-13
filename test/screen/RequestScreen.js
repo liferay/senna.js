@@ -119,12 +119,10 @@ describe('RequestScreen', function() {
 
 			var screen = new RequestScreen();
 			screen.load('/url').then(() => {
-				assert.strictEqual(globals.window.location.origin + '/url', screen.getRequest().url);
-
 				const request = screen.getRequest();
+				assert.strictEqual(globals.window.location.origin + '/url', request.url);
 				assert.deepEqual(request.headers.get('X-PJAX'), 'true');
 				assert.deepEqual(request.headers.get('X-Requested-With'), 'XMLHttpRequest');
-
 				done();
 			});
 		}
