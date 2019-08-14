@@ -263,11 +263,14 @@ class RequestScreen extends Screen {
 				case errors.REQUEST_ERROR:
 					reason.requestError = true;
 					break;
-				case errors.FAILED_TO_FETCH:
 				case errors.REQUEST_PREMATURE_TERMINATION:
 					reason.requestError = true;
 					reason.requestPrematureTermination = true;
 					break;
+			}
+			if (reason instanceof TypeError) {
+				reason.requestError = true;
+				reason.requestPrematureTermination = true;
 			}
 			throw reason;
 		});

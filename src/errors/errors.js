@@ -8,14 +8,6 @@ class errors {
 }
 
 /**
- * Type error message.
- * Usually thrown when CORS error happen with fetch.
- * @type {string}
- * @static
- */
-errors.FAILED_TO_FETCH = 'Failed to fetch';
-
-/**
  * Invalid status error message.
  * @type {string}
  * @static
