@@ -1,6 +1,6 @@
 {
   "name": "senna",
-  "version": "3.0.0-milestone.3",
+  "version": "3.0.0-milestone.4",
   "description": "A blazing-fast Single Page Application engine",
   "license": "BSD-3-Clause",
   "repository": "liferay/senna.js",
