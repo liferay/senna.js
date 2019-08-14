@@ -248,7 +248,7 @@ define(['exports', 'metal/src/metal', '../errors/errors', '../utils/utils', '../
 				var headers = new Headers();
 
 				Object.keys(this.httpHeaders).forEach(function (header) {
-					headers.append(header, _this2.httpHeaders[header]);
+					headers.set(header, _this2.httpHeaders[header]);
 				});
 
 				if (_globals2.default.capturedFormElement) {
@@ -266,7 +266,9 @@ define(['exports', 'metal/src/metal', '../errors/errors', '../utils/utils', '../
 					body: body,
 					credentials: 'include',
 					headers: headers,
-					method: httpMethod
+					method: httpMethod,
+					mode: 'cors',
+					redirect: 'follow'
 				});
 
 				this.setRequest(request);
@@ -274,7 +276,8 @@ define(['exports', 'metal/src/metal', '../errors/errors', '../utils/utils', '../
 				return Promise.race([fetch(request).then(function (resp) {
 					_this2.removeSafariXHRPolyfill();
 					_this2.assertValidResponseStatusCode(resp.status);
-					return resp.text();
+
+					return resp.clone().text();
 				}).then(function (text) {
 					if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 						_this2.addCache(text);
@@ -293,6 +296,7 @@ define(['exports', 'metal/src/metal', '../errors/errors', '../utils/utils', '../
 						case _errors2.default.REQUEST_ERROR:
 							reason.requestError = true;
 							break;
+						case _errors2.default.FAILED_TO_FETCH:
 						case _errors2.default.REQUEST_PREMATURE_TERMINATION:
 							reason.requestError = true;
 							reason.requestPrematureTermination = true;

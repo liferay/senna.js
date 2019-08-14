@@ -9236,12 +9236,20 @@ var errors = function errors() {
 };
 
 /**
- * Invalid status error message.
+ * Type error message.
+ * Usually thrown when CORS error happen with fetch.
  * @type {string}
  * @static
  */
 
 
+errors.FAILED_TO_FETCH = 'Failed to fetch';
+
+/**
+ * Invalid status error message.
+ * @type {string}
+ * @static
+ */
 errors.INVALID_STATUS = 'Invalid status code';
 
 /**
@@ -9513,7 +9521,7 @@ var RequestScreen = function (_Screen) {
 			var headers = new Headers();
 
 			Object.keys(this.httpHeaders).forEach(function (header) {
-				headers.append(header, _this2.httpHeaders[header]);
+				headers.set(header, _this2.httpHeaders[header]);
 			});
 
 			if (globals.capturedFormElement) {
@@ -9531,7 +9539,9 @@ var RequestScreen = function (_Screen) {
 				body: body,
 				credentials: 'include',
 				headers: headers,
-				method: httpMethod
+				method: httpMethod,
+				mode: 'cors',
+				redirect: 'follow'
 			});
 
 			this.setRequest(request);
@@ -9539,7 +9549,8 @@ var RequestScreen = function (_Screen) {
 			return Promise.race([fetch(request).then(function (resp) {
 				_this2.removeSafariXHRPolyfill();
 				_this2.assertValidResponseStatusCode(resp.status);
-				return resp.text();
+
+				return resp.clone().text();
 			}).then(function (text) {
 				if (httpMethod === RequestScreen.GET && _this2.isCacheable()) {
 					_this2.addCache(text);
@@ -9558,6 +9569,7 @@ var RequestScreen = function (_Screen) {
 					case errors.REQUEST_ERROR:
 						reason.requestError = true;
 						break;
+					case errors.FAILED_TO_FETCH:
 					case errors.REQUEST_PREMATURE_TERMINATION:
 						reason.requestError = true;
 						reason.requestPrematureTermination = true;
