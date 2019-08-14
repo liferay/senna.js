@@ -232,8 +232,7 @@ class RequestScreen extends Screen {
 			headers: headers,
 			method: httpMethod,
 			mode: 'cors',
-			redirect: 'follow',
-			referrer: 'client'
+			redirect: 'follow'
 		});
 
 		this.setRequest(request);
@@ -264,6 +263,7 @@ class RequestScreen extends Screen {
 				case errors.REQUEST_ERROR:
 					reason.requestError = true;
 					break;
+				case errors.FAILED_TO_FETCH:
 				case errors.REQUEST_PREMATURE_TERMINATION:
 					reason.requestError = true;
 					reason.requestPrematureTermination = true;
