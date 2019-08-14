@@ -9236,20 +9236,12 @@ var errors = function errors() {
 };
 
 /**
- * Type error message.
- * Usually thrown when CORS error happen with fetch.
- * @type {string}
- * @static
- */
-
-
-errors.FAILED_TO_FETCH = 'Failed to fetch';
-
-/**
  * Invalid status error message.
  * @type {string}
  * @static
  */
+
+
 errors.INVALID_STATUS = 'Invalid status code';
 
 /**
@@ -9569,11 +9561,14 @@ var RequestScreen = function (_Screen) {
 					case errors.REQUEST_ERROR:
 						reason.requestError = true;
 						break;
-					case errors.FAILED_TO_FETCH:
 					case errors.REQUEST_PREMATURE_TERMINATION:
 						reason.requestError = true;
 						reason.requestPrematureTermination = true;
 						break;
+				}
+				if (reason instanceof TypeError) {
+					reason.requestError = true;
+					reason.requestPrematureTermination = true;
 				}
 				throw reason;
 			});

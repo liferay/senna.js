@@ -296,11 +296,14 @@ define(['exports', 'metal/src/metal', '../errors/errors', '../utils/utils', '../
 						case _errors2.default.REQUEST_ERROR:
 							reason.requestError = true;
 							break;
-						case _errors2.default.FAILED_TO_FETCH:
 						case _errors2.default.REQUEST_PREMATURE_TERMINATION:
 							reason.requestError = true;
 							reason.requestPrematureTermination = true;
 							break;
+					}
+					if (reason instanceof TypeError) {
+						reason.requestError = true;
+						reason.requestPrematureTermination = true;
 					}
 					throw reason;
 				});
