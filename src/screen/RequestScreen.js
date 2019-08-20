@@ -236,13 +236,14 @@ class RequestScreen extends Screen {
 			referrer: 'client'
 		});
 
-		this.setRequest(request);
-
 		return Promise.race([
 			fetch(request)
 				.then(resp => {
 					this.removeSafariXHRPolyfill();
 					this.assertValidResponseStatusCode(resp.status);
+
+					request.responseURL = resp.url;
+					this.setRequest(request);
 
 					return resp.clone().text();
 				})
@@ -298,6 +299,10 @@ class RequestScreen extends Screen {
 	 * @return {?string} Response url best match.
 	 */
 	maybeExtractResponseUrlFromRequest(request) {
+		var responseUrl = request.responseURL;
+		if (responseUrl) {
+			return responseUrl;
+		}
 		return request.headers.get(RequestScreen.X_REQUEST_URL_HEADER);
 	}
 
