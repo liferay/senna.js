@@ -236,6 +236,8 @@ class RequestScreen extends Screen {
 			referrer: 'client'
 		});
 
+		this.setRequest(request);
+
 		return Promise.race([
 			fetch(request)
 				.then(resp => {
@@ -243,7 +245,6 @@ class RequestScreen extends Screen {
 					this.assertValidResponseStatusCode(resp.status);
 
 					request.responseURL = resp.url;
-					this.setRequest(request);
 
 					return resp.clone().text();
 				})
