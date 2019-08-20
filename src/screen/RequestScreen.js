@@ -300,7 +300,7 @@ class RequestScreen extends Screen {
 	 * @return {?string} Response url best match.
 	 */
 	maybeExtractResponseUrlFromRequest(request) {
-		var responseUrl = request.responseURL;
+		const responseUrl = request.responseURL;
 		if (responseUrl) {
 			return responseUrl;
 		}
