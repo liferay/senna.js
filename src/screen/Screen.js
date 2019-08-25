@@ -115,12 +115,15 @@ class Screen extends Cacheable {
 	 *     pause the navigation until it is resolved.
 	 */
 	evaluateScripts(surfaces) {
+	  let allScriptPromises = [];
 		Object.keys(surfaces).forEach(sId => {
 			if (surfaces[sId].activeChild) {
-				globalEval.runScriptsInElement(surfaces[sId].activeChild);
+        allScriptPromises.push(new Promise((resolve) => {
+          globalEval.runScriptsInElement(surfaces[sId].activeChild, () => resolve());
+        }));
 			}
 		});
-		return Promise.resolve();
+		return Promise.all(allScriptPromises);
 	}
 
 	/**
