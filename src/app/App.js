@@ -1100,8 +1100,8 @@ class App extends EventEmitter {
 				finalize(endNavigatePayload);
 			})
 			.catch((reason) => {
-        endNavigatePayload.error = reason;
-        finalize(endNavigatePayload);
+				endNavigatePayload.error = reason;
+				finalize(endNavigatePayload);
 				throw reason;
 			});
 
