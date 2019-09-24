@@ -1143,6 +1143,8 @@ class App extends EventEmitter {
 			title = this.getDefaultTitle();
 		}
 		let redirectPath = nextScreen.beforeUpdateHistoryPath(path);
+		const hash = new Uri(path).getHash();
+		redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 		const historyState = {
 			form: isDefAndNotNull(globals.capturedFormElement),
 			path,
@@ -1155,8 +1157,6 @@ class App extends EventEmitter {
 			historyState.scrollTop = this.popstateScrollTop;
 			historyState.scrollLeft = this.popstateScrollLeft;
 		}
-		const hash = new Uri(path).getHash();
-		redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 		this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 		this.redirectPath = redirectPath;
 	}
