@@ -1,7 +1,7 @@
 /**
  * Senna.js - A blazing-fast Single Page Application engine
  * @author Liferay, Inc.
- * @version v2.7.8
+ * @version v2.7.9
  * @link http://sennajs.com
  * @license BSD-3-Clause
  */
@@ -9804,6 +9804,8 @@ var App$1 = function (_EventEmitter) {
 				title = this.getDefaultTitle();
 			}
 			var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
+			var hash = new Uri(path).getHash();
+			redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 			var historyState = {
 				form: isDefAndNotNull$1(globals.capturedFormElement),
 				path: path,
@@ -9816,8 +9818,6 @@ var App$1 = function (_EventEmitter) {
 				historyState.scrollTop = this.popstateScrollTop;
 				historyState.scrollLeft = this.popstateScrollLeft;
 			}
-			var hash = new Uri(path).getHash();
-			redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 			this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 			this.redirectPath = redirectPath;
 		}
@@ -11699,7 +11699,7 @@ globals.document.addEventListener('DOMContentLoaded', function () {
  * @returns String containing the current senna version
  */
 
-var version = '2.7.8';
+var version = '2.7.9';
 
 exports['default'] = App$1;
 exports.dataAttributeHandler = dataAttributeHandler;
