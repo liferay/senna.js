@@ -1043,6 +1043,8 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					title = this.getDefaultTitle();
 				}
 				var redirectPath = nextScreen.beforeUpdateHistoryPath(path);
+				var hash = new _Uri2.default(path).getHash();
+				redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 				var historyState = {
 					form: (0, _metal.isDefAndNotNull)(_globals2.default.capturedFormElement),
 					path: path,
@@ -1055,8 +1057,6 @@ define(['exports', 'metal-dom/src/all/dom', 'metal/src/metal', 'metal-events/src
 					historyState.scrollTop = this.popstateScrollTop;
 					historyState.scrollLeft = this.popstateScrollLeft;
 				}
-				var hash = new _Uri2.default(path).getHash();
-				redirectPath = this.maybeRestoreRedirectPathHash_(path, redirectPath, hash);
 				this.updateHistory_(title, redirectPath, nextScreen.beforeUpdateHistoryState(historyState), opt_replaceHistory);
 				this.redirectPath = redirectPath;
 			}
