@@ -8,7 +8,7 @@ define(['exports'], function (exports) {
    * @returns String containing the current senna version
    */
 
-  var version = '3.0.0-milestone.2';
+  var version = '3.0.0-milestone.6';
 
   exports.default = version;
 });
