@@ -308,9 +308,10 @@ class App extends EventEmitter {
 	/**
 	 * Returns if can navigate to path.
 	 * @param {!string} url
+	 * @param {!Event} event Dom event that initiated the navigation.
 	 * @return {boolean}
 	 */
-	canNavigate(url) {
+	canNavigate(url, event) {
 		const uri = utils.isWebUri(url);
 
 		if (!uri) {
@@ -325,6 +326,11 @@ class App extends EventEmitter {
 		}
 		if (!this.isSameBasePath_(path)) {
 			console.log('Link clicked outside app\'s base path');
+			return false;
+		}
+		if (this.isSamePendingNavigationPath_(path)) {
+			console.log('Discarding the navigation because is trying to navigate to the same path');
+			event.preventDefault();
 			return false;
 		}
 		// Prevents navigation if it's a hash change on the same url.
@@ -652,6 +658,20 @@ class App extends EventEmitter {
 	}
 
 	/**
+	 * Tests if the given path is the same of the current pendingNavigate.
+	 * @param {!string} path Link path containing the querystring part.
+	 * @return {boolean}
+	 * @protected
+	 */
+	isSamePendingNavigationPath_(path) {
+		if (this.isNavigationPending && utils.getUrlPath(this.pendingNavigate.path) === path) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Lock the document scroll in order to avoid the browser native back and
 	 * forward navigation to change the scroll position. In the end of
 	 * navigation lifecycle scroll is repositioned.
@@ -716,7 +736,7 @@ class App extends EventEmitter {
 	 * @param {Event} event Dom event that initiated the navigation.
 	 */
 	maybeNavigate_(href, event) {
-		if (!this.canNavigate(href)) {
+		if (!this.canNavigate(href, event)) {
 			return;
 		}
 
