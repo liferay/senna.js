@@ -424,10 +424,6 @@ class App extends EventEmitter {
 			.then(() => this.maybePreventActivate_(nextScreen))
 			.then(() => nextScreen.load(path))
 			.then(() => {
-				// At this point we cannot stop navigation and all received
-				// navigate candidates will be queued at scheduledNavigationQueue.
-				this.navigationStrategy = NavigationStrategy.SCHEDULE_LAST;
-
 				if (this.activeScreen) {
 					this.activeScreen.deactivate();
 				}
