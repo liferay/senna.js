@@ -189,18 +189,18 @@ class RequestScreen extends Screen {
 		return statusCode >= 200 && statusCode <= 399;
 	}
 
-  /**
-   * Returns the form data
-   * This method can be extended in order to have a custom implementation of the form params
-   * @param {!Element} formElement
-   * @param {!Element} submittedButtonElement
-   * @return {!FormData}
-   */
+	/**
+	 * Returns the form data
+	 * This method can be extended in order to have a custom implementation of the form params
+	 * @param {!Element} formElement
+	 * @param {!Element} submittedButtonElement
+	 * @return {!FormData}
+	 */
 	getFormData(formElement, submittedButtonElement) {
-    let formData = new FormData(formElement);
-    this.maybeAppendSubmitButtonValue_(formData, submittedButtonElement);
-    return formData;
-  }
+		let formData = new FormData(formElement);
+		this.maybeAppendSubmitButtonValue_(formData, submittedButtonElement);
+		return formData;
+	}
 
 	/**
 	 * @inheritDoc
@@ -262,7 +262,7 @@ class RequestScreen extends Screen {
 	 */
 	maybeAppendSubmitButtonValue_(formData, submittedButtonElement) {
 		if (submittedButtonElement && submittedButtonElement.name) {
-      formData.append(submittedButtonElement.name, submittedButtonElement.value);
+			formData.append(submittedButtonElement.name, submittedButtonElement.value);
 		}
 	}
 
