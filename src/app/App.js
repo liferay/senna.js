@@ -664,11 +664,7 @@ class App extends EventEmitter {
 	 * @protected
 	 */
 	isSamePendingNavigationPath_(path) {
-		if (this.isNavigationPending && utils.getUrlPath(this.pendingNavigate.path) === path) {
-			return true;
-		}
-
-		return false;
+		return this.isNavigationPending && utils.getUrlPath(this.pendingNavigate.path) === path;
 	}
 
 	/**
