@@ -308,10 +308,9 @@ class App extends EventEmitter {
 	/**
 	 * Returns if can navigate to path.
 	 * @param {!string} url
-	 * @param {!Event} event Dom event that initiated the navigation.
 	 * @return {boolean}
 	 */
-	canNavigate(url, event) {
+	canNavigate(url) {
 		const uri = utils.isWebUri(url);
 
 		if (!uri) {
@@ -326,11 +325,6 @@ class App extends EventEmitter {
 		}
 		if (!this.isSameBasePath_(path)) {
 			console.log('Link clicked outside app\'s base path');
-			return false;
-		}
-		if (this.isSamePendingNavigationPath_(path)) {
-			console.log('Discarding the navigation because is trying to navigate to the same path');
-			event.preventDefault();
 			return false;
 		}
 		// Prevents navigation if it's a hash change on the same url.
@@ -732,7 +726,15 @@ class App extends EventEmitter {
 	 * @param {Event} event Dom event that initiated the navigation.
 	 */
 	maybeNavigate_(href, event) {
-		if (!this.canNavigate(href, event)) {
+		const path = utils.getUrlPath(href);
+
+		if (this.isSamePendingNavigationPath_(path)) {
+			console.log('Discarding the navigation because is trying to navigate to the same path');
+			event.preventDefault();
+			return;
+		}
+
+		if (!this.canNavigate(href)) {
 			return;
 		}
 
@@ -745,7 +747,7 @@ class App extends EventEmitter {
 
 		var navigateFailed = false;
 		try {
-			this.navigate(utils.getUrlPath(href), false, event);
+			this.navigate(path, false, event);
 		} catch (err) {
 			// Do not prevent link navigation in case some synchronous error occurs
 			navigateFailed = true;
