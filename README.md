@@ -1,3 +1,7 @@
+> :warning: In the future, [the `senna` npm package](https://npmjs.com/package/senna) will be deprecated and this repo archived (ie. switched to read-only mode). Development continues in [the `liferay/liferay-portal` repo](https://github.com/liferay/liferay-portal) (more specifically, inside [the `frontend-js-spa-web` module](https://github.com/liferay/liferay-portal/tree/master/modules/apps/frontend-js/frontend-js-spa-web)), but not as an independent project, in order to better integrate with and serve the needs of Liferay DXP.
+
+---
+
 # Senna.js
 
 [![Build Status](http://img.shields.io/travis/liferay/senna.js/master.svg?style=flat)](https://travis-ci.org/liferay/senna.js)
